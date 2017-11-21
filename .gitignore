@@ -11,10 +11,22 @@
 *.gch
 *.pch
 
+
 # Compiled Dynamic libraries
 *.so
 *.dylib
-*.dll
+*.sdf
+*.log
+*.tlog
+*.pdb
+*.lastbuildstate
+*.exp
+*.ilk
+*.unsuccessfulbuild
+*.opensdf
+*.kd
+*.idb
+*.suo
 
 # Fortran module files
 *.mod

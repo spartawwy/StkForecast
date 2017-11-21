@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>950</width>
+    <height>680</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <widget class="QLabel" name="labelCurrentTime">
+    <property name="geometry">
+     <rect>
+      <x>150</x>
+      <y>190</y>
+      <width>201</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QTableWidget" name="tableWidget">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>681</width>
+      <height>481</height>
+     </rect>
+    </property>
+    <column>
+     <property name="text">
+      <string>代码</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>名称</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>新价</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>跌额</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>幅度</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>手率</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>交量(手)</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>交额(元)</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>开盘价</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>昨收价</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>最高价</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>最低价</string>
+     </property>
+    </column>
+   </widget>
+   <widget class="QLineEdit" name="EdtFind">
+    <property name="geometry">
+     <rect>
+      <x>250</x>
+      <y>160</y>
+      <width>113</width>
+      <height>27</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="labelFind">
+    <property name="geometry">
+     <rect>
+      <x>190</x>
+      <y>60</y>
+      <width>62</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>查找(代号/名称)：</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>950</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu">
+    <property name="title">
+     <string>文件</string>
+    </property>
+    <addaction name="action"/>
+    <addaction name="separator"/>
+    <addaction name="actionExit"/>
+   </widget>
+   <addaction name="menu"/>
+  </widget>
+  <widget class="QToolBar" name="mainToolBar">
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+  <action name="action">
+   <property name="text">
+    <string>?</string>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="icon">
+    <iconset resource="res.qrc">
+     <normaloff>:/gif/1.gif</normaloff>:/gif/1.gif</iconset>
+   </property>
+   <property name="text">
+    <string>退出(&amp;x)</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources>
+  <include location="res.qrc"/>
+ </resources>
+ <connections/>
+</ui>
