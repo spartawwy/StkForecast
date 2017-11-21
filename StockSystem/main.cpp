@@ -4,7 +4,7 @@
 
 int main(int argc, char *argv[])
 {
-#if 0
+#if 1
 	QCoreApplication::addLibraryPath("D:\\Qt\\qt5.2.1_win32\\bin\\plugins");
 #endif
     QCoreApplication::addLibraryPath(".");

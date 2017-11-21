@@ -136,35 +136,31 @@ void DayKLineDialog::paintEvent(QPaintEvent *)
         std::cout<<minPrice<<"\t"<<maxPrice<<"\t"<<openPrice<<"\t"<<closePrice << std::endl;
 
          auto item_w = (mm_w / 8) ;
-         int k_bar_w  = item_w-2;
+         int k_bar_w = item_w-2;
+
+		 QBrush brush(QColor(255,0,0)); //画刷
+		 pen.setStyle(Qt::SolidLine);
         //绘图每天的股票到K线图上
         if(openPrice <= closePrice)
         {
-            pen.setStyle(Qt::SolidLine);
             pen.setColor(QColor(255,0,0));
-            QBrush brush(QColor(255,0,0)); //画刷
-            painter.setPen(pen); //添加画笔
-            painter.setBrush(brush); //添加画刷
-             
-            
-            painter.drawRect(j * item_w + 1, -350*(openPrice-lowestMinPrice)/(highestMaxPrice - lowestMinPrice),
-                k_bar_w, -350*(closePrice - openPrice)/(highestMaxPrice - lowestMinPrice)); //绘制矩形
-            painter.drawLine(j * item_w + 8, -350*(maxPrice-lowestMinPrice)/(highestMaxPrice - lowestMinPrice),
-                j * item_w + 8, -350*(minPrice-lowestMinPrice)/(highestMaxPrice - lowestMinPrice));   //绘制直线
-
+			brush.setColor(QColor(255,0,0));
         }
         else
-        {
-            pen.setStyle(Qt::SolidLine);
-            pen.setColor(QColor(0,255,0));
-            QBrush brush(QColor(0,255,0)); //画刷
-            painter.setPen(pen); //添加画笔
-            painter.setBrush(brush); //添加画刷
-            painter.drawRect(j * item_w + 1, -350*(openPrice-lowestMinPrice)/(highestMaxPrice - lowestMinPrice),
-                k_bar_w, -350 * (closePrice - openPrice)/(highestMaxPrice - lowestMinPrice)); //绘制矩形
-            painter.drawLine(j * item_w + 8, -350*(maxPrice-lowestMinPrice)/(highestMaxPrice - lowestMinPrice),
-                j*item_w + 8, -350*(minPrice-lowestMinPrice)/(highestMaxPrice - lowestMinPrice));   //绘制直线
-
+        { 
+            pen.setColor(QColor(0,255,0)); 
+			brush.setColor(QColor(0,255,0));
         }
+		const auto base_val = mm_h / 2; //350 
+		painter.setPen(pen); //添加画笔
+        painter.setBrush(brush); //添加画刷
+            
+		auto pos_y = -1 * base_val * (openPrice-lowestMinPrice)/(highestMaxPrice - lowestMinPrice);
+		auto h_1 = -1 * base_val *(closePrice - openPrice)/(highestMaxPrice - lowestMinPrice);
+        painter.drawRect(j * item_w + 1,  pos_y, k_bar_w, h_1); //绘制矩形
+		
+        painter.drawLine(j * item_w + k_bar_w/2, -1 * base_val * (maxPrice-lowestMinPrice)/(highestMaxPrice - lowestMinPrice),
+            j * item_w + k_bar_w/2, -1 * base_val * (minPrice-lowestMinPrice)/(highestMaxPrice - lowestMinPrice));   //绘制直线
+
     }
 }
