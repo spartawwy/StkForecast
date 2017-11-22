@@ -10,7 +10,7 @@ class StockDayInfo
 public:
     StockDayInfo();
 
-private:
+public:
         std::string stockNum;//股票代号
         std::string transacteDate;//交易日期
         float openPrice;//开盘价

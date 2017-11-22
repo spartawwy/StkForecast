@@ -87,6 +87,9 @@
     <ClCompile Include="GeneratedFiles\qrc_res.cpp">
       <Filter>Generated Files</Filter>
     </ClCompile>
+    <ClCompile Include="kline_wall.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="dayklinedialog.h">
@@ -101,6 +104,9 @@
     <ClInclude Include="stockdayinfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <CustomBuild Include="klinewall.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="dayklinedialog.ui">
@@ -130,6 +136,12 @@
     </ClInclude>
     <ClInclude Include="GeneratedFiles\ui_mainwindow.h">
       <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_klinewall.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="kline_wall.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

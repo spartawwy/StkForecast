@@ -1,5 +1,6 @@
 #include <QtWidgets/QApplication>
 #include "mainwindow.h"
+#include "kline_wall.h"
 #include <qtextcodec.h>
 
 int main(int argc, char *argv[])
@@ -12,7 +13,9 @@ int main(int argc, char *argv[])
     QTextCodec::setCodecForLocale(QTextCodec::codecForName("GBK"));
 
     QApplication a(argc, argv);
-    MainWindow w;
+    //MainWindow w;
+    KLineWall   w;
+
     w.show();
     return a.exec();
 }
