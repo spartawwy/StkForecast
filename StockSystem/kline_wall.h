@@ -17,7 +17,9 @@ public:
 
 protected:
 
-    void paintEvent(QPaintEvent*);
+    void paintEvent(QPaintEvent*) override;
+    void mouseDoubleClickEvent(QMouseEvent * e)  override;
+    void mouseMoveEvent(QMouseEvent *e) override;
 
 private:
 
@@ -27,7 +29,7 @@ private:
     StockAllDaysInfo stockAllDaysInfo;  //一支股票的所有天数的消息
     float lowestMinPrice;
     float highestMaxPrice;
-
+    bool  show_cross_line_;
 };
 
 
