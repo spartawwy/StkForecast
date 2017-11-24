@@ -32,11 +32,15 @@ KLineWall::KLineWall()
 void KLineWall::paintEvent(QPaintEvent *e)
 {
     QPainter painter(this);
-    qDebug() << "paintEvent x:" << QCursor::pos().x() << " y: "<< QCursor::pos().y() << "\n";
-
+    qDebug() << "paintEvent QCursor::pos  x:" << QCursor::pos().x() << " y: "<< QCursor::pos().y() << "\n";
+    auto pos_from_global = mapFromGlobal(QCursor::pos());
+    qDebug() << "paintEvent x:" << pos_from_global.x() << " y: "<< pos_from_global.y() << "\n";
+    
     const int mm_h = this->height();
     const int mm_w = this->width();
-    /*
+
+    float price_per_len = (highestMaxPrice - lowestMinPrice) / float(mm_h);
+     /*
     纵坐标(各行价格值)：((HighestMaxPrice - lowestMinPrice) * i)/7  + lowestMinPrice
     横坐标(日期)：分成60等份，每天15像素，每天的横坐标
     j*15+1  j*15*8
@@ -57,21 +61,23 @@ void KLineWall::paintEvent(QPaintEvent *e)
     pen.setColor(Qt::white);
     pen.setStyle(Qt::SolidLine); 
     painter.setPen(pen);
-#if 1 
+  
+
     if( show_cross_line_ )
     {
-        painter.drawLine(0, QCursor::pos().y(), mm_w, QCursor::pos().y());
-        painter.drawLine(QCursor::pos().x(), 0, QCursor::pos().x(), mm_h);
+        painter.drawLine(0, pos_from_global.y(), mm_w, pos_from_global.y());
+        painter.drawLine(pos_from_global.x(), 0, pos_from_global.x(), mm_h); 
+         //painter.drawText( pos_from_global.x(), pos_from_global.y(), QString("%1").arg(lowestMinPrice + (float)pos_from_global.y() * price_per_len ));
+     
     }
-#else
-    painter.drawLine(0, 50, mm_w, 50);
-        //painter.drawLine(QCursor::pos().x(), 0, QCursor::pos().x(), mm_h);
-#endif
-
+  
     painter.translate(30, mm_h);
-
     painter.drawText(-30, 0, "(0,0)");
 
+    //-1 * (mm_h - pos_from_global.y());
+    if( show_cross_line_ )
+      painter.drawText( pos_from_global.x() - 30, -1 * (mm_h - pos_from_global.y()), QString("%1").arg(lowestMinPrice + (float)(mm_h - pos_from_global.y()) * price_per_len ));
+     
     //绘制背景各个虚线
     pen.setStyle(Qt::DotLine);   //设置画笔风格 点线
     
@@ -83,7 +89,8 @@ void KLineWall::paintEvent(QPaintEvent *e)
     //for(int i = 0; i < 1; i++)
     {
         int pos_y = (-1) * part_h*i;
-        painter.drawText(mm_w - 30*2, pos_y, QString("%1").arg(i+1));
+        
+        painter.drawText(mm_w - 30*2, pos_y, QString("%1").arg(lowestMinPrice + (price_per_len * part_h*i) ));
         painter.drawLine(0, pos_y, mm_w-30, pos_y);
     }
 
@@ -151,9 +158,11 @@ void KLineWall::mouseDoubleClickEvent(QMouseEvent *e)
     qDebug() << " x:" << e->pos().x() <<" y:" << e->pos().y() << "\n";
     show_cross_line_ = !show_cross_line_;
     setMouseTracking(show_cross_line_);
+
     /*if( show_cross_line_ )
         setCursor(Qt::CrossCursor);*/
      
+    update();
 }
 
 // this->mapFromGlobal(this->cursor().pos()) == event.pos()
@@ -189,14 +198,18 @@ void KLineWall::mouseMoveEvent(QMouseEvent *e)
     //if( show_cross_line_ )
     {
         auto pos = e->pos();
-        auto pos_mapped = mapToGlobal(pos);
+        //auto pos_mapped = mapToGlobal(pos);
+         
 
         //auto pos_mapped = mapFromGlobal(e->pos());
         //auto pos_mapped = mapToParent(e->pos());
-        /*painter.drawLine(0, e->pos().y(), mm_w, e->pos().y());
-        painter.drawLine(e->pos().x(), 0, e->pos().x(), mm_h);*/
+        //painter.drawLine(0, e->pos().y(), mm_w, e->pos().y());
+        //painter.drawLine(e->pos().x(), 0, e->pos().x(), mm_h);
+#if 0 
         painter.drawLine(0, pos_mapped.y(), mm_w, pos_mapped.y());
         painter.drawLine(pos_mapped.x(), 0, pos_mapped.x(), mm_h);
+#endif 
+        //painter.drawLine(5, 10, 55, 10);
     }
     update();
 #endif
