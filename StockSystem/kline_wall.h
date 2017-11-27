@@ -30,6 +30,7 @@ private:
     float lowestMinPrice;
     float highestMaxPrice;
     bool  show_cross_line_;
+    bool  is_repaint_k_;
 };
 
 
