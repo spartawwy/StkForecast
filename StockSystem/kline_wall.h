@@ -20,6 +20,7 @@ protected:
     void paintEvent(QPaintEvent*) override;
     void mouseDoubleClickEvent(QMouseEvent * e)  override;
     void mouseMoveEvent(QMouseEvent *e) override;
+    void keyPressEvent(QKeyEvent *e) override;
 
 private:
 
@@ -31,6 +32,8 @@ private:
     float highestMaxPrice;
     bool  show_cross_line_;
     bool  is_repaint_k_;
+
+    int  k_num_;
 };
 
 

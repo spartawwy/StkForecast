@@ -12,6 +12,7 @@ KLineWall::KLineWall()
     : QWidget(nullptr)
     , show_cross_line_(false)
     , is_repaint_k_(true)
+    , k_num_(8)
 {
     ui.setupUi(this);
 
@@ -39,11 +40,18 @@ void KLineWall::paintEvent(QPaintEvent *e)
     
     const int head_h = 30;
     const int bottom_h = 30;
-    const int mm_h = this->height();
+    const int mm_h = this->height() - head_h - bottom_h;
     const int mm_w = this->width();
-
+    
+    static const int rith_w = 30;
     float price_per_len = (highestMaxPrice - lowestMinPrice) / float(mm_h);
      /*
+     ------------------------>
+     |
+     |
+     |
+     |
+     |/
     纵坐标(各行价格值)：((HighestMaxPrice - lowestMinPrice) * i)/7  + lowestMinPrice
     横坐标(日期)：分成60等份，每天15像素，每天的横坐标
     j*15+1  j*15*8
@@ -60,29 +68,18 @@ void KLineWall::paintEvent(QPaintEvent *e)
     //painter.translate(30, 400);
     
     QPen pen; //画笔
-    
     pen.setColor(Qt::white);
-#if 0
-    pen.setStyle(Qt::SolidLine); 
-    painter.setPen(pen);
-    if( show_cross_line_ )
-    {
-        painter.drawLine(0, pos_from_global.y(), mm_w, pos_from_global.y());
-        painter.drawLine(pos_from_global.x(), 0, pos_from_global.x(), mm_h); 
-         //painter.drawText( pos_from_global.x(), pos_from_global.y(), QString("%1").arg(lowestMinPrice + (float)pos_from_global.y() * price_per_len ));
-     
-    }
-#endif
-    painter.translate(30, mm_h);
-    painter.drawText(-30, 0, "(0,0)");
-
-    //-1 * (mm_h - pos_from_global.y());
-    /*if( show_cross_line_ )
-      painter.drawText( pos_from_global.x() - 30, -1 * (mm_h - pos_from_global.y()), QString("%1").arg(lowestMinPrice + (float)(mm_h - pos_from_global.y()) * price_per_len ));
-     */
+  
+    painter.translate(0, this->height() - bottom_h);
+    painter.drawText(0, 0, "(0,0)");
+ 
     //绘制背景各个虚线
+    pen.setColor(Qt::red);
+    painter.setPen(pen);
+
+    painter.drawLine(mm_w - rith_w, 30, mm_w - rith_w, -1 * this->height());
+
     pen.setStyle(Qt::DotLine);   //设置画笔风格 点线
-    
     painter.setPen(pen);
     //横向虚线
     const int num = 8;
@@ -92,10 +89,10 @@ void KLineWall::paintEvent(QPaintEvent *e)
     {
         int pos_y = (-1) * part_h*i;
         
-        painter.drawText(mm_w - 30*2, pos_y, QString("%1").arg(lowestMinPrice + (price_per_len * part_h*i) ));
-        painter.drawLine(0, pos_y, mm_w-30, pos_y);
+        painter.drawText(mm_w - rith_w, pos_y, QString("%1").arg(lowestMinPrice + (price_per_len * part_h * i) ));
+        painter.drawLine(0, pos_y, mm_w-rith_w, pos_y);
     }
-
+    
     //    //纵向虚线 其实需要根据当前日期来确定具体定在什么位置 每个格子代表一个月
     //    for(int i = 0; i < 4; i++)
     //    {
@@ -103,7 +100,7 @@ void KLineWall::paintEvent(QPaintEvent *e)
     //    }
     //画日K线图
 
-    if( is_repaint_k_ )
+    //if( is_repaint_k_ )
     {
     std::list<StockDayInfo>::iterator iter;
     float openPrice;//开盘价
@@ -116,7 +113,7 @@ void KLineWall::paintEvent(QPaintEvent *e)
     //？？？只需要最后60个数据，若少于等于60个，则正常绘图
     for(iter = stockAllDaysInfo.stockAllDaysInfoList.begin();
         iter != stockAllDaysInfo.stockAllDaysInfoList.end(); 
-        iter++, j++)
+        iter++, ++j < k_num_)
     {
         //绘图每天的股票消息
         //((StockDayInfo)(*iter)).Display();
@@ -127,7 +124,7 @@ void KLineWall::paintEvent(QPaintEvent *e)
         closePrice = ((StockDayInfo)(*iter)).GetClosePrice();
         qDebug()<<openPrice<<"\t" << closePrice <<minPrice<<"\t"<<maxPrice<<"\t"<< "\n";
 
-         auto item_w = (mm_w / 8) ;
+         auto item_w = (mm_w / k_num_) ;
          int k_bar_w = item_w-2;
 
 		 QBrush brush(QColor(255,0,0)); //画刷
@@ -159,24 +156,22 @@ void KLineWall::paintEvent(QPaintEvent *e)
       }
     }
 
-    if( show_cross_line_ )
-      painter.drawText( pos_from_global.x() - 30, -1 * (mm_h - pos_from_global.y()), QString("%1").arg(lowestMinPrice + (float)(mm_h - pos_from_global.y()) * price_per_len ));
-     
-
-    painter.translate(-30, -1 * mm_h);
+    painter.translate(0, -1 * (this->height() - bottom_h));
     
     pen.setColor(Qt::white);
     pen.setStyle(Qt::SolidLine); 
     painter.setPen(pen);
     if( show_cross_line_ )
     {
-        painter.drawLine(0, pos_from_global.y(), mm_w, pos_from_global.y());
-        painter.drawLine(pos_from_global.x(), 0, pos_from_global.x(), mm_h); 
-        painter.drawText( pos_from_global.x(), pos_from_global.y(), QString("%1").arg(lowestMinPrice + (float)pos_from_global.y() * price_per_len ));
+        qDebug() << "pos y " << (float)pos_from_global.y() << "\n";
+        painter.drawLine(0, pos_from_global.y(), mm_w-rith_w, pos_from_global.y());
+        painter.drawLine(pos_from_global.x(), head_h, pos_from_global.x(), this->height()/* - head_h*/); 
+        painter.drawText( mm_w-rith_w, pos_from_global.y(), QString("%1").arg(lowestMinPrice + price_per_len * (this->height() - bottom_h - pos_from_global.y()) ) );
       
       //painter.drawText( pos_from_global.x() - 30, -1 * (mm_h - pos_from_global.y()), QString("%1").arg(lowestMinPrice + (float)(mm_h - pos_from_global.y()) * price_per_len ));
      
     }
+    is_repaint_k_ = true;
 }
 
 void KLineWall::mouseDoubleClickEvent(QMouseEvent *e)
@@ -225,7 +220,38 @@ void KLineWall::mouseMoveEvent(QMouseEvent *e)
           
     //auto pos_mapped = mapFromGlobal(e->pos());
     //auto pos_mapped = mapToParent(e->pos());
-    is_repaint_k_ = false;
+    //is_repaint_k_ = false;
     update();
-    is_repaint_k_ = true;
+    
+}
+
+void KLineWall::keyPressEvent(QKeyEvent *e)
+{
+    qDebug() << "key " << e->key() << "\n";
+    auto key_val = e->key();
+    switch( key_val )
+    {
+    case Qt::Key_Up:
+        {
+            if( k_num_ > 1 )
+            {
+                k_num_ --;
+                update();
+            }
+            break;
+        }
+    case Qt::Key_Down:
+        { 
+            k_num_ ++;
+            update();
+            break;
+        }
+    default: break;
+    }
+
+    /*if( e->key() == Qt::Key_Down && k_num_ > 0 )
+    {
+        k_num_ --;
+        update();
+    }*/
 }
