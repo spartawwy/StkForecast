@@ -34,6 +34,10 @@ private:
     bool  is_repaint_k_;
 
     int  k_num_;
+    std::string k_cycle_tag_;
+    int  k_cycle_year_;
+    int  date_;
+    std::string k_data_str_;
 };
 
 
