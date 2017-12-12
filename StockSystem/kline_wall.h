@@ -25,9 +25,12 @@ protected:
 private:
 
     std::list<StockDayInfo>  stk_days_infos_;
+     
+    StockAllDaysInfo stockAllDaysInfo_;  //一支股票的所有天数的消息
 
     std::string stockNum;
-    StockAllDaysInfo stockAllDaysInfo;  //一支股票的所有天数的消息
+    
+
     float lowestMinPrice;
     float highestMaxPrice;
     bool  show_cross_line_;

@@ -12,7 +12,8 @@ public:
 
 public:
         std::string stockNum;//股票代号
-        std::string transacteDate;//交易日期
+        //std::string transacteDate;//交易日期
+        int   date;//交易日期
         float openPrice;//开盘价
         float closePrice;//收盘价
         float maxPrice;//最高价

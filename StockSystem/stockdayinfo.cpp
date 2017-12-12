@@ -29,6 +29,9 @@ float StockDayInfo::GetChangeRate()
 void StockDayInfo::ReadData(std::string strLine)
 {
     std::istringstream isstr(strLine);
+
+    std::string transacteDate;
+
     isstr>>stockNum
         >>transacteDate
         >>openPrice
@@ -37,12 +40,17 @@ void StockDayInfo::ReadData(std::string strLine)
         >>minPrice
         >>marketMoney
         >>marketAmount;
+    auto iter = transacteDate.find("-");
+    if( iter != std::string::npos )
+    {
+       date = atoi(transacteDate.substr(0, 4).c_str()) * 10000 + atoi(transacteDate.substr(5, 2).c_str()) * 100 + atoi(transacteDate.substr(9, 2).c_str());
+    }
 }
 
 void StockDayInfo::Display()
 {
     std::cout<<stockNum << "\t"
-            << transacteDate << "\t"
+            << date << "\t"
             << openPrice << "\t"
             << closePrice << "\t"
             << maxPrice << "\t"

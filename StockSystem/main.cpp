@@ -13,9 +13,11 @@ int main(int argc, char *argv[])
     QTextCodec::setCodecForLocale(QTextCodec::codecForName("GBK"));
 
     QApplication a(argc, argv);
-    //MainWindow w;
+#if 0
+    MainWindow w;
+#else
     KLineWall   w;
-
+#endif
     w.show();
     return a.exec();
 }

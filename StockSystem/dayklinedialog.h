@@ -26,7 +26,7 @@ protected:
 private:
     Ui::DayKLineDialog *ui;
     std::string stockNum;
-    StockAllDaysInfo stockAllDaysInfo;  //一支股票的所有天数的消息
+    StockAllDaysInfo stockAllDaysInfo_;  //一支股票的所有天数的消息
     float lowestMinPrice;
     float highestMaxPrice;
 

@@ -6,7 +6,10 @@
 #include <QPainter>
 #include <qevent.h>
 
+#include <QtWidgets/QMessageBox>
+
 #include <qdebug.h>
+ 
 
 KLineWall::KLineWall() 
     : QWidget(nullptr)
@@ -21,8 +24,8 @@ KLineWall::KLineWall()
     std_data.ReadData("600816 20171116 14.30 14.25 14.42 14.09 339000000 235862");
     stk_days_infos_.push_back(std_data);
 #else
-    this->highestMaxPrice = stockAllDaysInfo.GetHighestMaxPrice();
-    this->lowestMinPrice = stockAllDaysInfo.GetLowestMinPrice();
+    this->highestMaxPrice = stockAllDaysInfo_.GetHighestMaxPrice();
+    this->lowestMinPrice = stockAllDaysInfo_.GetLowestMinPrice();
 #endif
 
     QPalette pal = this->palette();
@@ -32,6 +35,11 @@ KLineWall::KLineWall()
 
     k_cycle_tag_ = "日线";
     k_cycle_year_ = 2017;
+
+    stockAllDaysInfo_.Init();
+
+    stockAllDaysInfo_.LoadStockData("002902", 20171206, 20171212);
+
 }
 
 void KLineWall::paintEvent(QPaintEvent *e)
@@ -124,10 +132,11 @@ void KLineWall::paintEvent(QPaintEvent *e)
     float minPrice;//最低价
     float marketMoney;//成交额
     int j = 0;
-    //cout<<stockAllDaysInfo.GetStockAllDaysInfoList().size()<<endl;
+
+    //cout<<stockAllDaysInfo_.GetStockAllDaysInfoList().size()<<endl;
     //？？？只需要最后60个数据，若少于等于60个，则正常绘图
-    for(iter = stockAllDaysInfo.stockAllDaysInfoList.begin();
-        iter != stockAllDaysInfo.stockAllDaysInfoList.end() && j < k_num_; 
+    for(iter = stockAllDaysInfo_.stockAllDaysInfoList.begin();
+        iter != stockAllDaysInfo_.stockAllDaysInfoList.end() && j < k_num_; 
         iter++, j++)
     {
         //绘图每天的股票消息
@@ -169,7 +178,7 @@ void KLineWall::paintEvent(QPaintEvent *e)
             , -1 * mm_h * (minPrice-lowestMinPrice)/(highestMaxPrice - lowestMinPrice));   //绘制直线
 
         if( pos_from_global.x() >= j * item_w + 1 && pos_from_global.x() <= j * item_w + 1 + k_bar_w )
-            k_data_str_ = iter->transacteDate; 
+            k_data_str_ = std::to_string(iter->date);
       }
     }
 

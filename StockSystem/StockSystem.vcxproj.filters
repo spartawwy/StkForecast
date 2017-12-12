@@ -143,5 +143,8 @@
     <ClInclude Include="kline_wall.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\stk_quoter_api.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

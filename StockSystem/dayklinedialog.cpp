@@ -14,8 +14,8 @@ DayKLineDialog::DayKLineDialog(QWidget *parent) :
     ui->setupUi(this);
     stockNum = "";
 
-    this->highestMaxPrice = stockAllDaysInfo.GetHighestMaxPrice();
-    this->lowestMinPrice = stockAllDaysInfo.GetLowestMinPrice();
+    this->highestMaxPrice = stockAllDaysInfo_.GetHighestMaxPrice();
+    this->lowestMinPrice = stockAllDaysInfo_.GetLowestMinPrice();
 
     auto h = this->height();
 
@@ -120,10 +120,10 @@ void DayKLineDialog::paintEvent(QPaintEvent *)
     float minPrice;//最低价
     float marketMoney;//成交额
     int j = 0;
-    //cout<<stockAllDaysInfo.GetStockAllDaysInfoList().size()<<endl;
+    //cout<<stockAllDaysInfo_.GetStockAllDaysInfoList().size()<<endl;
     //？？？只需要最后60个数据，若少于等于60个，则正常绘图
-    for(iter = stockAllDaysInfo.stockAllDaysInfoList.begin();
-        iter != stockAllDaysInfo.stockAllDaysInfoList.end(); 
+    for(iter = stockAllDaysInfo_.stockAllDaysInfoList.begin();
+        iter != stockAllDaysInfo_.stockAllDaysInfoList.end(); 
         iter++, j++)
     {
         //绘图每天的股票消息
