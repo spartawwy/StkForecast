@@ -6,6 +6,7 @@
 #include "ui_klinewall.h"
 
 #include "stockalldaysinfo.h"
+#include "stockinput_dlg.h"
 
 class KLineWall : public QWidget
 {
@@ -18,15 +19,28 @@ public:
 protected:
 
     void paintEvent(QPaintEvent*) override;
+	void mousePressEvent( QMouseEvent * event ) override;
     void mouseDoubleClickEvent(QMouseEvent * e)  override;
     void mouseMoveEvent(QMouseEvent *e) override;
     void keyPressEvent(QKeyEvent *e) override;
 
+private slots:
+
+	void ResetStock(const QString& stock);
+
+	/*float HisDateItem_GetMinPrice();
+    float HisDateItem_GetMaxPrice();
+    float HisDateItem_GetOpenPrice();
+    float HisDateItem_GetClosePrice();*/
+
 private:
+
+	StockInputDlg  stock_input_dlg_;
 
     std::list<StockDayInfo>  stk_days_infos_;
      
     StockAllDaysInfo stockAllDaysInfo_;  //一支股票的所有天数的消息
+	T_HisDataItemList *p_hisdata_list_;
 
     std::string stockNum;
     
@@ -41,6 +55,8 @@ private:
     int  k_cycle_year_;
     int  date_;
     std::string k_data_str_;
+
+	std::string cur_stock_code_;
 };
 
 

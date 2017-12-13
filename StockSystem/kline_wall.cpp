@@ -16,16 +16,19 @@ KLineWall::KLineWall()
     , show_cross_line_(false)
     , is_repaint_k_(true)
     , k_num_(8)
+	, p_hisdata_list_(nullptr)
+	, stock_input_dlg_(this)
 {
     ui.setupUi(this);
 
-#if 0
+#if 0  // use file
     StockDayInfo std_data;
     std_data.ReadData("600816 20171116 14.30 14.25 14.42 14.09 339000000 235862");
     stk_days_infos_.push_back(std_data);
-#else
-    this->highestMaxPrice = stockAllDaysInfo_.GetHighestMaxPrice();
+	this->highestMaxPrice = stockAllDaysInfo_.GetHighestMaxPrice();
     this->lowestMinPrice = stockAllDaysInfo_.GetLowestMinPrice();
+#else
+    
 #endif
 
     QPalette pal = this->palette();
@@ -36,10 +39,14 @@ KLineWall::KLineWall()
     k_cycle_tag_ = "日线";
     k_cycle_year_ = 2017;
 
+	
     stockAllDaysInfo_.Init();
+	ResetStock("002415");
+}
 
-    stockAllDaysInfo_.LoadStockData("002902", 20171206, 20171212);
-
+void KLineWall::mousePressEvent ( QMouseEvent * event )
+{
+	stock_input_dlg_.hide();
 }
 
 void KLineWall::paintEvent(QPaintEvent *e)
@@ -123,9 +130,8 @@ void KLineWall::paintEvent(QPaintEvent *e)
 
     //画日K线图 -------------------------------------
 
-    //if( is_repaint_k_ )
-    {
-    std::list<StockDayInfo>::iterator iter;
+    
+    std::list<StockDayInfo>::iterator iter0;
     float openPrice;//开盘价
     float closePrice;//收盘价
     float maxPrice;//最高价
@@ -135,17 +141,28 @@ void KLineWall::paintEvent(QPaintEvent *e)
 
     //cout<<stockAllDaysInfo_.GetStockAllDaysInfoList().size()<<endl;
     //？？？只需要最后60个数据，若少于等于60个，则正常绘图
-    for(iter = stockAllDaysInfo_.stockAllDaysInfoList.begin();
+	if( p_hisdata_list_ )
+	{
+    /*for(iter = stockAllDaysInfo_.stockAllDaysInfoList.begin();
         iter != stockAllDaysInfo_.stockAllDaysInfoList.end() && j < k_num_; 
-        iter++, j++)
+        iter++, j++)*/
+		for( auto iter = p_hisdata_list_->begin();
+			iter != p_hisdata_list_->end() && j < k_num_; 
+			iter++, j++)
     {
         //绘图每天的股票消息
         //((StockDayInfo)(*iter)).Display();
         //读取每天的股票数据，获得一支股票的最高价 最低价 开盘价 收盘价
-        minPrice = ((StockDayInfo)(*iter)).GetMinPrice();
+#if 0 
+		minPrice = ((StockDayInfo)(*iter)).GetMinPrice();
         maxPrice = ((StockDayInfo)(*iter)).GetMaxPrice();
         openPrice = ((StockDayInfo)(*iter)).GetOpenPrice();
         closePrice = ((StockDayInfo)(*iter)).GetClosePrice();
+#endif
+		minPrice = iter->low_price;
+		maxPrice = iter->high_price;
+		openPrice = iter->open_price;
+		closePrice = iter->close_price;
         qDebug()<<openPrice<<"\t" << closePrice <<minPrice<<"\t"<<maxPrice<<"\t"<< "\n";
 
          auto item_w = ((mm_w - empty_right_w - right_w)/ k_num_) ;
@@ -179,9 +196,9 @@ void KLineWall::paintEvent(QPaintEvent *e)
 
         if( pos_from_global.x() >= j * item_w + 1 && pos_from_global.x() <= j * item_w + 1 + k_bar_w )
             k_data_str_ = std::to_string(iter->date);
-      }
+      }  // for
     }
-
+	  
     painter.translate(0, -1 * (this->height() - bottom_h));
     
     pen.setColor(Qt::white);
@@ -215,32 +232,6 @@ void KLineWall::mouseDoubleClickEvent(QMouseEvent *e)
 // this->mapFromGlobal(this->cursor().pos()) == event.pos()
 void KLineWall::mouseMoveEvent(QMouseEvent *e)
 { 
-   // qDebug() << "===================================\n";
-    //// 视图坐标原点(0,0)对应场景坐标（场景坐标）
-    //qDebug() << "view->mapToScene(0, 0):" << this->mapToScene(0, 0);
-
-    //// 场景坐标原点(0,0)对应视图坐标（视图坐标）
-    //qDebug() << "view->mapFromScene(0, 0):" << view->mapFromScene(0, 0);
-
-    //// 场景左上角坐标（场景坐标）
-    //QPointF p1 = QPointF(scene->sceneRect().topLeft());
-    //qDebug() << "p1:" << p1;
-
-    //// 场景左上角对应视图坐标（视图坐标）
-    //qDebug() << "view->mapFromScene(p1.x(), p1.y())" << view->mapFromScene(p1.x(), p1.y());
-    //qDebug() << " x:" << e->pos().x() <<" y:" << e->pos().y() << "\n";
-    // 
-    //qDebug() << "===================================\n";
-    //QPen pen; //画笔
-    //pen.setColor(Qt::white);
-    //pen.setStyle(Qt::SolidLine); 
-
-    /*QPainter painter(this);
-    painter.translate(30, 50);
-    painter.setPen(pen);
-    auto mm_w = this->width();
-    auto mm_h = this->height();*/
-     
     auto pos = e->pos();
     //auto pos_mapped = mapToGlobal(pos);
           
@@ -272,7 +263,9 @@ void KLineWall::keyPressEvent(QKeyEvent *e)
             update();
             break;
         }
-    default: break;
+    default: 
+		stock_input_dlg_.show();
+		break;
     }
 
     /*if( e->key() == Qt::Key_Down && k_num_ > 0 )
@@ -281,3 +274,50 @@ void KLineWall::keyPressEvent(QKeyEvent *e)
         update();
     }*/
 }
+
+void KLineWall::ResetStock(const QString& stock)
+{
+	cur_stock_code_ = stock.toLocal8Bit().data();
+
+	p_hisdata_list_ = stockAllDaysInfo_.LoadStockData(cur_stock_code_, 20171206, 20171212);
+	if( !p_hisdata_list_ )
+		return;
+
+	auto iter = stockAllDaysInfo_.stock_his_items_.find(cur_stock_code_);
+	/*if( iter == stockAllDaysInfo_.stock_his_items_.end() )
+		return;*/
+
+	//p_hisdata_list_ = std::addressof(iter->second);
+
+	this->highestMaxPrice = stockAllDaysInfo_.GetHisDataHighestMaxPrice(cur_stock_code_);
+	this->lowestMinPrice = stockAllDaysInfo_.GetHisDataLowestMinPrice(cur_stock_code_);
+
+    
+	 
+}
+
+//
+//float KLineWall::HisDateItem_GetMinPrice()
+//{
+//	if( !p_hisdata_list_ ) 
+//		return 0.0;
+//
+//}
+//
+//float KLineWall::HisDateItem_GetMaxPrice()
+//{
+//	if( !p_hisdata_list_ ) 
+//		return 0.0;
+//}
+//
+//float KLineWall::HisDateItem_GetOpenPrice()
+//{
+//	if( !p_hisdata_list_ ) 
+//		return 0.0;
+//}
+//
+//float KLineWall::HisDateItem_GetClosePrice()
+//{
+//	if( !p_hisdata_list_ ) 
+//		return 0.0;
+//}

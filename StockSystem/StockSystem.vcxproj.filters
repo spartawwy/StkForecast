@@ -90,6 +90,9 @@
     <ClCompile Include="kline_wall.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="stockinput_dlg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="dayklinedialog.h">
@@ -98,13 +101,13 @@
     <CustomBuild Include="mainwindow.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
-    <ClInclude Include="stockalldaysinfo.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="stockdayinfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <CustomBuild Include="klinewall.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="stockinputdlg.ui">
       <Filter>Form Files</Filter>
     </CustomBuild>
   </ItemGroup>
@@ -145,6 +148,15 @@
     </ClInclude>
     <ClInclude Include="include\stk_quoter_api.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stockalldaysinfo.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_stockinputdlg.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stockinput_dlg.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

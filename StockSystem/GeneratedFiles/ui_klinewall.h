@@ -35,7 +35,7 @@ public:
 
     void retranslateUi(QWidget *KLineWallForm)
     {
-        KLineWallForm->setWindowTitle(QApplication::translate("KLineWallForm", "Form", 0));
+        KLineWallForm->setWindowTitle(QApplication::translate("KLineWallForm", "StockForcast", 0));
     } // retranslateUi
 
 };

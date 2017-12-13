@@ -51,7 +51,7 @@ void StockAllDaysInfo::LoadDataFromFile(std::string fileName)
 }
 
 // date is save from recent to remote
-void StockAllDaysInfo::LoadStockData(const std::string &stk_code, int start_date, int end_date)
+T_HisDataItemList* StockAllDaysInfo::LoadStockData(const std::string &stk_code, int start_date, int end_date)
 {
     assert( stk_his_data_ && stk_hisdata_release_ );
 
@@ -60,12 +60,12 @@ void StockAllDaysInfo::LoadStockData(const std::string &stk_code, int start_date
     int count = stk_his_data_(const_cast<char*>(stk_code.c_str()), start_date, end_date, &p_data_items);
     if( !p_data_items )
     {
-        return;
+        return nullptr;
     }
     auto iter = stock_his_items_.find(stk_code);
 
     if( iter == stock_his_items_.end() )
-       iter = stock_his_items_.insert(std::make_pair(stk_code, std::list<T_StockHisDataItem>())).first;
+       iter = stock_his_items_.insert(std::make_pair(stk_code, T_HisDataItemList())).first;
 
     for( int i = 0; i < count; ++i )
     {
@@ -79,6 +79,7 @@ void StockAllDaysInfo::LoadStockData(const std::string &stk_code, int start_date
     }
     iter->second.sort(compare);
     //std::sort(iter->second.begin(), iter->second.end(), compare_index);
+	return std::addressof(iter->second);
 }
 
 //在链表中搜索出最低价中的最小值
@@ -112,6 +113,41 @@ float StockAllDaysInfo::GetHighestMaxPrice()
     }
     return higestMaxPrice;
 }
+
+float StockAllDaysInfo::GetHisDataLowestMinPrice(const std::string& stock)
+{
+	auto iter = stock_his_items_.find(stock);
+	if( iter == stock_his_items_.end() )
+		return 0.0;
+	iter->second;
+
+	float lowestMinPrice = 100000000.0f; 
+	std::for_each( std::begin(iter->second), std::end(iter->second), [&](const T_StockHisDataItem& entry)
+    { 
+		if( lowestMinPrice > entry.low_price )
+        {
+            lowestMinPrice = entry.low_price;
+        }
+    }); 
+    return lowestMinPrice;
+}
+
+float StockAllDaysInfo::GetHisDataHighestMaxPrice(const std::string& stock)
+{
+	auto iter = stock_his_items_.find(stock);
+	if( iter == stock_his_items_.end() )
+		return 0.0;
+	float higestMaxPrice = 0.0f; 
+	std::for_each( std::begin(iter->second), std::end(iter->second), [&](const T_StockHisDataItem& entry)
+    { 
+		if( higestMaxPrice < entry.high_price )
+        {
+            higestMaxPrice = entry.high_price;
+        }
+    }); 
+	return higestMaxPrice;
+}
+
 
 std::list<StockDayInfo> StockAllDaysInfo::GetStockAllDaysInfoList()
 {
