@@ -5,11 +5,10 @@
 
 #include <QPainter>
 #include <qevent.h>
-
 #include <QtWidgets/QMessageBox>
-
 #include <qdebug.h>
  
+#include "stkfo_common.h"
 
 KLineWall::KLineWall() 
     : QWidget(nullptr)
@@ -46,7 +45,8 @@ KLineWall::KLineWall()
 
 void KLineWall::mousePressEvent ( QMouseEvent * event )
 {
-	stock_input_dlg_.hide();
+	if( stock_input_dlg_.isVisible() )
+		stock_input_dlg_.hide();
 }
 
 void KLineWall::paintEvent(QPaintEvent *e)
@@ -264,7 +264,10 @@ void KLineWall::keyPressEvent(QKeyEvent *e)
             break;
         }
     default: 
-		stock_input_dlg_.show();
+		{
+			qDebug() << __FUNCDNAME__ << "\n"; 
+			stock_input_dlg_.show();
+		}
 		break;
     }
 
@@ -279,7 +282,7 @@ void KLineWall::ResetStock(const QString& stock)
 {
 	cur_stock_code_ = stock.toLocal8Bit().data();
 
-	p_hisdata_list_ = stockAllDaysInfo_.LoadStockData(cur_stock_code_, 20171206, 20171212);
+	p_hisdata_list_ = stockAllDaysInfo_.LoadStockData(cur_stock_code_, 20171216, 20171226);
 	if( !p_hisdata_list_ )
 		return;
 
@@ -291,9 +294,28 @@ void KLineWall::ResetStock(const QString& stock)
 
 	this->highestMaxPrice = stockAllDaysInfo_.GetHisDataHighestMaxPrice(cur_stock_code_);
 	this->lowestMinPrice = stockAllDaysInfo_.GetHisDataLowestMinPrice(cur_stock_code_);
+ 	 
+}
 
-    
-	 
+void KLineWall::StockInputDlgRet()
+{
+	QString stock_code = stock_input_dlg_.ui.stock_input->text().trimmed();
+	stock_input_dlg_.ui.stock_input->text().clear();
+
+	if( stock_code.toUpper() == "SZZS" )
+	{
+		stock_code_ = "000001";
+	}else
+	{
+		auto first_code = stock_code.toLocal8Bit().data();
+		if( *first_code != '\0' && *first_code != '\2' && *first_code == '\3' && *first_code == '\6' )
+			return;
+		if( stock_code.length() != 6 || !IsNumber(stock_code.toLocal8Bit().data()) )
+			return;
+	}
+	stock_code_ = stock_code.toLocal8Bit().data();
+
+	ResetStock(stock_code_.c_str());
 }
 
 //

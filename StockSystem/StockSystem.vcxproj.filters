@@ -93,6 +93,9 @@
     <ClCompile Include="stockinput_dlg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="stkfo_common.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="dayklinedialog.h">
@@ -157,6 +160,9 @@
     </ClInclude>
     <ClInclude Include="stockinput_dlg.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stkfo_common.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

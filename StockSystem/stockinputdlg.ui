@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string/>
   </property>
-  <widget class="QLineEdit" name="lineEdit">
+  <widget class="QLineEdit" name="stock_input">
    <property name="geometry">
     <rect>
      <x>0</x>

@@ -13,8 +13,9 @@ class KLineWall : public QWidget
 public:
 
     KLineWall();
-
-    Ui_KLineWallForm  ui;
+	~KLineWall() { }
+	 
+	void StockInputDlgRet();
 
 protected:
 
@@ -35,6 +36,8 @@ private slots:
 
 private:
 
+	Ui_KLineWallForm  ui;
+
 	StockInputDlg  stock_input_dlg_;
 
     std::list<StockDayInfo>  stk_days_infos_;
@@ -42,7 +45,7 @@ private:
     StockAllDaysInfo stockAllDaysInfo_;  //一支股票的所有天数的消息
 	T_HisDataItemList *p_hisdata_list_;
 
-    std::string stockNum;
+    std::string stock_code_;
     
 
     float lowestMinPrice;

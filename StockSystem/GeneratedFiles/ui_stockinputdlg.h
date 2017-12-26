@@ -23,7 +23,7 @@ QT_BEGIN_NAMESPACE
 class Ui_StockInputDlgForm
 {
 public:
-    QLineEdit *lineEdit;
+    QLineEdit *stock_input;
     QPlainTextEdit *plainTextEdit;
 
     void setupUi(QWidget *StockInputDlgForm)
@@ -31,9 +31,9 @@ public:
         if (StockInputDlgForm->objectName().isEmpty())
             StockInputDlgForm->setObjectName(QStringLiteral("StockInputDlgForm"));
         StockInputDlgForm->resize(269, 353);
-        lineEdit = new QLineEdit(StockInputDlgForm);
-        lineEdit->setObjectName(QStringLiteral("lineEdit"));
-        lineEdit->setGeometry(QRect(0, 0, 261, 21));
+        stock_input = new QLineEdit(StockInputDlgForm);
+        stock_input->setObjectName(QStringLiteral("stock_input"));
+        stock_input->setGeometry(QRect(0, 0, 261, 21));
         plainTextEdit = new QPlainTextEdit(StockInputDlgForm);
         plainTextEdit->setObjectName(QStringLiteral("plainTextEdit"));
         plainTextEdit->setGeometry(QRect(0, 30, 271, 321));

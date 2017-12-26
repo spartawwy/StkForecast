@@ -12,7 +12,7 @@ typedef std::list<T_StockHisDataItem>  T_HisDataItemList;
 
 static bool compare(const T_StockHisDataItem &left_h, const T_StockHisDataItem &right_h)
 {
-    return left_h.date > right_h.date;
+    return left_h.date < right_h.date;
 }
 //static bool compare(const T_StockHisDataItem *left_h, const T_StockHisDataItem *right_h)
 //{

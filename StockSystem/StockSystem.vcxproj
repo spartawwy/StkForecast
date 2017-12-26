@@ -158,11 +158,13 @@
     <ClCompile Include="Release\moc_mainwindow.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="stkfo_common.cpp" />
     <ClCompile Include="stockalldaysinfo.cpp" />
     <ClCompile Include="stockdayinfo.cpp" />
     <ClCompile Include="stockinput_dlg.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="stkfo_common.h" />
     <ClInclude Include="stockinput_dlg.h" />
     <CustomBuild Include="dayklinedialog.h">
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DUNICODE -DWIN32 -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -DQT_OPENGL_ES_2 -DQT_OPENGL_ES_2_ANGLE -DNDEBUG  "-I$(QT_DIR)\include" "-I$(QT_DIR)\include\QtGui" "-I$(QT_DIR)\include\QtANGLE" "-I$(QT_DIR)\include\QtCore" "-I.\release" "-I$(QT_DIR)\mkspecs\win32-msvc2012" "-I.\GeneratedFiles" "-I.\include"</Command>
