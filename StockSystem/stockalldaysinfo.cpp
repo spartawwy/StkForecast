@@ -2,12 +2,12 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
-
+#include <assert.h>
 
 #include <Windows.h>
 #include <QtWidgets/QMessageBox>
+#include <QDebug>
 
-#include <assert.h>
 
 StockAllDaysInfo::StockAllDaysInfo()
 {
@@ -74,9 +74,21 @@ T_HisDataItemList* StockAllDaysInfo::LoadStockData(const std::string &stk_code, 
              iter->second.push_back(p_data_items[i]);
              continue;
          }
-        if( iter->second.rbegin()->date > p_data_items[i].date )
+		/*bool is_find = std::find_if( std::begin(iter->second), std::end(iter->second), [&](T_HisDataItemList::reference entry)
+		{
+			return entry.date == p_data_items[i].date;
+		});*/
+        if( iter->second.rbegin()->date < p_data_items[i].date )
+		{
+			qDebug() << " rbegin data " << iter->second.rbegin()->date << "\n";
             iter->second.push_back(p_data_items[i]);
+		}else if( iter->second.begin()->date > p_data_items[i].date )
+		{
+			iter->second.push_front(p_data_items[i]);
+		}
     }
+	stk_hisdata_release_(p_data_items);
+
     iter->second.sort(compare);
     //std::sort(iter->second.begin(), iter->second.end(), compare_index);
 	return std::addressof(iter->second);

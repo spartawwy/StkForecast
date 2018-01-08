@@ -40,7 +40,7 @@ KLineWall::KLineWall()
 
 	
     stockAllDaysInfo_.Init();
-	ResetStock("002415");
+	ResetStock("600333");
 }
 
 void KLineWall::mousePressEvent ( QMouseEvent * event )
@@ -282,7 +282,8 @@ void KLineWall::ResetStock(const QString& stock)
 {
 	cur_stock_code_ = stock.toLocal8Bit().data();
 
-	p_hisdata_list_ = stockAllDaysInfo_.LoadStockData(cur_stock_code_, 20171216, 20171226);
+	p_hisdata_list_ = stockAllDaysInfo_.LoadStockData(cur_stock_code_, 20171216, 20180108);
+	//p_hisdata_list_ = stockAllDaysInfo_.LoadStockData(cur_stock_code_, 20171216, 20180102);
 	if( !p_hisdata_list_ )
 		return;
 

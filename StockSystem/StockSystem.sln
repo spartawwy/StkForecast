@@ -5,6 +5,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "StockSystem", "StockSystem.
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sfcDemo", "..\sfcDemo\sfcDemo.vcxproj", "{B896CDC7-3481-420F-8F87-A103994FB386}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "StkQuoter", "..\..\mytrd\StkQuoter\StkQuoter.vcxproj", "{BB9A46F9-A170-4AA7-98D4-B28294083D55}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -19,6 +21,10 @@ Global
 		{B896CDC7-3481-420F-8F87-A103994FB386}.Debug|Win32.Build.0 = Debug|Win32
 		{B896CDC7-3481-420F-8F87-A103994FB386}.Release|Win32.ActiveCfg = Release|Win32
 		{B896CDC7-3481-420F-8F87-A103994FB386}.Release|Win32.Build.0 = Release|Win32
+		{BB9A46F9-A170-4AA7-98D4-B28294083D55}.Debug|Win32.ActiveCfg = Debug|Win32
+		{BB9A46F9-A170-4AA7-98D4-B28294083D55}.Debug|Win32.Build.0 = Debug|Win32
+		{BB9A46F9-A170-4AA7-98D4-B28294083D55}.Release|Win32.ActiveCfg = Release|Win32
+		{BB9A46F9-A170-4AA7-98D4-B28294083D55}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
