@@ -3,11 +3,6 @@
 
 //#pragma execution_character_set("utf-8")  // 传入中文时,需此句
 
-/* 
-    //PyObject* arg1 = Py_BuildValue("i", 100); // 整数参数
-    //PyObject* arg2 = Py_BuildValue("f", 3.14); // 浮点数参数
-    //PyObject* arg3 = Py_BuildValue("s", "hello"); // 字符串参数
-*/
 #include "stdafx.h"
 #include <string>
 #include <iostream>
@@ -19,7 +14,6 @@
 #include <vector>
 
 #include <algorithm>
-#include <stdio.h>
 
 #pragma comment(lib, "python36.lib")
 
@@ -41,26 +35,16 @@ bool compare2( ListA &left, ListA &right)
 {
     return left.val < right.val;
 }
- 
 
-void printDict(PyObject* obj)
-{
-    if(!PyDict_Check(obj))
-        return ;
-
-    PyObject *k, *keys;
-    keys = PyDict_Keys(obj);
-
-    for(int i=0; i < PyList_GET_SIZE(keys); i++)
-    {
-        k = PyList_GET_ITEM(keys, i);
-        PyObject* pyStr = PyUnicode_AsEncodedString(k, "utf-8", "error");
-        const char *strExcType = PyBytes_AS_STRING(pyStr);
-        //char *c_name = PyString_AsString(k);
-        printf("%s\n", strExcType);
-    }
-}
-
+//class ASorter
+//{
+//public:
+//   operator () (const ListA& s1, const ListA& s2)
+//    {
+//
+//    }
+//
+//};
 int start()
 {
 
@@ -94,7 +78,11 @@ int start()
         return -1;    
     }     
     //PyArg_ParseTuple(
-     
+
+    //PyObject *dic1;
+    //PyArg_Parse(pDict, "O", &dic1);
+    //PyObject* pDict = PyDict_New(); //new reference
+     //assert(PyDict_Check(dic1));
      PyObject* pList = PyList_New(3); // new reference  
     bool ret = PyList_Check(pList);
     //assert(PyList_Check(pList)); 
@@ -126,16 +114,10 @@ int start()
         return 0;  
     }  
       
-    //PyObject* pobj1 = Py_BuildValue("(s)", "hello");
-     PyObject *args = PyTuple_New(1);
-     PyObject *arg0 = Py_BuildValue("s", "hello");
-     PyTuple_SetItem(args, 0, arg0);
-     PyObject* pRet = PyEval_CallObject(pv, args);  
+    PyObject* pobj1 = Py_BuildValue("(s)", "hello");
+    PyObject* pRet = PyEval_CallObject(pv, pobj1);  
      
-    char *result;
-    PyArg_Parse(pRet, "s", &result);
-    printf("PyEval_CallObject get %s", result);
-
+   
 #endif
 
        
@@ -154,27 +136,23 @@ int start()
         cout<<"Python get tushare module failed." << endl;  
         return 0;  
     }  
-    auto pDict1 = PyModule_GetDict(pModule);
-    if ( !pDict1 ) 
-    {          
-        return -1;    
-    }    
-    printDict(pDict1);
+    
     //获取Insert模块内_add函数  
-    PyObject* pv = PyObject_GetAttrString(pModule, "get_k_data");  
+    PyObject* pv = PyObject_GetAttrString(pModule, "get_hist_data");  
     if (!pv || !PyCallable_Check(pv))  
     {  
         cout << "Can't find funftion (_add)" << endl;  
         return 0;  
     }  
     cout << "Get function (_add) succeed." << endl;  
-      
-#if 1 
+     
 
-    PyObject *args = PyTuple_New(1);
-    PyObject *arg0 = Py_BuildValue("s", "002337");
-    PyTuple_SetItem(args, 0, arg0);
-    PyObject* pRet = PyEval_CallObject(pv, args);
+    //PyObject* arg1 = Py_BuildValue("i", 100); // 整数参数
+    //PyObject* arg2 = Py_BuildValue("f", 3.14); // 浮点数参数
+    //PyObject* arg3 = Py_BuildValue("s", "hello"); // 字符串参数
+#if 1
+    PyObject* pobj1 = Py_BuildValue("(s)", "603040");
+    PyObject* pRet = PyEval_CallObject(pv, pobj1);
 
 #endif 
     if (pRet)  
@@ -187,26 +165,17 @@ int start()
        // PyObject* pList = PyList_New(3); // new reference  
        // assert(PyList_Check(pList)); 
         PyObject *list1;
-#if 0
         PyArg_Parse(pRet, "O", &list1);
         // PyList_CheckExact
         if(PyList_Check(list1))
         {
             printf( "yes it's list\n" );
         }
-#endif
-        PyObject  *p_obj;
-        PyArg_Parse(pRet, "O", &p_obj);
-        if( PyDict_Check(p_obj) )
-        {
-            printf( "yes it's dict \n" );
-        }
-
         char* ret_str;  
-       
+        int w = 0 , h = 0;  
         auto ret1 = PyArg_Parse(pRet, "s", &ret_str);
         //解析元组   
-         int w = 0 , h = 0;  
+        
         printf("%s, %d, %d\n", ret_str, w, h);  
 
         //将返回值转换成long型  
