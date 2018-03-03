@@ -7,6 +7,7 @@
     //PyObject* arg1 = Py_BuildValue("i", 100); // 整数参数
     //PyObject* arg2 = Py_BuildValue("f", 3.14); // 浮点数参数
     //PyObject* arg3 = Py_BuildValue("s", "hello"); // 字符串参数
+
 */
 #include "stdafx.h"
 #include <string>
@@ -20,6 +21,9 @@
 
 #include <algorithm>
 #include <stdio.h>
+
+//#ifndef TO_GET_DATA
+#if 0
 
 #pragma comment(lib, "python36.lib")
 
@@ -74,7 +78,7 @@ int start()
     std::vector<ListA> vec_obj;
     std::sort(vec_obj.begin(),  vec_obj.end(), compare2);
 #endif
-    int r=Py_IsInitialized();  //1为已经初始化了
+    int r = Py_IsInitialized();  //1为已经初始化了
     if (r != 0)
     {
         cout << "init python fail " << endl;
@@ -131,15 +135,12 @@ int start()
      PyObject *arg0 = Py_BuildValue("s", "hello");
      PyTuple_SetItem(args, 0, arg0);
      PyObject* pRet = PyEval_CallObject(pv, args);  
-     
+     auto val = Py_TYPE(pRet);
     char *result;
     PyArg_Parse(pRet, "s", &result);
     printf("PyEval_CallObject get %s", result);
 
-#endif
-
-       
-#if 1
+#elif 1
     // 将Python工作路径切换到待调用模块所在目录，一定要保证路径名的正确性
     string path = "D:\\ProgramFilesBase\\Python\\Python36-32\\Lib\\site-packages\\tushare";
     string chdir_cmd = string("sys.path.append(\"") + path + "\")";
@@ -159,7 +160,7 @@ int start()
     {          
         return -1;    
     }    
-    printDict(pDict1);
+    //printDict(pDict1);
     //获取Insert模块内_add函数  
     PyObject* pv = PyObject_GetAttrString(pModule, "get_k_data");  
     if (!pv || !PyCallable_Check(pv))  
@@ -178,14 +179,36 @@ int start()
 
 #endif 
     if (pRet)  
-    {  
-        /*if(PyFrame_Check(pRet->ob_type))
+    {   
+        int list_len = PyObject_Size(pRet);//列表长度 
+        PyObject *list_item = NULL;//python类型的列表元素
+         
+        for (int i = 0; i < list_len; i++)
         {
-            printf( "yes it's frame\n" );
-        }*/
-        //if(PyList_Check(pRet))
-       // PyObject* pList = PyList_New(3); // new reference  
-       // assert(PyList_Check(pList)); 
+            PyObject *key = nullptr;
+            PyObject *key1 = nullptr;
+            auto val = Py_TYPE(pRet);
+        list_item = PyObject_GetItem(pRet, key);//根据下标取出python列表中的元素
+        list_item = PyDict_GetItem(pRet, key1);//根据下标取出python列表中的元素
+
+        //str_item = PyString_AsString(list_item);//转换为c类型的数据 python 2
+         
+        PyObject* str_exc_type = PyObject_Repr(list_item); //Now a unicodeobject
+        PyObject* pyStr = PyUnicode_AsEncodedString(str_exc_type, "utf-8",
+        "Error ~");
+        const char *strExcType =  PyBytes_AS_STRING(pyStr);
+       /* Py_XDECREF(str_exc_type);
+        Py_XDECREF(pyStr);*/
+/*
+        Py_XDECREF(exc_type);
+        Py_XDECREF(exc_value);
+        Py_XDECREF(exc_tb);*/
+
+        printf("%s\n", strExcType);
+        }
+
+        int nTupleSize = PyTuple_Size(pRet);
+
         PyObject *list1;
 #if 0
         PyArg_Parse(pRet, "O", &list1);
@@ -197,6 +220,7 @@ int start()
 #endif
         PyObject  *p_obj;
         PyArg_Parse(pRet, "O", &p_obj);
+        //PyObject_GetAttrString(p_obj, 
         if( PyDict_Check(p_obj) )
         {
             printf( "yes it's dict \n" );
@@ -277,3 +301,4 @@ int _tmain(int argc, _TCHAR* argv[])
 	return 0;
 }
 
+#endif
