@@ -84,6 +84,7 @@ class STOCK:
     def getAllHistoryTicks(self, codelist, startdate, enddate):  
         datelist = self.getOpenedRangeDateList(startdate, enddate)  
         print("datelist len:%d" % len(datelist))
+        df_array = []
         df = {}
         if len(codelist)!=0 and len(datelist) != 0:  
             for c in range(len(codelist)):  
@@ -99,15 +100,16 @@ class STOCK:
                             df['date'] = datelist[d]  
                             #df.to_sql("Fenbi", self.engine, index=False, if_exists='append')  
                             #print(df[['code','date','time','price','change','volume','amount','type']])  
+                            df_array.append(df)
                     except Exception as err:  
                         print("读取失败:%s" % err)  
         else:  
             print("请输入有效查询信息！")  
-        return df
+        return df_array
 
 if __name__ == "__main__":  
     ""
-    DB_FILE_PATH = 'E:/Dev_wwy/StockTrader/src/StkForecast/StockSystem/build/Win32/Debug' + '/stok_his_data.db'
+    DB_FILE_PATH = 'E:/Dev_wwy/StockTrader/src/StkForecast/StockSystem/build/Win32/Debug' + '/stock_his_data.db'
     g_db_conn = None
     if not os.access(DB_FILE_PATH, os.F_OK):
         print ("%s not exist\n" % DB_FILE_PATH)
@@ -120,18 +122,27 @@ if __name__ == "__main__":
         os._exit(0)
     g_db_conn.text_factory = lambda x : str(x, 'utf-8', 'ignore')
     sql = '''INSERT INTO Fenbi (id, code, date, time, price, change, volume, amount, type) values (?,?,?,?,?,?,?,?,?)'''
-    #para = (i, content)
-    #g_db_conn.execute(sql, para)
-
+      
     st = STOCK()  
     codelist = ['600543']  
-    df_result = st.getAllHistoryTicks(codelist,'2017-12-01','2017-12-02')#历史所有分笔  
+    df_result = st.getAllHistoryTicks(codelist, '2017-12-01', '2017-12-04')#历史所有分笔  
     #st.getOneHistoryTicks(codelist) #当天所有分笔  
      
-    for data_fm in df_result:
-        para = (data_fm['id'], data_fm['code'], data_fm['date'],data_fm['time'],data_fm['price'],data_fm['change'],data_fm['volume'],data_fm['amount'], data_fm['type'])
-        g_db_conn.execute(sql, para)
-        
-    g_db_conn.commit()
-    g_db_conn.close()
-     
+    id = 600543 * 10000
+    print("df_result len is %d " % len(df_result))
+    for data_fm in df_result: 
+        total = len(data_fm['price'])
+        for dex in range(0, total):
+            index = total - dex - 1
+            change_val = 0.0
+            if data_fm['change'][index]:
+                change_val = float(data_fm['change'][index])
+             
+            #print( "%d %s %s %s %f %f %d %ld %s" % (id, data_fm['code'][index], st.getDateToStr(data_fm['date'][index]), data_fm['time'][index], float(data_fm['price'][index]), change_val, int(data_fm['volume'][index]), int(data_fm['amount'][index]), data_fm['type'][index]) )
+            para = (id, data_fm['code'][index], st.getDateToStr(data_fm['date'][index]), data_fm['time'][index], float(data_fm['price'][index]), change_val, int(data_fm['volume'][index]), int(data_fm['amount'][index]), data_fm['type'][index])
+            print(para)
+            g_db_conn.execute(sql, para)
+            id = id + 1
+            
+    g_db_conn.commit()        
+    g_db_conn.close()        
