@@ -13,7 +13,7 @@
 
 #ifdef TO_GET_DATA
 
-#pragma comment(lib, "python36.lib")
+//#pragma comment(lib, "python36.lib")
 
 using namespace std;
 
@@ -76,7 +76,10 @@ int main()
     printf("PyEval_CallObject get %s", result);
 #endif
 #if 1 
-    string path = "E:\\Dev_wwy\\StockTrader\\src\\StkForecast\\scripts";
+	char stk_py_dir[256] = {0};
+	unsigned int ret_env_size = sizeof(stk_py_dir);
+	getenv_s(&ret_env_size, stk_py_dir, ret_env_size, "STK_PY_DIR");
+    string path = stk_py_dir;
     string chdir_cmd = string("sys.path.append(\"") + path + "\")";
     const char* cstr_cmd = chdir_cmd.c_str(); 
     PyRun_SimpleString(cstr_cmd);
