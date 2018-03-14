@@ -130,7 +130,7 @@ class STOCK:
                 change_val = "0.0"
                 if data_fm['change'][index]:
                     change_val = data_fm['change'][index]
-                content = "{0} {1} {2} {3} {4} {5} {6}\n".format(id, data_fm['time'][index], data_fm['price'][index], change_val, data_fm['volume'][index], data_fm['amount'][index], data_fm['type'][index])
+                content = "{0} {1} {2} {3} {4} {5}\n".format(id, data_fm['time'][index], data_fm['price'][index], change_val, data_fm['volume'][index], data_fm['amount'][index])
                 #print(content)
                 os.write(fd, str.encode(content))
                 id = id + 1
