@@ -13,6 +13,10 @@
 
 #ifdef TO_GET_DATA
 
+#ifdef _DEBUG
+#undef Py_XDECREF
+#define Py_XDECREF(a) (a)
+#endif
 //#pragma comment(lib, "python36.lib")
 
 using namespace std;
@@ -21,6 +25,12 @@ void TestUseFunc();
 
 int main()
 { 
+    std::string stk_data_dir_ = "sdfsf\\";
+    if( stk_data_dir_.rfind("\\") == stk_data_dir_.length() - 1 )
+   {
+       stk_data_dir_ = stk_data_dir_;
+   }
+    //------------------
     int r = Py_IsInitialized();  //1为已经初始化了
     if (r != 0)
     {
@@ -127,6 +137,8 @@ int main()
     char *result1;
     if( pRet1 )
         PyArg_Parse(pRet1, "s", &result1);
+    
+    Py_XDECREF(result1);
 
     // follow is not ok ----------
     //PyObject* pRet = PyObject_CallMethod(pInstans_stock, "getAllFill2File", "sss", "600543", "2017-12-01", "2017-12-02");

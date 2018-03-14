@@ -81,8 +81,8 @@ class STOCK:
                             #print(df[['code','date','time','price','change','volume','amount','type']])  
                             df_array.append(df)
                             self.saveCodeTick2File(codelist[c], datelist[d], df)
-                            if not ret_datelist.count(d):
-                                ret_datelist.append(d)
+                            if not ret_datelist.count(datelist[d]):
+                                ret_datelist.append(datelist[d])
                     except Exception as err:  
                         print("读取失败:%s" % err)  
         else:  
@@ -114,7 +114,7 @@ class STOCK:
         print("saveCodeTick2File : %s %s" %(code, target_path) )
         if not os.path.isdir(target_path):
             os.makedirs(target_path)
-        file_full_path = target_path + code + ".data"
+        file_full_path = target_path + code + ".fenbi"
         tag_file_full_path = target_path + code + ".ok"
         if not os.access(tag_file_full_path, os.F_OK) or os.path.getsize(file_full_path) == 0:
             fd = os.open(file_full_path, os.O_WRONLY | os.O_CREAT)
@@ -147,11 +147,15 @@ class STOCK:
         print("in getAllFill2File")
         codelist = [code]
         date_list = self.getAllHistoryTicks(codelist, beg_date_str, end_date_str)
-        
+         
+        ret_str = ""
         if date_list:
-            return "ok"
+            for item in date_list:
+                ret_str += self.getDateToStr(item) + ";"
+            ret_str = ret_str[0:len(ret_str)-1]    
+            return ret_str
         else:
-            return "none"
+            return ""
          
     
 if __name__ == "__main__":  
@@ -173,5 +177,7 @@ if __name__ == "__main__":
             print(df)
     if 1:
         st = STOCK() 
-        #st.getAllFill2File('600487', '2017-12-07', '2017-12-12')
+        ret = st.getAllFill2File('600487', '2017-12-07', '2017-12-10')
+        
+        print(ret);
         
