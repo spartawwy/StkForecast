@@ -1,6 +1,7 @@
 # coding=utf-8
  
 import os
+import time
 import sqlite3  
 import numpy as np  
 import pandas as pd  
@@ -16,13 +17,20 @@ class STOCK:
         self.data_dir = "C:/"
         if "STK_DATA_DIR" in os.environ:
             self.data_dir = os.environ["STK_DATA_DIR"] 
-            
+        self.tick_file_ext = ".fenbi"    
+        self.file_ok_ext = ".ok"    
+        
+    def getTargetHisTickDir(self, code, date):
+        target_path = self.data_dir + "/" + code + "/" + self.getDateToStr(date) + "/fenbi"
+        #print("saveCodeTick2File : %s %s" %(code, target_path) )
+        if not os.path.isdir(target_path):
+            os.makedirs(target_path)
+        return target_path
         
     def is_open_day(self, date):  
         str_date = self.getDateToStr(date)
         #for strd in self.cal_dates['calendarDate'].values:
         #    print(strd)
-        print(str_date)
         if str_date in self.cal_dates['calendarDate'].values:  
             return self.cal_dates[self.cal_dates['calendarDate']==str_date].iat[0,1]==1  
         return False  
@@ -52,9 +60,10 @@ class STOCK:
         df = pd.DataFrame()
         try:  
             datestr = self.getDateToStr(date)
-            df = ts.get_tick_data(code,date=datestr,pause=1)  
+            df = ts.get_tick_data(code,date=datestr,pause=1)
         except Exception as err:  
             print("读取历史分笔失败:%s" % err)  
+            df = pd.DataFrame() 
         return df  
       
     
@@ -65,26 +74,47 @@ class STOCK:
         print("datelist len:%d" % len(datelist))
         ret_datelist = []
         df_array = []
+        tu_num_has_get = 0
         if len(codelist)!=0 and len(datelist) != 0:  
             for c in range(len(codelist)):  
-                for d in range(len(datelist)):  
-                    try:  
-                        df = pd.DataFrame()
-                        df = self.getHistoryTicksByCodeAndDate(codelist[c], datelist[d])  
-                        if df.empty:
-                            pass
-                        else:  
-                            print ("code: %s , date: %s" % (codelist[c], datelist[d]))  
-                            df['change'] = df['change'].replace('--', '')  
-                            df['code'] = codelist[c]  
-                            df['date'] = datelist[d]
-                            #print(df[['code','date','time','price','change','volume','amount','type']])  
-                            df_array.append(df)
-                            self.saveCodeTick2File(codelist[c], datelist[d], df)
-                            if not ret_datelist.count(datelist[d]):
-                                ret_datelist.append(datelist[d])
-                    except Exception as err:  
-                        print("读取失败:%s" % err)  
+                for d in range(len(datelist)):
+                    file_full_path = self.getTargetHisTickDir(codelist[c], datelist[d]) + "/" + codelist[c] + self.tick_file_ext
+                    tag_file_full_path = self.getTargetHisTickDir(codelist[c], datelist[d]) + "/" + codelist[c] + self.file_ok_ext
+                    if os.access(tag_file_full_path, os.F_OK):
+                        print(file_full_path + " already exist")
+                        if not ret_datelist.count(datelist[d]):
+                            ret_datelist.append(datelist[d])
+                        pass
+                    else:
+                        try:  
+                            df = pd.DataFrame()
+                            df = self.getHistoryTicksByCodeAndDate(codelist[c], datelist[d])  
+                            if df.empty:
+                                print("df.empty")
+                                pass
+                            else:  
+                                print ("code: %s , date: %s" % (codelist[c], datelist[d]))  
+                                df['change'] = df['change'].replace('--', '')  
+                                df['code'] = codelist[c]  
+                                df['date'] = datelist[d]
+                                #print(df[['code','date','time','price','change','volume','amount','type']])  
+                                df_array.append(df)
+                                self.saveCodeTick2File(codelist[c], datelist[d], df)
+                                if not ret_datelist.count(datelist[d]):
+                                    ret_datelist.append(datelist[d])
+                                ++tu_num_has_get
+                                if tu_num_has_get > 50:
+                                    time.sleep(0.050)
+                                elif tu_num_has_get > 20:
+                                    time.sleep(0.020)
+                                elif tu_num_has_get > 10:
+                                    time.sleep(0.010)
+                                elif tu_num_has_get > 5:
+                                    time.sleep(0.005)
+                                else:
+                                    time.sleep(0.002)
+                        except Exception as err:  
+                            print("读取失败:%s" % err)  
         else:  
             print("请输入有效查询信息！")  
         return ret_datelist
@@ -110,12 +140,9 @@ class STOCK:
         
       
     def saveCodeTick2File(self, code, date, data_fm):
-        target_path = self.data_dir + "/" + code + "/" + self.getDateToStr(date) + "/fenbi/"
-        print("saveCodeTick2File : %s %s" %(code, target_path) )
-        if not os.path.isdir(target_path):
-            os.makedirs(target_path)
-        file_full_path = target_path + code + ".fenbi"
-        tag_file_full_path = target_path + code + ".ok"
+        file_full_path = self.getTargetHisTickDir(code, date) + "/" + code + self.tick_file_ext
+        tag_file_full_path = self.getTargetHisTickDir(code, date) + "/" + code + self.file_ok_ext
+        print("to saveCodeTick2File : %s" %(file_full_path) )
         if not os.access(tag_file_full_path, os.F_OK) or os.path.getsize(file_full_path) == 0:
             fd = os.open(file_full_path, os.O_WRONLY | os.O_CREAT)
             if not fd:
@@ -175,9 +202,18 @@ if __name__ == "__main__":
             pass
         else:
             print(df)
+    if 0:
+        df = pd.DataFrame()
+        df.drop(df.index,inplace=True)
+        if df.empty:
+            print("df empty")
+        else:
+            print("df not empty")
     if 1:
         st = STOCK() 
-        ret = st.getAllFill2File('600487', '2017-12-07', '2017-12-10')
-        
-        print(ret);
+        ret = ""
+        ret = st.getAllFill2File('002538', '2017-11-5', '2017-11-10')
+        #ret = st.getAllFill2File('002538', '2017-11-5', '2018-03-05')
+        #ret = st.getAllFill2File('002538', '2018-01-19', '2018-01-19')
+        print(" getAllFill2File ret " + ret);
         
