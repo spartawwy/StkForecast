@@ -19,19 +19,26 @@ class STOCK:
             
         
     def is_open_day(self, date):  
-        str_date = self.getDateToStr(date)
-        #for strd in self.cal_dates['calendarDate'].values:
-        #    print(strd)
-        print(str_date)
-        if str_date in self.cal_dates['calendarDate'].values:  
-            return self.cal_dates[self.cal_dates['calendarDate']==str_date].iat[0,1]==1  
+        try:
+            str_date = self.getDateToStr(date)
+            #print(str_date)
+            if str_date in self.cal_dates['calendarDate'].values:  
+                return self.cal_dates[self.cal_dates['calendarDate']==str_date].iat[0,1]==1  
+        except Exception as err:
+            return False 
         return False  
         
-    def getDateToStr(self,date):  
-        return dt.datetime.strftime(date,'%Y-%m-%d')  
+    def getDateToStr(self,date):
+        try:
+            return dt.datetime.strftime(date,'%Y-%m-%d')  
+        except Exception as err:
+            return "" 
       
     def getStrToDate(self,str):  
-        return dt.datetime.strptime(str,'%Y-%m-%d')  
+        try:
+            return dt.datetime.strptime(str,'%Y-%m-%d')  
+        except Exception as err:
+            return dt.datetime.strptime("2018-04-07",'%Y-%m-%d')
       
     #返回日期之间的所有日期列表  
     def getOpenedRangeDateList(self, startdate, enddate):
@@ -42,8 +49,11 @@ class STOCK:
         while begin_date <= end_date:  
             date_str = str(begin_date)  
             #print("line 34:" + date_str)
-            if self.is_open_day(begin_date):
-                date_list.append(begin_date)  
+            try:
+                if self.is_open_day(begin_date):
+                    date_list.append(begin_date)
+            except Exception as err:
+                pass
             begin_date += dt.timedelta(days=1)  
         return date_list
        
