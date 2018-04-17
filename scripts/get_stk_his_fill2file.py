@@ -23,7 +23,7 @@ class STOCK:
         if not os.path.exists(log_dir):
             os.makedirs(log_dir) 
         self.log_file_path = log_dir + "log_" + time.strftime("%Y%m%d", time.localtime()) + ".txt"   
-        self.log_file_handle = open(self.log_file_path, 'w')
+        self.log_file_handle = open(self.log_file_path, 'a')
         
     def __del__(self):
         if self.log_file_handle:
@@ -47,7 +47,7 @@ class STOCK:
             if str_date in self.cal_dates['calendarDate'].values:  
                 return self.cal_dates[self.cal_dates['calendarDate']==str_date].iat[0,1]==1
         except Exception as err:
-            pass
+            self.write_log("%s not in cal_dates" % str_date)
         return False  
         
     def getDateToStr(self,date):
@@ -56,37 +56,44 @@ class STOCK:
         except Exception as err:
             return "" 
       
-    def getStrToDate(self,str):  
+    def getStrToDate(self, d_str):  
+        #self.write_log("in getStrToDate: %s", d_str) 
         try:
-            return dt.datetime.strptime(str,'%Y-%m-%d')  
+            return dt.datetime.strptime(d_str,'%Y-%m-%d')  
         except Exception as err:
-            return dt.datetime.strptime("1970-01-01",'%Y-%m-%d')
-        return dt.datetime.strptime(str,'%Y-%m-%d')    
+            self.write_log("%s is not a date" % d_str)
+        return False    
       
     #返回日期之间的所有日期列表  
     def getOpenedRangeDateList(self, startdate, enddate):
+        date_list = [] 
         begin_date = self.getStrToDate(startdate)  
         end_date = self.getStrToDate(enddate)  
-        self.write_log("in getOpenedRangeDateList: begin_date:{0} end_date{1}".format(begin_date, end_date))
+        if not end_date:
+            return date_list
+        self.write_log("in getOpenedRangeDateList: begin_date:{0} end_date:{1}".format(begin_date, end_date))
         #print("getOpenedRangeDateList  {0} {1} | {2} {3}".format(startdate, enddate, self.getDateToStr(begin_date), self.getDateToStr(end_date) ))
-        #py_now = pd.datetime.now()  
-        date_list = []  
+        #py_now = pd.datetime.now() 
         while begin_date <= end_date:  
             date_str = str(begin_date)  
             #print("line 34:" + date_str)
             if self.is_open_day(begin_date):
                 date_list.append(begin_date)  
+                #print("is open day")
+            else:
+                pass
+                #print("not open day")
             begin_date += dt.timedelta(days=1)  
         return date_list
        
     #一只股票某天的分笔数据  
-    def getHistoryTicksByCodeAndDate(self,code,date):  
+    def getHistoryTicksByCodeAndDate(self, code, date):  
         df = pd.DataFrame()
         try:  
             datestr = self.getDateToStr(date)
             df = ts.get_tick_data(code,date=datestr,pause=1)
         except Exception as err:  
-            self.write_log("读取历史分笔失败:%s" % err)  
+            self.write_log("read {0} {1} his tick fail:{2}".format(code, date, err))  
             df = pd.DataFrame() 
         return df  
       
@@ -119,7 +126,7 @@ class STOCK:
                                 self.write_log("df.empty")
                                 pass
                             else:  
-                                print ("code: %s , date: %s" % (codelist[c], datelist[d]))  
+                                #print ("code: %s , date: %s" % (codelist[c], datelist[d]))  
                                 df['change'] = df['change'].replace('--', '')  
                                 df['code'] = codelist[c]  
                                 df['date'] = datelist[d]
@@ -237,7 +244,15 @@ if __name__ == "__main__":
             print("df not empty")
     if 1:
         st = STOCK() 
-        st.getOpenedRangeDateList('2018-02-25', '2018-02-30')
+        date_lst = st.getOpenedRangeDateList('2018-02-15', '2018-02-19')
+        print(" date_lst:{0}".format(len(date_lst)))
+        for d in date_lst:
+            print(d)
+        val_ret = st.is_open_day('2018-02-15')
+        if val_ret:
+            print("ok ret:{0}".format(val_ret))
+        else:
+            print("fail ret:{0}".format(val_ret))
         ret = ""
         #ret = st.getAllFill2File('002538', '2017-11-5', '2017-11-10')
         #ret = st.getAllFill2File('002538', '2017-11-5', '2018-03-05')
