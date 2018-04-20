@@ -5,7 +5,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "StockSystem", "StockSystem.
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sfcDemo", "..\sfcDemo\sfcDemo.vcxproj", "{B896CDC7-3481-420F-8F87-A103994FB386}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "StkQuoter", "..\..\mytrd\StkQuoter\StkQuoter.vcxproj", "{BB9A46F9-A170-4AA7-98D4-B28294083D55}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "StkQuoter", "..\..\mytrd_proj\StkQuoter\StkQuoter.vcxproj", "{BB9A46F9-A170-4AA7-98D4-B28294083D55}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

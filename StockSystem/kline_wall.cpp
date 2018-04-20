@@ -40,7 +40,7 @@ KLineWall::KLineWall()
 
 	
     stockAllDaysInfo_.Init();
-	ResetStock("600333");
+	ResetStock("600196");
 }
 
 void KLineWall::mousePressEvent ( QMouseEvent * event )
@@ -263,12 +263,50 @@ void KLineWall::keyPressEvent(QKeyEvent *e)
             update();
             break;
         }
-    default: 
+
+    case Qt::Key_0: 
+    case Qt::Key_1: 
+    case Qt::Key_2: 
+    case Qt::Key_3: 
+    case Qt::Key_4: 
+    case Qt::Key_5: 
+    case Qt::Key_6: 
+    case Qt::Key_7: 
+    case Qt::Key_8: 
+    case Qt::Key_9: 
+    case Qt::Key_A:
+    case Qt::Key_B:
+    case Qt::Key_C:
+    case Qt::Key_D:
+    case Qt::Key_E:
+    case Qt::Key_F:
+    case Qt::Key_G:
+    case Qt::Key_H:
+    case Qt::Key_I:
+    case Qt::Key_J:
+    case Qt::Key_K:
+    case Qt::Key_L:
+    case Qt::Key_M:
+    case Qt::Key_N:
+    case Qt::Key_O:
+    case Qt::Key_P:
+    case Qt::Key_Q:
+    case Qt::Key_R:
+    case Qt::Key_S:
+    case Qt::Key_T:
+    case Qt::Key_U:
+    case Qt::Key_V:
+    case Qt::Key_W:
+    case Qt::Key_X:
+    case Qt::Key_Y:
+    case Qt::Key_Z:
 		{
 			qDebug() << __FUNCDNAME__ << "\n"; 
 			stock_input_dlg_.show();
 		}
 		break;
+    default:
+        break;
     }
 
     /*if( e->key() == Qt::Key_Down && k_num_ > 0 )
@@ -282,8 +320,10 @@ void KLineWall::ResetStock(const QString& stock)
 {
 	cur_stock_code_ = stock.toLocal8Bit().data();
 
-	p_hisdata_list_ = stockAllDaysInfo_.LoadStockData(cur_stock_code_, 20171216, 20180108);
-	//p_hisdata_list_ = stockAllDaysInfo_.LoadStockData(cur_stock_code_, 20171216, 20180102);
+	//p_hisdata_list_ = stockAllDaysInfo_.LoadStockData(cur_stock_code_, 20171216, 20180108);
+	//p_hisdata_list_ = stockAllDaysInfo_.LoadStockData(cur_stock_code_, 20160806, 20160902);
+	//p_hisdata_list_ = stockAllDaysInfo_.LoadStockData(cur_stock_code_, 20020420, 20020520);
+	p_hisdata_list_ = stockAllDaysInfo_.LoadStockData(cur_stock_code_, 20180108, 20180328);
 	if( !p_hisdata_list_ )
 		return;
 

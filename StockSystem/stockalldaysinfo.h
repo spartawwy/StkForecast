@@ -8,6 +8,44 @@
 
 #include "stk_quoter_api.h"
 
+#define UNKNOW_FRACTAL  0
+#define BTM_AXIS_T_3    0x00000001
+#define BTM_AXIS_T_5    0x00000002
+#define BTM_AXIS_T_7    0x00000004
+#define TOP_AXIS_T_3    0x00000008
+#define TOP_AXIS_T_5     0x00000010
+#define TOP_AXIS_T_7     0x00000020
+#define UPWARD_FRACTAL   0x00000040
+#define DOWNWARD_FRACTAL 0x00000080
+#define INSUFFIC_FRACTAL 0x00000100
+ 
+//enum class FractalType : unsigned char
+//{
+//    BTM_AXIS_T_3,
+//    BTM_AXIS_T_5,
+//    BTM_AXIS_T_7,
+//    TOP_AXIS_T_3,
+//    TOP_AXIS_T_5,
+//    TOP_AXIS_T_7,
+//    UP_FRACTAL,
+//    DOWN_FRT,
+//    TRANSFER_K
+//};
+
+struct T_KlineDateItem
+{
+    T_StockHisDataItem  stk_item;
+    int type;
+    T_KlineDateItem() : type(UNKNOW_FRACTAL)
+    {
+        memset(&stk_item, 0, sizeof(stk_item));
+    }
+    T_KlineDateItem(T_StockHisDataItem & his_data) : type(UNKNOW_FRACTAL)
+    {
+        memcpy(&stk_item, &his_data, sizeof(his_data));
+    }
+};
+
 typedef std::list<T_StockHisDataItem>  T_HisDataItemList;
 
 static bool compare(const T_StockHisDataItem &left_h, const T_StockHisDataItem &right_h)

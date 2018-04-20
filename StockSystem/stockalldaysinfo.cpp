@@ -3,6 +3,7 @@
 #include <iostream>
 #include <sstream>
 #include <assert.h>
+#include <memory>
 
 #include <Windows.h>
 #include <QtWidgets/QMessageBox>
@@ -56,12 +57,28 @@ T_HisDataItemList* StockAllDaysInfo::LoadStockData(const std::string &stk_code, 
     assert( stk_his_data_ && stk_hisdata_release_ );
 
     //stock_days_info_.find(
-    T_StockHisDataItem *p_data_items;
+    T_StockHisDataItem *p_data_items = nullptr;
     int count = stk_his_data_(const_cast<char*>(stk_code.c_str()), start_date, end_date, &p_data_items);
+
     if( !p_data_items )
     {
         return nullptr;
     }
+
+    std::list<std::shared_ptr<T_KlineDateItem> > T_KlineDateItems;
+
+    for( int k = 0; k < count; ++k )
+    {
+        auto k_item = std::make_shared<T_KlineDateItem>(p_data_items[k]);
+        T_KlineDateItems.push_back(std::move(k_item)); 
+    }
+    // sort T_KlineDateItems by day 
+
+    // todo: 1) find lowest price k, in every 3 
+           //2) judge if fit the ftracture 
+    // 
+
+
     auto iter = stock_his_items_.find(stk_code);
 
     if( iter == stock_his_items_.end() )
