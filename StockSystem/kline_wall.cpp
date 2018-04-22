@@ -142,10 +142,7 @@ void KLineWall::paintEvent(QPaintEvent *e)
     //cout<<stockAllDaysInfo_.GetStockAllDaysInfoList().size()<<endl;
     //？？？只需要最后60个数据，若少于等于60个，则正常绘图
 	if( p_hisdata_list_ )
-	{
-    /*for(iter = stockAllDaysInfo_.stockAllDaysInfoList.begin();
-        iter != stockAllDaysInfo_.stockAllDaysInfoList.end() && j < k_num_; 
-        iter++, j++)*/
+	{ 
 		for( auto iter = p_hisdata_list_->begin();
 			iter != p_hisdata_list_->end() && j < k_num_; 
 			iter++, j++)
@@ -159,10 +156,10 @@ void KLineWall::paintEvent(QPaintEvent *e)
         openPrice = ((StockDayInfo)(*iter)).GetOpenPrice();
         closePrice = ((StockDayInfo)(*iter)).GetClosePrice();
 #endif
-		minPrice = iter->low_price;
-		maxPrice = iter->high_price;
-		openPrice = iter->open_price;
-		closePrice = iter->close_price;
+		minPrice = (*iter)->stk_item.low_price;
+		maxPrice = (*iter)->stk_item.high_price;
+		openPrice = (*iter)->stk_item.open_price;
+		closePrice = (*iter)->stk_item.close_price;
         qDebug()<<openPrice<<"\t" << closePrice <<minPrice<<"\t"<<maxPrice<<"\t"<< "\n";
 
          auto item_w = ((mm_w - empty_right_w - right_w)/ k_num_) ;

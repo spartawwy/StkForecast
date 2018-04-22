@@ -9,6 +9,17 @@
 #include <QtWidgets/QMessageBox>
 #include <QDebug>
 
+void TraverseSetUpwardFractal( std::vector<std::shared_ptr<T_KlineDateItem> > &kline_data_items);
+
+static bool dompare( std::shared_ptr<T_KlineDateItem> &lh, std::shared_ptr<T_KlineDateItem> &rh)
+{
+    return lh->stk_item.date < rh->stk_item.date;
+}
+
+static bool bompare(const T_KlineDateItem &lh, const T_KlineDateItem &rh)
+{
+    return lh.stk_item.date < rh.stk_item.date;
+}
 
 StockAllDaysInfo::StockAllDaysInfo()
 {
@@ -32,6 +43,10 @@ bool StockAllDaysInfo::Init()
         return true;
     else
         return false;
+
+    std::vector<std::shared_ptr<int>> tmp_vector;
+    tmp_vector.reserve(365*26);
+    tmp_vector[200] = nullptr;
 }
 
 void StockAllDaysInfo::LoadDataFromFile(std::string fileName)
@@ -46,7 +61,7 @@ void StockAllDaysInfo::LoadDataFromFile(std::string fileName)
         //将strLine中的所有字段拆解并赋值给stockDayInfo的各个数据成员
         stockDayInfo.ReadData(strLine);
         //stockDayInfo.Display();
-        this->stockAllDaysInfoList.push_back(stockDayInfo);
+        //this->stockAllDaysInfoList.push_back(stockDayInfo);
     }
     inputFile.close();
 }
@@ -64,49 +79,50 @@ T_HisDataItemList* StockAllDaysInfo::LoadStockData(const std::string &stk_code, 
     {
         return nullptr;
     }
-
-    std::list<std::shared_ptr<T_KlineDateItem> > T_KlineDateItems;
-
+#if 1
+    std::vector<std::shared_ptr<T_KlineDateItem> > kline_data_items;
     for( int k = 0; k < count; ++k )
     {
         auto k_item = std::make_shared<T_KlineDateItem>(p_data_items[k]);
-        T_KlineDateItems.push_back(std::move(k_item)); 
+        kline_data_items.push_back(std::move(k_item)); 
     }
+
     // sort T_KlineDateItems by day 
+    std::sort(kline_data_items.begin(), kline_data_items.end(), dompare);
+     
+#endif 
 
-    // todo: 1) find lowest price k, in every 3 
-           //2) judge if fit the ftracture 
-    // 
-
-
+#if 1
     auto iter = stock_his_items_.find(stk_code);
-
     if( iter == stock_his_items_.end() )
        iter = stock_his_items_.insert(std::make_pair(stk_code, T_HisDataItemList())).first;
 
+    T_HisDataItemList & his_data_item_list = iter->second;
     for( int i = 0; i < count; ++i )
     {
-        if( iter->second.begin() == iter->second.end() )
-         {
-             iter->second.push_back(p_data_items[i]);
+        if( his_data_item_list.empty() )
+        {
+             his_data_item_list.push_back(kline_data_items[i]);
              continue;
-         }
-		/*bool is_find = std::find_if( std::begin(iter->second), std::end(iter->second), [&](T_HisDataItemList::reference entry)
+        }
+		 
+        if( his_data_item_list.rbegin()->get()->stk_item.date < kline_data_items[i]->stk_item.date )
 		{
-			return entry.date == p_data_items[i].date;
-		});*/
-        if( iter->second.rbegin()->date < p_data_items[i].date )
+			qDebug() << " rbegin data " << his_data_item_list.rbegin()->get()->stk_item.date << "\n";
+            his_data_item_list.push_back(kline_data_items[i]);
+
+		}else if( his_data_item_list.begin()->get()->stk_item.date > kline_data_items[i]->stk_item.date )
 		{
-			qDebug() << " rbegin data " << iter->second.rbegin()->date << "\n";
-            iter->second.push_back(p_data_items[i]);
-		}else if( iter->second.begin()->date > p_data_items[i].date )
-		{
-			iter->second.push_front(p_data_items[i]);
+			his_data_item_list.push_front(kline_data_items[i]);
 		}
     }
+
+#endif
+
 	stk_hisdata_release_(p_data_items);
 
-    iter->second.sort(compare);
+    TraverseSetUpwardFractal(iter->second);
+    //iter->second.sort(compare);
     //std::sort(iter->second.begin(), iter->second.end(), compare_index);
 	return std::addressof(iter->second);
 }
@@ -115,13 +131,13 @@ T_HisDataItemList* StockAllDaysInfo::LoadStockData(const std::string &stk_code, 
 float StockAllDaysInfo::GetLowestMinPrice()
 {
     float lowestMinPrice = 100000000.0f;
-    std::list<StockDayInfo>::iterator iter;
-    for(iter = stockAllDaysInfoList.begin(); iter != stockAllDaysInfoList.end(); iter++)
+    //std::list<StockDayInfo>::iterator iter;
+    for(auto iter = KlineDataContainer_.begin(); iter != KlineDataContainer_.end(); iter++)
     {
         //搜索当前元素是否比现有的最小值要更小，更小则替换
-        if(lowestMinPrice > ((StockDayInfo)(*iter)).GetMinPrice())
+        if( lowestMinPrice > (*iter)->stk_item.low_price )
         {
-            lowestMinPrice = ((StockDayInfo)(*iter)).GetMinPrice();
+            lowestMinPrice = (*iter)->stk_item.low_price;
         }
     }
 
@@ -131,13 +147,12 @@ float StockAllDaysInfo::GetLowestMinPrice()
 float StockAllDaysInfo::GetHighestMaxPrice()
 {
     float higestMaxPrice = 0.0f;
-    std::list<StockDayInfo>::iterator iter;
-    for(iter = stockAllDaysInfoList.begin(); iter != stockAllDaysInfoList.end(); iter++)
-    {
-        //搜索当前元素是否比现有的最小值要更小，更小则替换
-        if(higestMaxPrice < ((StockDayInfo)(*iter)).GetMaxPrice())
+    //std::list<StockDayInfo>::iterator iter;
+    for( auto iter = KlineDataContainer_.begin(); iter != KlineDataContainer_.end(); iter++)
+    { 
+        if(higestMaxPrice < (*iter)->stk_item.high_price )
         {
-            higestMaxPrice = ((StockDayInfo)(*iter)).GetMaxPrice();
+            higestMaxPrice = (*iter)->stk_item.high_price;
         }
     }
     return higestMaxPrice;
@@ -148,8 +163,7 @@ float StockAllDaysInfo::GetHisDataLowestMinPrice(const std::string& stock)
 	auto iter = stock_his_items_.find(stock);
 	if( iter == stock_his_items_.end() )
 		return 0.0;
-	iter->second;
-
+	 
 	float lowestMinPrice = 100000000.0f; 
 	std::for_each( std::begin(iter->second), std::end(iter->second), [&](const T_StockHisDataItem& entry)
     { 
@@ -178,7 +192,135 @@ float StockAllDaysInfo::GetHisDataHighestMaxPrice(const std::string& stock)
 }
 
 
-std::list<StockDayInfo> StockAllDaysInfo::GetStockAllDaysInfoList()
+void TraverseSetT3UpwardFractal( std::vector<std::shared_ptr<T_KlineDateItem> > &kline_data_items)
+{ 
+    int index = 1;
+    while( index < kline_data_items.size() - 1 )
+    {
+        if( kline_data_items[index-1]->stk_item.low_price < kline_data_items[index]->stk_item.low_price
+            || kline_data_items[index+1]->stk_item.low_price < kline_data_items[index]->stk_item.low_price )
+            continue;
+        bool is_exist_ahead_fractal = false;
+        bool is_exist_follow_fractal = false;
+        // search fractal ahead  
+        for( int k = index - 1; k > 0; --k )
+        {
+            if( kline_data_items[k]->stk_item.low_price > kline_data_items[index]->stk_item.low_price )
+            {
+                if( kline_data_items[k]->stk_item.high_price > kline_data_items[index]->stk_item.high_price )
+                {
+                    kline_data_items[k]->type |= UPWARD_FRACTAL;
+                    is_exist_ahead_fractal = true;
+                    break;
+                }else
+                    kline_data_items[k]->type |= INSUFFIC_FRACTAL; 
+            }else
+            {
+                //kline_data_items[index]->type
+                break;
+            }
+        }
+
+        if( is_exist_ahead_fractal )
+        { 
+            // search fractal follow    
+            for( int k = index + 1; k < kline_data_items.size(); ++k )
+            {
+                if( kline_data_items[k]->stk_item.low_price > kline_data_items[index]->stk_item.low_price )
+                {
+                    if( kline_data_items[k]->stk_item.high_price > kline_data_items[index]->stk_item.high_price )
+                    {
+                        kline_data_items[k]->type |= UPWARD_FRACTAL;
+                        is_exist_follow_fractal = true;
+                        break;
+                    }else
+                        kline_data_items[k]->type |= INSUFFIC_FRACTAL; 
+                }else
+                    break;
+            }
+        }
+        if( is_exist_ahead_fractal && is_exist_follow_fractal )
+            kline_data_items[index]->type |= BTM_AXIS_T_3;
+        ++index;
+    } 
+}
+
+void TraverseSetUpwardFractal( std::vector<std::shared_ptr<T_KlineDateItem> > &kline_data_items)
 {
-    return this->stockAllDaysInfoList;
+    int index = 1;
+    while( index < kline_data_items.size() - 1 )
+    {
+        if( kline_data_items[index-1]->stk_item.low_price < kline_data_items[index]->stk_item.low_price
+            || kline_data_items[index+1]->stk_item.low_price < kline_data_items[index]->stk_item.low_price )
+            continue;
+     
+        int n_fractal_ahead = 0;
+        int n_fractal_follow = 0;
+        // search fractal ahead  -----------
+        int index_to_check = index;
+        for( int k = index_to_check - 1; k > 0; )
+        {
+            if( kline_data_items[k]->stk_item.low_price > kline_data_items[index_to_check]->stk_item.low_price )
+            { 
+                if( kline_data_items[k]->stk_item.high_price > kline_data_items[index_to_check]->stk_item.high_price )
+                { 
+                    ++n_fractal_ahead;
+                    index_to_check = k;
+                    --k;
+                    continue;
+                } 
+            }else
+            { 
+                break;
+            }
+            --k;
+        }
+         
+        if( n_fractal_ahead > 0 )
+        {   // search fractal follow  --------  
+            index_to_check = index;
+            for( int k = index + 1; k < kline_data_items.size(); )
+            {
+                if( kline_data_items[k]->stk_item.low_price > kline_data_items[index_to_check]->stk_item.low_price )
+                {
+                    if( kline_data_items[k]->stk_item.low_price > kline_data_items[index_to_check]->stk_item.high_price )
+                    {
+                        // it's transfer k line
+                        ++k;
+                        continue;
+                    }else if( kline_data_items[k]->stk_item.high_price > kline_data_items[index_to_check]->stk_item.high_price )
+                    {
+                        //kline_data_items[k]->type |= UPWARD_FRACTAL;
+                        ++n_fractal_follow;
+                        index_to_check = k;
+                        ++k;
+                        continue;
+                    }/*else
+                        kline_data_items[k]->type |= INSUFFIC_FRACTAL; */
+                }else
+                    break;
+            }
+        }
+
+        if( n_fractal_ahead > 0 && n_fractal_follow > 0 )
+        {
+            kline_data_items[index]->type |= BTM_AXIS_T_3;
+            if( n_fractal_ahead > 1 && n_fractal_follow > 1 )
+            {
+                kline_data_items[index]->type |= BTM_AXIS_T_5;
+                if( n_fractal_ahead > 2 && n_fractal_follow > 2 )
+                {
+                    kline_data_items[index]->type |= BTM_AXIS_T_7;
+                    if( n_fractal_ahead > 3 && n_fractal_follow > 3 )
+                    {
+                        kline_data_items[index]->type |= BTM_AXIS_T_9;
+                        if( n_fractal_ahead > 4 && n_fractal_follow > 4 )
+                        {
+                            kline_data_items[index]->type |= BTM_AXIS_T_11;
+                        }
+                    }
+                }
+            }
+        }
+        ++index;
 }

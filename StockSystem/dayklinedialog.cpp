@@ -113,7 +113,7 @@ void DayKLineDialog::paintEvent(QPaintEvent *)
     //    }
     //画日K线图
 
-    std::list<StockDayInfo>::iterator iter;
+    std::vector<std::shared_ptr<T_KlineDateItem> >::iterator iter;
     float openPrice;//开盘价
     float closePrice;//收盘价
     float maxPrice;//最高价
@@ -122,17 +122,23 @@ void DayKLineDialog::paintEvent(QPaintEvent *)
     int j = 0;
     //cout<<stockAllDaysInfo_.GetStockAllDaysInfoList().size()<<endl;
     //？？？只需要最后60个数据，若少于等于60个，则正常绘图
-    for(iter = stockAllDaysInfo_.stockAllDaysInfoList.begin();
-        iter != stockAllDaysInfo_.stockAllDaysInfoList.end(); 
+    for(iter = stockAllDaysInfo_.KlineDataContainer_.begin();
+        iter != stockAllDaysInfo_.KlineDataContainer_.end(); 
         iter++, j++)
     {
         //绘图每天的股票消息
         //((StockDayInfo)(*iter)).Display();
         //读取每天的股票数据，获得一支股票的最高价 最低价 开盘价 收盘价
-        minPrice = ((StockDayInfo)(*iter)).GetMinPrice();
+        
+      /*  minPrice = ((StockDayInfo)(*iter)).GetMinPrice();
         maxPrice = ((StockDayInfo)(*iter)).GetMaxPrice();
         openPrice = ((StockDayInfo)(*iter)).GetOpenPrice();
-        closePrice = ((StockDayInfo)(*iter)).GetClosePrice();
+        closePrice = ((StockDayInfo)(*iter)).GetClosePrice();*/
+        minPrice = (*iter)->stk_item.low_price;
+        maxPrice = (*iter)->stk_item.high_price;
+        openPrice = (*iter)->stk_item.open_price;
+        closePrice = (*iter)->stk_item.close_price;
+
         std::cout<<minPrice<<"\t"<<maxPrice<<"\t"<<openPrice<<"\t"<<closePrice << std::endl;
 
          auto item_w = (mm_w / 8) ;

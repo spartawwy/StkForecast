@@ -2,35 +2,31 @@
 #define STOCKALLDAYSINFO_H
 #include <list>
 #include <iostream>
+#include <memory>
 #include <map>
+#include <vector>
 
 #include "stockdayinfo.h"
 
 #include "stk_quoter_api.h"
 
-#define UNKNOW_FRACTAL  0
-#define BTM_AXIS_T_3    0x00000001
-#define BTM_AXIS_T_5    0x00000002
-#define BTM_AXIS_T_7    0x00000004
-#define TOP_AXIS_T_3    0x00000008
-#define TOP_AXIS_T_5     0x00000010
-#define TOP_AXIS_T_7     0x00000020
-#define UPWARD_FRACTAL   0x00000040
-#define DOWNWARD_FRACTAL 0x00000080
-#define INSUFFIC_FRACTAL 0x00000100
+#define UNKNOW_FRACTAL   0
+#define BTM_AXIS_T_3     0x00000001
+#define BTM_AXIS_T_5     0x00000002
+#define BTM_AXIS_T_7     0x00000004
+#define BTM_AXIS_T_9     0x00000008
+#define BTM_AXIS_T_11    0x00000010
+
+#define TOP_AXIS_T_3     0x00000020
+#define TOP_AXIS_T_5     0x00000040
+#define TOP_AXIS_T_7     0x00000080
+#define TOP_AXIS_T_9     0x00000100
+#define TOP_AXIS_T_11    0x00000200
+
+#define UPWARD_FRACTAL   0x10000000
+#define DOWNWARD_FRACTAL 0x20000000
+#define INSUFFIC_FRACTAL 0x40000000  
  
-//enum class FractalType : unsigned char
-//{
-//    BTM_AXIS_T_3,
-//    BTM_AXIS_T_5,
-//    BTM_AXIS_T_7,
-//    TOP_AXIS_T_3,
-//    TOP_AXIS_T_5,
-//    TOP_AXIS_T_7,
-//    UP_FRACTAL,
-//    DOWN_FRT,
-//    TRANSFER_K
-//};
 
 struct T_KlineDateItem
 {
@@ -46,7 +42,8 @@ struct T_KlineDateItem
     }
 };
 
-typedef std::list<T_StockHisDataItem>  T_HisDataItemList;
+//typedef std::list<T_StockHisDataItem>  T_HisDataItemList;
+typedef std::list<std::shared_ptr<T_KlineDateItem> >  T_HisDataItemList;
 
 static bool compare(const T_StockHisDataItem &left_h, const T_StockHisDataItem &right_h)
 {
@@ -69,7 +66,8 @@ public:
     bool Init();
 public:
     //list容器，数据类型为一只股票一天的消息，是StockAllDaysInfo的数据成员
-    std::list<StockDayInfo> stockAllDaysInfoList;
+    //std::list<StockDayInfo> stockAllDaysInfoList;
+    std::vector<std::shared_ptr<T_KlineDateItem> > KlineDataContainer_;
 
     //从fileName指定的磁盘路径中将数据一行一行读取出来，每一行初始化一个StockDayInfo对象
     void LoadDataFromFile(std::string fileName);
@@ -83,8 +81,8 @@ public:
 	float GetHisDataHighestMaxPrice(const std::string& stock);
 
 public:
-    std::list<StockDayInfo> GetStockAllDaysInfoList();
-    std::map<std::string,  std::list<StockDayInfo> > stock_days_info_;
+    //std::list<StockDayInfo> GetStockAllDaysInfoList();
+    //std::map<std::string,  std::list<StockDayInfo> > stock_days_info_;
 
     std::map<std::string, T_HisDataItemList> stock_his_items_;
 
