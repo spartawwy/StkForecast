@@ -67,7 +67,7 @@ public:
 public:
     //list容器，数据类型为一只股票一天的消息，是StockAllDaysInfo的数据成员
     //std::list<StockDayInfo> stockAllDaysInfoList;
-    std::vector<std::shared_ptr<T_KlineDateItem> > KlineDataContainer_;
+    std::vector<std::shared_ptr<T_KlineDateItem> > day_kline_data_container_;
 
     //从fileName指定的磁盘路径中将数据一行一行读取出来，每一行初始化一个StockDayInfo对象
     void LoadDataFromFile(std::string fileName);

@@ -121,7 +121,7 @@ T_HisDataItemList* StockAllDaysInfo::LoadStockData(const std::string &stk_code, 
 
 	stk_hisdata_release_(p_data_items);
 
-    TraverseSetUpwardFractal(iter->second);
+    TraverseSetUpwardFractal();
     //iter->second.sort(compare);
     //std::sort(iter->second.begin(), iter->second.end(), compare_index);
 	return std::addressof(iter->second);
@@ -132,7 +132,7 @@ float StockAllDaysInfo::GetLowestMinPrice()
 {
     float lowestMinPrice = 100000000.0f;
     //std::list<StockDayInfo>::iterator iter;
-    for(auto iter = KlineDataContainer_.begin(); iter != KlineDataContainer_.end(); iter++)
+    for(auto iter = day_kline_data_container_.begin(); iter != day_kline_data_container_.end(); iter++)
     {
         //搜索当前元素是否比现有的最小值要更小，更小则替换
         if( lowestMinPrice > (*iter)->stk_item.low_price )
@@ -148,7 +148,7 @@ float StockAllDaysInfo::GetHighestMaxPrice()
 {
     float higestMaxPrice = 0.0f;
     //std::list<StockDayInfo>::iterator iter;
-    for( auto iter = KlineDataContainer_.begin(); iter != KlineDataContainer_.end(); iter++)
+    for( auto iter = day_kline_data_container_.begin(); iter != day_kline_data_container_.end(); iter++)
     { 
         if(higestMaxPrice < (*iter)->stk_item.high_price )
         {

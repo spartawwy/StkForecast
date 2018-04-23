@@ -192,7 +192,7 @@ void KLineWall::paintEvent(QPaintEvent *e)
             , -1 * mm_h * (minPrice-lowestMinPrice)/(highestMaxPrice - lowestMinPrice));   //»æÖÆÖ±Ïß
 
         if( pos_from_global.x() >= j * item_w + 1 && pos_from_global.x() <= j * item_w + 1 + k_bar_w )
-            k_data_str_ = std::to_string(iter->date);
+            k_data_str_ = std::to_string((*iter)->stk_item.date);
       }  // for
     }
 	  

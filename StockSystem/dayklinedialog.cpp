@@ -122,8 +122,8 @@ void DayKLineDialog::paintEvent(QPaintEvent *)
     int j = 0;
     //cout<<stockAllDaysInfo_.GetStockAllDaysInfoList().size()<<endl;
     //？？？只需要最后60个数据，若少于等于60个，则正常绘图
-    for(iter = stockAllDaysInfo_.KlineDataContainer_.begin();
-        iter != stockAllDaysInfo_.KlineDataContainer_.end(); 
+    for(iter = stockAllDaysInfo_.day_kline_data_container_.begin();
+        iter != stockAllDaysInfo_.day_kline_data_container_.end(); 
         iter++, j++)
     {
         //绘图每天的股票消息
