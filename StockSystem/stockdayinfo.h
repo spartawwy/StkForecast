@@ -1,5 +1,6 @@
 ﻿#ifndef STOCKDAYINFO_H
 #define STOCKDAYINFO_H
+
 #include <string>
 
 //using namespace std;

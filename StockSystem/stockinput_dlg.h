@@ -4,8 +4,7 @@
 #include <QtWidgets/QWidget>
 
 #include "ui_stockinputdlg.h"
-
-//#include "stockalldaysinfo.h"
+ 
 class KLineWall;
 
 class StockInputDlg : public QWidget
