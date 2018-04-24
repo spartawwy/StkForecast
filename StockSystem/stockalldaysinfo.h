@@ -43,16 +43,13 @@ struct T_KlineDateItem
 };
 
 //typedef std::list<T_StockHisDataItem>  T_HisDataItemList;
-typedef std::list<std::shared_ptr<T_KlineDateItem> >  T_HisDataItemList;
+typedef std::vector<std::shared_ptr<T_KlineDateItem> >  T_HisDataItemContainer;
 
 static bool compare(const T_StockHisDataItem &left_h, const T_StockHisDataItem &right_h)
 {
     return left_h.date < right_h.date; // from small to big
 }
-//static bool compare(const T_StockHisDataItem *left_h, const T_StockHisDataItem *right_h)
-//{
-//    return left_h->date < right_h->date;
-//}
+ 
 static bool compare_index(const T_StockHisDataItem *left_h, const T_StockHisDataItem *right_h)
 {
     return left_h->date < right_h->date;
@@ -71,7 +68,7 @@ public:
 
     //从fileName指定的磁盘路径中将数据一行一行读取出来，每一行初始化一个StockDayInfo对象
     void LoadDataFromFile(std::string fileName);
-    T_HisDataItemList* LoadStockData(const std::string &stk_code, int start_date, int end_date);
+    T_HisDataItemContainer* LoadStockData(const std::string &stk_code, int start_date, int end_date);
 	     
 public:
     float GetLowestMinPrice();
@@ -84,7 +81,7 @@ public:
     //std::list<StockDayInfo> GetStockAllDaysInfoList();
     //std::map<std::string,  std::list<StockDayInfo> > stock_days_info_;
 
-    std::map<std::string, T_HisDataItemList> stock_his_items_;
+    std::map<std::string, T_HisDataItemContainer> stock_his_items_;
 
 private:
     StkHisDataDelegate stk_his_data_;

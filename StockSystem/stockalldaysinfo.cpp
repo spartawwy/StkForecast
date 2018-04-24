@@ -9,6 +9,10 @@
 #include <QtWidgets/QMessageBox>
 #include <QDebug>
 
+#define RESERVE_CAPACITY_IN_T_VECTOR    1024*16
+//#define RESERVE_SIZE_IN_T_VECTOR    1024*16
+//#define FIRST_STARTPOS_IN_T_VECTOR  10000
+
 void TraverseSetUpwardFractal( std::vector<std::shared_ptr<T_KlineDateItem> > &kline_data_items);
 
 static bool dompare( std::shared_ptr<T_KlineDateItem> &lh, std::shared_ptr<T_KlineDateItem> &rh)
@@ -44,9 +48,9 @@ bool StockAllDaysInfo::Init()
     else
         return false;
 
-    std::vector<std::shared_ptr<int>> tmp_vector;
+    /*std::vector<std::shared_ptr<int>> tmp_vector;
     tmp_vector.reserve(365*26);
-    tmp_vector[200] = nullptr;
+    tmp_vector[200] = nullptr;*/
 }
 
 void StockAllDaysInfo::LoadDataFromFile(std::string fileName)
@@ -67,7 +71,7 @@ void StockAllDaysInfo::LoadDataFromFile(std::string fileName)
 }
 
 // date is save from recent to remote
-T_HisDataItemList* StockAllDaysInfo::LoadStockData(const std::string &stk_code, int start_date, int end_date)
+T_HisDataItemContainer* StockAllDaysInfo::LoadStockData(const std::string &stk_code, int start_date, int end_date)
 {
     assert( stk_his_data_ && stk_hisdata_release_ );
 
@@ -81,13 +85,14 @@ T_HisDataItemList* StockAllDaysInfo::LoadStockData(const std::string &stk_code, 
     }
 #if 1
     std::vector<std::shared_ptr<T_KlineDateItem> > kline_data_items;
+
     for( int k = 0; k < count; ++k )
     {
         auto k_item = std::make_shared<T_KlineDateItem>(p_data_items[k]);
         kline_data_items.push_back(std::move(k_item)); 
     }
 
-    // sort T_KlineDateItems by day 
+    // sort T_KlineDateItems by day from small to bigger
     std::sort(kline_data_items.begin(), kline_data_items.end(), dompare);
      
 #endif 
@@ -95,25 +100,30 @@ T_HisDataItemList* StockAllDaysInfo::LoadStockData(const std::string &stk_code, 
 #if 1
     auto iter = stock_his_items_.find(stk_code);
     if( iter == stock_his_items_.end() )
-       iter = stock_his_items_.insert(std::make_pair(stk_code, T_HisDataItemList())).first;
+    {
+       iter = stock_his_items_.insert(std::make_pair(stk_code, T_HisDataItemContainer())).first;
+       //  19901219..20151231 | 20160104..
+       iter->second.reserve(RESERVE_CAPACITY_IN_T_VECTOR);
+       // select count(*) from exchangeDate where is_tradeday=1 and date>=20160101 limit 10;
+    }
 
-    T_HisDataItemList & his_data_item_list = iter->second;
+    T_HisDataItemContainer & his_data_items = iter->second;
     for( int i = 0; i < count; ++i )
     {
-        if( his_data_item_list.empty() )
+        if( his_data_items.empty() )
         {
-             his_data_item_list.push_back(kline_data_items[i]);
+            his_data_items.push_back(kline_data_items[i]);
              continue;
         }
 		 
-        if( his_data_item_list.rbegin()->get()->stk_item.date < kline_data_items[i]->stk_item.date )
+        if( his_data_items.rbegin()->get()->stk_item.date < kline_data_items[i]->stk_item.date )
 		{
-			qDebug() << " rbegin data " << his_data_item_list.rbegin()->get()->stk_item.date << "\n";
-            his_data_item_list.push_back(kline_data_items[i]);
+			qDebug() << " rbegin data " << his_data_items.rbegin()->get()->stk_item.date << "\n";
+            his_data_items.push_back(kline_data_items[i]);
 
-		}else if( his_data_item_list.begin()->get()->stk_item.date > kline_data_items[i]->stk_item.date )
+		}else if( his_data_items.begin()->get()->stk_item.date > kline_data_items[i]->stk_item.date )
 		{
-			his_data_item_list.push_front(kline_data_items[i]);
+			his_data_items.push_front(kline_data_items[i]);
 		}
     }
 
