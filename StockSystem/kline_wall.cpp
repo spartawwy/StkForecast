@@ -15,7 +15,7 @@ KLineWall::KLineWall()
     , show_cross_line_(false)
     , is_repaint_k_(true)
     , k_num_(8)
-	, p_hisdata_list_(nullptr)
+	, p_hisdata_container_(nullptr)
 	, stock_input_dlg_(this)
 {
     ui.setupUi(this);
@@ -26,7 +26,6 @@ KLineWall::KLineWall()
     stk_days_infos_.push_back(std_data);
 	this->highestMaxPrice = stockAllDaysInfo_.GetHighestMaxPrice();
     this->lowestMinPrice = stockAllDaysInfo_.GetLowestMinPrice();
-#else
     
 #endif
 
@@ -67,9 +66,7 @@ void KLineWall::paintEvent(QPaintEvent *e)
     float price_per_len = (highestMaxPrice - lowestMinPrice) / float(mm_h);
       
      /*
-     ------------------------>
-     |
-     |
+     ------------>
      |
      |
     \|/
@@ -83,10 +80,9 @@ void KLineWall::paintEvent(QPaintEvent *e)
 
     矩形宽度：13像素
     矩形高度：350*(开盘价-收盘价)/(HighestMaxPrice - lowestMinPrice)像素
-    */
-
-    //坐标平移
-    //painter.translate(30, 400);
+    */ 
+    
+    //painter.translate(30, 400);  //坐标平移
      
     QPen pen; 
     pen.setColor(Qt::white);
@@ -129,8 +125,7 @@ void KLineWall::paintEvent(QPaintEvent *e)
     //    }
 
     //画日K线图 -------------------------------------
-
-    
+     
     std::list<StockDayInfo>::iterator iter0;
     float openPrice;//开盘价
     float closePrice;//收盘价
@@ -141,21 +136,21 @@ void KLineWall::paintEvent(QPaintEvent *e)
 
     //cout<<stockAllDaysInfo_.GetStockAllDaysInfoList().size()<<endl;
     //？？？只需要最后60个数据，若少于等于60个，则正常绘图
-	if( p_hisdata_list_ )
+	if( p_hisdata_container_ )
 	{ 
-		for( auto iter = p_hisdata_list_->begin();
-			iter != p_hisdata_list_->end() && j < k_num_; 
-			iter++, j++)
-    {
+        int t_cycle = 0;
+        int index_tcycle_start = 0;
+        int index_tcycle_second = 0;
+        bool has_first_tcycle_line_drawed = false;
+		for( auto iter = p_hisdata_container_->begin();
+			iter != p_hisdata_container_->end() && j < k_num_; 
+			++iter, ++j)
+    { 
+        bool is_lowest_k = false;
         //绘图每天的股票消息
         //((StockDayInfo)(*iter)).Display();
         //读取每天的股票数据，获得一支股票的最高价 最低价 开盘价 收盘价
-#if 0 
-		minPrice = ((StockDayInfo)(*iter)).GetMinPrice();
-        maxPrice = ((StockDayInfo)(*iter)).GetMaxPrice();
-        openPrice = ((StockDayInfo)(*iter)).GetOpenPrice();
-        closePrice = ((StockDayInfo)(*iter)).GetClosePrice();
-#endif
+ 
 		minPrice = (*iter)->stk_item.low_price;
 		maxPrice = (*iter)->stk_item.high_price;
 		openPrice = (*iter)->stk_item.open_price;
@@ -165,7 +160,7 @@ void KLineWall::paintEvent(QPaintEvent *e)
          auto item_w = ((mm_w - empty_right_w - right_w)/ k_num_) ;
          int k_bar_w = item_w-2;
 
-		 QBrush brush(QColor(255,0,0)); //画刷
+		 QBrush brush(QColor(255,0,0));  
 		 pen.setStyle(Qt::SolidLine);
         //绘图每天的股票到K线图上
         if(openPrice <= closePrice)
@@ -186,14 +181,11 @@ void KLineWall::paintEvent(QPaintEvent *e)
         {
             pen.setColor(QColor(0,0,255)); 
             brush.setColor(QColor(0,0,255));
-        }
-        /*int valsdf = 224 & TOP_AXIS_T_3;
-        if( (224 & TOP_AXIS_T_3) == TOP_AXIS_T_3 )
-        {
-            int sdfs  = 0;
-            sdfs = sdfs;
-        }*/
-        if( ((*iter)->type & TOP_AXIS_T_3) == TOP_AXIS_T_3 
+            if( iter->get()->stk_item.low_price < this->lowestMinPrice + 0.001 )
+            {
+                is_lowest_k = true; 
+            }
+        }else if( ((*iter)->type & TOP_AXIS_T_3) == TOP_AXIS_T_3 
             || ((*iter)->type & TOP_AXIS_T_5) == TOP_AXIS_T_5 
             || ((*iter)->type & TOP_AXIS_T_7) == TOP_AXIS_T_7
             || ((*iter)->type & TOP_AXIS_T_9) == TOP_AXIS_T_9
@@ -203,21 +195,63 @@ void KLineWall::paintEvent(QPaintEvent *e)
             brush.setColor(QColor(0,255,255));
         }
 		//const auto base_val = mm_h / 2; //350 
-		painter.setPen(pen); //添加画笔
-        painter.setBrush(brush); //添加画刷
-            
+		painter.setPen(pen);  
+        painter.setBrush(brush);  
+        // draw k rect ----------------    
 		auto pos_y = -1 * mm_h * (openPrice - lowestMinPrice)/(highestMaxPrice - lowestMinPrice);
 		auto h_1 = -1 * mm_h *(closePrice - openPrice)/(highestMaxPrice - lowestMinPrice);
-        painter.drawRect(j * item_w + 1,  pos_y, k_bar_w, h_1); //绘制矩形
-		
-        painter.drawLine(j * item_w + k_bar_w/2
+        painter.drawRect(j * item_w + 1,  pos_y, k_bar_w, h_1);  
+
+		// draw k line from heigh price to low price----------
+        const int point_x = j * item_w + k_bar_w / 2;
+        const int point_low_y = -1 * mm_h * (minPrice-lowestMinPrice)/(highestMaxPrice - lowestMinPrice);
+        painter.drawLine(point_x
             , -1 * mm_h * (maxPrice-lowestMinPrice)/(highestMaxPrice - lowestMinPrice)
-            , j * item_w + k_bar_w/2
-            , -1 * mm_h * (minPrice-lowestMinPrice)/(highestMaxPrice - lowestMinPrice));   //绘制直线
+            , point_x
+            , point_low_y);  
 
         if( pos_from_global.x() >= j * item_w + 1 && pos_from_global.x() <= j * item_w + 1 + k_bar_w )
             k_data_str_ = std::to_string((*iter)->stk_item.date);
-      }  // for
+
+        if( !has_first_tcycle_line_drawed )
+        { 
+            if( is_lowest_k && j > 0 )
+            {
+                int k = j - 1; 
+                for(  auto it = iter-1; k >= 0; --it, --k )
+                {
+                    if( ( it->get()->type & TOP_AXIS_T_3 ) == TOP_AXIS_T_3 )
+                    {
+                        auto pre_iter = iter - 1;
+                        const int pre_iter_point_x = (j - 1) * item_w + k_bar_w / 2;
+                        const int pre_iter_point_y = -1 * mm_h * ((*pre_iter)->stk_item.low_price-lowestMinPrice)/(highestMaxPrice - lowestMinPrice);
+                        const int pre_top_ax_point_x = k * item_w + k_bar_w / 2;
+                        const int pre_top_ax_point_low_y = -1 * mm_h * ((*it)->stk_item.high_price-lowestMinPrice)/(highestMaxPrice - lowestMinPrice);
+                        painter.drawLine(pre_top_ax_point_x, pre_top_ax_point_low_y
+                                        , pre_iter_point_x, pre_iter_point_y);
+                        // tcycle vertical line 
+                        painter.drawLine(pre_iter_point_x, 0
+                                         ,pre_iter_point_x, -1 * mm_h * (highestMaxPrice - lowestMinPrice));
+                        index_tcycle_start = j - 1; 
+                        t_cycle = j - k; 
+                        index_tcycle_second = index_tcycle_start + t_cycle - 1;
+                        has_first_tcycle_line_drawed = true;
+                        break;
+                    }
+                }
+            }
+        }else
+        {
+            if( j == index_tcycle_second )  
+            { 
+                painter.drawLine(point_x, 0, point_x, -1 * mm_h * (highestMaxPrice - lowestMinPrice));
+            }else if( j > index_tcycle_second && (j - index_tcycle_second) % t_cycle == 0 )
+            { 
+                painter.drawLine(point_x, 0, point_x, -1 * mm_h * (highestMaxPrice - lowestMinPrice));
+            }
+        }
+        
+      }  // for all k
     }
 	  
     painter.translate(0, -1 * (this->height() - bottom_h));
@@ -228,7 +262,9 @@ void KLineWall::paintEvent(QPaintEvent *e)
     if( show_cross_line_ )
     {
         qDebug() << "pos y " << (float)pos_from_global.y() << "\n";
+        // horizontal line 
         painter.drawLine(0, pos_from_global.y(), mm_w-right_w, pos_from_global.y());
+        // vertical line 
         painter.drawLine(pos_from_global.x(), head_h, pos_from_global.x(), this->height()/* - head_h*/); 
         painter.drawText( mm_w-right_w, pos_from_global.y(), QString("%1").arg(lowestMinPrice + price_per_len * (this->height() - bottom_h - pos_from_global.y()) ) );
       
@@ -341,18 +377,18 @@ void KLineWall::ResetStock(const QString& stock)
 {
 	cur_stock_code_ = stock.toLocal8Bit().data();
 
-	//p_hisdata_list_ = stockAllDaysInfo_.LoadStockData(cur_stock_code_, 20171216, 20180108);
-	//p_hisdata_list_ = stockAllDaysInfo_.LoadStockData(cur_stock_code_, 20160806, 20160902);
-	//p_hisdata_list_ = stockAllDaysInfo_.LoadStockData(cur_stock_code_, 20020420, 20020520);
-	p_hisdata_list_ = stockAllDaysInfo_.LoadStockData(cur_stock_code_, 20180108, 20180328);
-	if( !p_hisdata_list_ )
+	//p_hisdata_container_ = stockAllDaysInfo_.LoadStockData(cur_stock_code_, 20171216, 20180108);
+	//p_hisdata_container_ = stockAllDaysInfo_.LoadStockData(cur_stock_code_, 20160806, 20160902);
+	//p_hisdata_container_ = stockAllDaysInfo_.LoadStockData(cur_stock_code_, 20020420, 20020520);
+	p_hisdata_container_ = stockAllDaysInfo_.LoadStockData(cur_stock_code_, 20180108, 20180328);
+	if( !p_hisdata_container_ )
 		return;
 
 	auto iter = stockAllDaysInfo_.stock_his_items_.find(cur_stock_code_);
 	/*if( iter == stockAllDaysInfo_.stock_his_items_.end() )
 		return;*/
 
-	//p_hisdata_list_ = std::addressof(iter->second);
+	//p_hisdata_container_ = std::addressof(iter->second);
 
 	this->highestMaxPrice = stockAllDaysInfo_.GetHisDataHighestMaxPrice(cur_stock_code_);
 	this->lowestMinPrice = stockAllDaysInfo_.GetHisDataLowestMinPrice(cur_stock_code_);
@@ -383,25 +419,25 @@ void KLineWall::StockInputDlgRet()
 //
 //float KLineWall::HisDateItem_GetMinPrice()
 //{
-//	if( !p_hisdata_list_ ) 
+//	if( !p_hisdata_container_ ) 
 //		return 0.0;
 //
 //}
 //
 //float KLineWall::HisDateItem_GetMaxPrice()
 //{
-//	if( !p_hisdata_list_ ) 
+//	if( !p_hisdata_container_ ) 
 //		return 0.0;
 //}
 //
 //float KLineWall::HisDateItem_GetOpenPrice()
 //{
-//	if( !p_hisdata_list_ ) 
+//	if( !p_hisdata_container_ ) 
 //		return 0.0;
 //}
 //
 //float KLineWall::HisDateItem_GetClosePrice()
 //{
-//	if( !p_hisdata_list_ ) 
+//	if( !p_hisdata_container_ ) 
 //		return 0.0;
 //}

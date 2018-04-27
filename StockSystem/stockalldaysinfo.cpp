@@ -160,8 +160,7 @@ T_HisDataItemContainer* StockAllDaysInfo::LoadStockData(const std::string &stk_c
     TraverseSetUpwardFractal(kline_data_items);
 
     TraverseSetDownwardFractal(kline_data_items);
-    //iter->second.sort(compare);
-    //std::sort(iter->second.begin(), iter->second.end(), compare_index);
+    
 	return std::addressof(iter->second);
 
 }

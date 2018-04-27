@@ -43,7 +43,7 @@ private:
     std::list<StockDayInfo>  stk_days_infos_;
      
     StockAllDaysInfo stockAllDaysInfo_;  //一支股票的所有天数的消息
-	T_HisDataItemContainer *p_hisdata_list_;
+	T_HisDataItemContainer *p_hisdata_container_;
 
     std::string stock_code_;
     
