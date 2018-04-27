@@ -34,9 +34,10 @@ static bool bompare(const T_KlineDateItem &lh, const T_KlineDateItem &rh)
     return lh.stk_item.date < rh.stk_item.date;
 }
 
-
+// 下分形遍历
 void TraverseSetUpwardFractal( std::vector<std::shared_ptr<T_KlineDateItem> > &kline_data_items);
-
+// 上分形遍历
+void TraverseSetDownwardFractal( std::vector<std::shared_ptr<T_KlineDateItem> > &kline_data_items);
 
 StockAllDaysInfo::StockAllDaysInfo()
 {
@@ -157,6 +158,8 @@ T_HisDataItemContainer* StockAllDaysInfo::LoadStockData(const std::string &stk_c
 	stk_hisdata_release_(p_data_items);
 
     TraverseSetUpwardFractal(kline_data_items);
+
+    TraverseSetDownwardFractal(kline_data_items);
     //iter->second.sort(compare);
     //std::sort(iter->second.begin(), iter->second.end(), compare_index);
 	return std::addressof(iter->second);
@@ -227,60 +230,7 @@ float StockAllDaysInfo::GetHisDataHighestMaxPrice(const std::string& stock)
 	return higestMaxPrice;
 }
 
-
-void TraverseSetT3UpwardFractal( std::vector<std::shared_ptr<T_KlineDateItem> > &kline_data_items)
-{ 
-    int index = 1;
-    while( index < kline_data_items.size() - 1 )
-    {
-        if( kline_data_items[index-1]->stk_item.low_price < kline_data_items[index]->stk_item.low_price
-            || kline_data_items[index+1]->stk_item.low_price < kline_data_items[index]->stk_item.low_price )
-            continue;
-        bool is_exist_ahead_fractal = false;
-        bool is_exist_follow_fractal = false;
-        // search fractal ahead  
-        for( int k = index - 1; k > 0; --k )
-        {
-            if( kline_data_items[k]->stk_item.low_price > kline_data_items[index]->stk_item.low_price )
-            {
-                if( kline_data_items[k]->stk_item.high_price > kline_data_items[index]->stk_item.high_price )
-                {
-                    kline_data_items[k]->type |= UPWARD_FRACTAL;
-                    is_exist_ahead_fractal = true;
-                    break;
-                }else
-                    kline_data_items[k]->type |= INSUFFIC_FRACTAL; 
-            }else
-            {
-                //kline_data_items[index]->type
-                break;
-            }
-        }
-
-        if( is_exist_ahead_fractal )
-        { 
-            // search fractal follow    
-            for( int k = index + 1; k < kline_data_items.size(); ++k )
-            {
-                if( kline_data_items[k]->stk_item.low_price > kline_data_items[index]->stk_item.low_price )
-                {
-                    if( kline_data_items[k]->stk_item.high_price > kline_data_items[index]->stk_item.high_price )
-                    {
-                        kline_data_items[k]->type |= UPWARD_FRACTAL;
-                        is_exist_follow_fractal = true;
-                        break;
-                    }else
-                        kline_data_items[k]->type |= INSUFFIC_FRACTAL; 
-                }else
-                    break;
-            }
-        }
-        if( is_exist_ahead_fractal && is_exist_follow_fractal )
-            kline_data_items[index]->type |= BTM_AXIS_T_3;
-        ++index;
-    } //while
-}
-
+ 
 void TraverseSetUpwardFractal( std::vector<std::shared_ptr<T_KlineDateItem> > &kline_data_items)
 {
     int index = 1;
@@ -353,6 +303,87 @@ void TraverseSetUpwardFractal( std::vector<std::shared_ptr<T_KlineDateItem> > &k
                         if( n_fractal_ahead > 4 && n_fractal_follow > 4 )
                         {
                             kline_data_items[index]->type |= BTM_AXIS_T_11;
+                        }
+                    }
+                }
+            }
+        }
+        ++index;
+    }//while
+}
+
+void TraverseSetDownwardFractal( std::vector<std::shared_ptr<T_KlineDateItem> > &kline_data_items)
+{
+    int index = 1;
+    while( index < kline_data_items.size() - 1 )
+    {
+        if( kline_data_items[index-1]->stk_item.high_price > kline_data_items[index]->stk_item.high_price
+            || kline_data_items[index+1]->stk_item.high_price > kline_data_items[index]->stk_item.high_price )
+        {
+            ++index;
+            continue;
+        }
+        int n_fractal_ahead = 0;
+        int n_fractal_follow = 0;
+        // search fractal ahead  -----------
+        int index_to_check = index;
+        for( int k = index_to_check - 1; k > 0; )
+        {
+            if( kline_data_items[k]->stk_item.high_price < kline_data_items[index_to_check]->stk_item.high_price )
+            { 
+                if( kline_data_items[k]->stk_item.low_price < kline_data_items[index_to_check]->stk_item.low_price )
+                { 
+                    ++n_fractal_ahead;
+                    index_to_check = k;
+                } 
+                --k;
+            }else
+            { 
+                break;
+            }
+            
+        }
+         
+        if( n_fractal_ahead > 0 )
+        {   // search fractal follow  --------  
+            index_to_check = index;
+            for( int k = index + 1; k < kline_data_items.size(); )
+            {
+                if( kline_data_items[k]->stk_item.high_price < kline_data_items[index_to_check]->stk_item.high_price )
+                {
+                    if( kline_data_items[k]->stk_item.high_price < kline_data_items[index_to_check]->stk_item.low_price )
+                    {
+                        // it's transfer k line 
+                    }else if( kline_data_items[k]->stk_item.low_price < kline_data_items[index_to_check]->stk_item.low_price )
+                    {
+                        //kline_data_items[k]->type |= UPWARD_FRACTAL;
+                        ++n_fractal_follow;
+                        index_to_check = k; 
+                    } /* {else
+                       kline_data_items[k]->type |= INSUFFIC_FRACTAL; 
+                       }*/
+                    ++k;
+                     
+                }else
+                    break;
+            }
+        }
+
+        if( n_fractal_ahead > 0 && n_fractal_follow > 0 )
+        {
+            kline_data_items[index]->type |= TOP_AXIS_T_3;
+            if( n_fractal_ahead > 1 && n_fractal_follow > 1 )
+            {
+                kline_data_items[index]->type |= TOP_AXIS_T_5;
+                if( n_fractal_ahead > 2 && n_fractal_follow > 2 )
+                {
+                    kline_data_items[index]->type |= TOP_AXIS_T_7;
+                    if( n_fractal_ahead > 3 && n_fractal_follow > 3 )
+                    {
+                        kline_data_items[index]->type |= TOP_AXIS_T_9;
+                        if( n_fractal_ahead > 4 && n_fractal_follow > 4 )
+                        {
+                            kline_data_items[index]->type |= TOP_AXIS_T_11;
                         }
                     }
                 }

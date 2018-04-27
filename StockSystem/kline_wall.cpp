@@ -178,14 +178,29 @@ void KLineWall::paintEvent(QPaintEvent *e)
             pen.setColor(QColor(0,255,0)); 
 			brush.setColor(QColor(0,255,0));
         }
-        if( (*iter)->type & BTM_AXIS_T_3 == BTM_AXIS_T_3 
-            || (*iter)->type & BTM_AXIS_T_5 == BTM_AXIS_T_5 
-            || (*iter)->type & BTM_AXIS_T_7 == BTM_AXIS_T_7
-            || (*iter)->type & BTM_AXIS_T_9 == BTM_AXIS_T_9
-            || (*iter)->type & BTM_AXIS_T_11 == BTM_AXIS_T_11)
+        if( ((*iter)->type & BTM_AXIS_T_3) == BTM_AXIS_T_3 
+            || ((*iter)->type & BTM_AXIS_T_5) == BTM_AXIS_T_5 
+            || ((*iter)->type & BTM_AXIS_T_7) == BTM_AXIS_T_7
+            || ((*iter)->type & BTM_AXIS_T_9) == BTM_AXIS_T_9
+            || ((*iter)->type & BTM_AXIS_T_11) == BTM_AXIS_T_11)
         {
             pen.setColor(QColor(0,0,255)); 
             brush.setColor(QColor(0,0,255));
+        }
+        /*int valsdf = 224 & TOP_AXIS_T_3;
+        if( (224 & TOP_AXIS_T_3) == TOP_AXIS_T_3 )
+        {
+            int sdfs  = 0;
+            sdfs = sdfs;
+        }*/
+        if( ((*iter)->type & TOP_AXIS_T_3) == TOP_AXIS_T_3 
+            || ((*iter)->type & TOP_AXIS_T_5) == TOP_AXIS_T_5 
+            || ((*iter)->type & TOP_AXIS_T_7) == TOP_AXIS_T_7
+            || ((*iter)->type & TOP_AXIS_T_9) == TOP_AXIS_T_9
+            || ((*iter)->type & TOP_AXIS_T_11) == TOP_AXIS_T_11)
+        {
+            pen.setColor(QColor(0,255,255)); 
+            brush.setColor(QColor(0,255,255));
         }
 		//const auto base_val = mm_h / 2; //350 
 		painter.setPen(pen); //Ìí¼Ó»­±Ê
