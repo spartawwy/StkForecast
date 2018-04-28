@@ -18,12 +18,7 @@ static bool compare(const T_StockHisDataItem &left_h, const T_StockHisDataItem &
 {
     return left_h.date < right_h.date; // from small to big
 }
-
-static bool compare_index(const T_StockHisDataItem *left_h, const T_StockHisDataItem *right_h)
-{
-    return left_h->date < right_h->date;
-}
-
+ 
 static bool dompare( std::shared_ptr<T_KlineDateItem> &lh, std::shared_ptr<T_KlineDateItem> &rh)
 {
     return lh->stk_item.date < rh->stk_item.date;
@@ -61,10 +56,7 @@ bool StockAllDaysInfo::Init()
         return true;
     else
         return false;
-
-    /*std::vector<std::shared_ptr<int>> tmp_vector;
-    tmp_vector.reserve(365*26);
-    tmp_vector[200] = nullptr;*/
+     
 }
 
 void StockAllDaysInfo::LoadDataFromFile(std::string &fileName)

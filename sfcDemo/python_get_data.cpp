@@ -25,6 +25,13 @@ void TestUseFunc();
 
 int main()
 { 
+    int sdfval = int('0'); //48
+    int sdf2 = int('9');   //57
+    int sdf3 = int('a');  // 97
+    int sd32d = int('A'); // 65
+    int sdf3k = int('z'); // 122
+    int kkdf = int('Z');  // 90
+
     std::string stk_data_dir_ = "sdfsf\\";
     if( stk_data_dir_.rfind("\\") == stk_data_dir_.length() - 1 )
    {
