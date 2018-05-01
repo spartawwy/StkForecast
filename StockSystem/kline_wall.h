@@ -12,7 +12,7 @@ class KLineWall : public QWidget
 {
 public:
 
-    KLineWall();
+    KLineWall(QWidget *parent);
 	~KLineWall() { }
 	 
 	void StockInputDlgRet();

@@ -12,8 +12,8 @@
 
 #include "stkfo_common.h"
 
-KLineWall::KLineWall() 
-    : QWidget(nullptr) 
+KLineWall::KLineWall(QWidget *parent) 
+    : QWidget(parent) 
 	, p_hisdata_container_(nullptr)
     , stock_code_()
     , lowestMinPrice(99.9)
@@ -417,6 +417,7 @@ void KLineWall::keyPressEvent(QKeyEvent *e)
         k_num_ --;
         update();
     }*/
+    e->ignore();
 }
 
 void KLineWall::ResetStock(const QString& stock)

@@ -11,12 +11,12 @@ int main(int argc, char *argv[])
     QCoreApplication::addLibraryPath(".");
 	QCoreApplication::addLibraryPath("./plugins");
     QTextCodec::setCodecForLocale(QTextCodec::codecForName("GBK"));
-
+    
     QApplication a(argc, argv);
-#if 0
+#if 1
     MainWindow w;
 #else
-    KLineWall   w;
+    KLineWall  w(nullptr);
 #endif
     w.show();
     return a.exec();

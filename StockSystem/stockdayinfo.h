@@ -2,10 +2,7 @@
 #define STOCKDAYINFO_H
 
 #include <string>
-
-//using namespace std;
-
-
+ 
 class StockDayInfo
 {
 public:

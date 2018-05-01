@@ -26,7 +26,12 @@ public:
     {
         if (KLineWallForm->objectName().isEmpty())
             KLineWallForm->setObjectName(QStringLiteral("KLineWallForm"));
-        KLineWallForm->resize(400, 300);
+        KLineWallForm->resize(549, 335);
+        QSizePolicy sizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
+        sizePolicy.setHorizontalStretch(0);
+        sizePolicy.setVerticalStretch(0);
+        sizePolicy.setHeightForWidth(KLineWallForm->sizePolicy().hasHeightForWidth());
+        KLineWallForm->setSizePolicy(sizePolicy);
 
         retranslateUi(KLineWallForm);
 
