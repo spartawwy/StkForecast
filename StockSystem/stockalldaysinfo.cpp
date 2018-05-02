@@ -224,6 +224,8 @@ float StockAllDaysInfo::GetHisDataHighestMaxPrice(const std::string& stock)
  
 void TraverseSetUpwardFractal( std::vector<std::shared_ptr<T_KlineDateItem> > &kline_data_items)
 {
+    if( kline_data_items.size() < 1 )
+        return;
     int index = 1;
     while( index < kline_data_items.size() - 1 )
     {
@@ -305,6 +307,8 @@ void TraverseSetUpwardFractal( std::vector<std::shared_ptr<T_KlineDateItem> > &k
 
 void TraverseSetDownwardFractal( std::vector<std::shared_ptr<T_KlineDateItem> > &kline_data_items)
 {
+    if( kline_data_items.size() < 1 )
+        return;
     int index = 1;
     while( index < kline_data_items.size() - 1 )
     {

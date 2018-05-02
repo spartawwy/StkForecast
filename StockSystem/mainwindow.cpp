@@ -16,6 +16,7 @@
 
 #include "kline_wall.h"
 #include "title_bar.h"
+#include "tool_bar.h"
 
 using namespace std;
 
@@ -86,6 +87,9 @@ void MainWindow::initUi()
 #if 1
     title_ = new TitleBar(this);
     layout_all->addWidget(title_);  
+
+    auto tool_bar = new ToolBar(this);
+    layout_all->addWidget(tool_bar);  
 #endif
     kline_wall_ = new KLineWall(this);
     layout_all->addWidget(kline_wall_);  

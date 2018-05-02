@@ -1,4 +1,3 @@
-
 #ifndef TITLE_BAR
 #define TITLE_BAR
 

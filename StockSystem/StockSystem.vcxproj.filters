@@ -45,9 +45,6 @@
     <Filter Include="moudle">
       <UniqueIdentifier>{3d7a0421-9b63-4e76-9ce8-48a7cb011368}</UniqueIdentifier>
     </Filter>
-    <Filter Include="win">
-      <UniqueIdentifier>{33a668c1-7eac-425f-91bb-4411f1d3d620}</UniqueIdentifier>
-    </Filter>
     <Filter Include="include">
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
@@ -63,6 +60,9 @@
     </Filter>
     <Filter Include="deprecate">
       <UniqueIdentifier>{96471ab6-d8f8-4d67-9e2d-baed8c470fc8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="win">
+      <UniqueIdentifier>{33a668c1-7eac-425f-91bb-4411f1d3d620}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -114,6 +114,15 @@
     <ClCompile Include="Release\moc_title_bar.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
+    <ClCompile Include="Debug\moc_tool_bar.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Release\moc_tool_bar.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="tool_bar.cpp">
+      <Filter>moudle</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="klinewall.ui">
@@ -126,6 +135,9 @@
       <Filter>deprecate</Filter>
     </CustomBuild>
     <CustomBuild Include="title_bar.h">
+      <Filter>moudle</Filter>
+    </CustomBuild>
+    <CustomBuild Include="tool_bar.h">
       <Filter>moudle</Filter>
     </CustomBuild>
   </ItemGroup>

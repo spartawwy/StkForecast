@@ -17,6 +17,10 @@ TitleBar::TitleBar(QWidget *parent)
 {
     setFixedHeight(30);
 
+    //this->setStyleSheet("background-color:violet;");
+    this->setStyleSheet("background-color:black;");
+    this->show();
+#if 0 
     m_pIconLabel = new QLabel(this);
     m_pTitleLabel = new QLabel(this);
     m_pMinimizeButton = new QPushButton("-", this);
@@ -56,6 +60,7 @@ TitleBar::TitleBar(QWidget *parent)
     connect(m_pMinimizeButton, SIGNAL(clicked(bool)), this, SLOT(onClicked()));
     connect(m_pMaximizeButton, SIGNAL(clicked(bool)), this, SLOT(onClicked()));
     connect(m_pCloseButton, SIGNAL(clicked(bool)), this, SLOT(onClicked()));
+#endif
 }
 
 TitleBar::~TitleBar()

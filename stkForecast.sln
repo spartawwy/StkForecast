@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sfcDemo", "sfcDemo\sfcDemo.
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "algo_forecast", "algo_forecast\algo_forecast.vcxproj", "{B2B44836-1727-40CF-A7F6-1B393E8795A6}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "StkQuoter", "..\mytrd_proj\StkQuoter\StkQuoter.vcxproj", "{BB9A46F9-A170-4AA7-98D4-B28294083D55}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -25,6 +27,10 @@ Global
 		{B2B44836-1727-40CF-A7F6-1B393E8795A6}.Debug|Win32.Build.0 = Debug|Win32
 		{B2B44836-1727-40CF-A7F6-1B393E8795A6}.Release|Win32.ActiveCfg = Release|Win32
 		{B2B44836-1727-40CF-A7F6-1B393E8795A6}.Release|Win32.Build.0 = Release|Win32
+		{BB9A46F9-A170-4AA7-98D4-B28294083D55}.Debug|Win32.ActiveCfg = Debug|Win32
+		{BB9A46F9-A170-4AA7-98D4-B28294083D55}.Debug|Win32.Build.0 = Debug|Win32
+		{BB9A46F9-A170-4AA7-98D4-B28294083D55}.Release|Win32.ActiveCfg = Release|Win32
+		{BB9A46F9-A170-4AA7-98D4-B28294083D55}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
