@@ -11,11 +11,18 @@
 class KLineWall : public QWidget
 {
 public:
+    enum class DrawAction : unsigned char { DRAWING_FOR_C = 1, DRAWING_FOR_D, NO_ACTION = 255};
 
     KLineWall(QWidget *parent);
 	~KLineWall() { }
 	 
 	void StockInputDlgRet();
+
+    //void SetCursorShape(Qt::CursorShape& cursor_shapre);
+    void draw_action(DrawAction action) {  draw_action_ = action; }
+    DrawAction draw_action(){ return draw_action_; }
+
+    void ResetDrawingPoint();
 
 protected:
 
@@ -24,6 +31,9 @@ protected:
     void mouseDoubleClickEvent(QMouseEvent * e)  override;
     void mouseMoveEvent(QMouseEvent *e) override;
     void keyPressEvent(QKeyEvent *e) override;
+
+    void enterEvent(QEvent *e) override;
+    void leaveEvent(QEvent *e) override;
 
 private slots:
 
@@ -60,6 +70,13 @@ private:
     std::string k_data_str_;
 
 	std::string cur_stock_code_;
+
+    DrawAction draw_action_;
+    QPoint drawing_line_A_;
+    QPoint drawing_line_B_;
+    QPoint drawing_line_C_;
+
+    QPoint cur_mouse_point_;
 };
 
 

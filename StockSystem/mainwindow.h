@@ -23,14 +23,17 @@ public:
 
     MainWindow(QWidget *parent = 0);
     ~MainWindow();
+    KLineWall * kline_wall() { return kline_wall_; }
 
 protected:
 #ifdef USE_TITLE_VCM
     bool nativeEvent(const QByteArray &eventType, void *message, long *result) override;
 #endif
-    void keyPressEvent(QKeyEvent *e) override;
-    void changeEvent(QEvent *e);
+    bool eventFilter(QObject *o, QEvent *e) override;
 
+    void keyPressEvent(QKeyEvent *e) override;
+    void changeEvent(QEvent *e) override;
+      
 private:
 
     void initUi();

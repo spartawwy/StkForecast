@@ -42,37 +42,6 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::changeEvent(QEvent *e)
-{
-    QMainWindow::changeEvent(e);
-    switch (e->type()) 
-    {
-    case QEvent::LanguageChange:
-        ui->retranslateUi(this);
-        break;
-    default:
-        break;
-    }
-}
- 
-
-void MainWindow::keyPressEvent(QKeyEvent *e)
-{
-    e->ignore();
-}
-
-void MainWindow::on_actionExit_triggered()
-{
-    this->close();
-}
-
-void MainWindow::updateDateTime()
-{
-#ifdef USE_STATUS_BAR
-    ui->labelCurrentTime->setText(
-            QDateTime::currentDateTime().toString("yyyy-MM-dd HH:MM:ss"));
-#endif
-}
 
 void MainWindow::initUi()
 {  
@@ -84,14 +53,15 @@ void MainWindow::initUi()
     QVBoxLayout *layout_all = new QVBoxLayout;  
     layout_all->setContentsMargins(0,0,0,0);  
     layout_all->setSpacing(0);  
-#if 1
+ 
     title_ = new TitleBar(this);
     layout_all->addWidget(title_);  
 
+    kline_wall_ = new KLineWall(this);
+    kline_wall_->setMouseTracking(true);
     auto tool_bar = new ToolBar(this);
     layout_all->addWidget(tool_bar);  
-#endif
-    kline_wall_ = new KLineWall(this);
+ 
     layout_all->addWidget(kline_wall_);  
       
     wd->setLayout(layout_all);  
@@ -113,6 +83,51 @@ void MainWindow::initUi()
 
 }
  
+void MainWindow::changeEvent(QEvent *e)
+{
+    QMainWindow::changeEvent(e);
+    switch (e->type()) 
+    {
+    case QEvent::LanguageChange:
+        ui->retranslateUi(this);
+        break;
+    default:
+        break;
+    }
+}
+ 
+bool MainWindow::eventFilter(QObject *o, QEvent *e)
+{ 
+    if( o == kline_wall_ )
+    {
+        switch ( e->type() )
+        case QEvent::MouseButtonPress:
+        case QEvent::MouseButtonDblClick:
+        case QEvent::MouseButtonRelease:
+        case QEvent::MouseMove:
+            return true;
+    }else
+        return false;
+}
+
+void MainWindow::keyPressEvent(QKeyEvent *e)
+{
+    e->ignore();
+}
+
+void MainWindow::on_actionExit_triggered()
+{
+    this->close();
+}
+
+void MainWindow::updateDateTime()
+{
+#ifdef USE_STATUS_BAR
+    ui->labelCurrentTime->setText(
+            QDateTime::currentDateTime().toString("yyyy-MM-dd HH:MM:ss"));
+#endif
+}
+
 //
 ////双击某一行，显示出该支股票的日K线
 //void MainWindow::on_tableWidget_itemDoubleClicked(QTableWidgetItem* item)

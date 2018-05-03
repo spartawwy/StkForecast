@@ -7,6 +7,8 @@
 class QLabel;
 class QPushButton;
 class QToolButton;
+class MainWindow;
+class KLineWall;
 
 class ToolBar : public QWidget
 {
@@ -37,6 +39,9 @@ private:
     //void updateMaximize();
 
 private:
+
+    MainWindow *m_main_window;
+    KLineWall &kline_wall_;
 
     //QLabel *m_pIconLabel;
     //QLabel *m_pTitleLabel;

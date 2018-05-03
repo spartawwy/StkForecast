@@ -17,16 +17,17 @@ TitleBar::TitleBar(QWidget *parent)
 {
     setFixedHeight(30);
 
-    //this->setStyleSheet("background-color:violet;");
-    this->setStyleSheet("background-color:black;");
-    this->show();
-#if 0 
+    QPalette pal = this->palette();
+    pal.setColor(QPalette::Background, Qt::darkMagenta);
+    this->setPalette(pal);
+    this->setAutoFillBackground(true);
+     
     m_pIconLabel = new QLabel(this);
     m_pTitleLabel = new QLabel(this);
     m_pMinimizeButton = new QPushButton("-", this);
     m_pMaximizeButton = new QPushButton(QString::fromLocal8Bit("¿Ú"), this);
     m_pCloseButton = new QPushButton("X", this);
-
+#if 1
     m_pIconLabel->setFixedSize(20, 20);
     m_pIconLabel->setScaledContents(true);
 

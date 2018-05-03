@@ -12,6 +12,8 @@
 
 #include "stkfo_common.h"
 
+static const QPoint CST_MAGIC_POINT(-1, -1);
+
 KLineWall::KLineWall(QWidget *parent) 
     : QWidget(parent) 
 	, p_hisdata_container_(nullptr)
@@ -27,6 +29,7 @@ KLineWall::KLineWall(QWidget *parent)
     , k_data_str_()
     , cur_stock_code_()
 	, stock_input_dlg_(this)
+    , draw_action_(DrawAction::NO_ACTION)
 {
     ui.setupUi(this);
 
@@ -50,12 +53,17 @@ KLineWall::KLineWall(QWidget *parent)
 	
     stockAllDaysInfo_.Init();
 	ResetStock("600196");
+    
 }
 
 void KLineWall::mousePressEvent ( QMouseEvent * event )
 {
 	if( stock_input_dlg_.isVisible() )
 		stock_input_dlg_.hide();
+     
+    if( draw_action_ == DrawAction::DRAWING_FOR_C )
+        drawing_line_A_ = event->pos();
+    
 }
 
 void KLineWall::paintEvent(QPaintEvent *e)
@@ -63,8 +71,19 @@ void KLineWall::paintEvent(QPaintEvent *e)
     QPainter painter(this);
     qDebug() << "paintEvent QCursor::pos  x:" << QCursor::pos().x() << " y: "<< QCursor::pos().y() << "\n";
     auto pos_from_global = mapFromGlobal(QCursor::pos());
-    qDebug() << "paintEvent x:" << pos_from_global.x() << " y: "<< pos_from_global.y() << "\n";
-    
+    //qDebug() << "paintEvent x:" << pos_from_global.x() << " y: "<< pos_from_global.y() << "\n";
+    if( draw_action_ == DrawAction::DRAWING_FOR_C && drawing_line_A_ != CST_MAGIC_POINT)
+    {   
+        QPen pen; 
+        QBrush brush(Qt::red);
+        pen.setColor(Qt::red);
+        painter.setPen(pen);
+        painter.setBrush(brush);
+
+        painter.drawLine(drawing_line_A_.x(), drawing_line_A_.y(), cur_mouse_point_.x(), cur_mouse_point_.y() );
+        //painter.drawLine(0, 0, pos.x(), pos.y() );
+        qDebug() << " mouseMoveEvent DRAWING_FOR_C " << drawing_line_A_.x() << " " << drawing_line_A_.y() << " " << cur_mouse_point_.x() << " " << cur_mouse_point_.y() << "\n";
+    }
     const int head_h = 30;
     const int bottom1_h = 30;
     const int bottom2_h = 30;
@@ -176,7 +195,8 @@ void KLineWall::paintEvent(QPaintEvent *e)
 		maxPrice = (*iter)->stk_item.high_price;
 		openPrice = (*iter)->stk_item.open_price;
 		closePrice = (*iter)->stk_item.close_price;
-        qDebug()<<openPrice<<"\t" << closePrice <<minPrice<<"\t"<<maxPrice<<"\t"<< "\n";
+
+        //qDebug() << openPrice<< "\t"  << closePrice << minPrice << "\t" << maxPrice<< "\t" << "\n";
          
 
 		 QBrush brush(QColor(255,0,0));  
@@ -316,7 +336,7 @@ void KLineWall::paintEvent(QPaintEvent *e)
 
 void KLineWall::mouseDoubleClickEvent(QMouseEvent *e)
 {
-    qDebug() << " x:" << e->pos().x() <<" y:" << e->pos().y() << "\n";
+    //qDebug() << " x:" << e->pos().x() <<" y:" << e->pos().y() << "\n";
     show_cross_line_ = !show_cross_line_;
     setMouseTracking(show_cross_line_);
 
@@ -330,17 +350,25 @@ void KLineWall::mouseDoubleClickEvent(QMouseEvent *e)
 void KLineWall::mouseMoveEvent(QMouseEvent *e)
 { 
     auto pos = e->pos();
+    qDebug() << " mouseMoveEvent " << "\n";
     //auto pos_mapped = mapToGlobal(pos);
           
     //auto pos_mapped = mapFromGlobal(e->pos());
     //auto pos_mapped = mapToParent(e->pos());
     //is_repaint_k_ = false;
-    update();
+
+    if( draw_action_ == DrawAction::DRAWING_FOR_C )
+    {
+        qDebug() << " mouseMoveEvent DRAWING_FOR_C " << "\n";
+        cur_mouse_point_ = e->pos();
+        update();
+    }
+    
 }
 
 void KLineWall::keyPressEvent(QKeyEvent *e)
 {
-    qDebug() << "key " << e->key() << "\n";
+    //qDebug() << "key " << e->key() << "\n";
     auto key_val = e->key();
     switch( key_val )
     {
@@ -420,6 +448,16 @@ void KLineWall::keyPressEvent(QKeyEvent *e)
     e->ignore();
 }
 
+void KLineWall::enterEvent(QEvent *e)
+{
+    qDebug() << __FUNCTION__ << "\n";
+}
+
+void KLineWall::leaveEvent(QEvent *e)
+{
+    qDebug() << __FUNCTION__ << "\n";
+}
+
 void KLineWall::ResetStock(const QString& stock)
 {
     cur_stock_code_ = stock.toLocal8Bit().data();
@@ -460,6 +498,16 @@ void KLineWall::StockInputDlgRet()
 
 	ResetStock(stock_code_.c_str());
 }
+ 
+void KLineWall::ResetDrawingPoint()
+{ 
+    drawing_line_A_ = CST_MAGIC_POINT;
+}
+
+//void KLineWall::SetCursorShape(Qt::CursorShape& cursor_shapre)
+//{
+//    setCursor(cursor_shapre);
+//}
 
 //
 //float KLineWall::HisDateItem_GetMinPrice()
