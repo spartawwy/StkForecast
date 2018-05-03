@@ -27,9 +27,7 @@ MainWindow::MainWindow(QWidget *parent) :
     , kline_wall_(nullptr)
 {
     ui->setupUi(this);
-    /*delete ui->menuBar();
-    ui->setMenuBar(nullptr);*/
-      
+   
     initUi();
        
 }
@@ -58,6 +56,7 @@ void MainWindow::initUi()
     layout_all->addWidget(title_);  
 
     kline_wall_ = new KLineWall(this);
+    kline_wall_->Init();
     kline_wall_->setMouseTracking(true);
     auto tool_bar = new ToolBar(this);
     layout_all->addWidget(tool_bar);  
@@ -101,11 +100,15 @@ bool MainWindow::eventFilter(QObject *o, QEvent *e)
     if( o == kline_wall_ )
     {
         switch ( e->type() )
+        {
         case QEvent::MouseButtonPress:
         case QEvent::MouseButtonDblClick:
         case QEvent::MouseButtonRelease:
         case QEvent::MouseMove:
             return true;
+        default: return false; // ndchk
+        }
+        
     }else
         return false;
 }

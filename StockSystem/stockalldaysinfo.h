@@ -7,8 +7,9 @@
 #include <map>
 #include <vector>
 
-#include "stockdayinfo.h"
+#include <QtCore/QPoint>
 
+#include "stockdayinfo.h"
 #include "stk_quoter_api.h"
 
 #define UNKNOW_FRACTAL   0
@@ -28,23 +29,38 @@
 #define DOWNWARD_FRACTAL 0x20000000
 #define INSUFFIC_FRACTAL 0x40000000  
  
+#define CST_MAGIC_POINT QPoint(-1, -1)
+  
+typedef struct _t_kline_pos_data
+{
+    int x_left;
+    int x_right;
+    QPoint top;
+    QPoint bottom;
+    _t_kline_pos_data() : x_left(-1), x_right(-1), top(CST_MAGIC_POINT), bottom(CST_MAGIC_POINT) {}
+}T_KlinePosData;
 
-struct T_KlineDateItem
+typedef struct _t_kline_dataitem
 {
     T_StockHisDataItem  stk_item;
-    int type;
-    T_KlineDateItem() : type(UNKNOW_FRACTAL)
+    T_KlinePosData  kline_posdata;
+    int  type;
+    _t_kline_dataitem() : type(UNKNOW_FRACTAL), kline_posdata()
     {
         memset(&stk_item, 0, sizeof(stk_item));
     }
-    T_KlineDateItem(T_StockHisDataItem & his_data) : type(UNKNOW_FRACTAL)
+    explicit _t_kline_dataitem(const _t_kline_dataitem & lh)
     {
-        memcpy(&stk_item, &his_data, sizeof(his_data));
+        memcpy(this, &lh, sizeof(lh)); 
     }
-};
+    explicit _t_kline_dataitem(const T_StockHisDataItem & stock_his_data_item)
+    {
+        memcpy(&stk_item, &stock_his_data_item, sizeof(stock_his_data_item)); 
+    }
+}T_KlineDataItem;
 
 //typedef std::list<T_StockHisDataItem>  T_HisDataItemList;
-typedef std::vector<std::shared_ptr<T_KlineDateItem> >  T_HisDataItemContainer;
+typedef std::vector<std::shared_ptr<T_KlineDataItem> >  T_HisDataItemContainer;
 
 class StockAllDaysInfo
 {
@@ -56,7 +72,7 @@ public:
 public:
     //list容器，数据类型为一只股票一天的消息，是StockAllDaysInfo的数据成员
     //std::list<StockDayInfo> stockAllDaysInfoList;
-    std::vector<std::shared_ptr<T_KlineDateItem> > day_kline_data_container_;
+    std::vector<std::shared_ptr<T_KlineDataItem> > day_kline_data_container_;
 
     //从fileName指定的磁盘路径中将数据一行一行读取出来，每一行初始化一个StockDayInfo对象
     void LoadDataFromFile(std::string &fileName);
@@ -75,6 +91,7 @@ public:
     //std::list<StockDayInfo> GetStockAllDaysInfoList();
     //std::map<std::string,  std::list<StockDayInfo> > stock_days_info_;
 
+    // (stock , data)
     std::map<std::string, T_HisDataItemContainer> stock_his_items_;
 
 private:

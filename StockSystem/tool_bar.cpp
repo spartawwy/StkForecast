@@ -48,13 +48,13 @@ ToolBar::ToolBar(QWidget *parent)
     setLayout(pLayout);
 }
 
-void ToolBar::mouseDoubleClickEvent(QMouseEvent *event)
+void ToolBar::mouseDoubleClickEvent(QMouseEvent *)
 {
 
 }
 
  // 进行鼠界面的拖动
-void ToolBar::mousePressEvent(QMouseEvent *event)
+void ToolBar::mousePressEvent(QMouseEvent *)
 {
 
 }
@@ -89,8 +89,12 @@ void ToolBar::onClicked()
                 kline_wall_.setCursor(Qt::ArrowCursor);
                 if( kline_wall_.draw_action() == KLineWall::DrawAction::DRAWING_FOR_C )
                     kline_wall_.draw_action(KLineWall::DrawAction::NO_ACTION);
+
+                kline_wall_.ResetDrawingPoint();// ndchk
             }
+        }else
+        {
+            
         }
-        kline_wall_.ResetDrawingPoint();
     }
 }

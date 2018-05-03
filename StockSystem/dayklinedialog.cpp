@@ -113,7 +113,7 @@ void DayKLineDialog::paintEvent(QPaintEvent *)
     //    }
     //画日K线图
 
-    std::vector<std::shared_ptr<T_KlineDateItem> >::iterator iter;
+    std::vector<std::shared_ptr<T_KlineDataItem> >::iterator iter;
     float openPrice;//开盘价
     float closePrice;//收盘价
     float maxPrice;//最高价

@@ -19,20 +19,20 @@ static bool compare(const T_StockHisDataItem &left_h, const T_StockHisDataItem &
     return left_h.date < right_h.date; // from small to big
 }
  
-static bool dompare( std::shared_ptr<T_KlineDateItem> &lh, std::shared_ptr<T_KlineDateItem> &rh)
+static bool dompare( std::shared_ptr<T_KlineDataItem> &lh, std::shared_ptr<T_KlineDataItem> &rh)
 {
     return lh->stk_item.date < rh->stk_item.date;
 }
 
-static bool bompare(const T_KlineDateItem &lh, const T_KlineDateItem &rh)
+static bool bompare(const T_KlineDataItem &lh, const T_KlineDataItem &rh)
 {
     return lh.stk_item.date < rh.stk_item.date;
 }
 
 // 下分形遍历
-void TraverseSetUpwardFractal( std::vector<std::shared_ptr<T_KlineDateItem> > &kline_data_items);
+void TraverseSetUpwardFractal( std::vector<std::shared_ptr<T_KlineDataItem> > &kline_data_items);
 // 上分形遍历
-void TraverseSetDownwardFractal( std::vector<std::shared_ptr<T_KlineDateItem> > &kline_data_items);
+void TraverseSetDownwardFractal( std::vector<std::shared_ptr<T_KlineDataItem> > &kline_data_items);
 
 StockAllDaysInfo::StockAllDaysInfo()
 {
@@ -42,7 +42,6 @@ StockAllDaysInfo::StockAllDaysInfo()
 
 bool StockAllDaysInfo::Init()
 {
-    //-----------------
     HMODULE moudle_handl = LoadLibrary("StkQuoter.dll");
     if( !moudle_handl )
     {
@@ -56,7 +55,6 @@ bool StockAllDaysInfo::Init()
         return true;
     else
         return false;
-     
 }
 
 void StockAllDaysInfo::LoadDataFromFile(std::string &fileName)
@@ -90,6 +88,7 @@ T_HisDataItemContainer* StockAllDaysInfo::LoadStockData(const std::string &stk_c
         return nullptr;
     }
 #if 1
+    // save data to stock_his_items_ and sort it ---------------------------
     auto iter = stock_his_items_.find(stk_code);
     if( iter == stock_his_items_.end() )
     {
@@ -100,14 +99,12 @@ T_HisDataItemContainer* StockAllDaysInfo::LoadStockData(const std::string &stk_c
     }else
         iter->second.clear();
 
-    std::vector<std::shared_ptr<T_KlineDateItem> > &kline_data_items = iter->second;
-
+    std::vector<std::shared_ptr<T_KlineDataItem> > &kline_data_items = iter->second; 
     for( int k = 0; k < count; ++k )
     {
-        auto k_item = std::make_shared<T_KlineDateItem>(p_data_items[k]);
+        auto k_item = std::make_shared<T_KlineDataItem>(p_data_items[k]);
         kline_data_items.push_back(std::move(k_item)); 
-    }
-
+    } 
     // sort T_KlineDateItems by day from small to bigger
     std::sort(kline_data_items.begin(), kline_data_items.end(), dompare);
      
@@ -195,7 +192,7 @@ float StockAllDaysInfo::GetHisDataLowestMinPrice(const std::string& stock)
 		return 0.0;
 	 
 	float lowestMinPrice = 100000000.0f; 
-	std::for_each( std::begin(iter->second), std::end(iter->second), [&](const std::shared_ptr<T_KlineDateItem>& entry)
+	std::for_each( std::begin(iter->second), std::end(iter->second), [&](const std::shared_ptr<T_KlineDataItem>& entry)
     { 
 		if( lowestMinPrice > entry->stk_item.low_price )
         {
@@ -211,7 +208,7 @@ float StockAllDaysInfo::GetHisDataHighestMaxPrice(const std::string& stock)
 	if( iter == stock_his_items_.end() )
 		return 0.0;
 	float higestMaxPrice = 0.0f; 
-	std::for_each( std::begin(iter->second), std::end(iter->second), [&](const std::shared_ptr<T_KlineDateItem>& entry)
+	std::for_each( std::begin(iter->second), std::end(iter->second), [&](const std::shared_ptr<T_KlineDataItem>& entry)
     { 
 		if( higestMaxPrice < entry->stk_item.high_price )
         {
@@ -222,11 +219,11 @@ float StockAllDaysInfo::GetHisDataHighestMaxPrice(const std::string& stock)
 }
 
  
-void TraverseSetUpwardFractal( std::vector<std::shared_ptr<T_KlineDateItem> > &kline_data_items)
+void TraverseSetUpwardFractal( std::vector<std::shared_ptr<T_KlineDataItem> > &kline_data_items)
 {
     if( kline_data_items.size() < 1 )
         return;
-    int index = 1;
+    unsigned int index = 1;
     while( index < kline_data_items.size() - 1 )
     {
         if( kline_data_items[index-1]->stk_item.low_price < kline_data_items[index]->stk_item.low_price
@@ -238,7 +235,7 @@ void TraverseSetUpwardFractal( std::vector<std::shared_ptr<T_KlineDateItem> > &k
         int n_fractal_ahead = 0;
         int n_fractal_follow = 0;
         // search fractal ahead  -----------
-        int index_to_check = index;
+        unsigned int index_to_check = index;
         for( int k = index_to_check - 1; k > 0; )
         {
             if( kline_data_items[k]->stk_item.low_price > kline_data_items[index_to_check]->stk_item.low_price )
@@ -259,7 +256,7 @@ void TraverseSetUpwardFractal( std::vector<std::shared_ptr<T_KlineDateItem> > &k
         if( n_fractal_ahead > 0 )
         {   // search fractal follow  --------  
             index_to_check = index;
-            for( int k = index + 1; k < kline_data_items.size(); )
+            for( unsigned int k = index + 1; k < kline_data_items.size(); )
             {
                 if( kline_data_items[k]->stk_item.low_price > kline_data_items[index_to_check]->stk_item.low_price )
                 {
@@ -305,11 +302,11 @@ void TraverseSetUpwardFractal( std::vector<std::shared_ptr<T_KlineDateItem> > &k
     }//while
 }
 
-void TraverseSetDownwardFractal( std::vector<std::shared_ptr<T_KlineDateItem> > &kline_data_items)
+void TraverseSetDownwardFractal( std::vector<std::shared_ptr<T_KlineDataItem> > &kline_data_items)
 {
     if( kline_data_items.size() < 1 )
         return;
-    int index = 1;
+    unsigned int index = 1;
     while( index < kline_data_items.size() - 1 )
     {
         if( kline_data_items[index-1]->stk_item.high_price > kline_data_items[index]->stk_item.high_price
@@ -342,7 +339,7 @@ void TraverseSetDownwardFractal( std::vector<std::shared_ptr<T_KlineDateItem> > 
         if( n_fractal_ahead > 0 )
         {   // search fractal follow  --------  
             index_to_check = index;
-            for( int k = index + 1; k < kline_data_items.size(); )
+            for( unsigned int k = index + 1; k < kline_data_items.size(); )
             {
                 if( kline_data_items[k]->stk_item.high_price < kline_data_items[index_to_check]->stk_item.high_price )
                 {
