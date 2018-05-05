@@ -207,7 +207,7 @@ void KLineWall::paintEvent(QPaintEvent*)
     static const int right_w = 30;
     float price_per_len = (highestMaxPrice_ - lowestMinPrice_) / float(mm_h);
       
-    const bool is_area_shape_change = IsAreaShapeChange(mm_h, mm_w);
+    const bool is_area_shape_change = IsAreaShapeChange(this->width(), this->height());
     if( is_area_shape_change )
         UpdateKLinePosDatas();
      /*
@@ -377,14 +377,6 @@ void KLineWall::paintEvent(QPaintEvent*)
         painter.drawRect(pos_data.columnar_top_left.x(), pos_data.columnar_top_left.y(), pos_data.x_right - pos_data.x_left, pos_data.height);
         painter.drawLine(pos_data.top.x(), pos_data.top.y(), pos_data.bottom.x(), pos_data.bottom.y());
 #endif
-        if( is_area_shape_change )
-        { 
-            pos_data.x_left = j * item_w + 1;
-            pos_data.x_right = pos_data.x_left + k_bar_w;
-            pos_data.top = QPoint(j * item_w + k_bar_w / 2, -1 * mm_h * (maxPrice-lowestMinPrice_)/(highestMaxPrice_ - lowestMinPrice_));
-            pos_data.bottom = QPoint(j * item_w + k_bar_w / 2, -1 * mm_h * (minPrice-lowestMinPrice_)/(highestMaxPrice_ - lowestMinPrice_));
-
-        }
         if( pos_from_global.x() >= j * item_w + 1 && pos_from_global.x() <= j * item_w + 1 + k_bar_w )
             k_data_str_ = std::to_string((*iter)->stk_item.date);
 
