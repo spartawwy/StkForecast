@@ -8,15 +8,24 @@
 #include "stockalldaysinfo.h"
 #include "stockinput_dlg.h"
  
-typedef struct _t_paint_data_3pforcast_downword
+class T_PaintData3pForcastDownword
 {
+public:
+    T_PaintData3pForcastDownword() : date_a(0), date_b(0), c1(0.0), c2(0.0), c3(0.0) {}
+    T_PaintData3pForcastDownword(const T_PaintData3pForcastDownword & lh) : 
+        date_a(lh.date_a), date_b(lh.date_b), c1(lh.c1), c2(lh.c2), c3(lh.c3) {}
+    T_PaintData3pForcastDownword(T_PaintData3pForcastDownword && lh) : 
+        date_a(lh.date_a), date_b(lh.date_b), c1(lh.c1), c2(lh.c2), c3(lh.c3) {}
     int date_a;
     int date_b;
     double c1;
     double c2;
     double c3;
-}T_PaintData3pForcastDownword;
+    
 
+};
+
+class MainWindow;
 class KLineWall : public QWidget
 {
 public:
@@ -32,7 +41,7 @@ public:
     void draw_action(DrawAction action) {  draw_action_ = action; }
     DrawAction draw_action(){ return draw_action_; }
 
-    void ResetDrawingPoint();
+    void ResetDrawState();
 
 protected:
 
@@ -56,8 +65,12 @@ private slots:
 
 private:
 
+    void UpdateKLinePosDatas();
+    T_KlineDataItem * GetKLineDataItemByXpos(int x);
     QPoint GetPointFromKLineDataItems(int x, bool is_get_top);
+    T_KlineDataItem * GetKLineDataItemByDate(int date);
 
+    MainWindow  *main_win_;
 	Ui_KLineWallForm  ui;
     const int head_h_;
     const int bottom1_h_;
@@ -73,8 +86,8 @@ private:
 	T_HisDataItemContainer *p_hisdata_container_; //point to stockAllDaysInfo_'s one stock's data
     //std::vector<T_KlinePosData> kline_pos_data_;
 
-    float lowestMinPrice;
-    float highestMaxPrice;
+    float lowestMinPrice_;
+    float highestMaxPrice_;
     bool  show_cross_line_;
     //bool  is_repaint_k_;
 
@@ -95,6 +108,8 @@ private:
 
     int pre_mm_w_;
     int pre_mm_h_;
+
+    std::vector<T_PaintData3pForcastDownword> paint_3pdatas_;
 };
 
 

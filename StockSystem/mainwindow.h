@@ -4,7 +4,7 @@
 #include <QtWidgets/QMainWindow>
 #include <QTimer>
 #include <QtWidgets/QTableWidgetItem>
-#include "dayklinedialog.h"
+ 
 
 //#define  USE_TITLE_VCM
 //#define  USE_STATUS_BAR
@@ -15,6 +15,7 @@ namespace Ui
 }
 class KLineWall;
 class TitleBar;
+class ToolBar;
 class MainWindow : public QMainWindow 
 {
     Q_OBJECT
@@ -24,6 +25,8 @@ public:
     MainWindow(QWidget *parent = 0);
     ~MainWindow();
     KLineWall * kline_wall() { return kline_wall_; }
+
+    void UncheckBtnABPen();
 
 protected:
 #ifdef USE_TITLE_VCM
@@ -42,6 +45,7 @@ private:
     QTimer *timer;
 
     // cutomer qt controler --------
+    ToolBar        *tool_bar_;
     TitleBar       *title_;
     KLineWall      *kline_wall_;
     //DayKLineDialog *dayKLineDialog;

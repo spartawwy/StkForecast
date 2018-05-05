@@ -136,10 +136,6 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="dayklinedialog.cpp" />
-    <ClCompile Include="Debug\moc_dayklinedialog.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="Debug\moc_mainwindow.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
@@ -158,9 +154,6 @@
     <ClCompile Include="kline_wall.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mainwindow.cpp" />
-    <ClCompile Include="Release\moc_dayklinedialog.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="Release\moc_mainwindow.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
@@ -199,16 +192,6 @@
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc%27ing title_bar.h...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DWIN32 -D_NDEBUG -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -DQT_OPENGL_ES_2 -DQT_OPENGL_ES_2_ANGLE -D_MBCS "-I$(QT_DIR)\include" "-I$(QT_DIR)\include\QtGui" "-I$(QT_DIR)\include\QtANGLE" "-I$(QT_DIR)\include\QtCore" "-I.\release" "-I$(QT_DIR)\mkspecs\win32-msvc2012" "-I.\GeneratedFiles" "-I.\include"</Command>
-    </CustomBuild>
-    <CustomBuild Include="dayklinedialog.h">
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DWIN32 -D_NDEBUG -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -DQT_OPENGL_ES_2 -DQT_OPENGL_ES_2_ANGLE -D_MBCS  "-I$(QT_DIR)\include" "-I$(QT_DIR)\include\QtGui" "-I$(QT_DIR)\include\QtANGLE" "-I$(QT_DIR)\include\QtCore" "-I.\release" "-I$(QT_DIR)\mkspecs\win32-msvc2012" "-I.\GeneratedFiles" "-I.\include"</Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc%27ing dayklinedialog.h...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DWIN32 -DQT_GUI_LIB -DQT_CORE_LIB -DQT_OPENGL_ES_2 -DQT_OPENGL_ES_2_ANGLE -D_MBCS  "-I$(QT_DIR)\include" "-I$(QT_DIR)\include\QtGui" "-I$(QT_DIR)\include\QtANGLE" "-I$(QT_DIR)\include\QtCore" "-I.\debug" "-I$(QT_DIR)\mkspecs\win32-msvc2012" "-I.\GeneratedFiles" "-I.\include"</Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc%27ing dayklinedialog.h...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QT_DIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(QT_DIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
     </CustomBuild>
     <CustomBuild Include="mainwindow.h">
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DWIN32 -D_NDEBUG -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -DQT_OPENGL_ES_2 -DQT_OPENGL_ES_2_ANGLE -D_MBCS  "-I$(QT_DIR)\include" "-I$(QT_DIR)\include\QtGui" "-I$(QT_DIR)\include\QtANGLE" "-I$(QT_DIR)\include\QtCore" "-I.\release" "-I$(QT_DIR)\mkspecs\win32-msvc2012" "-I.\GeneratedFiles" "-I.\include"</Command>

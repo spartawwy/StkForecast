@@ -33,11 +33,14 @@
   
 typedef struct _t_kline_pos_data
 {
+    int  date; 
     int x_left;
     int x_right;
+    int height;
+    QPoint columnar_top_left;
     QPoint top;
     QPoint bottom;
-    _t_kline_pos_data() : x_left(-1), x_right(-1), top(CST_MAGIC_POINT), bottom(CST_MAGIC_POINT) {}
+    _t_kline_pos_data() : date(0), x_left(-1), x_right(-1), height(-1), columnar_top_left(CST_MAGIC_POINT), top(CST_MAGIC_POINT), bottom(CST_MAGIC_POINT) {}
 }T_KlinePosData;
 
 typedef struct _t_kline_dataitem

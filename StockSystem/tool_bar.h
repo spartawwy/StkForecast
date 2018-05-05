@@ -19,6 +19,8 @@ public:
     explicit ToolBar(QWidget *parent = 0);
     ~ToolBar(){}
 
+    void UncheckBtnABPen();
+
 protected:
 
     // 双击标题栏进行界面的最大化/还原

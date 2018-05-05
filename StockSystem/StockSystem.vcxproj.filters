@@ -69,12 +69,6 @@
     <ClCompile Include="main.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="Debug\moc_dayklinedialog.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="Release\moc_dayklinedialog.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
     <ClCompile Include="Debug\moc_mainwindow.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
@@ -102,9 +96,6 @@
     <ClCompile Include="stkfo_common.cpp">
       <Filter>include</Filter>
     </ClCompile>
-    <ClCompile Include="dayklinedialog.cpp">
-      <Filter>deprecate</Filter>
-    </ClCompile>
     <ClCompile Include="title_bar.cpp">
       <Filter>moudle</Filter>
     </ClCompile>
@@ -130,9 +121,6 @@
     </CustomBuild>
     <CustomBuild Include="stockinputdlg.ui">
       <Filter>Form Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="dayklinedialog.h">
-      <Filter>deprecate</Filter>
     </CustomBuild>
     <CustomBuild Include="title_bar.h">
       <Filter>moudle</Filter>

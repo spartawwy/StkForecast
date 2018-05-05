@@ -23,6 +23,7 @@ using namespace std;
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)
     , ui(new Ui::MainWindow)
+    , tool_bar_(nullptr)
     , title_(nullptr)
     , kline_wall_(nullptr)
 {
@@ -58,8 +59,8 @@ void MainWindow::initUi()
     kline_wall_ = new KLineWall(this);
     kline_wall_->Init();
     kline_wall_->setMouseTracking(true);
-    auto tool_bar = new ToolBar(this);
-    layout_all->addWidget(tool_bar);  
+    tool_bar_ = new ToolBar(this);
+    layout_all->addWidget(tool_bar_);  
  
     layout_all->addWidget(kline_wall_);  
       
@@ -82,6 +83,12 @@ void MainWindow::initUi()
 
 }
  
+void MainWindow::UncheckBtnABPen()
+{
+    if( tool_bar_ ) 
+        tool_bar_->UncheckBtnABPen(); 
+}
+
 void MainWindow::changeEvent(QEvent *e)
 {
     QMainWindow::changeEvent(e);

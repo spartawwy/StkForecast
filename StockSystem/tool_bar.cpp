@@ -48,6 +48,12 @@ ToolBar::ToolBar(QWidget *parent)
     setLayout(pLayout);
 }
 
+void ToolBar::UncheckBtnABPen()
+{
+    if( m_pABPen )
+        m_pABPen->setChecked(false);
+}
+
 void ToolBar::mouseDoubleClickEvent(QMouseEvent *)
 {
 
@@ -90,7 +96,7 @@ void ToolBar::onClicked()
                 if( kline_wall_.draw_action() == KLineWall::DrawAction::DRAWING_FOR_C )
                     kline_wall_.draw_action(KLineWall::DrawAction::NO_ACTION);
 
-                kline_wall_.ResetDrawingPoint();// ndchk
+                kline_wall_.ResetDrawState();// ndchk
             }
         }else
         {
