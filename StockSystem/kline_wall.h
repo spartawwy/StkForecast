@@ -25,9 +25,7 @@ public:
     int date_b;
     double c1;
     double c2;
-    double c3;
-    
-
+    double c3; 
 };
 
 class MainWindow;
@@ -72,8 +70,9 @@ private:
 
     void UpdateKLinePosDatas();
     T_KlineDataItem * GetKLineDataItemByXpos(int x);
-    QPoint GetPointFromKLineDataItems(int x, bool is_get_top);
+    QPointF GetPointFromKLineDataItems(int x, bool is_get_top);
     T_KlineDataItem * GetKLineDataItemByDate(int date);
+    T_KlinePosData * GetKLinePosDataByDate(int date);
 
     MainWindow  *main_win_;
 	Ui_KLineWallForm  ui;
@@ -105,12 +104,19 @@ private:
 	std::string cur_stock_code_;
 
     DrawAction draw_action_;
+#if 0
     QPoint drawing_line_A_;
     QPoint drawing_line_B_;
     QPoint drawing_line_C_;
 
     QPoint cur_mouse_point_;
+#else
+    QPointF drawing_line_A_;
+    QPointF drawing_line_B_;
+    QPointF drawing_line_C_;
 
+    QPointF cur_mouse_point_;
+#endif
     int pre_mm_w_;
     int pre_mm_h_;
 

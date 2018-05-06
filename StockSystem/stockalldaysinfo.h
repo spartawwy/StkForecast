@@ -29,19 +29,23 @@
 #define DOWNWARD_FRACTAL 0x20000000
 #define INSUFFIC_FRACTAL 0x40000000  
  
-#define CST_MAGIC_POINT QPoint(-1, -1)
+//#define CST_MAGIC_POINT QPoint(-1, -1)
+#define CST_MAGIC_POINT QPointF(-1, -1)
   
-typedef struct _t_kline_pos_data
+class T_KlinePosData
 {
+public:
+    T_KlinePosData() : date(0), x_left(0.0), x_right(0.0), height(0.0), columnar_top_left(CST_MAGIC_POINT), top(CST_MAGIC_POINT), bottom(CST_MAGIC_POINT) {}
+    void Clear(){date = 0; x_left = 0.0; x_right = 0.0; height = 0.0; columnar_top_left = CST_MAGIC_POINT;top = CST_MAGIC_POINT; bottom = CST_MAGIC_POINT;}
     int  date; 
-    int x_left;
-    int x_right;
-    int height;
-    QPoint columnar_top_left;
-    QPoint top;
-    QPoint bottom;
-    _t_kline_pos_data() : date(0), x_left(-1), x_right(-1), height(-1), columnar_top_left(CST_MAGIC_POINT), top(CST_MAGIC_POINT), bottom(CST_MAGIC_POINT) {}
-}T_KlinePosData;
+    double x_left;
+    double x_right;
+    double height;
+    QPointF columnar_top_left;
+    QPointF top;
+    QPointF bottom;
+    
+};
 
 typedef struct _t_kline_dataitem
 {
