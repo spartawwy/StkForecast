@@ -8,6 +8,11 @@
 #include "stockalldaysinfo.h"
 #include "stockinput_dlg.h"
  
+//#define DRAW_FROM_LEFT
+#ifndef DRAW_FROM_LEFT 
+#define DRAW_FROM_RIGHT
+#endif
+
 class T_PaintData3pForcastDownword
 {
 public:

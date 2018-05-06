@@ -89,12 +89,14 @@ void KLineWall::UpdateKLinePosDatas()
     const int empty_right_w = 30;
     static const int right_w = 30;
     auto item_w = ((mm_w - empty_right_w - right_w) / k_num_) ;
-    int k_bar_w = item_w-2;
-
+    auto space_between_k = item_w / 4;
+    auto k_bar_w = item_w * 4 / 3;
+    
+#ifdef DRAW_FROM_LEFT
     int j = 0;
     for( auto iter = p_hisdata_container_->begin();
         iter != p_hisdata_container_->end() && j < k_num_; 
-        ++iter, ++j)
+        ++iter, ++j )
     { 
         T_KlinePosData &pos_data = iter->get()->kline_posdata;
 
@@ -104,9 +106,6 @@ void KLineWall::UpdateKLinePosDatas()
         auto closePrice = (*iter)->stk_item.close_price;
         auto minPrice = (*iter)->stk_item.low_price;
         auto maxPrice = (*iter)->stk_item.high_price;
-        
-        //openPrice = (*iter)->stk_item.open_price;
-        //closePrice = (*iter)->stk_item.close_price;
 
         pos_data.x_left = j * item_w + 1;
         pos_data.x_right = pos_data.x_left + k_bar_w;
@@ -114,13 +113,36 @@ void KLineWall::UpdateKLinePosDatas()
         auto pos_y = -1 * mm_h * (openPrice - lowestMinPrice_)/(highestMaxPrice_ - lowestMinPrice_);
         pos_data.height = -1 * mm_h *(closePrice - openPrice)/(highestMaxPrice_ - lowestMinPrice_);
         pos_data.columnar_top_left = QPoint(j * item_w + 1, pos_y);
-
-       // painter.drawRect(j * item_w + 1, pos_y, k_bar_w, h_1);  
-
+         
         pos_data.top = QPoint(j * item_w + k_bar_w / 2, -1 * mm_h * (maxPrice-lowestMinPrice_)/(highestMaxPrice_ - lowestMinPrice_));
         pos_data.bottom = QPoint(j * item_w + k_bar_w / 2, -1 * mm_h * (minPrice-lowestMinPrice_)/(highestMaxPrice_ - lowestMinPrice_));
-
     }
+#else
+    int j = k_num_;
+    auto right_end = mm_w - empty_right_w - right_w - k_bar_w;
+
+    for( auto iter = p_hisdata_container_->rbegin();
+        iter != p_hisdata_container_->rend() && j > 0; 
+        ++iter, --j)
+    { 
+        T_KlinePosData &pos_data = iter->get()->kline_posdata; 
+        pos_data.date = iter->get()->stk_item.date;
+        auto openPrice = (*iter)->stk_item.open_price;
+        auto closePrice = (*iter)->stk_item.close_price;
+        auto minPrice = (*iter)->stk_item.low_price;
+        auto maxPrice = (*iter)->stk_item.high_price;
+
+        //pos_data.x_left = j * item_w + 1;
+        pos_data.x_right = right_end - (k_num_ - j) * k_bar_w;
+        pos_data.x_left = pos_data.x_right - k_bar_w;
+        auto pos_y = -1 * mm_h * (openPrice - lowestMinPrice_)/(highestMaxPrice_ - lowestMinPrice_);
+        pos_data.height = -1 * mm_h *(closePrice - openPrice)/(highestMaxPrice_ - lowestMinPrice_);
+        pos_data.columnar_top_left = QPoint(pos_data.x_left, pos_y);
+
+        pos_data.top = QPoint(pos_data.x_left + k_bar_w / 2, -1 * mm_h * (maxPrice-lowestMinPrice_)/(highestMaxPrice_ - lowestMinPrice_));
+        pos_data.bottom = QPoint(pos_data.x_left + k_bar_w / 2, -1 * mm_h * (minPrice-lowestMinPrice_)/(highestMaxPrice_ - lowestMinPrice_));
+    }
+#endif
 }
 
 void KLineWall::mousePressEvent(QMouseEvent * event )
@@ -191,7 +213,7 @@ void KLineWall::paintEvent(QPaintEvent*)
         this->pre_mm_h_ = h;
     };
 #if 1 
-    QPainter painter(this);
+    QPainter painter(this); 
     qDebug() << "paintEvent QCursor::pos  x:" << QCursor::pos().x() << " y: "<< QCursor::pos().y() << "\n";
     auto pos_from_global = mapFromGlobal(QCursor::pos());
     //qDebug() << "paintEvent x:" << pos_from_global.x() << " y: "<< pos_from_global.y() << "\n";
@@ -260,8 +282,7 @@ void KLineWall::paintEvent(QPaintEvent*)
     font.setPointSize(old_font.pointSize() * 2); 
     painter.setFont(font);
     painter.drawText(mm_w - right_w - 70, -1 *(this->height() - 100), cur_stock_code_.c_str());
-    painter.setFont(old_font);
-    //绘制背景各个虚线
+    painter.setFont(old_font); 
     pen.setColor(Qt::red);
     painter.setPen(pen);
 
@@ -307,11 +328,19 @@ void KLineWall::paintEvent(QPaintEvent*)
         bool has_first_tcycle_line_drawed = false;
 
     // draw k_num_ k line ----------------------------------
+#ifdef DRAW_FROM_LEFT
     int j = 0;
 	for( auto iter = p_hisdata_container_->begin();
 		iter != p_hisdata_container_->end() && j < k_num_; 
 		++iter, ++j)
     { 
+#else
+        int j = k_num_;
+        for( auto iter = p_hisdata_container_->rbegin();
+            iter != p_hisdata_container_->rend() && j > 0; 
+            ++iter, --j)
+        { 
+#endif
         T_KlinePosData &pos_data = iter->get()->kline_posdata;
 
         bool is_lowest_k = false;
@@ -323,9 +352,9 @@ void KLineWall::paintEvent(QPaintEvent*)
 
         //qDebug() << openPrice<< "\t"  << closePrice << minPrice << "\t" << maxPrice<< "\t" << "\n";
           
-		 QBrush brush(QColor(255,0,0));  
-		 pen.setStyle(Qt::SolidLine);
-        //绘图每天的股票到K线图上
+		QBrush brush(QColor(255,0,0));  
+		pen.setStyle(Qt::SolidLine);
+         
         if(openPrice <= closePrice)
         {
             pen.setColor(QColor(255,0,0));
@@ -399,72 +428,9 @@ void KLineWall::paintEvent(QPaintEvent*)
                 }
             }
         }
-
-        //--------------------------------------------------
-
-        if( !has_first_tcycle_line_drawed )
-        { 
-            if( is_lowest_k && j > 0 )
-            {
-                int k = j - 1; 
-                for(  auto it = iter-1; k >= 0; --it, --k )
-                {
-                    if( ( it->get()->type & TOP_AXIS_T_3 ) == TOP_AXIS_T_3 )
-                    {
-                        pen.setColor(Qt::yellow);  
-                        painter.setPen(pen);  
-                        //brush.setColor(Qt::yellow); 
-                        //painter.setBrush(brush);  
-
-                        auto pre_iter = iter - 1;
-                        const int pre_iter_point_x = (j - 1) * item_w + k_bar_w / 2;
-                        const int pre_iter_point_y = -1 * mm_h * ((*pre_iter)->stk_item.low_price-lowestMinPrice_)/(highestMaxPrice_ - lowestMinPrice_);
-                        const int pre_top_ax_point_x = k * item_w + k_bar_w / 2;
-                        const int pre_top_ax_point_low_y = -1 * mm_h * ((*it)->stk_item.high_price-lowestMinPrice_)/(highestMaxPrice_ - lowestMinPrice_);
-                        painter.drawLine(pre_top_ax_point_x, pre_top_ax_point_low_y
-                                        , pre_iter_point_x, pre_iter_point_y);
-                        // tcycle vertical line ---------
-                        painter.drawLine(pre_iter_point_x, 0
-                                         ,pre_iter_point_x, -1 * mm_h * (highestMaxPrice_ - lowestMinPrice_));
-                        index_tcycle_start = j - 1; 
-                        t_cycle = j - k; 
-                        index_tcycle_second = index_tcycle_start + t_cycle - 1;
-                        has_first_tcycle_line_drawed = true;
-                        break;
-                    }
-                }
-            }
-        }else
-        {
-            if( j == index_tcycle_second || (j > index_tcycle_second && (j - index_tcycle_second) % t_cycle == 0) ) 
-            {  
-                // tcycle vertical line ---------
-                pen.setColor(Qt::yellow);  
-		        painter.setPen(pen);  
-                //brush.setColor(Qt::yellow); 
-                //painter.setBrush(brush);   
-                painter.drawLine(pos_data.top.x(), 0, pos_data.top.x(), -1 * mm_h * (highestMaxPrice_ - lowestMinPrice_));
-                index_last_tcycle_in_k_num = j;
-
-                auto t_val = ((j - index_tcycle_second) / t_cycle + 1) * t_cycle;
-                painter.drawText(pos_data.top.x(), -1 * mm_h, QString("%1").arg(t_val));
-            }
-        }
-        
+          
       }  // for all k line 
-
-      if( t_cycle > 0 )
-      { 
-            pen.setColor(Qt::yellow); 
-            QBrush brush(Qt::yellow);
-		    painter.setPen(pen);  
-            painter.setBrush(brush);   
-            const int point_x_lastcycle_l = (index_last_tcycle_in_k_num + t_cycle) * item_w + k_bar_w / 2;
-            painter.drawLine(point_x_lastcycle_l, 0, point_x_lastcycle_l, -1 * mm_h * (highestMaxPrice_ - lowestMinPrice_));
-
-            auto t_val = ((index_last_tcycle_in_k_num - index_tcycle_second) / t_cycle  + 2) * t_cycle;
-            painter.drawText(point_x_lastcycle_l, -1 * mm_h, QString("%1").arg(t_val));
-      }
+         
     }
 	  
     painter.translate(0, -1 * (this->height() - bottom_h_));
@@ -529,6 +495,7 @@ void KLineWall::keyPressEvent(QKeyEvent *e)
             if( k_num_ > 1 )
             {
                 k_num_ --;
+                UpdateKLinePosDatas();
                 update();
             }
             break;
@@ -536,6 +503,7 @@ void KLineWall::keyPressEvent(QKeyEvent *e)
     case Qt::Key_Down:
         { 
             k_num_ ++;
+            UpdateKLinePosDatas();
             update();
             break;
         } 
