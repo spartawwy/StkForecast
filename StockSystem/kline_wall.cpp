@@ -93,7 +93,7 @@ void KLineWall::UpdateKLinePosDatas()
     double k_bar_w = item_w * 3 / 4;
     std::for_each( std::begin(*p_hisdata_container_), std::end(*p_hisdata_container_), [this](T_HisDataItemContainer::reference entry)
     {
-            entry->kline_posdata.Clear();
+        entry->kline_posdata.Clear();
     });
 #ifdef DRAW_FROM_LEFT
     int j = 0;
@@ -194,11 +194,18 @@ void KLineWall::mousePressEvent(QMouseEvent * event )
             T_PaintData3pForcastDownword data_3pforcast;
             data_3pforcast.date_a = item_a->stk_item.date; 
             data_3pforcast.date_b = item_b->stk_item.date; 
-#if 0
-            data_3pforcast.c2 = 0;
-            paint_3pdatas_.c1 = 0;
-            paint_3pdatas_.c3 = 0; 
-#endif
+            if( item_a->stk_item.high_price > item_b->stk_item.high_price )
+            {
+                data_3pforcast.c2 = sqrtf(item_a->stk_item.high_price * item_b->stk_item.low_price);
+                data_3pforcast.c1 = sqrtf(item_b->stk_item.low_price * data_3pforcast.c2);
+                data_3pforcast.c3 = data_3pforcast.c2 * data_3pforcast.c2 / data_3pforcast.c1;
+            }else if( item_a->stk_item.high_price < item_b->stk_item.high_price )
+            {
+                data_3pforcast.c2 = sqrtf(item_a->stk_item.low_price * item_b->stk_item.high_price);
+                data_3pforcast.c1 = sqrtf(item_b->stk_item.high_price * data_3pforcast.c2);
+                data_3pforcast.c3 = data_3pforcast.c2 * data_3pforcast.c2 / data_3pforcast.c1;
+            }
+ 
             paint_3pdatas_.push_back(std::move(data_3pforcast));
             return ResetDrawState();  
         }
@@ -284,6 +291,7 @@ void KLineWall::paintEvent(QPaintEvent*)
      
     QFont font;  
     font.setPointSize(old_font.pointSize() * 2); 
+   
     painter.setFont(font);
     painter.drawText(mm_w - right_w - 70, -1 *(this->height() - 100), cur_stock_code_.c_str());
     painter.setFont(old_font); 
@@ -322,8 +330,12 @@ void KLineWall::paintEvent(QPaintEvent*)
      
 	if( p_hisdata_container_ )
 	{  
-        auto item_w = ((mm_w - empty_right_w - right_w)/ k_num_) ;
+       /* auto item_w = ((mm_w - empty_right_w - right_w)/ k_num_) ;
         int k_bar_w = item_w-2;
+*/
+        double item_w = double(mm_w - empty_right_w - right_w) / double(k_num_ + 1) ;
+        double space_between_k = item_w / 4;
+        double k_bar_w = item_w * 3 / 4;
 
         int t_cycle = 0;
         int index_tcycle_start = 0;
@@ -410,25 +422,58 @@ void KLineWall::paintEvent(QPaintEvent*)
         painter.drawRect(pos_data.columnar_top_left.x(), pos_data.columnar_top_left.y(), pos_data.x_right - pos_data.x_left, pos_data.height);
         painter.drawLine(pos_data.top.x(), pos_data.top.y(), pos_data.bottom.x(), pos_data.bottom.y());
 #endif
-        if( pos_from_global.x() >= j * item_w + 1 && pos_from_global.x() <= j * item_w + 1 + k_bar_w )
+        if( pos_from_global.x() >= pos_data.x_left && pos_from_global.x() <= pos_data.x_right )
             k_data_str_ = std::to_string((*iter)->stk_item.date);
 
         if( !paint_3pdatas_.empty() )
         {
+            auto get_pointc_y = [this, mm_h](double c_val, T_KlineDataItem& item, bool is_bottom)->double
+            { 
+                /*if( is_bottom ) return c_val * item.kline_posdata.bottom.y() / item.stk_item.low_price;
+                else return c_val * item.kline_posdata.top.y() / item.stk_item.high_price;*/ 
+                return -1 * (c_val - lowestMinPrice_)/(highestMaxPrice_ - lowestMinPrice_) * mm_h;
+            };
+
             QPen pen;  
+            pen.setStyle(Qt::DotLine);
             pen.setColor(Qt::magenta);
             pen.setWidth(2);
             painter.setPen(pen); 
             for( unsigned int i = 0; i < paint_3pdatas_.size(); ++i )
             {
-                auto item_a = GetKLinePosDataByDate(paint_3pdatas_[i].date_a);
-                auto item_b = GetKLinePosDataByDate(paint_3pdatas_[i].date_b);
-                if( item_a && item_b )
+                auto item_a = GetKLineDataItemByDate(paint_3pdatas_[i].date_a);
+                auto item_b = GetKLineDataItemByDate(paint_3pdatas_[i].date_b);
+                if( item_a && item_a->kline_posdata.date != 0 && item_b && item_b->kline_posdata.date != 0 )
                 {
-                    if( abs(item_a->top.y()) > abs(item_b->top.y()) )  // y is negative
-                        painter.drawLine(item_a->top, item_b->bottom);
-                    else 
-                        painter.drawLine(item_a->bottom, item_b->top);
+                    if( abs(item_a->kline_posdata.top.y()) > abs(item_b->kline_posdata.top.y()) )  // y is negative
+                    { 
+                        const auto font_size = painter.font().pointSizeF();
+                        painter.drawLine(item_a->kline_posdata.top, item_b->kline_posdata.bottom);
+                        painter.drawText(QPointF(item_a->kline_posdata.top.x()-item_w/2, item_a->kline_posdata.top.y()), QString("%1").arg(item_a->stk_item.high_price));
+                        painter.drawText(QPointF(item_b->kline_posdata.bottom.x()-item_w/2, item_b->kline_posdata.bottom.y() + painter.font().pointSizeF()), QString("%1").arg(item_b->stk_item.low_price));
+
+                        //double y1 = (paint_3pdatas_[i].c1 / item_b->stk_item.low_price) * item_b->kline_posdata.bottom.y();
+                        double y1 = get_pointc_y(paint_3pdatas_[i].c1, *item_b, true);
+                        //double y2 = (paint_3pdatas_[i].c2 / item_b->stk_item.low_price) * item_b->kline_posdata.bottom.y();
+                        double y2 = get_pointc_y(paint_3pdatas_[i].c2, *item_b, true);
+                        double y3 = get_pointc_y(paint_3pdatas_[i].c3, *item_b, true);
+                        double x_b = item_b->kline_posdata.bottom.x();
+                        // vertical line ----
+                        painter.drawLine(item_b->kline_posdata.bottom, QPointF(x_b, y1));
+                        painter.drawLine(QPointF(x_b, y1), QPointF(x_b, y2));
+                        painter.drawLine(QPointF(x_b, y2), QPointF(x_b, y3));
+                        // horzon forcast line 
+                        painter.drawLine(QPointF(item_b->kline_posdata.bottom.x() - item_w, y1), QPointF(item_b->kline_posdata.bottom.x() + 5*item_w, y1));
+                        painter.drawText(QPointF(item_b->kline_posdata.bottom.x() - item_w - font_size*6, y1), QString("%1").arg(paint_3pdatas_[i].c1));
+                        painter.drawLine(QPointF(item_b->kline_posdata.bottom.x() - item_w, y2), QPointF(item_b->kline_posdata.bottom.x() + 10*item_w, y2));
+                        painter.drawText(QPointF(item_b->kline_posdata.bottom.x() - item_w - font_size*6, y2), QString("%1").arg(paint_3pdatas_[i].c2));
+                        painter.drawLine(QPointF(item_b->kline_posdata.bottom.x() - item_w, y3), QPointF(item_b->kline_posdata.bottom.x() + 20*item_w, y3));
+                        painter.drawText(QPointF(item_b->kline_posdata.bottom.x() - item_w - font_size*6, y3), QString("%1").arg(paint_3pdatas_[i].c3));
+                        
+                    }else 
+                    {
+                        painter.drawLine(item_a->kline_posdata.bottom, item_b->kline_posdata.top);
+                    }
                 }
             }
         }
