@@ -45,6 +45,7 @@ public:
     DrawAction draw_action(){ return draw_action_; }
 
     void ResetDrawState();
+    void ClearForcastDrawData();
 
 protected:
 
@@ -119,7 +120,7 @@ private:
 #endif
     int pre_mm_w_;
     int pre_mm_h_;
-
+     
     std::vector<T_PaintData3pForcastDownword> paint_3pdatas_;
 };
 

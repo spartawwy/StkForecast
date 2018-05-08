@@ -49,7 +49,7 @@ private:
     //QLabel *m_pTitleLabel;
 
     QPushButton *m_pABPen;
-    QToolButton *m_pClearPen;
+    QPushButton *m_pClearPen;
 
     //QPushButton *m_pMaximizeButton;
     //QPushButton *m_pCloseButton;

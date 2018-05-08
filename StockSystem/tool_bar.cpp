@@ -6,6 +6,7 @@
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QToolButton>
 #include <QtWidgets/QHBoxLayout>
+#include <QtWidgets/QMessageBox>
 #include <QEvent>
 #include <QMouseEvent>
 #include <QtWidgets/QApplication>
@@ -32,7 +33,7 @@ ToolBar::ToolBar(QWidget *parent)
     m_pABPen->setObjectName(STR_ABPEN);  
     connect(m_pABPen, SIGNAL(clicked(bool)), this, SLOT(onClicked()));
 
-    m_pClearPen = new QToolButton(this);
+    m_pClearPen = new QPushButton("C", this);
     m_pClearPen->setFixedSize(27, 22);
     m_pClearPen->setObjectName(STR_CLRPEN);
     connect(m_pClearPen, SIGNAL(clicked(bool)), this, SLOT(onClicked()));
@@ -93,14 +94,18 @@ void ToolBar::onClicked()
             }else
             { 
                 kline_wall_.setCursor(Qt::ArrowCursor);
-                if( kline_wall_.draw_action() == KLineWall::DrawAction::DRAWING_FOR_C )
-                    kline_wall_.draw_action(KLineWall::DrawAction::NO_ACTION);
-
+                /*if( kline_wall_.draw_action() == KLineWall::DrawAction::DRAWING_FOR_C )
+                    kline_wall_.draw_action(KLineWall::DrawAction::NO_ACTION);*/
                 kline_wall_.ResetDrawState();// ndchk
             }
-        }else
+        }else if( p_btn == m_pClearPen )
         {
-            
+            auto ret = QMessageBox::information(nullptr, QString::fromLocal8Bit("提示"), QString::fromLocal8Bit("是否删除所有手动预测画线?"), QMessageBox::Yes, QMessageBox::No); 
+            if( QMessageBox::Yes == ret )
+            {
+                kline_wall_.ResetDrawState(); 
+                kline_wall_.ClearForcastDrawData();
+            }
         }
     }
 }

@@ -6,7 +6,7 @@ import sqlite3
 import getopt
 import tushare as ts
 
-DB_FILE_PATH = './ExchBase.kd'
+DB_FILE_PATH = '../build/Win32/Debug/ExchBase.kd'
 g_db_conn = None
 g_dic_proditem = {}
  
