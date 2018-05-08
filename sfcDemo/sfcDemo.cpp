@@ -22,8 +22,7 @@
 #include <algorithm>
 #include <stdio.h>
 
-//#ifndef TO_GET_DATA
-#if 0
+#ifndef TO_GET_DATA
 
 #pragma comment(lib, "python36.lib")
 

@@ -1,3 +1,9 @@
+/*
+ 用 yyyymmdd-yyyymmdd.dayk 标记 日k线数据已经保存在文件里, 若缺少进来的数据则追加并改名;
+    预测所画线数据保存在 fcstlines.data 文件里
+    选股程序 对每只股票的近两个月的k线数据进行分析得出 预测数据, 选股判断
+*/
+
 #include "stdafx.h"
 #include <string>
 #include <iostream>
@@ -24,19 +30,12 @@ using namespace std;
 void TestUseFunc();
 
 int main()
-{ 
-    int sdfval = int('0'); //48
-    int sdf2 = int('9');   //57
-    int sdf3 = int('a');  // 97
-    int sd32d = int('A'); // 65
-    int sdf3k = int('z'); // 122
-    int kkdf = int('Z');  // 90
-
-    std::string stk_data_dir_ = "sdfsf\\";
-    if( stk_data_dir_.rfind("\\") == stk_data_dir_.length() - 1 )
-   {
-       stk_data_dir_ = stk_data_dir_;
-   }
+{   
+    /*std::string stk_data_dir_ = "sdfsf\\";
+    if( stk_data_dir_.rfind("\\") == stk_data_dir_.length() - 1 )  //ok
+    {
+    stk_data_dir_ = stk_data_dir_;
+    }*/
     //------------------
     int r = Py_IsInitialized();  //1为已经初始化了
     if (r != 0)

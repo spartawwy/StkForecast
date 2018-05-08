@@ -16,7 +16,11 @@ class KLINE:
         self.data_dir = "C:/"
         if "STK_DATA_DIR" in os.environ:
             self.data_dir = os.environ["STK_DATA_DIR"] 
-        self.tick_file_ext = ".fenbi"    
+        self.thirtym_file_ext = ".30mk"
+        self.sixtym_file_ext = ".60mk"
+        self.dayk_file_ext = ".dayk"
+        self.weekk_file_ext = ".weekk"
+        self.monk_file_ext = ".monk"
         self.file_ok_ext = ".ok"    
         log_dir = self.data_dir + "\\log\\"
         if not os.path.exists(log_dir):
@@ -27,7 +31,14 @@ class KLINE:
     def __del__(self):
         if self.log_file_handle:
             self.log_file_handle.close()
-    
+            
+    def getTargetKDataDir(self, code):
+        target_path = self.data_dir + "/" + code + "/kline"
+        #print("saveCodeTick2File : %s %s" %(code, target_path) )
+        if not os.path.isdir(target_path):
+            os.makedirs(target_path)
+        return target_path
+        
     def write_log(self, content):
         if self.log_file_handle:
             self.log_file_handle.write(content + "\n")
@@ -89,14 +100,46 @@ class KLINE:
             begin_date += dt.timedelta(days=1)  
         return date_list
         
-     
+    def getDayKline(self, code):
+        file_full_path = self.getTargetKDataDir(code) + "/" + code + self.dayk_file_ext
+        tag_file_full_path = self.getTargetKDataDir(code) + "/" + code + self.file_ok_ext
+        self.write_log("to saveCodeTick2File : %s" %(file_full_path) )
+        fd = ""
+        if not os.access(tag_file_full_path, os.F_OK) or os.path.getsize(file_full_path) == 0:
+            fd = os.open(file_full_path, os.O_WRONLY | os.O_CREAT)
+            if not fd:
+                self.write_log("opened file fail!")
+                return False
+        data_fm = pd.DataFrame()
+        data_fm = ts.get_hist_data(code)
+        if data_fm.empty:
+            self.write_log("getDayKline {0} df.empty".format(code))
+            return False
+        total = len(data_fm["date"])
+        for dex in range(0, total):
+                index = total - dex - 1
+                content = "{0} {1} {2} {3} {4} {5} {6}\n".format(data_fm[0][index], data_fm['open'][index], data_fm['high'][index], data_fm['close'][index], data_fm['low'][index], data_fm['volume'][index], data_fm['ma5'][index])
+                #print(content)
+                os.write(fd, str.encode(content))
+                id = id + 1
+        os.close(fd)    
+        
 if __name__ == "__main__":  
     if "PYTHONPATH" in os.environ:
         mystr = os.environ["PYTHONPATH"] 
         print(mystr)
-     
-    if 1:
-        st = KLINE()
-        df = st.getTradeDays2file()
-          
+    
+    kl = KLINE()
+    if 0:
         
+        #df = st.getTradeDays2file()
+        kl.getDayKline("600123")
+    if 1:
+        code = '600848'
+        #默认的 index 是 date，所以用了 reset_index() 把 date 变成 column #sort_index(ascending=True)#升序
+        #df = ts.get_hist_data('600848', start='2015-05-01', end='2015-06-18').reset_index().sort_values('date')
+        df = ts.get_hist_data(code, start='2016-01-04',end='2017-03-09').sort_index(ascending=True)
+        file_full_path = kl.getTargetKDataDir(code) + "/" + code + kl.dayk_file_ext
+        #filename = 'c:/day/bigfile.csv'
+        #df.to_csv(filename)
+        df.to_csv(file_full_path, columns=['open','high','low','close'])
