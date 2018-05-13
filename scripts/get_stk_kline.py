@@ -100,7 +100,9 @@ class KLINE:
             begin_date += dt.timedelta(days=1)  
         return date_list
         
-    def getDayKline(self, code):
+    def getDayKline(self, code, beg_day_str, end_day_str):
+        beg_date = self.getStrToDate(beg_day_str)
+        end_date = self.getStrToDate(end_day_str)
         file_full_path = self.getTargetKDataDir(code) + "/" + code + self.dayk_file_ext
         tag_file_full_path = self.getTargetKDataDir(code) + "/" + code + self.file_ok_ext
         self.write_log("to saveCodeTick2File : %s" %(file_full_path) )
@@ -110,18 +112,9 @@ class KLINE:
             if not fd:
                 self.write_log("opened file fail!")
                 return False
-        data_fm = pd.DataFrame()
-        data_fm = ts.get_hist_data(code)
-        if data_fm.empty:
-            self.write_log("getDayKline {0} df.empty".format(code))
-            return False
-        total = len(data_fm["date"])
-        for dex in range(0, total):
-                index = total - dex - 1
-                content = "{0} {1} {2} {3} {4} {5} {6}\n".format(data_fm[0][index], data_fm['open'][index], data_fm['high'][index], data_fm['close'][index], data_fm['low'][index], data_fm['volume'][index], data_fm['ma5'][index])
-                #print(content)
-                os.write(fd, str.encode(content))
-                id = id + 1
+        #data_fm = pd.DataFrame()
+        #df.to_csv(file_full_path, columns=['open', 'high', 'low', 'close', 'volume', 'ma5', 'ma10' 'ma20'])
+        
         os.close(fd)    
         
 if __name__ == "__main__":  
@@ -131,15 +124,33 @@ if __name__ == "__main__":
     
     kl = KLINE()
     if 0:
-        
         #df = st.getTradeDays2file()
         kl.getDayKline("600123")
+    code = '600848'
+    file_full_path = kl.getTargetKDataDir(code) + "/" + code + kl.dayk_file_ext
     if 1:
-        code = '600848'
-        #默认的 index 是 date，所以用了 reset_index() 把 date 变成 column #sort_index(ascending=True)#升序
-        #df = ts.get_hist_data('600848', start='2015-05-01', end='2015-06-18').reset_index().sort_values('date')
-        df = ts.get_hist_data(code, start='2016-01-04',end='2017-03-09').sort_index(ascending=True)
-        file_full_path = kl.getTargetKDataDir(code) + "/" + code + kl.dayk_file_ext
-        #filename = 'c:/day/bigfile.csv'
+        #默认的 index 是 date，所以用了 reset_index() 把 date 变成 column 
+        #df = ts.get_hist_data('600848', start='2015-05-02', end='2015-06-18').reset_index().sort_values('date')
+        #sort_index(ascending=True)#升序
+        df = ts.get_hist_data(code, start='2016-01-05', end='2017-03-09').sort_index(ascending=True)
         #df.to_csv(filename)
-        df.to_csv(file_full_path, columns=['open','high','low','close'])
+        df.to_csv(file_full_path, columns=['open', 'high', 'low', 'close', 'volume', 'ma5', 'ma10', 'ma20'])
+        #volume, ma5
+    if 1:
+        df = ts.get_hist_data(code, start='2016-01-04',end='2016-01-04').sort_index(ascending=True)
+        df.to_csv(file_full_path + ".tmp", columns=['open', 'high', 'low', 'close', 'volume', 'ma5', 'ma10', 'ma20'])
+        new_data = ""
+        with open(file_full_path + ".tmp", "r") as pref:
+            new_data = pref.read()
+            
+        with open(file_full_path, "r+") as f:
+            oldlines = f.readlines()
+            f.seek(0)
+            f.write(new_data)
+            f.writelines(oldlines[1:])
+        
+        
+        
+        
+        
+        
