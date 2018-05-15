@@ -114,7 +114,18 @@ class KLINE:
     def getDayKline(self, code, beg_day_str, end_day_str):
         beg_date = self.getStrToDate(beg_day_str)
         end_date = self.getStrToDate(end_day_str)
-        #file_full_path = self.getTargetKDataDir(code) + "/" + code + self.dayk_file_ext
+        cur_date_str = self.getDateToStr(dt.datetime.now())
+        cur_date = self.getStrToDate(cur_date_str) 
+        #may reset end_date -----------
+        if end_date >= cur_date:
+            point_time = dt.datetime.strptime(cur_date_str+" 15:30:00", '%Y-%m-%d %H:%M:%S') 
+            if dt.datetime.now() > point_time: 
+                end_date = cur_date
+                end_day_str = cur_date_str
+            else:
+                end_date = cur_date + dt.timedelta(days=-1)
+                end_day_str = self.getDateToStr(end_date)
+                
         prek_file_path = self.getTargetKDataDir(code) + "/pre.tmp"
         afterk_file_path = self.getTargetKDataDir(code) + "/after.tmp"
         # if exists old day k file----
@@ -125,18 +136,19 @@ class KLINE:
                 old_dayk_file = name
                 break
         if not old_dayk_file:
-            print("no rel dayk file, will save data frame")
-            file_full_path = kl.getTargetKDataDir(code) + "/" + beg_day_str + "_" + end_day_str + "." + self.dayk_file_ext 
-            df = ts.get_k_data(code, start=beg_day_str, end_day_str)
+            #print("no rel dayk file, will save data frame")
+            file_full_path = kl.getTargetKDataDir(code) + "/" + beg_day_str + "_" + end_day_str + self.dayk_file_ext 
+            df = ts.get_k_data(code, start=beg_day_str, end=end_day_str)
             df.to_csv(file_full_path, columns=['date', 'open', 'close', 'high', 'low', 'volume'], header=None,index=None)
             return
             
-        file_name = os.path.splitext(old_dayk_file)[0]
-        print(file_name)
-        print(file_name.split("_")[0])
-        print(file_name.split("_")[1])
+        file_name = os.path.splitext(old_dayk_file)[0] 
+        #print(file_name)
+        #print(file_name.split("_")[0])
+        #print(file_name.split("_")[1])
         old_beg_date_str = file_name.split("_")[0]
-        old_end_date_str = file_name.split("_")[1]
+        old_end_date_str = file_name.split("_")[1] 
+        #print(old_end_date_str)
         old_beg_date = self.getStrToDate(old_beg_date_str)
         old_end_date = self.getStrToDate(old_end_date_str)
         new_beg_date_str = old_beg_date_str
@@ -148,39 +160,41 @@ class KLINE:
             df = ts.get_k_data(code, start=beg_day_str, end=self.getDateToStr(old_beg_date + dt.timedelta(days=-1)))
             if not df.empty:
                 df.to_csv(prek_file_path, columns=['date', 'open', 'close', 'high', 'low', 'volume'], header=None,index=None)
-                print("saved " + prek_file_path)
+                #print("saved " + prek_file_path)
                 with open(prek_file_path, "r") as pref:
                     pre_data = pref.read()
-            print(beg_day_str + " < " + old_beg_date_str)
-        else:
-            print(beg_day_str + " >= " + old_beg_date_str)
-        if end_date > old_end_date:
+            #print(beg_day_str + " < " + old_beg_date_str)
+        
+        if old_end_date < end_date:
             new_end_date_str = end_day_str
             df = ts.get_k_data(code, start=self.getDateToStr(old_end_date + dt.timedelta(days=1)), end=new_end_date_str)
             if not df.empty:
                 df.to_csv(afterk_file_path, columns=['date', 'open', 'close', 'high', 'low', 'volume'], header=None,index=None)
-                print("saved " + afterk_file_path)
+                #print("saved " + afterk_file_path)
                 with open(afterk_file_path, "r") as afterf:
                     after_data = afterf.read()
-            print(end_day_str + " > " + old_end_date_str)
-        else:
-            print(end_day_str + " <= " + old_end_date_str)    
-             
-        old_file_full_path = kl.getTargetKDataDir(code) + "/" + old_dayk_file
-               
-        with open(old_file_full_path, "r+") as f:
-            #oldlines = f.readlines()
-            olddata = f.read()
-            f.seek(0)
-            f.write(pre_data)
-            f.write(olddata)
-            f.write(after_data)
-            #f.writelines(oldlines[1:])
-        
+            #print(end_day_str + " > " + old_end_date_str)
+          
+        old_file_full_path = kl.getTargetKDataDir(code) + "/" + old_dayk_file     
+        if pre_data or after_data:
+            with open(old_file_full_path, "r+") as f:
+                #oldlines = f.readlines()
+                olddata = f.read()
+                f.seek(0)
+                if pre_data:
+                    f.write(pre_data)
+                f.write(olddata)
+                if after_data:
+                    f.write(after_data)
+                #f.writelines(oldlines[1:])
+            
         file_full_path = kl.getTargetKDataDir(code) + "/" + new_beg_date_str + "_" + new_end_date_str + kl.dayk_file_ext 
-        os.rename(old_file_full_path, file_full_path)
-        os.remove(prek_file_path)
-        os.remove(afterk_file_path)
+        if old_file_full_path != file_full_path:
+            os.rename(old_file_full_path, file_full_path)
+            if pre_data:
+                os.remove(prek_file_path)
+            if after_data:
+                os.remove(afterk_file_path)
         return
          
         
@@ -218,8 +232,6 @@ if __name__ == "__main__":
             f.write(new_data)
             f.writelines(oldlines[1:])
     if 0:
-        kl.getDayKline(code, '2018-05-07', '2018-05-10')
-    if 1:
         date0 = kl.getStrToDate('2018-05-08')
         date1 = date0 + dt.timedelta(-1)
         df = ts.get_k_data(code, start='2018-05-05', end='2018-05-05')
@@ -228,9 +240,10 @@ if __name__ == "__main__":
         
         print(df)
         print(date1) 
-        dur_day = kl.getDurationDays(kl.getStrToDate('2017-05-04'), kl.getStrToDate('2017-06-05'))
+        dur_day = kl.getDurationDays(kl.getStrToDate('2017-04-04'), kl.getStrToDate('2017-06-05'))
         print(dur_day)
-        
+    if 1:
+        kl.getDayKline(code, '1900-02-02', '2020-05-04')    
         
         
         
