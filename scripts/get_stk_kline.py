@@ -77,7 +77,18 @@ class KLINE:
         except Exception as err:
             self.write_log("%s is not a date" % d_str)
         return False    
-      
+        
+    def getDurationDays(self, beg_date, end_date):
+        #beg_date = dt.datetime(beg_date[0], beg_date[1], beg_date[2])  
+        #end_date = dt.datetime(end_date[0], end_date[1], end_date[2])
+        if isinstance(beg_date, dt.datetime) and isinstance(end_date, dt.datetime):
+            return (end_date - beg_date).days
+        else:
+            return False
+            
+    def addDeltaDays(self, date, days_val):
+        return date + dt.timedelta(days=days_val)
+        
     #返回日期之间的所有日期列表  
     def getOpenedRangeDateList(self, startdate, enddate):
         date_list = [] 
@@ -103,19 +114,75 @@ class KLINE:
     def getDayKline(self, code, beg_day_str, end_day_str):
         beg_date = self.getStrToDate(beg_day_str)
         end_date = self.getStrToDate(end_day_str)
-        file_full_path = self.getTargetKDataDir(code) + "/" + code + self.dayk_file_ext
-        tag_file_full_path = self.getTargetKDataDir(code) + "/" + code + self.file_ok_ext
-        self.write_log("to saveCodeTick2File : %s" %(file_full_path) )
-        fd = ""
-        if not os.access(tag_file_full_path, os.F_OK) or os.path.getsize(file_full_path) == 0:
-            fd = os.open(file_full_path, os.O_WRONLY | os.O_CREAT)
-            if not fd:
-                self.write_log("opened file fail!")
-                return False
-        #data_fm = pd.DataFrame()
-        #df.to_csv(file_full_path, columns=['open', 'high', 'low', 'close', 'volume', 'ma5', 'ma10' 'ma20'])
+        #file_full_path = self.getTargetKDataDir(code) + "/" + code + self.dayk_file_ext
+        prek_file_path = self.getTargetKDataDir(code) + "/pre.tmp"
+        afterk_file_path = self.getTargetKDataDir(code) + "/after.tmp"
+        # if exists old day k file----
+        items = os.listdir(self.getTargetKDataDir(code) + "/")
+        old_dayk_file = ""
+        for name in items:
+            if name.endswith(self.dayk_file_ext):
+                old_dayk_file = name
+                break
+        if not old_dayk_file:
+            print("no rel dayk file, will save data frame")
+            file_full_path = kl.getTargetKDataDir(code) + "/" + beg_day_str + "_" + end_day_str + "." + self.dayk_file_ext 
+            df = ts.get_k_data(code, start=beg_day_str, end_day_str)
+            df.to_csv(file_full_path, columns=['date', 'open', 'close', 'high', 'low', 'volume'], header=None,index=None)
+            return
+            
+        file_name = os.path.splitext(old_dayk_file)[0]
+        print(file_name)
+        print(file_name.split("_")[0])
+        print(file_name.split("_")[1])
+        old_beg_date_str = file_name.split("_")[0]
+        old_end_date_str = file_name.split("_")[1]
+        old_beg_date = self.getStrToDate(old_beg_date_str)
+        old_end_date = self.getStrToDate(old_end_date_str)
+        new_beg_date_str = old_beg_date_str
+        new_end_date_str = old_end_date_str
+        pre_data = ""
+        after_data = ""
+        if beg_date < old_beg_date:
+            new_beg_date_str = beg_day_str 
+            df = ts.get_k_data(code, start=beg_day_str, end=self.getDateToStr(old_beg_date + dt.timedelta(days=-1)))
+            if not df.empty:
+                df.to_csv(prek_file_path, columns=['date', 'open', 'close', 'high', 'low', 'volume'], header=None,index=None)
+                print("saved " + prek_file_path)
+                with open(prek_file_path, "r") as pref:
+                    pre_data = pref.read()
+            print(beg_day_str + " < " + old_beg_date_str)
+        else:
+            print(beg_day_str + " >= " + old_beg_date_str)
+        if end_date > old_end_date:
+            new_end_date_str = end_day_str
+            df = ts.get_k_data(code, start=self.getDateToStr(old_end_date + dt.timedelta(days=1)), end=new_end_date_str)
+            if not df.empty:
+                df.to_csv(afterk_file_path, columns=['date', 'open', 'close', 'high', 'low', 'volume'], header=None,index=None)
+                print("saved " + afterk_file_path)
+                with open(afterk_file_path, "r") as afterf:
+                    after_data = afterf.read()
+            print(end_day_str + " > " + old_end_date_str)
+        else:
+            print(end_day_str + " <= " + old_end_date_str)    
+             
+        old_file_full_path = kl.getTargetKDataDir(code) + "/" + old_dayk_file
+               
+        with open(old_file_full_path, "r+") as f:
+            #oldlines = f.readlines()
+            olddata = f.read()
+            f.seek(0)
+            f.write(pre_data)
+            f.write(olddata)
+            f.write(after_data)
+            #f.writelines(oldlines[1:])
         
-        os.close(fd)    
+        file_full_path = kl.getTargetKDataDir(code) + "/" + new_beg_date_str + "_" + new_end_date_str + kl.dayk_file_ext 
+        os.rename(old_file_full_path, file_full_path)
+        os.remove(prek_file_path)
+        os.remove(afterk_file_path)
+        return
+         
         
 if __name__ == "__main__":  
     if "PYTHONPATH" in os.environ:
@@ -128,28 +195,41 @@ if __name__ == "__main__":
         kl.getDayKline("600123")
     code = '600848'
     file_full_path = kl.getTargetKDataDir(code) + "/" + code + kl.dayk_file_ext
-    if 1:
+    #os.listdir()
+    if 0:
         #默认的 index 是 date，所以用了 reset_index() 把 date 变成 column 
-        #df = ts.get_hist_data('600848', start='2015-05-02', end='2015-06-18').reset_index().sort_values('date')
+        #df = ts.get_hist_data('600848', start='2018-05-13', end='2018-05-13').reset_index().sort_values('date')
         #sort_index(ascending=True)#升序
-        df = ts.get_hist_data(code, start='2016-01-05', end='2017-03-09').sort_index(ascending=True)
-        #df.to_csv(filename)
-        df.to_csv(file_full_path, columns=['open', 'high', 'low', 'close', 'volume', 'ma5', 'ma10', 'ma20'])
+        df = ts.get_k_data(code, start='2018-04-10', end='2018-05-13').sort_index(ascending=True) 
+        #df = ts.get_k_data(code, start='2018-04-10', end='2018-05-13')
+        #df = ts.get_k_data('600848', start='2018-04-10', end='2018-05-13').reset_index('date').sort_values('date')
+        print(df)
+        df.to_csv(file_full_path, columns=['date', 'open', 'close', 'high', 'low', 'volume'], header=None,index=None)
         #volume, ma5
-    if 1:
+    if 0:
         df = ts.get_hist_data(code, start='2016-01-04',end='2016-01-04').sort_index(ascending=True)
         df.to_csv(file_full_path + ".tmp", columns=['open', 'high', 'low', 'close', 'volume', 'ma5', 'ma10', 'ma20'])
         new_data = ""
         with open(file_full_path + ".tmp", "r") as pref:
             new_data = pref.read()
-            
         with open(file_full_path, "r+") as f:
             oldlines = f.readlines()
             f.seek(0)
             f.write(new_data)
             f.writelines(oldlines[1:])
+    if 0:
+        kl.getDayKline(code, '2018-05-07', '2018-05-10')
+    if 1:
+        date0 = kl.getStrToDate('2018-05-08')
+        date1 = date0 + dt.timedelta(-1)
+        df = ts.get_k_data(code, start='2018-05-05', end='2018-05-05')
+        if df.empty:
+            print("df empty")
         
-        
+        print(df)
+        print(date1) 
+        dur_day = kl.getDurationDays(kl.getStrToDate('2017-05-04'), kl.getStrToDate('2017-06-05'))
+        print(dur_day)
         
         
         
