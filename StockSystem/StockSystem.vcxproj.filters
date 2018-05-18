@@ -114,6 +114,9 @@
     <ClCompile Include="tool_bar.cpp">
       <Filter>moudle</Filter>
     </ClCompile>
+    <ClCompile Include="py_data_man.cpp">
+      <Filter>moudle</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="klinewall.ui">
@@ -184,6 +187,9 @@
     </ClInclude>
     <ClInclude Include="stockinput_dlg.h">
       <Filter>win</Filter>
+    </ClInclude>
+    <ClInclude Include="py_data_man.h">
+      <Filter>moudle</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

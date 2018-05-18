@@ -1,4 +1,5 @@
 ﻿#include "stockalldaysinfo.h"
+
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -8,6 +9,8 @@
 #include <Windows.h>
 #include <QtWidgets/QMessageBox>
 #include <QDebug>
+
+#include "py_data_man.h"
 
 #define RESERVE_CAPACITY_IN_T_VECTOR    1024*16
 //#define RESERVE_SIZE_IN_T_VECTOR    1024*16
@@ -42,6 +45,9 @@ StockAllDaysInfo::StockAllDaysInfo()
 
 bool StockAllDaysInfo::Init()
 {
+    py_data_man_ = std::make_shared<PyDataMan>();
+    bool ret = py_data_man_->Initiate();
+
     HMODULE moudle_handl = LoadLibrary("StkQuoter.dll");
     if( !moudle_handl )
     {
@@ -80,6 +86,7 @@ T_HisDataItemContainer* StockAllDaysInfo::LoadStockData(const std::string &stk_c
     assert( stk_his_data_ && stk_hisdata_release_ );
 
     //stock_days_info_.find(
+ 
     T_StockHisDataItem *p_data_items = nullptr;
     int count = stk_his_data_(const_cast<char*>(stk_code.c_str()), start_date, end_date, &p_data_items);
 

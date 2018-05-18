@@ -31,7 +31,8 @@
  
 //#define CST_MAGIC_POINT QPoint(-1, -1)
 #define CST_MAGIC_POINT QPointF(-1, -1)
-  
+
+class PyDataMan;
 class T_KlinePosData
 {
 public:
@@ -105,6 +106,7 @@ private:
     StkHisDataDelegate stk_his_data_;
     StkRelHisDataDelegate stk_hisdata_release_;
 
+    std::shared_ptr<PyDataMan> py_data_man_;
 };
 
 #endif // STOCKALLDAYSINFO_H

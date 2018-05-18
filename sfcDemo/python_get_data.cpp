@@ -57,41 +57,7 @@ int main()
     }     
 
     PyRun_SimpleString("import sys");
-#if 0 
-    string path = "D:\\ProgramFilesBase\\Python";
-    string chdir_cmd = string("sys.path.append(\"") + path + "\")";
-    const char* cstr_cmd = chdir_cmd.c_str(); 
-    PyRun_SimpleString(cstr_cmd);
-
-    //导入模块  
-    //PyObject* pModule = PyImport_ImportModule("test"); 
-    PyObject* pModule = PyImport_ImportModule("get_stock_his"); // get_stock_his.py
-    if (!pModule)  
-    {  
-        cout<<"Python get tushare module failed." << endl;  
-        return 0;  
-    }  
-     
-    PyObject* pv = PyObject_GetAttrString(pModule, "get_stock_hisdata");   
-    if (!pv || !PyCallable_Check(pv))  
-    {  
-        cout << "Can't find funftion (_add)" << endl;  
-        return 0;  
-    }  
-      
-    //PyObject* pobj1 = Py_BuildValue("(s)", "hello"); '600104', '2018-02-13')   
-     PyObject *args = PyTuple_New(2);
-     PyObject *arg0 = Py_BuildValue("s", "600104");
-     PyObject *arg1 = Py_BuildValue("s", "2018-02-13");
-     PyTuple_SetItem(args, 0, arg0);
-     PyTuple_SetItem(args, 1, arg1);
-     PyObject* pRet = PyEval_CallObject(pv, args);  
-     auto val = Py_TYPE(pRet);
-    char *result;
-    PyArg_Parse(pRet, "s", &result);
-    printf("PyEval_CallObject get %s", result);
-#endif
-#if 1 
+  
 	char stk_py_dir[256] = {0};
 	unsigned int ret_env_size = sizeof(stk_py_dir);
 	getenv_s(&ret_env_size, stk_py_dir, ret_env_size, "STK_PY_DIR");
@@ -99,7 +65,7 @@ int main()
     string chdir_cmd = string("sys.path.append(\"") + path + "\")";
     const char* cstr_cmd = chdir_cmd.c_str(); 
     PyRun_SimpleString(cstr_cmd);
-
+#if 0 
     //导入模块   
     PyObject* pModule = PyImport_ImportModule("get_stk_his_fill2file"); // get_stock_his.py
     if (!pModule)  
@@ -155,6 +121,45 @@ int main()
     //    return 0;  
     //}  
    
+#endif
+#if 1
+     //导入模块   
+    PyObject* pModule = PyImport_ImportModule("get_stk_kline"); // get_stock_his.py
+    if (!pModule)  
+    {  
+        cout<<"Python get get_stk_his_fill2file module failed." << endl;  
+        return 0;  
+    }  
+    PyObject *pDic = PyModule_GetDict(pModule);
+    if (!pDic)  
+    {  
+        cout<<"Python get pDic fail" << endl;  
+        return 0;  
+    }  
+
+    PyObject* pcls = PyObject_GetAttrString(pModule, "KLINE");   
+    if (!pcls || !PyCallable_Check(pcls))  
+    {  
+        cout << "Can't get class KLINE" << endl;  
+        return 0;  
+    }  
+ 
+    PyObject* p_stock_obj = PyEval_CallObject(pcls, NULL);
+    if( !p_stock_obj )
+    {
+        cout << "Can't create KLINE obj" << endl;  
+        return 0;  
+    }
+    auto pFunc = PyObject_GetAttrString(p_stock_obj, "getDayKline");
+    auto pArg = PyTuple_New(3);
+    PyTuple_SetItem(pArg, 0, Py_BuildValue("s", "601699"));
+    PyTuple_SetItem(pArg, 1, Py_BuildValue("s", "2017-12-07"));
+    PyTuple_SetItem(pArg, 2, Py_BuildValue("s", "2018-03-08"));
+    auto pRet = PyEval_CallObject(pFunc, pArg);
+    char *result;
+    PyArg_Parse(pRet, "s", &result);
+    Py_XDECREF(result);
+     
 #endif
     Py_Finalize();
     return 0;
