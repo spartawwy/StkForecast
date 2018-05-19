@@ -81,9 +81,6 @@
     <ClCompile Include="stockalldaysinfo.cpp">
       <Filter>moudle</Filter>
     </ClCompile>
-    <ClCompile Include="stockdayinfo.cpp">
-      <Filter>moudle</Filter>
-    </ClCompile>
     <ClCompile Include="kline_wall.cpp">
       <Filter>win</Filter>
     </ClCompile>
@@ -115,6 +112,15 @@
       <Filter>moudle</Filter>
     </ClCompile>
     <ClCompile Include="py_data_man.cpp">
+      <Filter>moudle</Filter>
+    </ClCompile>
+    <ClCompile Include="stockdayinfo.cpp">
+      <Filter>deprecate</Filter>
+    </ClCompile>
+    <ClCompile Include="stock_man.cpp">
+      <Filter>moudle</Filter>
+    </ClCompile>
+    <ClCompile Include="database.cpp">
       <Filter>moudle</Filter>
     </ClCompile>
   </ItemGroup>
@@ -182,13 +188,19 @@
     <ClInclude Include="kline_wall.h">
       <Filter>win</Filter>
     </ClInclude>
-    <ClInclude Include="stockdayinfo.h">
-      <Filter>moudle</Filter>
-    </ClInclude>
     <ClInclude Include="stockinput_dlg.h">
       <Filter>win</Filter>
     </ClInclude>
     <ClInclude Include="py_data_man.h">
+      <Filter>moudle</Filter>
+    </ClInclude>
+    <ClInclude Include="stockdayinfo.h">
+      <Filter>deprecate</Filter>
+    </ClInclude>
+    <ClInclude Include="stock_man.h">
+      <Filter>moudle</Filter>
+    </ClInclude>
+    <ClInclude Include="database.h">
       <Filter>moudle</Filter>
     </ClInclude>
   </ItemGroup>

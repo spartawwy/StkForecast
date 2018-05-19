@@ -71,9 +71,9 @@ void StockAllDaysInfo::LoadDataFromFile(std::string &fileName)
     while(getline(inputFile, strLine))
     {
         //cout<<strLine<<endl;
-        StockDayInfo stockDayInfo;
+        //StockDayInfo stockDayInfo;
         //将strLine中的所有字段拆解并赋值给stockDayInfo的各个数据成员
-        stockDayInfo.ReadData(strLine);
+       // stockDayInfo.ReadData(strLine);
         //stockDayInfo.Display();
         //this->stockAllDaysInfoList.push_back(stockDayInfo);
     }
