@@ -13,6 +13,7 @@
 #define DRAW_FROM_RIGHT
 #endif
 
+
 class T_PaintData3pForcastDownword
 {
 public:
@@ -29,6 +30,8 @@ public:
 };
 
 class MainWindow;
+class DataBase;
+class StockMan;
 class KLineWall : public QWidget
 {
 public:
@@ -67,7 +70,7 @@ private slots:
     float HisDateItem_GetOpenPrice();
     float HisDateItem_GetClosePrice();*/
 
-private:
+private: 
 
     void UpdateKLinePosDatas();
     T_KlineDataItem * GetKLineDataItemByXpos(int x);
@@ -82,6 +85,8 @@ private:
     const int bottom2_h_;
     int bottom_h_;
 
+    std::shared_ptr<DataBase>  data_base_;
+    std::shared_ptr<StockMan>  stock_man_;
 	StockInputDlg  stock_input_dlg_;
 
     //std::list<StockDayInfo>  stk_days_infos_;

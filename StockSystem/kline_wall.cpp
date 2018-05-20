@@ -12,6 +12,8 @@
 #include <QtWidgets/QMessageBox>
 
 #include "stkfo_common.h"
+#include "database.h"
+#include "stock_man.h"
 
 #define  WOKRPLACE_DEFUALT_K_NUM  (4*20)
 #define  DEFAULT_CYCLE_TAG  "»’œﬂ"
@@ -25,6 +27,7 @@ KLineWall::KLineWall(QWidget *parent)
     , head_h_(30)
     , bottom1_h_(30)
     , bottom2_h_(30) 
+    , data_base_(std::make_shared<DataBase>())
     , stock_code_()
     , p_hisdata_container_(nullptr)
     //, kline_pos_data_()
@@ -69,6 +72,16 @@ bool KLineWall::Init()
     k_cycle_tag_ = DEFAULT_CYCLE_TAG;
     k_cycle_year_ = cst_default_year;
      
+    if( !data_base_->Initialize() )
+    {
+        return false;
+    }
+    stock_man_ = std::make_shared<StockMan>();
+     
+    data_base_->LoadAllStockBaseInfo(stock_man_);
+
+    stock_man_->Initialize();
+
     auto ret = stockAllDaysInfo_.Init();
     if( ret )
     {
@@ -613,16 +626,21 @@ void KLineWall::leaveEvent(QEvent *)
 
 bool KLineWall::ResetStock(const QString& stock)
 {
+    assert(stock_man_);
+    
     cur_stock_code_ = stock.toLocal8Bit().data();
     //auto cur_time = QTime::currentTime();
     auto cur_date = QDate::currentDate().year() * 10000 + QDate::currentDate().month() * 100 + QDate::currentDate().day();
     auto start_date = QDate::currentDate().addDays(-1 * (WOKRPLACE_DEFUALT_K_NUM / 20 * 30) ).toString("yyyyMMdd").toInt();
-	//p_hisdata_container_ = stockAllDaysInfo_.LoadStockData(cur_stock_code_, 20171216, 20180108);
+	
+    //p_hisdata_container_ = stockAllDaysInfo_.LoadStockData(cur_stock_code_, 20171216, 20180108);
 	//p_hisdata_container_ = stockAllDaysInfo_.LoadStockData(cur_stock_code_, 20160806, 20160902);
 	//p_hisdata_container_ = stockAllDaysInfo_.LoadStockData(cur_stock_code_, 20020420, 20020520);
 	p_hisdata_container_ = stockAllDaysInfo_.LoadStockData(cur_stock_code_, start_date, cur_date);
 	if( !p_hisdata_container_ )
 		return false;
+
+    // todo: stock_man_ GetStockData();
 
 	auto iter = stockAllDaysInfo_.stock_his_items_.find(cur_stock_code_);
 
