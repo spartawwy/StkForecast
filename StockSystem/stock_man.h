@@ -16,7 +16,7 @@ class StockMan
 {
 public:
 
-    StockMan(std::shared_ptr<Database>& db);
+    StockMan(/*std::shared_ptr<Database>& db*/);
     ~StockMan(){}
     bool Initialize();
 
@@ -26,7 +26,7 @@ private:
 
     //bool LoadAllStockBaseInfo();
 
-    std::shared_ptr<Database> data_base_;
+    //std::shared_ptr<Database> data_base_;
 
     std::string str_stk_data_path_;
 

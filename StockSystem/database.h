@@ -18,12 +18,13 @@ namespace TSystem
 {
     class TaskStrand;
 }
+class StkForecastApp;
 class StockMan;
 class DataBase
 {
 public:
 
-    DataBase();
+    DataBase(StkForecastApp *app);
     ~DataBase();
 
     bool Initialize();
