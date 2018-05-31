@@ -13,6 +13,7 @@ namespace Ui
 {
     class MainWindow;
 }
+class StkForecastApp;
 class KLineWall;
 class TitleBar;
 class ToolBar;
@@ -22,26 +23,31 @@ class MainWindow : public QMainWindow
 
 public:
 
-    MainWindow(QWidget *parent = 0);
+    MainWindow(StkForecastApp *app, QWidget *parent = 0);
     ~MainWindow();
+
+    bool Initialize();
     KLineWall * kline_wall() { return kline_wall_; }
 
     void UncheckBtnABPen();
 
 protected:
+
+    virtual void closeEvent(QCloseEvent * event) override;
 #ifdef USE_TITLE_VCM
-    bool nativeEvent(const QByteArray &eventType, void *message, long *result) override;
+    virtual bool nativeEvent(const QByteArray &eventType, void *message, long *result) override;
 #endif
-    bool eventFilter(QObject *o, QEvent *e) override;
+    virtual bool eventFilter(QObject *o, QEvent *e) override;
 
-    void keyPressEvent(QKeyEvent *e) override;
-    void changeEvent(QEvent *e) override;
-      
+    virtual void keyPressEvent(QKeyEvent *e) override;
+    virtual void changeEvent(QEvent *e) override;
+    
+
 private:
-
-    void initUi();
-
+      
     Ui::MainWindow *ui;
+    StkForecastApp *app_;
+   
     QTimer *timer;
 
     // cutomer qt controler --------

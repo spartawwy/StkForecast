@@ -19,19 +19,6 @@
       <UniqueIdentifier>{71ED8ED8-ACB9-4CE9-BBE1-E00B30144E11}</UniqueIdentifier>
       <Extensions>cpp;c;cxx;moc;h;def;odl;idl;res;</Extensions>
     </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
-    </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{D9D6E242-F8AF-46E4-B9FD-80ECBC20BA3E}</UniqueIdentifier>
-      <Extensions>qrc;*</Extensions>
-      <ParseFiles>false</ParseFiles>
-    </Filter>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
     <Filter Include="Generated Files\Debug">
       <UniqueIdentifier>{048ec6b4-39f6-4e67-abfb-1d1d96d5f372}</UniqueIdentifier>
       <Extensions>cpp;moc</Extensions>
@@ -123,6 +110,15 @@
     <ClCompile Include="database.cpp">
       <Filter>moudle</Filter>
     </ClCompile>
+    <ClCompile Include="Debug\moc_stk_forecast_app.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Release\moc_stk_forecast_app.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="stk_forecast_app.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="klinewall.ui">
@@ -136,6 +132,9 @@
     </CustomBuild>
     <CustomBuild Include="tool_bar.h">
       <Filter>moudle</Filter>
+    </CustomBuild>
+    <CustomBuild Include="stk_forecast_app.h">
+      <Filter>src</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>

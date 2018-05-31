@@ -29,6 +29,7 @@ public:
     double c3; 
 };
 
+class StkForecastApp;
 class MainWindow;
 class DataBase;
 class StockMan;
@@ -37,7 +38,7 @@ class KLineWall : public QWidget
 public:
     enum class DrawAction : unsigned char { DRAWING_FOR_C = 1, DRAWING_FOR_D, NO_ACTION = 255};
 
-    KLineWall(QWidget *parent);
+    KLineWall(StkForecastApp *app, QWidget *parent);
 	~KLineWall() { }
 	 
     bool Init();
@@ -78,15 +79,14 @@ private:
     T_KlineDataItem * GetKLineDataItemByDate(int date);
     T_KlinePosData * GetKLinePosDataByDate(int date);
 
+    StkForecastApp *app_;
     MainWindow  *main_win_;
 	Ui_KLineWallForm  ui;
     const int head_h_;
     const int bottom1_h_;
     const int bottom2_h_;
     int bottom_h_;
-
-    std::shared_ptr<DataBase>  data_base_;
-    std::shared_ptr<StockMan>  stock_man_;
+     
 	StockInputDlg  stock_input_dlg_;
 
     //std::list<StockDayInfo>  stk_days_infos_;

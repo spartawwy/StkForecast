@@ -1,7 +1,6 @@
 
 #include "kline_wall.h"
-#include "mainwindow.h"
-  
+
 #include <cassert>
 #include <tuple>
 #include <QPainter>
@@ -11,9 +10,10 @@
 #include <qdatetime.h>
 #include <QtWidgets/QMessageBox>
 
+#include "mainwindow.h"
 #include "stkfo_common.h"
-#include "database.h"
-#include "stock_man.h"
+#include "stk_forecast_app.h"
+ 
 
 #define  WOKRPLACE_DEFUALT_K_NUM  (4*20)
 #define  DEFAULT_CYCLE_TAG  "»’œﬂ"
@@ -21,13 +21,13 @@
 //static const QPoint CST_MAGIC_POINT(-1, -1);
 static const int cst_default_year = 2017;
 
-KLineWall::KLineWall(QWidget *parent) 
+KLineWall::KLineWall(StkForecastApp *app, QWidget *parent) 
     : QWidget(parent) 
+    , app_(app)
     , main_win_((MainWindow*)parent)
     , head_h_(30)
     , bottom1_h_(30)
     , bottom2_h_(30) 
-    , data_base_(std::make_shared<DataBase>())
     , stock_code_()
     , p_hisdata_container_(nullptr)
     //, kline_pos_data_()
@@ -71,17 +71,7 @@ bool KLineWall::Init()
 {
     k_cycle_tag_ = DEFAULT_CYCLE_TAG;
     k_cycle_year_ = cst_default_year;
-     
-    if( !data_base_->Initialize() )
-    {
-        return false;
-    }
-    stock_man_ = std::make_shared<StockMan>();
-     
-    data_base_->LoadAllStockBaseInfo(stock_man_);
-
-    stock_man_->Initialize();
-
+      
     auto ret = stockAllDaysInfo_.Init();
     if( ret )
     {
@@ -348,14 +338,14 @@ void KLineWall::paintEvent(QPaintEvent*)
         int k_bar_w = item_w-2;
 */
         double item_w = double(mm_w - empty_right_w - right_w) / double(k_num_ + 1) ;
-        double space_between_k = item_w / 4;
-        double k_bar_w = item_w * 3 / 4;
+        //double space_between_k = item_w / 4;
+        //double k_bar_w = item_w * 3 / 4;
 
-        int t_cycle = 0;
-        int index_tcycle_start = 0;
-        int index_tcycle_second = 0;
+        //int t_cycle = 0;
+        //int index_tcycle_start = 0;
+        //int index_tcycle_second = 0;
         int index_last_tcycle_in_k_num = 0;
-        bool has_first_tcycle_line_drawed = false;
+        //bool has_first_tcycle_line_drawed = false;
 
     // draw k_num_ k line ----------------------------------
 #ifdef DRAW_FROM_LEFT
@@ -625,9 +615,7 @@ void KLineWall::leaveEvent(QEvent *)
 }
 
 bool KLineWall::ResetStock(const QString& stock)
-{
-    assert(stock_man_);
-    
+{  
     cur_stock_code_ = stock.toLocal8Bit().data();
     //auto cur_time = QTime::currentTime();
     auto cur_date = QDate::currentDate().year() * 10000 + QDate::currentDate().month() * 100 + QDate::currentDate().day();

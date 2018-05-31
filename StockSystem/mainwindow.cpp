@@ -13,24 +13,25 @@
 #include <QtWidgets/QCheckBox>
 #include <QtWidgets/QVBoxLayout>
 #include <QString>
+#include <QMessageBox>
 
+#include "stk_forecast_app.h"
 #include "kline_wall.h"
 #include "title_bar.h"
 #include "tool_bar.h"
 
 using namespace std;
 
-MainWindow::MainWindow(QWidget *parent) :
+MainWindow::MainWindow(StkForecastApp *app, QWidget *parent) :
     QMainWindow(parent)
     , ui(new Ui::MainWindow)
+    , app_(app)
     , tool_bar_(nullptr)
     , title_(nullptr)
     , kline_wall_(nullptr)
 {
     ui->setupUi(this);
-   
-    initUi();
-       
+     
 }
 
 MainWindow::~MainWindow()
@@ -42,7 +43,7 @@ MainWindow::~MainWindow()
 }
 
 
-void MainWindow::initUi()
+bool MainWindow::Initialize()
 {  
 #if 1
     // https://blog.csdn.net/qq_28093585/article/details/78517358
@@ -56,8 +57,9 @@ void MainWindow::initUi()
     title_ = new TitleBar(this);
     layout_all->addWidget(title_);  
 
-    kline_wall_ = new KLineWall(this);
-    kline_wall_->Init();
+    kline_wall_ = new KLineWall(app_, this);
+    if( !kline_wall_->Init() )
+        return false;
     kline_wall_->setMouseTracking(true);
     tool_bar_ = new ToolBar(this);
     layout_all->addWidget(tool_bar_);  
@@ -80,9 +82,19 @@ void MainWindow::initUi()
     ui->statusBar->showMessage("hello",2000); 
     ui->statusBar->addPermanentWidget(ui->labelCurrentTime);
 #endif
-
+    return true;
 }
  
+void MainWindow::closeEvent(QCloseEvent * event)
+{
+    auto ret_button = QMessageBox::question(nullptr, QString::fromLocal8Bit("提示"), QString::fromLocal8Bit("确定退出系统?"),
+        QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Cancel);
+    if( ret_button == QMessageBox::Cancel )
+        event->ignore();
+    else
+        app_->Stop();
+}
+
 void MainWindow::UncheckBtnABPen()
 {
     if( tool_bar_ ) 

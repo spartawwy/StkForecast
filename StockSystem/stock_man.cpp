@@ -4,9 +4,12 @@
 #include <cassert>
 
 #include "py_data_man.h"
-#include "database.h"
+//#include "database.h"
 
-StockMan::StockMan(std::shared_ptr<Database>& db) : data_base_(db)
+//StockMan::StockMan(std::shared_ptr<Database>& db) : data_base_(db)
+StockMan::StockMan()  
+ : code_stock_baseinfo_item_map_(4*1024)
+ , pinyin_stock_baseinfo_item_map_(4*1024)
 {
     
 }
