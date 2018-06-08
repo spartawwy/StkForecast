@@ -10,10 +10,10 @@ using namespace std;
 #define F1  0 // TdxHq_GetSecurityCount
 #define F2  0 // TdxHq_GetSecurityList
 #define F3  0 // TdxHq_GetMinuteTimeData
-#define F4  0 // TdxHq_GetSecurityBars
+#define F4  1 // TdxHq_GetSecurityBars
 #define F5  0 // TdxHq_GetHistoryMinuteTimeData
-#define F6  1 // TdxHq_GetIndexBars
-#define F7  0 // TdxHq_GetTransactionData
+#define F6  0 // TdxHq_GetIndexBars
+#define F7  1 // TdxHq_GetTransactionData
 #define F8  0 // TdxHq_GetHistoryTransactionData
 #define F9  0 // TdxHq_GetSecurityQuotes
 #define F10 0 // TdxHq_GetCompanyInfoCategory
@@ -91,8 +91,9 @@ int test_hq_funcs(const char *pszHqSvrIP, short nPort)
 
     //获取股票K线数据
     Count = 1;
-    bool1 = TdxHq_GetSecurityBars(8, 0, "000001", 100, &Count, Result, ErrInfo);//数据种类, 0->5分钟K线    1->15分钟K线    2->30分钟K线  3->1小时K线    4->日K线  5->周K线  6->月K线  7->1分钟K线  8->1分钟K线  9->日K线  10->季K线  11->年K线
+    //bool1 = TdxHq_GetSecurityBars(8, 0, "000001", 100, &Count, Result, ErrInfo);//数据种类, 0->5分钟K线    1->15分钟K线    2->30分钟K线  3->1小时K线    4->日K线  5->周K线  6->月K线  7->1分钟K线  8->1分钟K线  9->日K线  10->季K线  11->年K线
     //bool1 = TdxHq_GetSecurityBars(4, 1, "160135", 100, &Count, Result, ErrInfo);//数据种类, 0->5分钟K线    1->15分钟K线    2->30分钟K线  3->1小时K线    4->日K线  5->周K线  6->月K线  7->1分钟K线  8->1分钟K线  9->日K线  10->季K线  11->年K线
+    bool1 = TdxHq_GetSecurityBars(4, 1, "600196", 100, &Count, Result, ErrInfo);//数据种类, 0->5分钟K线    1->15分钟K线    2->30分钟K线  3->1小时K线    4->日K线  5->周K线  6->月K线  7->1分钟K线  8->1分钟K线  9->日K线  10->季K线  11->年K线
     if (!bool1)
     {
         cout << ErrInfo << endl;
@@ -127,7 +128,7 @@ int test_hq_funcs(const char *pszHqSvrIP, short nPort)
     bool1 = TdxHq_GetIndexBars(4, 1, "000001", 0, &Count, Result, ErrInfo);//数据种类, 0->5分钟K线    1->15分钟K线    2->30分钟K线  3->1小时K线    4->日K线  5->周K线  6->月K线  7->1分钟K线     8->1分钟K线    9->日K线  10->季K线  11->年K线
     //bool1 = TdxHq_GetIndexBars(4, 0, "880557", 0, &Count, Result, ErrInfo);//数据种类, 0->5分钟K线    1->15分钟K线    2->30分钟K线  3->1小时K线    4->日K线  5->周K线  6->月K线  7->1分钟K线     8->1分钟K线    9->日K线  10->季K线  11->年K线
     //bool1 = TdxHq_GetIndexBars(4, 1, "880380", 0, &Count, Result, ErrInfo);//数据种类, 0->5分钟K线    1->15分钟K线    2->30分钟K线  3->1小时K线    4->日K线  5->周K线  6->月K线  7->1分钟K线     8->1分钟K线    9->日K线  10->季K线  11->年K线
-    bool1 = TdxHq_GetIndexBars(4, 0, "880380", 0, &Count, Result, ErrInfo);//数据种类, 0->5分钟K线    1->15分钟K线    2->30分钟K线  3->1小时K线    4->日K线  5->周K线  6->月K线  7->1分钟K线     8->1分钟K线    9->日K线  10->季K线  11->年K线
+    //bool1 = TdxHq_GetIndexBars(4, 0, "880380", 0, &Count, Result, ErrInfo);//数据种类, 0->5分钟K线    1->15分钟K线    2->30分钟K线  3->1小时K线    4->日K线  5->周K线  6->月K线  7->1分钟K线     8->1分钟K线    9->日K线  10->季K线  11->年K线
     if (!bool1)
     {
         cout << ErrInfo << endl;
@@ -144,7 +145,7 @@ int test_hq_funcs(const char *pszHqSvrIP, short nPort)
 
     //获取分笔图数据 2000
     Count = 100;
-    bool1 = TdxHq_GetTransactionData(0, "000001", 0, &Count, Result, ErrInfo);
+    bool1 = TdxHq_GetTransactionData(1/*market*/, "600196", 0, &Count, Result, ErrInfo);
     if (!bool1)
     {
         cout << ErrInfo << endl;
@@ -161,7 +162,8 @@ int test_hq_funcs(const char *pszHqSvrIP, short nPort)
 
     //获取历史分笔图数据
     Count = 100;
-    bool1 = TdxHq_GetHistoryTransactionData(0, "000001", 0, &Count, 20140904,  Result, ErrInfo);
+    //bool1 = TdxHq_GetHistoryTransactionData(0, "000001", 0, &Count, 20140904,  Result, ErrInfo);
+    bool1 = TdxHq_GetHistoryTransactionData(0, "600196", 0, &Count, 20140904,  Result, ErrInfo);
     if (!bool1)
     {
         cout << ErrInfo << endl;
