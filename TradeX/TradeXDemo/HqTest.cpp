@@ -5,6 +5,8 @@
 
 #include <iostream>
 
+#include <regex>
+
 using namespace std;
 
 #define F1  0 // TdxHq_GetSecurityCount
@@ -14,7 +16,7 @@ using namespace std;
 #define F5  0 // TdxHq_GetHistoryMinuteTimeData
 #define F6  0 // TdxHq_GetIndexBars
 #define F7  1 // TdxHq_GetTransactionData
-#define F8  0 // TdxHq_GetHistoryTransactionData
+#define F8  1 // TdxHq_GetHistoryTransactionData
 #define F9  0 // TdxHq_GetSecurityQuotes
 #define F10 0 // TdxHq_GetCompanyInfoCategory
 #define F11 1 // TdxHq_GetCompanyInfoContent
@@ -153,6 +155,7 @@ int test_hq_funcs(const char *pszHqSvrIP, short nPort)
     }
 
     cout << Result << endl;
+
     cout << "Count = " << Count << endl;
     getchar();
 #endif
@@ -163,7 +166,7 @@ int test_hq_funcs(const char *pszHqSvrIP, short nPort)
     //获取历史分笔图数据
     Count = 100;
     //bool1 = TdxHq_GetHistoryTransactionData(0, "000001", 0, &Count, 20140904,  Result, ErrInfo);
-    bool1 = TdxHq_GetHistoryTransactionData(0, "600196", 0, &Count, 20140904,  Result, ErrInfo);
+    bool1 = TdxHq_GetHistoryTransactionData(1, "600196", 0, &Count, 20140904,  Result, ErrInfo);
     if (!bool1)
     {
         cout << ErrInfo << endl;
@@ -171,7 +174,39 @@ int test_hq_funcs(const char *pszHqSvrIP, short nPort)
     }
 
     cout << Result << endl;
+	// 时间    价格    现量    笔数    买卖    保留
+	// 14:54   44.389999       12      0       0       0
+	std::string  str_result;
+	std::regex reg_obj("^([\\d]+)\\s$");
+	std::smatch  match_res;
+
+	char *p_target = Result;
+	char *q = Result;
+
+	while( *q != '\0' )
+	{
+		while( *q != '\n' && *q != '\0' ) ++q;
+		
+		if( *q != '\0' )
+		{
+			std::string tmp_str = p_target;
+			if( std::regex_match(tmp_str.cbegin(), tmp_str.cend(), match_res, reg_obj) )
+			{
+
+			}
+
+			*q = '\0';
+		}
+		  
+		++q;
+	}
+
+	 
+
+	std::regex_match(str_result.cbegin(), str_result.cend(), match_res, reg_obj);
+
     cout << "Count = " << Count << endl;
+
     getchar();
 #endif
 
