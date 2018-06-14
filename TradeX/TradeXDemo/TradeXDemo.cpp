@@ -42,8 +42,8 @@ int _tmain(int argc, _TCHAR* argv[])
     cout << "\t**********************************************************************" << endl;
     cout << "\n";
 
-    cout << "按回车键进行测试..." << endl;
-    cin.get();
+    //cout << "按回车键进行测试..." << endl;
+    //cin.get();
 
     cout << endl;
     cout << "\n";
@@ -69,7 +69,8 @@ int _tmain(int argc, _TCHAR* argv[])
     {
         cout << "测试行情API, 按回车键继续...\n" << std::endl;
         //test_hq_funcs("14.17.75.71", 7709);
-        test_hq_funcs("122.224.66.108", 7709);
+        //test_hq_funcs("122.224.66.108", 7709);
+        test_hq_funcs("222.73.48.26", 7709);
         getchar();
     }
 
