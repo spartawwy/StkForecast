@@ -13,7 +13,7 @@ int test_trade_funcs();
 int test_hq_funcs(const char *pszHqSvrIP, short nPort);
 int test_exhq_funcs(const char *pszHqSvrIP, short nPort);
 int test_l2hq_funcs();
-
+ 
 int _tmain(int argc, _TCHAR* argv[])
 {
     //////////////////////////////////////////////////////////////////////////////////
@@ -51,7 +51,7 @@ int _tmain(int argc, _TCHAR* argv[])
     //
     //
     //
-    if (0)
+    if (1)
     {
         cout << "测试交易API, 按回车键继续...\n" << std::endl;
         if (!test_trade_funcs())
