@@ -1,4 +1,4 @@
-#if 0
+#ifdef  TRY_GET_STK_DATA
 
 #include "stdafx.h"
 #include <string>

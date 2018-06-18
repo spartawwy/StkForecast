@@ -18,7 +18,7 @@ using namespace std;
 #define F5  0 // TdxHq_GetHistoryMinuteTimeData
 #define F6  0 // TdxHq_GetIndexBars
 #define F7  0 // TdxHq_GetTransactionData
-#define F8  0 // TdxHq_GetHistoryTransactionData
+#define F8  1 // TdxHq_GetHistoryTransactionData
 #define F9  0 // TdxHq_GetSecurityQuotes
 #define F10 0 // TdxHq_GetCompanyInfoCategory
 #define F11 1 // TdxHq_GetCompanyInfoContent
@@ -344,7 +344,7 @@ int test_hq_funcs(const char *pszHqSvrIP, short nPort)
 #if F8
     cout << "\n*** TdxHq_GetHistoryTransactionData\n";
 
-    //获取历史分笔图数据
+    //获取历史分笔图数据 精确到分,一分数笔成交
     Count = 100;
     //bool1 = TdxHq_GetHistoryTransactionData(0, "000001", 0, &Count, 20140904,  Result, ErrInfo);
     bool1 = TdxHq_GetHistoryTransactionData(1, "600196", 0, &Count, 20140904,  Result, ErrInfo);

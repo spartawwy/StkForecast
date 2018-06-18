@@ -10,6 +10,9 @@
 
 */
 #include "stdafx.h"
+
+#ifdef GET_DATA_DIRECT_USE_TUSHARE
+
 #include <string>
 #include <iostream>
 
@@ -22,7 +25,7 @@
 #include <algorithm>
 #include <stdio.h>
 
-#ifndef TO_GET_DATA
+
 
 #pragma comment(lib, "python36.lib")
 
@@ -291,7 +294,7 @@ void end()
     Py_Finalize(); //«Â¿Ì
 }
 
-int _tmain(int argc, _TCHAR* argv[])
+int main(int argc, char* argv[])
 {
     start();
 

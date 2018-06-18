@@ -29,7 +29,7 @@ public:
     std::vector<std::shared_ptr<T_KlineDataItem> > day_kline_data_container_;
 
     //从fileName指定的磁盘路径中将数据一行一行读取出来，每一行初始化一个StockDayInfo对象
-    void LoadDataFromFile(std::string &fileName);
+    //void LoadDataFromFile(std::string &fileName);
 
     T_HisDataItemContainer* LoadStockData(const std::string &stk_code, int start_date, int end_date);
 	     

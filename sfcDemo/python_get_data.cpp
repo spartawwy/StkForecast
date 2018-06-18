@@ -17,7 +17,7 @@
 #include <algorithm>
 #include <stdio.h>
 
-#ifdef TO_GET_DATA
+#ifdef TO_GET_HISDATA_F2F
 
 #ifdef _DEBUG
 #undef Py_XDECREF

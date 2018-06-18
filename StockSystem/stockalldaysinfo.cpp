@@ -63,22 +63,15 @@ bool StockAllDaysInfo::Init()
         return false;
 }
 
-void StockAllDaysInfo::LoadDataFromFile(std::string &fileName)
-{
-    std::ifstream inputFile(fileName.c_str());
-    std::string strLine;
-    // read line at time until end-of-file
-    while(getline(inputFile, strLine))
-    {
-        //cout<<strLine<<endl;
-        //StockDayInfo stockDayInfo;
-        //将strLine中的所有字段拆解并赋值给stockDayInfo的各个数据成员
-       // stockDayInfo.ReadData(strLine);
-        //stockDayInfo.Display();
-        //this->stockAllDaysInfoList.push_back(stockDayInfo);
-    }
-    inputFile.close();
-}
+//void StockAllDaysInfo::LoadDataFromFile(std::string &fileName)
+//{
+//    std::ifstream inputFile(fileName.c_str());
+//    std::string strLine; 
+//    while(getline(inputFile, strLine))
+//    { 
+//    }
+//    inputFile.close();
+//}
 
 // date is save from recent to remote
 T_HisDataItemContainer* StockAllDaysInfo::LoadStockData(const std::string &stk_code, int start_date, int end_date)

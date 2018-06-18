@@ -51,7 +51,7 @@ int _tmain(int argc, _TCHAR* argv[])
     //
     //
     //
-    if (1)
+    if (0)
     {
         cout << "测试交易API, 按回车键继续...\n" << std::endl;
         if (!test_trade_funcs())

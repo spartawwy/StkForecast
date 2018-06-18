@@ -4,6 +4,8 @@
 
 #include "stdafx.h"
 
+#include <ctime>
+
 #if 0 
 // TODO: reference any additional headers you need in STDAFX.H
 // and not in this file
@@ -37,3 +39,11 @@
         printf("%s, %d, %d\n", ret_str, w, h);  
     }
 #endif
+
+__int64 Time2Val(int y, int m, int d, int hour, int min, int sec)
+{ 
+    /*struct tm;
+    tm.tm_year = y;*/
+    __int64 val = (__int64)y * 10000000000 + (__int64)m * 100000000 + d * 1000000 + hour * 10000 + min * 100 + sec;
+    return val;
+}
