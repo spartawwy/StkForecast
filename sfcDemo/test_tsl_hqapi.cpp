@@ -1,5 +1,6 @@
 #include "stdafx.h"
 
+#include <iostream>
 #include <memory>
 #include <unordered_map>
 
@@ -30,7 +31,12 @@ int main(void )
 
     // get 140 
     int ret = TlsHq_Initialize(true, true);
-
+	if( ret <= 0 )
+	{
+		std::cout << "TlsHq_Initialize fail!";
+		getchar();
+		return 0;
+	}
     char error[1024] = {0};
     T_BarDataItem *p_bar_data_item = nullptr;
 

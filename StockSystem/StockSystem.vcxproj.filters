@@ -119,6 +119,9 @@
     <ClCompile Include="stk_forecast_app.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="exchange_calendar.cpp">
+      <Filter>moudle</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="klinewall.ui">
@@ -200,6 +203,9 @@
       <Filter>moudle</Filter>
     </ClInclude>
     <ClInclude Include="database.h">
+      <Filter>moudle</Filter>
+    </ClInclude>
+    <ClInclude Include="exchange_calendar.h">
       <Filter>moudle</Filter>
     </ClInclude>
   </ItemGroup>

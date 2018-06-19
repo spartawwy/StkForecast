@@ -149,6 +149,7 @@
     <ClCompile Include="Debug\moc_tool_bar.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="exchange_calendar.cpp" />
     <ClCompile Include="GeneratedFiles\qrc_res.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </PrecompiledHeader>
@@ -182,6 +183,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="database.h" />
+    <ClInclude Include="exchange_calendar.h" />
     <ClInclude Include="py_data_man.h" />
     <ClInclude Include="stkfo_common.h" />
     <CustomBuild Include="stk_forecast_app.h">
