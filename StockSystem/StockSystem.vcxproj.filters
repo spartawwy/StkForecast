@@ -122,6 +122,9 @@
     <ClCompile Include="exchange_calendar.cpp">
       <Filter>moudle</Filter>
     </ClCompile>
+    <ClCompile Include="forcast_man.cpp">
+      <Filter>moudle</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="klinewall.ui">
@@ -206,6 +209,9 @@
       <Filter>moudle</Filter>
     </ClInclude>
     <ClInclude Include="exchange_calendar.h">
+      <Filter>moudle</Filter>
+    </ClInclude>
+    <ClInclude Include="forcast_man.h">
       <Filter>moudle</Filter>
     </ClInclude>
   </ItemGroup>

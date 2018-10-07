@@ -20,7 +20,7 @@ public:
     ~StockMan(){}
     bool Initialize();
 
-    void GetStockData(KLineType kline_type, const std::string &stk_code, int start_date, int end_date);
+    void GetStockData(TypePeriod kline_type, const std::string &stk_code, int start_date, int end_date);
 
 private:
 

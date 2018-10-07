@@ -8,26 +8,13 @@
 #include "stockalldaysinfo.h"
 #include "stockinput_dlg.h"
  
+#include "forcast_man.h"
+
 //#define DRAW_FROM_LEFT
 #ifndef DRAW_FROM_LEFT 
 #define DRAW_FROM_RIGHT
 #endif
 
-
-class T_PaintData3pForcastDownword
-{
-public:
-    T_PaintData3pForcastDownword() : date_a(0), date_b(0), c1(0.0), c2(0.0), c3(0.0) {}
-    T_PaintData3pForcastDownword(const T_PaintData3pForcastDownword & lh) : 
-        date_a(lh.date_a), date_b(lh.date_b), c1(lh.c1), c2(lh.c2), c3(lh.c3) {}
-    T_PaintData3pForcastDownword(T_PaintData3pForcastDownword && lh) : 
-        date_a(lh.date_a), date_b(lh.date_b), c1(lh.c1), c2(lh.c2), c3(lh.c3) {}
-    int date_a;
-    int date_b;
-    double c1;
-    double c2;
-    double c3; 
-};
 
 class StkForecastApp;
 class MainWindow;
@@ -36,7 +23,7 @@ class StockMan;
 class KLineWall : public QWidget
 {
 public:
-    enum class DrawAction : unsigned char { DRAWING_FOR_C = 1, DRAWING_FOR_D, NO_ACTION = 255};
+    enum class DrawAction : unsigned char { DRAWING_FOR_2PDOWN_C = 1, DRAWING_FOR_2PUP_C, DRAWING_FOR_3PUP_D, NO_ACTION = 255};
 
     KLineWall(StkForecastApp *app, QWidget *parent);
 	~KLineWall() { }
@@ -73,6 +60,7 @@ private slots:
 
 private: 
 
+    void Draw2pforcast(QPainter &, const int mm_h, double item_w);
     void UpdateKLinePosDatas();
     T_KlineDataItem * GetKLineDataItemByXpos(int x);
     QPointF GetPointFromKLineDataItems(int x, bool is_get_top);
@@ -102,12 +90,14 @@ private:
     //bool  is_repaint_k_;
 
     int  k_num_;
-    std::string k_cycle_tag_;
+    TypePeriod  k_type_;
+    std::string  k_cycle_tag_;
+    
     int  k_cycle_year_;
     int  date_;
     std::string k_data_str_;
 
-	std::string cur_stock_code_;
+	//std::string cur_stock_code_;
 
     DrawAction draw_action_;
 #if 0
@@ -126,7 +116,8 @@ private:
     int pre_mm_w_;
     int pre_mm_h_;
      
-    std::vector<T_PaintData3pForcastDownword> paint_3pdatas_;
+    ForcastMan  forcast_man_;
+    std::vector<T_PaintData2pForcast> data_2pforcast_downs_;
 };
 
 

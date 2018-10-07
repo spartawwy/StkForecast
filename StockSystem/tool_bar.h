@@ -48,8 +48,9 @@ private:
     //QLabel *m_pIconLabel;
     //QLabel *m_pTitleLabel;
 
-    QPushButton *m_pABPen;
-    QPushButton *m_pClearPen;
+    QPushButton *ab_down_for_c_pen_;
+    QPushButton *ab_up_for_c_pen_;
+    QPushButton *clear_pen_;
 
     //QPushButton *m_pMaximizeButton;
     //QPushButton *m_pCloseButton;

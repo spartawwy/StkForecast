@@ -28,12 +28,22 @@
 //#define CST_MAGIC_POINT QPoint(-1, -1)
 #define CST_MAGIC_POINT QPointF(-1, -1)
 
-enum class KLineType : unsigned char
+//enum class KLineType : unsigned char
+//{
+//    KLINE_DAY = 0,
+//    KLINE_60MIN,
+//    KLINE_30MIN, 
+//};
+
+enum class TypePeriod : unsigned char
 {
-    KLINE_DAY = 0,
-    KLINE_60MIN,
-    KLINE_30MIN, 
+    PERIOD_30M = 1,
+    PERIOD_HOUR,
+    PERIOD_DAY,
+    PERIOD_WEEK,
+    PERIOD_MON,
 };
+
 
 class PyDataMan;
 class T_KlinePosData
