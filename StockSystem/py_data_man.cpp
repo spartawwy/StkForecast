@@ -91,8 +91,9 @@ bool PyDataMan::Initiate()
     char *result;
     PyArg_Parse(pRet, "s", &result);
     Py_XDECREF(result);
-#endif
     return getDayKline_func_;
+#endif
+    
 }
 
 int PyDataMan::GetStockKlineData(const std::string &code, int start_date, int end_date)

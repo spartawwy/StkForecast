@@ -60,7 +60,7 @@ private slots:
 
 private: 
 
-    void Draw2pforcast(QPainter &, const int mm_h, double item_w);
+    void Draw2pDownForcast(QPainter &, const int mm_h, double item_w);
     void UpdateKLinePosDatas();
     T_KlineDataItem * GetKLineDataItemByXpos(int x);
     QPointF GetPointFromKLineDataItems(int x, bool is_get_top);

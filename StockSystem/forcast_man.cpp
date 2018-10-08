@@ -17,64 +17,15 @@ ForcastMan::ForcastMan()
 
 void ForcastMan::Append(TypePeriod type_period, const std::string &code, T_Data2pDownForcast &forcast_data)
 {
-    switch(type_period)
-    {
-    case TypePeriod::PERIOD_30M:
-        {
-            break;
-        }
-    case TypePeriod::PERIOD_DAY:
-        {
-            auto vector_iter = stock_2pdown_forcast_d_.find(code);
-            if( vector_iter == stock_2pdown_forcast_d_.end() )
-                vector_iter = stock_2pdown_forcast_d_.insert(std::make_pair(code, std::vector<T_Data2pDownForcast>())).first;
-            vector_iter->second.push_back(forcast_data);
-            break;    
-        }
-    case TypePeriod::PERIOD_HOUR:
-        {
-            break;
-        }
-    case TypePeriod::PERIOD_WEEK:
-        {
-            break;
-        }
-    case TypePeriod::PERIOD_MON:
-        {
-            break;
-        }
-    }
-    
+    _Append2pForcast(type_period, code, forcast_data); 
 }
+
 
 void ForcastMan::Append(TypePeriod type_period, const std::string &code, T_Data2pUpForcast &forcast_data)
 {
-    switch(type_period)
-    {
-    case TypePeriod::PERIOD_30M:
-        {
-            break;
-        }
-    case TypePeriod::PERIOD_DAY:
-        {
-            // todo:
-            break;    
-        }
-    case TypePeriod::PERIOD_HOUR:
-        {
-            break;
-        }
-    case TypePeriod::PERIOD_WEEK:
-        {
-            break;
-        }
-    case TypePeriod::PERIOD_MON:
-        {
-            break;
-        }
-    }
-    
+    _Append2pForcast(type_period, code, forcast_data);
 }
+
 std::vector<T_Data2pDownForcast> * ForcastMan::Find2pForcastDown(const std::string &code, TypePeriod type_period)
 {
     switch (type_period)

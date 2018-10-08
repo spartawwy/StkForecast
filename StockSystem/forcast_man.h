@@ -1,6 +1,7 @@
 #ifndef  FORCAST_MAN_SDF23SDFS_H
 #define  FORCAST_MAN_SDF23SDFS_H
 
+#include <cassert>
 #include <string>
 #include <unordered_map>
 #include <tuple>
@@ -59,6 +60,68 @@ public:
 
 private:
      
+    template<typename T1,typename T2>
+    struct is__same
+    {
+        operator bool(){return false;}
+    };
+    template<typename T1>
+    struct is__same<T1,T1>
+    {
+        operator bool(){return true;}
+    }; 
+
+    template <typename DataForcastType>
+    void _Append2pForcast(TypePeriod type_period, const std::string &code, DataForcastType &forcast_data)
+    {
+        Code2pDownForcastType *down_holder = nullptr;
+        Code2pUpForcastType   *up_holder = nullptr;
+        bool is_2pdown = false;
+        if( is__same<DataForcastType, T_Data2pDownForcast>() )
+            is_2pdown = true;
+        switch(type_period)
+        {
+        case TypePeriod::PERIOD_30M:
+            {
+                break;
+            }
+        case TypePeriod::PERIOD_DAY:
+            { 
+                if( is_2pdown )
+                    down_holder = &stock_2pdown_forcast_d_;
+                else
+                    up_holder = &stock_2pup_forcast_d_;
+            }
+        case TypePeriod::PERIOD_HOUR:
+            {
+                break;
+            }
+        case TypePeriod::PERIOD_WEEK:
+            {
+                break;
+            }
+        case TypePeriod::PERIOD_MON:
+            {
+                break;
+            }
+        default: assert(false);
+        }
+        if( is_2pdown )
+        {
+            auto vector_iter = down_holder->find(code);
+            if( vector_iter == down_holder->end() )
+                vector_iter = down_holder->insert(std::make_pair(code, std::vector<T_Data2pDownForcast>())).first;
+            vector_iter->second.push_back( *(T_Data2pDownForcast*)(&forcast_data) );
+        }else
+        {
+            auto vector_iter = up_holder->find(code);
+            if( vector_iter == up_holder->end() )
+                vector_iter = up_holder->insert(std::make_pair(code, std::vector<T_Data2pUpForcast>())).first;
+            vector_iter->second.push_back( *(T_Data2pUpForcast*)(&forcast_data) );
+        }
+        
+    }
+
     Code2pDownForcastType  stock_2pdown_forcast_30m_; // 30 minute
     Code2pDownForcastType  stock_2pdown_forcast_h_;
     Code2pDownForcastType  stock_2pdown_forcast_d_;
