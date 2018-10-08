@@ -123,7 +123,7 @@
       <Filter>moudle</Filter>
     </ClCompile>
     <ClCompile Include="forcast_man.cpp">
-      <Filter>moudle</Filter>
+      <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -212,7 +212,7 @@
       <Filter>moudle</Filter>
     </ClInclude>
     <ClInclude Include="forcast_man.h">
-      <Filter>moudle</Filter>
+      <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

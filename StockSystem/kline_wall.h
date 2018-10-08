@@ -117,7 +117,7 @@ private:
     int pre_mm_h_;
      
     ForcastMan  forcast_man_;
-    std::vector<T_PaintData2pForcast> data_2pforcast_downs_;
+    std::vector<T_Data2pDownForcast> data_2pforcast_downs_;
 };
 
 

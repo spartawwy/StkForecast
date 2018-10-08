@@ -83,7 +83,7 @@ bool KLineWall::Init()
 
 void KLineWall::Draw2pforcast(QPainter &painter, const int mm_h, double item_w)
 {
-    std::vector<T_PaintData2pForcast> *p_data_vector = forcast_man_.Find2pForcastDown(stock_code_, k_type_);
+    std::vector<T_Data2pDownForcast> *p_data_vector = forcast_man_.Find2pForcastDown(stock_code_, k_type_);
     if( p_data_vector && !p_data_vector->empty() )
     {
         auto get_pointc_y = [this](double c_val, int mm_h)->double
@@ -101,7 +101,7 @@ void KLineWall::Draw2pforcast(QPainter &painter, const int mm_h, double item_w)
         
         for( unsigned int i = 0; i < p_data_vector->size(); ++i )
         {
-            T_PaintData2pForcast &data_2pforcastdown = p_data_vector->at(i);
+            T_Data2pDownForcast &data_2pforcastdown = p_data_vector->at(i);
             auto item_a = GetKLineDataItemByDate(data_2pforcastdown.date_a);
             auto item_b = GetKLineDataItemByDate(data_2pforcastdown.date_b);
             if( item_a && item_a->kline_posdata.date != 0 && item_b && item_b->kline_posdata.date != 0 )
@@ -224,19 +224,7 @@ void KLineWall::UpdateKLinePosDatas()
 }
 
 void KLineWall::mousePressEvent(QMouseEvent * event )
-{
-    /*static auto has_in2pforcasts = [this](int date_a, int date_b)->bool
-    { 
-    if( this->data_2pforcast_downs_.empty() ) return false;
-    unsigned int i = 0;
-    for( ; i < this->data_2pforcast_downs_.size(); ++i )
-    {
-    if( this->data_2pforcast_downs_.at(i).date_a == date_a && this->data_2pforcast_downs_.at(i).date_b == date_b )
-    break;
-    }
-    return i != this->data_2pforcast_downs_.size();
-    };*/
-
+{ 
 	if( stock_input_dlg_.isVisible() )
 		stock_input_dlg_.hide();
      
@@ -260,27 +248,41 @@ void KLineWall::mousePressEvent(QMouseEvent * event )
             {   // todo: show warning msg
                 return;
             }
-            //if( has_in2pforcasts(item_a->stk_item.date, item_b->stk_item.date) )
-            if( forcast_man_.HasIn2pDownwardForcast(stock_code_, k_type_, *item_a, *item_b) )
+            
+
+            if( draw_action_ == DrawAction::DRAWING_FOR_2PDOWN_C && forcast_man_.HasIn2pDownwardForcast(stock_code_, k_type_, *item_a, *item_b) )
             { 
                 return ResetDrawState();  
             }
 
-            T_PaintData2pForcast data_2pforcast;
-            data_2pforcast.date_a = item_a->stk_item.date; 
-            data_2pforcast.date_b = item_b->stk_item.date; 
+            
             if( item_a->stk_item.high_price > item_b->stk_item.high_price )
             {
-                data_2pforcast.c2 = sqrtf(item_a->stk_item.high_price * item_b->stk_item.low_price);
-                data_2pforcast.c1 = sqrtf(item_b->stk_item.low_price * data_2pforcast.c2);
-                data_2pforcast.c3 = data_2pforcast.c2 * data_2pforcast.c2 / data_2pforcast.c1;
+                T_Data2pDownForcast data_2pdown_fcst;
+                data_2pdown_fcst.stock_code = stock_code_;
+                data_2pdown_fcst.date_a = item_a->stk_item.date; 
+                data_2pdown_fcst.date_b = item_b->stk_item.date; 
+
+                auto c1_c2_c3 = ForcastC_ABDown(item_a->stk_item.high_price, item_b->stk_item.low_price);
+                data_2pdown_fcst.c1 = std::get<0>(c1_c2_c3);
+                data_2pdown_fcst.c2 = std::get<1>(c1_c2_c3);
+                data_2pdown_fcst.c3 = std::get<2>(c1_c2_c3);
+                forcast_man_.Append(TypePeriod::PERIOD_DAY, stock_code_, data_2pdown_fcst);
+
             }else if( item_a->stk_item.high_price < item_b->stk_item.high_price )
             {
-                data_2pforcast.c2 = sqrtf(item_a->stk_item.low_price * item_b->stk_item.high_price);
-                data_2pforcast.c1 = sqrtf(item_b->stk_item.high_price * data_2pforcast.c2);
-                data_2pforcast.c3 = data_2pforcast.c2 * data_2pforcast.c2 / data_2pforcast.c1;
+                T_Data2pUpForcast data_2pup_fcst;
+                data_2pup_fcst.stock_code = stock_code_; 
+                data_2pup_fcst.date_a = item_a->stk_item.date; 
+                data_2pup_fcst.date_b = item_b->stk_item.date; 
+
+                auto c1_c2_c3 = ForcastC_ABUp(item_a->stk_item.low_price, item_b->stk_item.high_price);
+                data_2pup_fcst.c1 = std::get<0>(c1_c2_c3);
+                data_2pup_fcst.c2 = std::get<1>(c1_c2_c3);
+                data_2pup_fcst.c3 = std::get<2>(c1_c2_c3);
+                forcast_man_.Append(TypePeriod::PERIOD_DAY, stock_code_, data_2pup_fcst);
             }
-            forcast_man_.Append(TypePeriod::PERIOD_DAY, stock_code_, data_2pforcast);
+            
             //data_2pforcast_downs_.push_back(std::move(data_2pforcast));
             return ResetDrawState();  
         }
@@ -608,7 +610,7 @@ void KLineWall::mouseMoveEvent(QMouseEvent *e)
     //auto pos_mapped = mapToParent(e->pos());
     //is_repaint_k_ = false;
 
-    if( draw_action_ == DrawAction::DRAWING_FOR_2PDOWN_C )
+    if( draw_action_ == DrawAction::DRAWING_FOR_2PDOWN_C || draw_action_ == DrawAction::DRAWING_FOR_2PUP_C )
     {
         qDebug() << " mouseMoveEvent DRAWING_FOR_2PDOWN_C " << "\n";
         cur_mouse_point_ = e->pos();
