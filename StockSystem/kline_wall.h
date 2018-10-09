@@ -36,7 +36,7 @@ public:
     DrawAction draw_action(){ return draw_action_; }
 
     void ResetDrawState();
-    void ClearForcastDrawData();
+    void ClearForcastData();
 
 protected:
 
@@ -61,11 +61,18 @@ private slots:
 private: 
 
     void Draw2pDownForcast(QPainter &, const int mm_h, double item_w);
+    void Draw2pUpForcast(QPainter &, const int mm_h, double item_w);
+
     void UpdateKLinePosDatas();
     T_KlineDataItem * GetKLineDataItemByXpos(int x);
     QPointF GetPointFromKLineDataItems(int x, bool is_get_top);
     T_KlineDataItem * GetKLineDataItemByDate(int date);
     T_KlinePosData * GetKLinePosDataByDate(int date);
+
+    double get_pointc_y(double c_val, int mm_h)
+    {  
+        return -1 * (c_val - lowestMinPrice_)/(highestMaxPrice_ - lowestMinPrice_) * mm_h;
+    }
 
     StkForecastApp *app_;
     MainWindow  *main_win_;

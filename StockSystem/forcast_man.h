@@ -53,10 +53,12 @@ public:
     ~ForcastMan(){}
      
     void Append(TypePeriod type_period, const std::string &code, T_Data2pDownForcast& ); 
-    std::vector<T_Data2pDownForcast> * Find2pForcastDown(const std::string &code, TypePeriod type_period);
+    std::vector<T_Data2pDownForcast> * Find2pDownForcast(const std::string &code, TypePeriod type_period);
     bool HasIn2pDownwardForcast(const std::string &code, TypePeriod type_period, T_KlineDataItem &item_a, T_KlineDataItem &item_b);
 
     void Append(TypePeriod type_period, const std::string &code, T_Data2pUpForcast& );
+    std::vector<T_Data2pUpForcast> * Find2pUpForcast(const std::string &code, TypePeriod type_period);
+    bool HasIn2pUpForcast(const std::string &code, TypePeriod type_period, T_KlineDataItem &item_a, T_KlineDataItem &item_b);
 
 private:
      
@@ -71,6 +73,7 @@ private:
         operator bool(){return true;}
     }; 
 
+
     template <typename DataForcastType>
     void _Append2pForcast(TypePeriod type_period, const std::string &code, DataForcastType &forcast_data)
     {
@@ -79,33 +82,12 @@ private:
         bool is_2pdown = false;
         if( is__same<DataForcastType, T_Data2pDownForcast>() )
             is_2pdown = true;
-        switch(type_period)
-        {
-        case TypePeriod::PERIOD_30M:
-            {
-                break;
-            }
-        case TypePeriod::PERIOD_DAY:
-            { 
-                if( is_2pdown )
-                    down_holder = &stock_2pdown_forcast_d_;
-                else
-                    up_holder = &stock_2pup_forcast_d_;
-            }
-        case TypePeriod::PERIOD_HOUR:
-            {
-                break;
-            }
-        case TypePeriod::PERIOD_WEEK:
-            {
-                break;
-            }
-        case TypePeriod::PERIOD_MON:
-            {
-                break;
-            }
-        default: assert(false);
-        }
+
+        if( is_2pdown )
+            down_holder = &Get2pDownDataHolder(type_period);
+        else
+            up_holder = &Get2pUpDataHolder(type_period);
+         
         if( is_2pdown )
         {
             auto vector_iter = down_holder->find(code);
@@ -121,6 +103,26 @@ private:
         }
         
     }
+
+    /*template <typename DataForcastType>
+    std::vector<T_Data2pDownForcast> * _Find2pForcast(const std::string &code, TypePeriod type_period)
+    {
+        switch (type_period)
+        {
+        case TypePeriod::PERIOD_DAY:
+            {
+                auto vector_iter = stock_2pdown_forcast_d_.find(code);
+                if( vector_iter == stock_2pdown_forcast_d_.end() )
+                    return nullptr;
+                return std::addressof(vector_iter->second);
+            }
+        default:
+            return nullptr;
+        }
+    }*/
+
+    Code2pUpForcastType & Get2pUpDataHolder(TypePeriod type_period);
+    Code2pDownForcastType & Get2pDownDataHolder(TypePeriod type_period);
 
     Code2pDownForcastType  stock_2pdown_forcast_30m_; // 30 minute
     Code2pDownForcastType  stock_2pdown_forcast_h_;

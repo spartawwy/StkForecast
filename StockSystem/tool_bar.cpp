@@ -117,7 +117,7 @@ void ToolBar::onClicked()
             if( QMessageBox::Yes == ret )
             {
                 kline_wall_.ResetDrawState(); 
-                kline_wall_.ClearForcastDrawData();
+                kline_wall_.ClearForcastData();
             }
         }
     }
