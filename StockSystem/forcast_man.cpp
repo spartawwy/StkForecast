@@ -11,6 +11,8 @@ ForcastMan::ForcastMan()
     , stock_2pup_forcast_d_(1024)
     , stock_2pup_forcast_w_(1024)
     , stock_2pup_forcast_mon_(1024)
+    , df_no_use_(1)
+    , uf_no_use_(1)
 {
 
 }
@@ -98,7 +100,7 @@ Code2pUpForcastType & ForcastMan::Get2pUpDataHolder(TypePeriod type_period)
     case TypePeriod::PERIOD_MON: return stock_2pup_forcast_mon_;
     default: assert(false);
     }
-    return Code2pUpForcastType();
+    return uf_no_use_;
 }
 
 Code2pDownForcastType & ForcastMan::Get2pDownDataHolder(TypePeriod type_period)
@@ -112,7 +114,7 @@ Code2pDownForcastType & ForcastMan::Get2pDownDataHolder(TypePeriod type_period)
     case TypePeriod::PERIOD_MON: return stock_2pdown_forcast_mon_;
     default: assert(false);
     }
-    return Code2pDownForcastType();
+    return df_no_use_;
 }
 
 

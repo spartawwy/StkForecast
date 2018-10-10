@@ -129,12 +129,14 @@ private:
     Code2pDownForcastType  stock_2pdown_forcast_d_;
     Code2pDownForcastType  stock_2pdown_forcast_w_; // week
     Code2pDownForcastType  stock_2pdown_forcast_mon_; // month
+    Code2pDownForcastType  df_no_use_;
 
     Code2pUpForcastType  stock_2pup_forcast_30m_; // 30 minute 
     Code2pUpForcastType  stock_2pup_forcast_h_;  
     Code2pUpForcastType  stock_2pup_forcast_d_;  
     Code2pUpForcastType  stock_2pup_forcast_w_;  
     Code2pUpForcastType  stock_2pup_forcast_mon_;  
+    Code2pUpForcastType  uf_no_use_;  
      
 };
 

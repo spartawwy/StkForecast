@@ -93,6 +93,15 @@ public:
     std::string remark;
 };
 
+enum class DrawAction : unsigned char 
+{ 
+    DRAWING_FOR_2PDOWN_C = 1, 
+    DRAWING_FOR_2PUP_C, 
+    DRAWING_FOR_3PDOWN_D, 
+    DRAWING_FOR_3PUP_D, 
+    NO_ACTION = 255
+};
+
 bool IsNumber(const std::string& str);
 
-#endif
+#endif // STKFO_COMMON_SDF3DSF_H_

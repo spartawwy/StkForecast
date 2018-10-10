@@ -176,8 +176,8 @@ void KLineWall::Draw2pUpForcast(QPainter &painter, const int mm_h, double item_w
             if( abs(item_a->kline_posdata.top.y()) < abs(item_b->kline_posdata.top.y()) )  // y is negative
             {  
                 painter.drawLine(item_a->kline_posdata.bottom, item_b->kline_posdata.top);
-                fronts_to_draw.push_back(std::make_tuple(QPointF(item_a->kline_posdata.bottom.x()-item_w/2, item_a->kline_posdata.bottom.y()), item_a->stk_item.low_price));
-                fronts_to_draw.push_back(std::make_tuple(QPointF(item_b->kline_posdata.top.x()-item_w/2, item_b->kline_posdata.top.y() + painter.font().pointSizeF()), item_b->stk_item.high_price));
+ fronts_to_draw.push_back(std::make_tuple(QPointF(item_a->kline_posdata.bottom.x()-item_w/2, item_a->kline_posdata.bottom.y()), item_a->stk_item.low_price));
+ fronts_to_draw.push_back(std::make_tuple(QPointF(item_b->kline_posdata.top.x()-item_w/2, item_b->kline_posdata.top.y() + painter.font().pointSizeF()), item_b->stk_item.high_price));
                 double y1 = get_pointc_y(data_2pforcast.c1, mm_h);
                 double y2 = get_pointc_y(data_2pforcast.c2, mm_h);
                 double y3 = get_pointc_y(data_2pforcast.c3, mm_h);
@@ -351,12 +351,38 @@ void KLineWall::mousePressEvent(QMouseEvent * event )
                 forcast_man_.Append(TypePeriod::PERIOD_DAY, stock_code_, data_2pup_fcst);
             }
             return ResetDrawState(draw_action_);  
+        }else if( draw_action_ == DrawAction::DRAWING_FOR_3PDOWN_D )
+        {
+            if( item_a->stk_item.high_price > item_b->stk_item.high_price )
+            {
+                drawing_line_B_ = event->pos();
+                return;
+            } 
+        }else if( draw_action_ == DrawAction::DRAWING_FOR_3PUP_D )
+        {
+            if( item_a->stk_item.high_price < item_b->stk_item.high_price )
+            {
+                drawing_line_B_ = event->pos();
+                return;
+            }else
+            {
+                // todo: show warning
+            }
         }
-    }else if( draw_action_ == DrawAction::DRAWING_FOR_3PDOWN_D )
+    } // if( drawing_line_B_ == CST_MAGIC_POINT )
+    else if( drawing_line_C_ == CST_MAGIC_POINT )
     {
-        // todo:
-    }
-            
+        auto item_c = GetKLineDataItemByXpos(event->pos().x());
+        if( !item_c )
+            return;
+        if( draw_action_ == DrawAction::DRAWING_FOR_3PDOWN_D )
+        {
+
+        }else if( draw_action_ == DrawAction::DRAWING_FOR_3PUP_D )
+        {
+
+        }
+    }        
 }
 
 void KLineWall::paintEvent(QPaintEvent*)
@@ -372,19 +398,14 @@ void KLineWall::paintEvent(QPaintEvent*)
     };
 #if 1 
     QPainter painter(this); 
-    qDebug() << "paintEvent QCursor::pos  x:" << QCursor::pos().x() << " y: "<< QCursor::pos().y() << "\n";
+    //qDebug() << "paintEvent QCursor::pos  x:" << QCursor::pos().x() << " y: "<< QCursor::pos().y() << "\n";
     auto pos_from_global = mapFromGlobal(QCursor::pos());
     //qDebug() << "paintEvent x:" << pos_from_global.x() << " y: "<< pos_from_global.y() << "\n";
      
-    /*const int head_h = 30;
-    const int bottom1_h = 30;
-    const int bottom2_h = 30;
-    const int bottom_h = bottom1_h + bottom2_h;*/
-
     const int mm_h = this->height() - head_h_ - bottom_h_;
     const int mm_w = this->width();
     const int empty_right_w = 30;
-    static const int right_w = 30;
+    const int right_w = 30;
     float price_per_len = (highestMaxPrice_ - lowestMinPrice_) / float(mm_h);
       
     const bool is_area_shape_change = IsAreaShapeChange(this->width(), this->height());
@@ -413,18 +434,28 @@ void KLineWall::paintEvent(QPaintEvent*)
     qreal wid = fontMetrics.width(scale_val_str);      qreal height = fontMetrics.height();  
     */ 
     //painter.translate(30, 400);  //×ø±êÆ½ÒÆ
-     
-    if( (draw_action_ == DrawAction::DRAWING_FOR_2PDOWN_C || draw_action_ == DrawAction::DRAWING_FOR_2PUP_C)
-        && drawing_line_A_ != CST_MAGIC_POINT && drawing_line_B_ == CST_MAGIC_POINT )
+    
+    do
     {   
+        if( draw_action_ == DrawAction::NO_ACTION ) 
+            break;
+        if( drawing_line_A_ == CST_MAGIC_POINT ) 
+            break;
         QPen pen;
         pen.setColor(Qt::magenta);
         pen.setWidth(2);
         painter.setPen(pen); 
-        painter.drawLine(drawing_line_A_.x(), drawing_line_A_.y(), cur_mouse_point_.x(), cur_mouse_point_.y() );
-        //painter.drawLine(0, 0, pos.x(), pos.y() );
-        qDebug() << " mouseMoveEvent DRAWING_FOR_2PDOWN_C " << drawing_line_A_.x() << " " << drawing_line_A_.y() << " " << cur_mouse_point_.x() << " " << cur_mouse_point_.y() << "\n";
-    }
+        if( drawing_line_B_ == CST_MAGIC_POINT ) 
+        {
+            painter.drawLine(drawing_line_A_.x(), drawing_line_A_.y(), cur_mouse_point_.x(), cur_mouse_point_.y() );
+            break;
+        }else if( draw_action_ == DrawAction::DRAWING_FOR_3PDOWN_D || draw_action_ == DrawAction::DRAWING_FOR_3PUP_D )
+        {
+            painter.drawLine(drawing_line_B_.x(), drawing_line_B_.y(), cur_mouse_point_.x(), cur_mouse_point_.y() );
+            break;
+        }
+        //qDebug() << " mouseMoveEvent DRAWING_FOR_2PDOWN_C " << drawing_line_A_.x() << " " << drawing_line_A_.y() << " " << cur_mouse_point_.x() << " " << cur_mouse_point_.y() << "\n";
+    }while(0);
 
     painter.translate(0, this->height() - bottom_h_); // translate frame of axes to bottom
     //painter.drawText(0, 0, "(0,0)");
@@ -476,12 +507,9 @@ void KLineWall::paintEvent(QPaintEvent*)
 	if( p_hisdata_container_ )
 	{   
         double item_w = double(mm_w - empty_right_w - right_w) / double(k_num_ + 1) ;
-        //double space_between_k = item_w / 4;
-        //double k_bar_w = item_w * 3 / 4; 
-        //int t_cycle = 0; 
-        //int index_tcycle_start = 0;
-        //int index_tcycle_second = 0;
-        //int index_last_tcycle_in_k_num = 0;
+        //double space_between_k = item_w / 4; //double k_bar_w = item_w * 3 / 4; 
+        //int t_cycle = 0;                     //int index_tcycle_start = 0;
+        //int index_tcycle_second = 0;         //int index_last_tcycle_in_k_num = 0;
         //bool has_first_tcycle_line_drawed = false;
 
     // draw k_num_ k line ----------------------------------
@@ -610,16 +638,16 @@ void KLineWall::mouseDoubleClickEvent(QMouseEvent*)
 void KLineWall::mouseMoveEvent(QMouseEvent *e)
 { 
     auto pos = e->pos();
-    qDebug() << " mouseMoveEvent " << "\n";
+    //qDebug() << " mouseMoveEvent " << "\n";
     //auto pos_mapped = mapToGlobal(pos);
           
     //auto pos_mapped = mapFromGlobal(e->pos());
     //auto pos_mapped = mapToParent(e->pos());
     //is_repaint_k_ = false;
 
-    if( draw_action_ == DrawAction::DRAWING_FOR_2PDOWN_C || draw_action_ == DrawAction::DRAWING_FOR_2PUP_C )
+    if( draw_action_ != DrawAction::NO_ACTION )
     {
-        qDebug() << " mouseMoveEvent DRAWING_FOR_2PDOWN_C " << "\n";
+        //qDebug() << " mouseMoveEvent DRAWING_FOR_2PDOWN_C " << "\n";
         cur_mouse_point_ = e->pos();
     }
     update();
@@ -800,6 +828,7 @@ void KLineWall::ResetDrawState(DrawAction action)
     draw_action_ = DrawAction::NO_ACTION;  
     drawing_line_A_ = CST_MAGIC_POINT;
     drawing_line_B_ = CST_MAGIC_POINT;
+    drawing_line_C_ = CST_MAGIC_POINT;
 
     switch(action)
     {

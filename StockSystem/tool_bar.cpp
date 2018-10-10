@@ -25,6 +25,8 @@ ToolBar::ToolBar(QWidget *parent)
     , ab_down_for_c_pen_(nullptr)
     , ab_up_for_c_pen_(nullptr)
     , clear_pen_(nullptr)
+    , pre_btn_(nullptr)
+    , pre_action_(DrawAction::NO_ACTION)
     , kline_wall_cursor_(Qt::ArrowCursor)
 {
     assert( qobject_cast<MainWindow*>(parent)->kline_wall() );
@@ -36,35 +38,33 @@ ToolBar::ToolBar(QWidget *parent)
     ab_down_for_c_pen_->setFixedSize(22, 22);
     ab_down_for_c_pen_->setCheckable(true);
     ab_down_for_c_pen_->setObjectName(STR_AB_DOWN_C_PEN);  
-    bool ret = connect(ab_down_for_c_pen_, SIGNAL(clicked(bool)), this, SLOT(onClicked()));
- 
+    
     ab_up_for_c_pen_ = new QPushButton("");
     QPixmap icon2(tr("img/ab_up_c.png"));
     ab_up_for_c_pen_->setIcon(icon2);
     ab_up_for_c_pen_->setFixedSize(22, 22);
     ab_up_for_c_pen_->setCheckable(true);
     //ab_up_for_c_pen_->setObjectName(STR_AB_DOWN_C_PEN);  
-    ret = connect(ab_up_for_c_pen_, SIGNAL(clicked(bool)), this, SLOT(onClicked()));
- 
+     
     abc_down_for_d_pen_ = new QPushButton("");
     QPixmap icon3(tr("img/abc_down_d.png"));
     abc_down_for_d_pen_->setIcon(icon3);
     abc_down_for_d_pen_->setFixedSize(21, 21);
     abc_down_for_d_pen_->setCheckable(true);
-    ret = connect(abc_down_for_d_pen_, SIGNAL(clicked(bool)), this, SLOT(onClicked()));
-
+   
     abc_up_for_d_pen_ = new QPushButton("");
     QPixmap icon4(tr("img/abc_up_d.png"));
     abc_up_for_d_pen_->setIcon(icon4);
     abc_up_for_d_pen_->setFixedSize(21, 21);
     abc_up_for_d_pen_->setCheckable(true);
-    ret = connect(abc_up_for_d_pen_, SIGNAL(clicked(bool)), this, SLOT(onClicked()));
-
+   
     clear_pen_ = new QPushButton("C");
     clear_pen_->setFixedSize(27, 22);
     clear_pen_->setObjectName(STR_CLRPEN);
-    ret = connect(clear_pen_, SIGNAL(clicked(bool)), this, SLOT(onClicked()));
-
+    
+    ConnectAllDrawNormalBtn();
+    bool ret = connect(clear_pen_, SIGNAL(clicked(bool)), this, SLOT(onClicked()));
+    ret = ret;
     QHBoxLayout *pLayout = new QHBoxLayout(this);
     //pLayout->setSpacing(50);
     pLayout->addWidget(ab_down_for_c_pen_);
@@ -80,6 +80,7 @@ ToolBar::ToolBar(QWidget *parent)
     pLayout->setContentsMargins(5, 0, 5, 0);
      
     setLayout(pLayout);
+     
 }
 
 void ToolBar::UncheckBtnABDownPen()
@@ -133,41 +134,67 @@ bool ToolBar::eventFilter(QObject *obj, QEvent *event)
 void ToolBar::onClicked()
 {
     auto p_btn = qobject_cast<QPushButton*>(sender());
+    if( pre_btn_ && p_btn != pre_btn_ )
+    {
+        kline_wall_.setCursor(kline_wall_cursor_); 
+        DisConnectAllDrawNormalBtn();
+        kline_wall_.ResetDrawState(pre_action_); 
+        pre_btn_->setChecked(false);
+        ConnectAllDrawNormalBtn();
+    }
+    pre_btn_ = p_btn;
+
     auto p_window = this->window();
     if( p_window->isTopLevel() )
     {
-        KLineWall::DrawAction action = KLineWall::DrawAction::NO_ACTION;
-        if( p_btn == ab_down_for_c_pen_ )
-            action = KLineWall::DrawAction::DRAWING_FOR_2PDOWN_C;
-        else if( p_btn == ab_up_for_c_pen_ )
-            action = KLineWall::DrawAction::DRAWING_FOR_2PUP_C;
-        else if( p_btn == abc_down_for_d_pen_ )
-            action = KLineWall::DrawAction::DRAWING_FOR_3PDOWN_D;
-        else if( p_btn == abc_up_for_d_pen_ )
-            action = KLineWall::DrawAction::DRAWING_FOR_3PUP_D;
-
-        if( action != KLineWall::DrawAction::NO_ACTION )
-        { 
-            if( p_btn->isChecked() )
-            {
-                kline_wall_cursor_ = kline_wall_.cursor();
-
-                kline_wall_.setCursor(Qt::CrossCursor);
-                kline_wall_.draw_action(action);
-            }else
-            { 
-                kline_wall_.setCursor(kline_wall_cursor_); 
-                kline_wall_.ResetDrawState(action); 
-            }
-
-        }else if( p_btn == clear_pen_ )
+        if( p_btn == clear_pen_ )
         {
             auto ret = QMessageBox::information(nullptr, QString::fromLocal8Bit("提示"), QString::fromLocal8Bit("是否删除所有手动预测画线?"), QMessageBox::Yes, QMessageBox::No); 
             if( QMessageBox::Yes == ret )
             {
-                kline_wall_.ResetDrawState(KLineWall::DrawAction::NO_ACTION); 
+                kline_wall_.ResetDrawState(DrawAction::NO_ACTION); 
                 kline_wall_.ClearForcastData();
             }
+            return;
         }
+
+        DrawAction action = DrawAction::NO_ACTION;
+        if( p_btn->isChecked() )
+        {
+            if( p_btn == ab_down_for_c_pen_ )
+                action = DrawAction::DRAWING_FOR_2PDOWN_C;
+            else if( p_btn == ab_up_for_c_pen_ )
+                action = DrawAction::DRAWING_FOR_2PUP_C;
+            else if( p_btn == abc_down_for_d_pen_ )
+                action = DrawAction::DRAWING_FOR_3PDOWN_D;
+            else if( p_btn == abc_up_for_d_pen_ )
+                action = DrawAction::DRAWING_FOR_3PUP_D;
+        }
+        pre_action_ = action;
+        if( action == DrawAction::NO_ACTION )
+        { 
+            kline_wall_.setCursor(kline_wall_cursor_); 
+            kline_wall_.ResetDrawState(DrawAction::NO_ACTION); 
+        }else{ 
+            kline_wall_cursor_ = kline_wall_.cursor();
+
+            kline_wall_.setCursor(Qt::CrossCursor);
+            kline_wall_.draw_action(action);
+        }  
     }
+}
+
+void ToolBar::ConnectAllDrawNormalBtn()
+{
+    bool ret = connect(ab_down_for_c_pen_, SIGNAL(clicked(bool)), this, SLOT(onClicked()));
+    ret = connect(ab_up_for_c_pen_, SIGNAL(clicked(bool)), this, SLOT(onClicked()));
+    ret = connect(abc_down_for_d_pen_, SIGNAL(clicked(bool)), this, SLOT(onClicked()));
+    ret = connect(abc_up_for_d_pen_, SIGNAL(clicked(bool)), this, SLOT(onClicked()));
+}
+void ToolBar::DisConnectAllDrawNormalBtn()
+{
+    bool ret = disconnect(ab_down_for_c_pen_, SIGNAL(clicked(bool)), this, SLOT(onClicked()));
+    ret = disconnect(ab_up_for_c_pen_, SIGNAL(clicked(bool)), this, SLOT(onClicked()));
+    ret = disconnect(abc_down_for_d_pen_, SIGNAL(clicked(bool)), this, SLOT(onClicked()));
+    ret = disconnect(abc_up_for_d_pen_, SIGNAL(clicked(bool)), this, SLOT(onClicked()));
 }

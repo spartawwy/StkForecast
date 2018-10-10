@@ -5,9 +5,9 @@ bool IsNumber(const std::string& str)
 {
 	//bool ret = true;
 	//std::for_each( std::begin(str), std::end(str), [&ret](char entry)
-	for( int i = 0; i < str.length(); ++i )
+	for( unsigned int i = 0; i < str.length(); ++i )
 	{
-		if( str.at(i) < '\0' || str.at(i) > '\9' )
+		if( str.at(i) < '0' || str.at(i) > '9' )
 		  return false;
 	}
 	return true;

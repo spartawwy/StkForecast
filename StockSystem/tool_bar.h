@@ -3,6 +3,7 @@
 
 
 #include <QtWidgets/QWidget>
+#include "stkfo_common.h"
 
 class QLabel;
 class QPushButton;
@@ -41,7 +42,8 @@ private slots:
 
 private:
      
-    //void updateMaximize();
+    void ConnectAllDrawNormalBtn();
+    void DisConnectAllDrawNormalBtn();
 
 private:
 
@@ -56,7 +58,8 @@ private:
     QPushButton *abc_down_for_d_pen_;
     QPushButton *abc_up_for_d_pen_;
     QPushButton *clear_pen_;
-
+    QPushButton *pre_btn_;
+    DrawAction   pre_action_;
     //QPushButton *m_pMaximizeButton;
     //QPushButton *m_pCloseButton;
 
