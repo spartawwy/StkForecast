@@ -29,7 +29,10 @@ public:
     bool Initialize();
     KLineWall * kline_wall() { return kline_wall_; }
 
-    void UncheckBtnABPen();
+    void UncheckBtnABDownPen();
+    void UncheckBtnABUpPen();
+    void UncheckBtnABCDownPen();
+    void UncheckBtnABCUpPen();
 
 protected:
 

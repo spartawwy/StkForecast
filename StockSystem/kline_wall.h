@@ -23,7 +23,14 @@ class StockMan;
 class KLineWall : public QWidget
 {
 public:
-    enum class DrawAction : unsigned char { DRAWING_FOR_2PDOWN_C = 1, DRAWING_FOR_2PUP_C, DRAWING_FOR_3PUP_D, NO_ACTION = 255};
+    enum class DrawAction : unsigned char 
+    { 
+        DRAWING_FOR_2PDOWN_C = 1, 
+        DRAWING_FOR_2PUP_C, 
+        DRAWING_FOR_3PDOWN_D, 
+        DRAWING_FOR_3PUP_D, 
+        NO_ACTION = 255
+    };
 
     KLineWall(StkForecastApp *app, QWidget *parent);
 	~KLineWall() { }
@@ -35,7 +42,7 @@ public:
     void draw_action(DrawAction action) {  draw_action_ = action; }
     DrawAction draw_action(){ return draw_action_; }
 
-    void ResetDrawState();
+    void ResetDrawState(DrawAction draw_action);
     void ClearForcastData();
 
 protected:

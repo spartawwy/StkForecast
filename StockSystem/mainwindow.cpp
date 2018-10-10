@@ -95,10 +95,28 @@ void MainWindow::closeEvent(QCloseEvent * event)
         app_->Stop();
 }
 
-void MainWindow::UncheckBtnABPen()
+void MainWindow::UncheckBtnABDownPen()
 {
     if( tool_bar_ ) 
-        tool_bar_->UncheckBtnABPen(); 
+        tool_bar_->UncheckBtnABDownPen(); 
+}
+
+void MainWindow::UncheckBtnABUpPen()
+{
+    if( tool_bar_ ) 
+        tool_bar_->UncheckBtnABUpPen(); 
+}
+
+void MainWindow::UncheckBtnABCDownPen()
+{
+    if( tool_bar_ ) 
+        tool_bar_->UncheckBtnABCDownPen(); 
+}
+
+void MainWindow::UncheckBtnABCUpPen()
+{
+    if( tool_bar_ ) 
+        tool_bar_->UncheckBtnABCUpPen(); 
 }
 
 void MainWindow::changeEvent(QEvent *e)

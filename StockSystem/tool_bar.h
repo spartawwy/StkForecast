@@ -19,7 +19,10 @@ public:
     explicit ToolBar(QWidget *parent = 0);
     ~ToolBar(){}
 
-    void UncheckBtnABPen();
+    void UncheckBtnABDownPen();
+    void UncheckBtnABUpPen();
+    void UncheckBtnABCDownPen();
+    void UncheckBtnABCUpPen();
 
 protected:
 
@@ -50,10 +53,14 @@ private:
 
     QPushButton *ab_down_for_c_pen_;
     QPushButton *ab_up_for_c_pen_;
+    QPushButton *abc_down_for_d_pen_;
+    QPushButton *abc_up_for_d_pen_;
     QPushButton *clear_pen_;
 
     //QPushButton *m_pMaximizeButton;
     //QPushButton *m_pCloseButton;
+
+    QCursor kline_wall_cursor_;
 };
 
 #endif // TOOL_BAR_SFDDS32SDFDS_H_
