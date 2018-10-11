@@ -331,12 +331,14 @@ void KLineWall::mousePressEvent(QMouseEvent * event )
                 data_2pdown_fcst.c1 = std::get<0>(c1_c2_c3);
                 data_2pdown_fcst.c2 = std::get<1>(c1_c2_c3);
                 data_2pdown_fcst.c3 = std::get<2>(c1_c2_c3);
-                forcast_man_.Append(TypePeriod::PERIOD_DAY, stock_code_, data_2pdown_fcst);
+                forcast_man_.Append(k_type_, stock_code_, data_2pdown_fcst);
             } 
             return ResetDrawState(draw_action_); 
 
         }else if( draw_action_ == DrawAction::DRAWING_FOR_2PUP_C ) 
         {
+            if( forcast_man_.HasIn2pUpForcast(stock_code_, k_type_, *item_a, *item_b) )
+                return ResetDrawState(draw_action_);  
             if( item_a->stk_item.high_price < item_b->stk_item.high_price )
             {
                 T_Data2pUpForcast data_2pup_fcst;
@@ -348,21 +350,43 @@ void KLineWall::mousePressEvent(QMouseEvent * event )
                 data_2pup_fcst.c1 = std::get<0>(c1_c2_c3);
                 data_2pup_fcst.c2 = std::get<1>(c1_c2_c3);
                 data_2pup_fcst.c3 = std::get<2>(c1_c2_c3);
-                forcast_man_.Append(TypePeriod::PERIOD_DAY, stock_code_, data_2pup_fcst);
+                forcast_man_.Append(k_type_, stock_code_, data_2pup_fcst);
             }
             return ResetDrawState(draw_action_);  
+
         }else if( draw_action_ == DrawAction::DRAWING_FOR_3PDOWN_D )
         {
+            if( forcast_man_.HasIn3pForcast(stock_code_, k_type_, true, *item_a, *item_b) )
+                return ResetDrawState(draw_action_);  
             if( item_a->stk_item.high_price > item_b->stk_item.high_price )
             {
                 drawing_line_B_ = event->pos();
+                T_Data3pForcast  data_3p;
+                data_3p.stock_code = stock_code_;
+                data_3p.is_down = true;
+                data_3p.date_a = item_a->stk_item.date; 
+                data_3p.date_b = item_b->stk_item.date; 
+                forcast_man_.Append(k_type_, stock_code_, true, data_3p);
                 return;
-            } 
+            }else
+            {
+                // todo: show warning
+            }
+
         }else if( draw_action_ == DrawAction::DRAWING_FOR_3PUP_D )
         {
+            if( forcast_man_.HasIn3pForcast(stock_code_, k_type_, false, *item_a, *item_b) )
+                return ResetDrawState(draw_action_);  
+
             if( item_a->stk_item.high_price < item_b->stk_item.high_price )
             {
                 drawing_line_B_ = event->pos();
+                T_Data3pForcast  data_3p;
+                data_3p.stock_code = stock_code_;
+                data_3p.is_down = false;
+                data_3p.date_a = item_a->stk_item.date; 
+                data_3p.date_b = item_b->stk_item.date; 
+                forcast_man_.Append(k_type_, stock_code_, true, data_3p);
                 return;
             }else
             {
