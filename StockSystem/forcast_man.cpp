@@ -162,6 +162,15 @@ bool ForcastMan::HasIn3pForcast(const std::string &code, TypePeriod type_period,
         return false;
 }
 
+std::vector<T_Data3pForcast> * ForcastMan::Find3pForcast(const std::string &code, TypePeriod type_period, bool is_down_forward)
+{
+    Code3pForcastType &code_3p_fcst = Get3pDataHolder(type_period, is_down_forward);
+    auto vector_iter = code_3p_fcst.find(code);
+    if( vector_iter == code_3p_fcst.end() )
+        return nullptr;
+    return std::addressof(vector_iter->second);
+}
+
 void ForcastMan::Append(TypePeriod type_period, const std::string &code, bool is_down_forward, T_Data3pForcast &data_3p )
 {
     Code3pForcastType &code_3p_fcst = Get3pDataHolder(type_period, is_down_forward);
@@ -169,6 +178,7 @@ void ForcastMan::Append(TypePeriod type_period, const std::string &code, bool is
     auto vector_iter = code_3p_fcst.find(code);
     if( vector_iter == code_3p_fcst.end() )
         vector_iter = code_3p_fcst.insert(std::make_pair(code, std::vector<T_Data3pForcast>())).first;
+    vector_iter->second.push_back(data_3p);
 }
 
 std::tuple<double, double, double>  ForcastC_ABDown(double a, double b)

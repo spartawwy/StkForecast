@@ -83,8 +83,9 @@ public:
     std::vector<T_Data2pUpForcast> * Find2pUpForcast(const std::string &code, TypePeriod type_period);
     bool HasIn2pUpForcast(const std::string &code, TypePeriod type_period, T_KlineDataItem &item_a, T_KlineDataItem &item_b);
 
-    bool HasIn3pForcast(const std::string &code, TypePeriod type_period, bool is_down_forward, T_KlineDataItem &item_a, T_KlineDataItem &item_b);
     void Append(TypePeriod type_period, const std::string &code, bool is_down_forward, T_Data3pForcast& );
+    bool HasIn3pForcast(const std::string &code, TypePeriod type_period, bool is_down_forward, T_KlineDataItem &item_a, T_KlineDataItem &item_b);
+    std::vector<T_Data3pForcast> * Find3pForcast(const std::string &code, TypePeriod type_period, bool is_down_forward);
 
 private:
      

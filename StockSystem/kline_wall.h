@@ -59,10 +59,17 @@ private slots:
 
 private: 
 
+    int height_axis_trans_in_paint_k(){ return this->height() - bottom_h_; }
+
     void Draw2pDownForcast(QPainter &, const int mm_h, double item_w);
     void Draw2pUpForcast(QPainter &, const int mm_h, double item_w);
 
+    void Draw3pDownForcast(QPainter &, const int mm_h, double item_w);
+    void Draw3pUpForcast(QPainter &, const int mm_h, double item_w);
+
     void UpdateKLinePosDatas();
+    //void UpdateDrawingLinePos();
+
     T_KlineDataItem * GetKLineDataItemByXpos(int x);
     QPointF GetPointFromKLineDataItems(int x, bool is_get_top);
     T_KlineDataItem * GetKLineDataItemByDate(int date);
