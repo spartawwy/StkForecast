@@ -67,7 +67,7 @@ private:
     void Draw3pDownForcast(QPainter &, const int mm_h, double item_w);
     void Draw3pUpForcast(QPainter &, const int mm_h, double item_w);
 
-    void UpdateKLinePosDatas();
+    void UpdatePosDatas();
     //void UpdateDrawingLinePos();
 
     T_KlineDataItem * GetKLineDataItemByXpos(int x);
@@ -89,13 +89,12 @@ private:
     int bottom_h_;
      
 	StockInputDlg  stock_input_dlg_;
-
-    //std::list<StockDayInfo>  stk_days_infos_;
      
     std::string stock_code_;
     StockAllDaysInfo stockAllDaysInfo_;           //many stocks many daysinfo 
 	T_HisDataItemContainer *p_hisdata_container_; //point to stockAllDaysInfo_'s one stock's data
-    //std::vector<T_KlinePosData> kline_pos_data_;
+    int container_start_date_day_k_;
+    int container_end_date_day_k_;
 
     float lowestMinPrice_;
     float highestMaxPrice_;

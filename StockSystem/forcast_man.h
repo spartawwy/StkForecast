@@ -76,16 +76,16 @@ public:
     ~ForcastMan(){}
      
     void Append(TypePeriod type_period, const std::string &code, T_Data2pDownForcast& ); 
-    std::vector<T_Data2pDownForcast> * Find2pDownForcast(const std::string &code, TypePeriod type_period);
+    std::vector<T_Data2pDownForcast> * Find2pDownForcastVector(const std::string &code, TypePeriod type_period);
     bool HasIn2pDownwardForcast(const std::string &code, TypePeriod type_period, T_KlineDataItem &item_a, T_KlineDataItem &item_b);
 
     void Append(TypePeriod type_period, const std::string &code, T_Data2pUpForcast& );
-    std::vector<T_Data2pUpForcast> * Find2pUpForcast(const std::string &code, TypePeriod type_period);
+    std::vector<T_Data2pUpForcast> * Find2pUpForcastVector(const std::string &code, TypePeriod type_period);
     bool HasIn2pUpForcast(const std::string &code, TypePeriod type_period, T_KlineDataItem &item_a, T_KlineDataItem &item_b);
 
     void Append(TypePeriod type_period, const std::string &code, bool is_down_forward, T_Data3pForcast& );
-    bool HasIn3pForcast(const std::string &code, TypePeriod type_period, bool is_down_forward, T_KlineDataItem &item_a, T_KlineDataItem &item_b);
-    std::vector<T_Data3pForcast> * Find3pForcast(const std::string &code, TypePeriod type_period, bool is_down_forward);
+    T_Data3pForcast * Find3pForcast(const std::string &code, TypePeriod type_period, bool is_down_forward, T_KlineDataItem &item_a, T_KlineDataItem &item_b);
+    std::vector<T_Data3pForcast> * Find3pForcastVector(const std::string &code, TypePeriod type_period, bool is_down_forward);
 
 private:
      
@@ -164,12 +164,16 @@ private:
     Code3pForcastType    no_use_3p_;
 };
 
-// return: c1, c2, c3 ; ps: make sure a > b;
+// return: c1, c2, c3 ; ps: make sure a > b > 0;
 std::tuple<double, double, double>  ForcastC_ABDown(double a, double b);
 
-// return: c1, c2, c3 ; ps: make sure a < b;
+// return: c1, c2, c3 ; ps: make sure 0 < a < b;
 std::tuple<double, double, double>  ForcastC_ABUp(double a, double b);
 
- 
+// return: d1, d2, d3 ;ps: make sure a > b > 0
+std::tuple<double, double, double>  ForcastD_ABC_Down(double A, double B);
+
+// return: d1, d2, d3 ; ps: make sure 0 < a < b
+std::tuple<double, double, double>  ForcastD_ABC_Up(double A, double B);
 
 #endif // FORCAST_MAN_SDF23SDFS_H

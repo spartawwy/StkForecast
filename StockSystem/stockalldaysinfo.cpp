@@ -22,6 +22,7 @@ static bool compare(const T_StockHisDataItem &left_h, const T_StockHisDataItem &
     return left_h.date < right_h.date; // from small to big
 }
  
+// from small to big
 static bool dompare( std::shared_ptr<T_KlineDataItem> &lh, std::shared_ptr<T_KlineDataItem> &rh)
 {
     return lh->stk_item.date < rh->stk_item.date;
@@ -33,9 +34,9 @@ static bool bompare(const T_KlineDataItem &lh, const T_KlineDataItem &rh)
 }
 
 // 下分形遍历
-void TraverseSetUpwardFractal( std::vector<std::shared_ptr<T_KlineDataItem> > &kline_data_items);
+void TraverseSetUpwardFractal( std::deque<std::shared_ptr<T_KlineDataItem> > &kline_data_items);
 // 上分形遍历
-void TraverseSetDownwardFractal( std::vector<std::shared_ptr<T_KlineDataItem> > &kline_data_items);
+void TraverseSetDownwardFractal( std::deque<std::shared_ptr<T_KlineDataItem> > &kline_data_items);
 
 StockAllDaysInfo::StockAllDaysInfo()
 {
@@ -73,15 +74,14 @@ bool StockAllDaysInfo::Init()
 //    inputFile.close();
 //}
 
-// date is save from recent to remote
-T_HisDataItemContainer* StockAllDaysInfo::LoadStockData(const std::string &stk_code, int start_date, int end_date)
+// date is save from older date to newer. ps: data in container is series trade date
+T_HisDataItemContainer* StockAllDaysInfo::AppendStockData(const std::string &stk_code, int start_date, int end_date)
 {
     assert( stk_his_data_ && stk_hisdata_release_ );
-
-    //stock_days_info_.find(
- 
+     
     T_StockHisDataItem *p_data_items = nullptr;
-    int count = stk_his_data_(const_cast<char*>(stk_code.c_str()), start_date, end_date, &p_data_items);
+    // ret p_data_items is from big date to small date. [0].date is biggest
+    const int count = stk_his_data_(const_cast<char*>(stk_code.c_str()), start_date, end_date, &p_data_items);
 
     if( !p_data_items )
     {
@@ -89,24 +89,49 @@ T_HisDataItemContainer* StockAllDaysInfo::LoadStockData(const std::string &stk_c
     }
 #if 1
     // save data to stock_his_items_ and sort it ---------------------------
-    auto iter = stock_his_items_.find(stk_code);
-    if( iter == stock_his_items_.end() )
+    auto iter_already = stock_his_items_.find(stk_code);
+    if( iter_already == stock_his_items_.end() )
+        iter_already = stock_his_items_.insert(std::make_pair(stk_code, T_HisDataItemContainer())).first;
+    if( count < 1 )
+        return std::addressof(iter_already->second);
+    // only can insert to back of front 
+    std::deque<std::shared_ptr<T_KlineDataItem> > &items_in_container = iter_already->second; 
+    if( !items_in_container.empty() )
     {
-        iter = stock_his_items_.insert(std::make_pair(stk_code, T_HisDataItemContainer())).first;
-        //  19901219..20151231 | 20160104..
-        //iter->second.reserve(RESERVE_CAPACITY_IN_T_VECTOR);
-        // select count(*) from exchangeDate where is_tradeday=1 and date>=20160101 limit 10;
+        if( p_data_items[0].date < items_in_container.back()->stk_item.date )
+        { 
+            for( int k = 0; k < count; ++k )
+            {
+                auto ck_val = p_data_items[k].date;
+                if( p_data_items[k].date < items_in_container.front()->stk_item.date )
+                {
+                    auto k_item = std::make_shared<T_KlineDataItem>(p_data_items[k]); 
+                    items_in_container.push_front(std::move(k_item));
+                }
+            }
+        }else
+        {
+            for( int k = count; k > 0; --k )
+            {
+                if( p_data_items[k-1].date > items_in_container.back()->stk_item.date )
+                {
+                    auto k_item = std::make_shared<T_KlineDataItem>(p_data_items[k-1]); 
+                    items_in_container.push_back(std::move(k_item));
+                }
+            }
+        }
+        items_in_container.front()->stk_item.date;
     }else
-        iter->second.clear();
-
-    std::vector<std::shared_ptr<T_KlineDataItem> > &kline_data_items = iter->second; 
-    for( int k = 0; k < count; ++k )
     {
-        auto k_item = std::make_shared<T_KlineDataItem>(p_data_items[k]);
-        kline_data_items.push_back(std::move(k_item)); 
-    } 
+        for( int k = count; k > 0; --k )
+        {
+            auto k_item = std::make_shared<T_KlineDataItem>(p_data_items[k-1]); 
+            items_in_container.push_back(std::move(k_item));
+        }
+    }
+     
     // sort T_KlineDateItems by day from small to bigger
-    std::sort(kline_data_items.begin(), kline_data_items.end(), dompare);
+    std::sort(items_in_container.begin(), items_in_container.end(), dompare);
      
 #endif 
 
@@ -146,11 +171,11 @@ T_HisDataItemContainer* StockAllDaysInfo::LoadStockData(const std::string &stk_c
 
 	stk_hisdata_release_(p_data_items);
 
-    TraverseSetUpwardFractal(kline_data_items);
+    TraverseSetUpwardFractal(items_in_container);
 
-    TraverseSetDownwardFractal(kline_data_items);
+    TraverseSetDownwardFractal(items_in_container);
     
-	return std::addressof(iter->second);
+	return std::addressof(iter_already->second);
 
 }
 
@@ -219,7 +244,7 @@ float StockAllDaysInfo::GetHisDataHighestMaxPrice(const std::string& stock)
 }
 
  
-void TraverseSetUpwardFractal( std::vector<std::shared_ptr<T_KlineDataItem> > &kline_data_items)
+void TraverseSetUpwardFractal( std::deque<std::shared_ptr<T_KlineDataItem> > &kline_data_items)
 {
     if( kline_data_items.size() < 1 )
         return;
@@ -302,7 +327,7 @@ void TraverseSetUpwardFractal( std::vector<std::shared_ptr<T_KlineDataItem> > &k
     }//while
 }
 
-void TraverseSetDownwardFractal( std::vector<std::shared_ptr<T_KlineDataItem> > &kline_data_items)
+void TraverseSetDownwardFractal( std::deque<std::shared_ptr<T_KlineDataItem> > &kline_data_items)
 {
     if( kline_data_items.size() < 1 )
         return;

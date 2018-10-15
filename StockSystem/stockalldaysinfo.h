@@ -6,6 +6,7 @@
 #include <memory>
 #include <map>
 #include <vector>
+#include <deque>
  
 #include "stkfo_common.h"
 
@@ -14,7 +15,8 @@
 
 
 //typedef std::list<T_StockHisDataItem>  T_HisDataItemList;
-typedef std::vector<std::shared_ptr<T_KlineDataItem> >  T_HisDataItemContainer;
+//typedef std::vector<std::shared_ptr<T_KlineDataItem> >  T_HisDataItemContainer;
+typedef std::deque<std::shared_ptr<T_KlineDataItem> >  T_HisDataItemContainer;
 
 class StockAllDaysInfo
 {
@@ -31,7 +33,7 @@ public:
     //从fileName指定的磁盘路径中将数据一行一行读取出来，每一行初始化一个StockDayInfo对象
     //void LoadDataFromFile(std::string &fileName);
 
-    T_HisDataItemContainer* LoadStockData(const std::string &stk_code, int start_date, int end_date);
+    T_HisDataItemContainer* AppendStockData(const std::string &stk_code, int start_date, int end_date);
 	     
 public:
 
@@ -42,9 +44,7 @@ public:
 	float GetHisDataHighestMaxPrice(const std::string& stock);
 
 public:
-    //std::list<StockDayInfo> GetStockAllDaysInfoList();
-    //std::map<std::string,  std::list<StockDayInfo> > stock_days_info_;
-
+     
     // (stock , data)
     std::map<std::string, T_HisDataItemContainer> stock_his_items_;
 

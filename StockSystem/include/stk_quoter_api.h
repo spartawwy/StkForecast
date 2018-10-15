@@ -47,6 +47,10 @@ extern "C" int STKQUOTER_IMEXPORT StkQuoteGetQuote(char stocks[][16], const unsi
 
 typedef int (__stdcall *StkQuoteGetQuoteDelegate)(char stocks[][16], const unsigned int size, T_StockPriceInfo price_info[]);
 
+/***********************************************************************
+T_StockHisDataItem is from big date to small date ;
+ ps: max T_StockHisDataItem is 265, so make sure max days between is 265 * 3/2 =  396  
+***********************************************************************/
 extern "C" int STKQUOTER_IMEXPORT  StkHisData(char stocks[16], int start_date, int end_date, T_StockHisDataItem **price_info);
 
 typedef int (__stdcall *StkHisDataDelegate)(char stocks[16], int start_date, int end_date, T_StockHisDataItem **pp_items);
