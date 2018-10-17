@@ -1,5 +1,6 @@
 # coding=utf-8
- 
+#  ts.get_k_data('399300', ktype='W', autype='qfq', index=True,start='2016-10-01', end='2016-10-31')
+#  上层调用 考虑 每个月一个文件(文件明以起至日期命名,方便当月的追加和改名)
 import os
 import time
 import sqlite3  
