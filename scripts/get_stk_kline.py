@@ -78,7 +78,8 @@ class KLINE:
     def addDeltaDays(self, date, days_val):
         return date + dt.timedelta(days=days_val)
        
-    def getDayKline(self, code, beg_day_str, end_day_str):
+    #ts.get_k_data('399300', ktype='W', autype='qfq', index=True,start='2016-10-01', end='2016-10-31')
+    def getKBarData(self, code, beg_day_str, end_day_str, ktype='W', autype='qfq', index=True):
         #print("enter getDayKline" + code + beg_day_str + end_day_str)
         beg_date = self.getStrToDate(beg_day_str)
         end_date = self.getStrToDate(end_day_str)
@@ -171,7 +172,7 @@ if __name__ == "__main__":
     code = "601699"
     kl = KLINE()
     if 1:
-        kl.getDayKline(code, '2017-12-07', '2018-03-08')    
+        kl.getKBarData(code, '2017-12-07', '2018-03-08')    
         
         
         

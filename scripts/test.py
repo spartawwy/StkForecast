@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd  
 import tushare as ts  
 import datetime as dt  
+import arrow
  
 class MyClass:
     def is_open_day(self, date):  
@@ -29,6 +30,15 @@ class MyClass:
             return dt.datetime.strptime(str,'%Y-%m-%d')  
         except Exception as err:
             return dt.datetime.strptime("2018-04-07",'%Y-%m-%d')  
+
+    def get_year_start():
+        now = arrow.utcnow().to("local")
+        return now.floor("year")
+    @staticmethod
+    def get_year_end():
+        now = arrow.utcnow().to("local")
+        return now.ceil("year")
+
 str = "0123456789"
 
 print (str[0:3])
@@ -39,5 +49,15 @@ val = 0
 #    val = myobj.is_open_day(myobj.getStrToDate("2017-09-31"))
 #except Exception as err:
 #    print("erro:%s" % err)  
+
 val = myobj.is_open_day(myobj.getStrToDate("2017-09-31"))
 print(val)
+yend = myobj.get_year_end()
+yend_str = yend.format('YYYYMMDD')
+print(yend_str)
+
+t = arrow.now().shift(years=-1)
+#t = t.shift(years=-1)
+t_point = t.to("local")
+preyear_str = t_point.floor("year").format('YYYYMMDD')
+print(preyear_str)
