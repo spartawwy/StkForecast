@@ -164,7 +164,11 @@ class KLINE:
                 os.remove(afterk_file_path)
         return "ok"
          
-        
+def getDayKBarData(code, beg_date_str, end_date_str, Index=False)
+    #arrow.get('2018-02-24 12:30:45', 'YYYY-MM-DD HH:mm:ss')
+    
+    
+            
 if __name__ == "__main__":  
     if "PYTHONPATH" in os.environ:
         mystr = os.environ["PYTHONPATH"] 
