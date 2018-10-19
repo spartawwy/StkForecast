@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd  
 import tushare as ts  
 import datetime as dt  
+import string
 import arrow
  
 class MyClass:
@@ -39,28 +40,33 @@ class MyClass:
         now = arrow.utcnow().to("local")
         return now.ceil("year")
 
-str = "0123456789"
+def testtime():        
+    #str_boj = "0123456789"
+    #print (str_boj[0:3])
+    myobj = MyClass()
+    val = 0
+    #try:
+    #    val = myobj.is_open_day(myobj.getStrToDate("2017-09-31"))
+    #except Exception as err:
+    #    print("erro:%s" % err)  
 
-print (str[0:3])
+    val = myobj.is_open_day(myobj.getStrToDate("2017-09-31"))
+    print(val)
+    yend = myobj.get_year_end()
+    yend_str = yend.format('YYYYMMDD')
+    print(yend_str)
 
-myobj = MyClass()
-val = 0
-#try:
-#    val = myobj.is_open_day(myobj.getStrToDate("2017-09-31"))
-#except Exception as err:
-#    print("erro:%s" % err)  
-
-val = myobj.is_open_day(myobj.getStrToDate("2017-09-31"))
-print(val)
-yend = myobj.get_year_end()
-yend_str = yend.format('YYYYMMDD')
-print(yend_str)
-
-t = arrow.now().shift(years=-1)
-#t = t.shift(years=-1)
-t_point = t.to("local")
-preyear_str = t_point.floor("year").format('YYYYMMDD')
-print(preyear_str)
-#arrow.get('2018-02-24 12:30:45', 'YYYY-MM-DD HH:mm:ss')
-tmpv = arrow.get('2018-02-24', 'YYYY-MM-DD')
-print(tmpv.day)
+    t = arrow.now().shift(years=-1)
+    #t = t.shift(years=-1)
+    t_point = t.to("local")
+    preyear_str = t_point.floor("year").format('YYYYMMDD')
+    print(preyear_str)
+    #arrow.get('2018-02-24 12:30:45', 'YYYY-MM-DD HH:mm:ss')
+    tmpv = arrow.get('2018-02-24', 'YYYY-MM-DD')
+    print(tmpv.day)
+    print(tmpv.week) 
+    print("cur_day "+str(tmpv.day))
+    print("floor year " + tmpv.floor("year").format('YYYYMMDD') )
+    print("ceil year " + tmpv.ceil("year").format('YYYYMMDD') )
+ 
+testtime()

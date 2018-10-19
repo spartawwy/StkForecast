@@ -165,8 +165,15 @@ class KLINE:
         return "ok"
          
 def getDayKBarData(code, beg_date_str, end_date_str, Index=False)
+    // find y 
     #arrow.get('2018-02-24 12:30:45', 'YYYY-MM-DD HH:mm:ss')
-    
+    beg_date = arrow.get(beg_date_str, 'YYYY-MM-DD')
+    end_date = arrow.get(end_date_str, 'YYYY-MM-DD')
+
+    if beg_date.year == end_date.year:
+        beg_date_tag = beg_date.floor("year").format('YYYY-MM-DD')
+        end_date_tag = end_date.floor("year").format('YYYY-MM-DD')
+        df = ts.get_k_data(code, ktype='d', autype='qfq', index=False, start=beg_date_tag, end=end_date_tag)
     
             
 if __name__ == "__main__":  
@@ -174,9 +181,8 @@ if __name__ == "__main__":
         mystr = os.environ["PYTHONPATH"] 
         print(mystr)
     code = "601699"
-    kl = KLINE()
-    if 1:
-        kl.getKBarData(code, '2017-12-07', '2018-03-08')    
+    kl = KLINE() 
+    kl.getKBarData(code, '2017-12-07', '2018-03-08')
         
         
         
