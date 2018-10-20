@@ -1,6 +1,7 @@
 # coding=utf-8
 #  ts.get_k_data('399300', ktype='W', autype='qfq', index=True,start='2016-10-01', end='2016-10-31')
-#  上层调用 考虑 每个月一个文件(文件明以起至日期命名,方便当月的追加和改名)
+#  日线按年存放;  ps: 系统时间跨年时, 以前的某日产生的日K可能成为遗留,目前没有清除
+#  要求调用者  
 import os
 import time
 import sqlite3  
@@ -8,6 +9,8 @@ import numpy as np
 import pandas as pd  
 import tushare as ts  
 import datetime as dt  
+import arrow
+import re
   
 ROOT_DIR = 'E:/Dev_wwy/StockTrader/src/StkForecast/StockSystem/build/Win32/Debug' 
 
@@ -77,112 +80,108 @@ class KLINE:
             
     def addDeltaDays(self, date, days_val):
         return date + dt.timedelta(days=days_val)
-       
-    #ts.get_k_data('399300', ktype='W', autype='qfq', index=True,start='2016-10-01', end='2016-10-31')
-    def getKBarData(self, code, beg_day_str, end_day_str, ktype='W', autype='qfq', index=True):
-        #print("enter getDayKline" + code + beg_day_str + end_day_str)
-        beg_date = self.getStrToDate(beg_day_str)
-        end_date = self.getStrToDate(end_day_str)
-        cur_date_str = self.getDateToStr(dt.datetime.now())
-        cur_date = self.getStrToDate(cur_date_str)
-        #may reset end_date -----------
-        if end_date >= cur_date:
-            point_time = dt.datetime.strptime(cur_date_str+" 15:30:00", '%Y-%m-%d %H:%M:%S') 
-            if dt.datetime.now() > point_time: 
-                end_date = cur_date
-                end_day_str = cur_date_str
-            else:
-                end_date = cur_date + dt.timedelta(days=-1)
-                end_day_str = self.getDateToStr(end_date)      
-        prek_file_path = self.getTargetKDataDir(code) + "/pre.tmp"
-        afterk_file_path = self.getTargetKDataDir(code) + "/after.tmp"
-        # if exists old day k file----
-        items = os.listdir(self.getTargetKDataDir(code) + "/")
-        old_dayk_file = ""
-        for name in items:
-            if name.endswith(self.dayk_file_ext):
-                old_dayk_file = name
-                break 
-        if not old_dayk_file:
-            #print("no rel dayk file, will save data frame")
-            file_full_path = self.getTargetKDataDir(code) + "/" + beg_day_str + "_" + end_day_str + self.dayk_file_ext 
-            df = ts.get_k_data(code, start=beg_day_str, end=end_day_str)
-            if not df.empty:
-                df.to_csv(file_full_path, columns=['date', 'open', 'close', 'high', 'low', 'volume'], header=None,index=None)
-                return "ok"
-            else:
-                return "false"
-
-        file_name = os.path.splitext(old_dayk_file)[0]
-        old_beg_date_str = file_name.split("_")[0]
-        old_end_date_str = file_name.split("_")[1] 
-        #print(old_end_date_str)
-        old_beg_date = self.getStrToDate(old_beg_date_str)
-        old_end_date = self.getStrToDate(old_end_date_str)
-        new_beg_date_str = old_beg_date_str
-        new_end_date_str = old_end_date_str
-        pre_data = ""
-        after_data = ""
-        if beg_date < old_beg_date:
-            new_beg_date_str = beg_day_str 
-            df = ts.get_k_data(code, start=beg_day_str, end=self.getDateToStr(old_beg_date + dt.timedelta(days=-1)))
-            if not df.empty:
-                df.to_csv(prek_file_path, columns=['date', 'open', 'close', 'high', 'low', 'volume'], header=None,index=None)
-                #print("saved " + prek_file_path)
-                with open(prek_file_path, "r") as pref:
-                    pre_data = pref.read()
-            #print(beg_day_str + " < " + old_beg_date_str)
-        
-        if old_end_date < end_date:
-            new_end_date_str = end_day_str
-            df = ts.get_k_data(code, start=self.getDateToStr(old_end_date + dt.timedelta(days=1)), end=new_end_date_str)
-            if not df.empty:
-                df.to_csv(afterk_file_path, columns=['date', 'open', 'close', 'high', 'low', 'volume'], header=None,index=None)
-                #print("saved " + afterk_file_path)
-                with open(afterk_file_path, "r") as afterf:
-                    after_data = afterf.read() 
-          
-        old_file_full_path = self.getTargetKDataDir(code) + "/" + old_dayk_file     
-        if pre_data or after_data:
-            with open(old_file_full_path, "r+") as f:
-                #oldlines = f.readlines()
-                olddata = f.read()
-                f.seek(0)
-                if pre_data:
-                    f.write(pre_data)
-                f.write(olddata)
-                if after_data:
-                    f.write(after_data)
-                #f.writelines(oldlines[1:])
-            
-        file_full_path = self.getTargetKDataDir(code) + "/" + new_beg_date_str + "_" + new_end_date_str + self.dayk_file_ext 
-        if old_file_full_path != file_full_path:
-            os.rename(old_file_full_path, file_full_path)
-            if pre_data:
-                os.remove(prek_file_path)
-            if after_data:
-                os.remove(afterk_file_path)
-        return "ok"
-         
-def getDayKBarData(code, beg_date_str, end_date_str, Index=False)
-    // find y 
-    #arrow.get('2018-02-24 12:30:45', 'YYYY-MM-DD HH:mm:ss')
-    beg_date = arrow.get(beg_date_str, 'YYYY-MM-DD')
-    end_date = arrow.get(end_date_str, 'YYYY-MM-DD')
-
-    if beg_date.year == end_date.year:
-        beg_date_tag = beg_date.floor("year").format('YYYY-MM-DD')
-        end_date_tag = end_date.floor("year").format('YYYY-MM-DD')
-        df = ts.get_k_data(code, ktype='d', autype='qfq', index=False, start=beg_date_tag, end=end_date_tag)
     
-            
+    def getFileStrFromFullPath(self, f_full_path):
+        ret_files_str=""
+        pos = f_full_path.rfind('/')
+        if pos and pos < len(f_full_path) - 1:
+            ret_files_str += (f_full_path[pos+1:])
+        return ret_files_str
+        
+    #ts.get_k_data('399300', ktype='W', autype='qfq', index=True,start='2016-10-01', end='2016-10-31')
+    def getDayKBarData(self, code, beg_date_str, end_date_str, Index=False):
+        ret_files_str = ""
+        beg_date = arrow.get(beg_date_str, 'YYYY-MM-DD') 
+        end_date = arrow.get(end_date_str, 'YYYY-MM-DD')
+        if beg_date > end_date:
+            return ret_files_str
+        end_date_tag = end_date.ceil("year").format('YYYY-MM-DD')
+        now = arrow.utcnow().to("local")  
+        today_tag = now.format('YYYY-MM-DD')
+        if beg_date.year == end_date.year:
+            beg_date_tag = beg_date.floor("year").format('YYYY-MM-DD')
+            #if arrow.utcnow().to("local") < end_date.ceil("year"): 
+            file_full_path = ""
+            if end_date.year >= now.year:
+                file_full_path = self.getTargetKDataDir(code) + "/" + beg_date_tag + "_" + today_tag + self.dayk_file_ext 
+            else:
+                file_full_path = self.getTargetKDataDir(code) + "/" + beg_date_tag + "_" + end_date_tag + self.dayk_file_ext 
+            if not os.path.exists(file_full_path):
+                if end_date.year >= now.year:
+                    df = ts.get_k_data(code, ktype='d', autype='qfq', index=Index, start=beg_date_tag, end=today_tag)
+                else:
+                    df = ts.get_k_data(code, ktype='d', autype='qfq', index=Index, start=beg_date_tag, end=end_date_tag)
+                if not df.empty:
+                    df.to_csv(file_full_path, columns=['date', 'open', 'close', 'high', 'low', 'volume'], header=None,index=None)
+                    return self.getFileStrFromFullPath(file_full_path)
+            else:
+                return self.getFileStrFromFullPath(file_full_path)
+        else:
+            for y in range(beg_date.year, end_date.year):
+                date0 = beg_date.shift(years=y-beg_date.year)
+                beg_taget_str = date0.floor("year").format("YYYY-MM-DD")
+                end_taget_str = date0.ceil("year").format("YYYY-MM-DD")
+                file_full_path = self.getTargetKDataDir(code) + "/" + beg_taget_str + "_" + end_taget_str + self.dayk_file_ext 
+                if not os.path.exists(file_full_path):
+                    df = ts.get_k_data(code, ktype='d', autype='qfq', index=Index, start=beg_taget_str, end=end_taget_str)
+                    if not df.empty:
+                        df.to_csv(file_full_path, columns=['date', 'open', 'close', 'high', 'low', 'volume'], header=None,index=None)
+                        ret_files_str += self.getFileStrFromFullPath(file_full_path) + ';'
+                else:
+                    ret_files_str += self.getFileStrFromFullPath(file_full_path) + ';'
+            beg_date_tag = end_date.floor("year").format('YYYY-MM-DD')
+            if end_date.year >= now.year:
+                file_full_path = self.getTargetKDataDir(code) + "/" + beg_date_tag + "_" + today_tag + self.dayk_file_ext 
+            else:
+                file_full_path = self.getTargetKDataDir(code) + "/" + beg_date_tag + "_" + end_date_tag + self.dayk_file_ext 
+            old_file = find_f_before_lowbar(self.getTargetKDataDir(code), beg_date_tag)
+            is_to_get = True
+            for file_str in old_file:
+                if file_full_path == file_str:
+                    print("not remove "+file_str)
+                    is_to_get = False
+                else:
+                    #print("remove"+file_str)
+                    os.remove(file_str)
+            if is_to_get:
+                #print("to create " + file_full_path)
+                df = ts.get_k_data(code, ktype='d', autype='qfq', index=Index, start=beg_date_tag, end=end_date_tag)
+                if not df.empty:
+                    df.to_csv(file_full_path, columns=['date', 'open', 'close', 'high', 'low', 'volume'], header=None, index=None)
+                    ret_files_str += self.getFileStrFromFullPath(file_full_path)
+            else:
+                ret_files_str += self.getFileStrFromFullPath(file_full_path)
+        if ret_files_str and ret_files_str[-1] == ';':
+            ret_files_str = ret_files_str[0:-1]
+        return ret_files_str
+        
+        
+def find_f_before_lowbar(dir, name, recurve=False):
+    result = []
+    for i_str in [x for x in os.listdir(dir) if os.path.isfile(os.path.join(dir,x)) and name in os.path.splitext(x)[0]]:
+        m = re.findall(r'(.+?)_', i_str) # file name yyyy-mm-dd_yyyy-mm-dd.dayk
+        tmpval = "".join(m)
+        if tmpval == name:
+            result.append(os.path.join(dir, i_str))
+            print(os.path.join(dir, i_str))
+    if recurve:
+        for i_str in [x for x in os.listdir(dir) if os.path.isdir(os.path.join(dir,x))]:   #os.path.isfile() 需要完整路径或者相对当前目录的相对路径
+            if os.listdir(os.path.join(dir, i_str))!=[]:
+                try:  #防止因为权限问题报错
+                    find(os.path.join(dir, i_str),name)
+                except:
+                    pass
+    return result
+
 if __name__ == "__main__":  
     if "PYTHONPATH" in os.environ:
         mystr = os.environ["PYTHONPATH"] 
         print(mystr)
     code = "601699"
-    kl = KLINE() 
-    kl.getKBarData(code, '2017-12-07', '2018-03-08')
-        
-        
-        
+    kobj = KLINE()
+    beg_date_str = '2018-01-07'
+    tmpv = arrow.get(beg_date_str, 'YYYY-MM-DD')
+    #kobj.getDayKBarData(code, '2018-01-07', '2018-03-08') 
+    ret_str = kobj.getDayKBarData(code, '2010-02-07', '2012-02-08') 
+    print(ret_str)
+     

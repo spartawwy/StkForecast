@@ -8,7 +8,8 @@ import tushare as ts
 import datetime as dt  
 import string
 import arrow
- 
+import re
+
 class MyClass:
     def is_open_day(self, date):  
         try:
@@ -68,5 +69,36 @@ def testtime():
     print("cur_day "+str(tmpv.day))
     print("floor year " + tmpv.floor("year").format('YYYYMMDD') )
     print("ceil year " + tmpv.ceil("year").format('YYYYMMDD') )
- 
-testtime()
+    
+def find_f_before_lowbar(dir, name, recurve=False):
+    result = []
+    for i_str in [x for x in os.listdir(dir) if os.path.isfile(os.path.join(dir,x)) and name in os.path.splitext(x)[0]]:
+        m = re.findall(r'(.+?)_', i_str) # file name yyyy-mm-dd_yyyy-mm-dd.dayk
+        tmpval = "".join(m)
+        if tmpval == name:
+            result.append(os.path.join(dir, i_str))
+            print(os.path.join(dir, i_str))
+    if recurve:
+        for i_str in [x for x in os.listdir(dir) if os.path.isdir(os.path.join(dir,x))]:   #os.path.isfile() 需要完整路径或者相对当前目录的相对路径
+            if os.listdir(os.path.join(dir, i_str))!=[]:
+                try:  #防止因为权限问题报错
+                    find(os.path.join(dir, i_str),name)
+                except:
+                    pass
+    return result
+
+def test_back_str():
+    tmp_str = "abc/sdf/123.txt"
+    pos = tmp_str.rfind('/')
+    print(pos)
+    if pos and pos < len(tmp_str) - 1:
+        print(tmp_str[pos+1:])
+        
+#find_f_before_lowbar("F:/StockHisdata/601699/kline", '2017-01-01')
+#testtime()
+tmp_str = "123"
+tmp_str += "456" + "789"
+print(tmp_str+'\n')
+print(tmp_str[0:-1]+'\n')
+print(tmp_str[-1])
+

@@ -170,7 +170,7 @@ if __name__ == "__main__":
     code = "601699"
     kl = KLINE()
     if 1:
-        kl.getDayKline(code, '2017-12-07', '2018-03-08')    
+        kl.getDayKline(code, '2014-12-07', '2018-03-08')    
         
         
         
