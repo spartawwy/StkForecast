@@ -12,7 +12,7 @@
 
 #include "stockdayinfo.h"
 #include "stk_quoter_api.h"
-
+#include "winner_hq_api.h"
 
 //typedef std::list<T_StockHisDataItem>  T_HisDataItemList;
 //typedef std::vector<std::shared_ptr<T_KlineDataItem> >  T_HisDataItemContainer;
@@ -49,10 +49,13 @@ public:
     std::map<std::string, T_HisDataItemContainer> stock_his_items_;
 
 private:
+#ifdef USE_STK_QUOTER
     StkHisDataDelegate stk_his_data_;
     StkRelHisDataDelegate stk_hisdata_release_;
-
+#endif
     std::shared_ptr<PyDataMan> py_data_man_;
+
+    WinnerHisHq_GetKDataDelegate  WinnerHisHq_GetKData_;
 };
 
 #endif // STOCKALLDAYSINFO_H

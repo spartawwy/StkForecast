@@ -214,6 +214,9 @@
     <ClInclude Include="forcast_man.h">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="include\winner_hq_api.h">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="readme.txt" />
