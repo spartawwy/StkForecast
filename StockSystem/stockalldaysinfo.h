@@ -47,15 +47,23 @@ public:
      
     // (stock , data)
     std::map<std::string, T_HisDataItemContainer> stock_his_items_;
+#ifndef USE_STK_QUOTER
+    std::vector<T_StockHisDataItem> *p_stk_hisdata_item_vector_;
+    bool is_fetched_stk_hisdata_;
+#endif 
 
 private:
 #ifdef USE_STK_QUOTER
     StkHisDataDelegate stk_his_data_;
     StkRelHisDataDelegate stk_hisdata_release_;
+#else
+    WinnerHisHq_GetKDataDelegate  WinnerHisHq_GetKData_;
+    T_KDataCallBack  call_back_obj_;
 #endif
     std::shared_ptr<PyDataMan> py_data_man_;
 
-    WinnerHisHq_GetKDataDelegate  WinnerHisHq_GetKData_;
+   
+    
 };
 
 #endif // STOCKALLDAYSINFO_H

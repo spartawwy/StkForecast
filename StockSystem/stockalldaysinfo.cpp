@@ -6,10 +6,13 @@
 #include <assert.h>
 #include <memory>
 
+#include <TLib/core/tsystem_time.h>
+
 #include <Windows.h>
 #include <QtWidgets/QMessageBox>
 #include <QDebug>
 
+ 
 #include "py_data_man.h"
 
 #define RESERVE_CAPACITY_IN_T_VECTOR    1024*16
@@ -40,6 +43,7 @@ void TraverseSetDownwardFractal( std::deque<std::shared_ptr<T_KlineDataItem> > &
 
 StockAllDaysInfo::StockAllDaysInfo()
     : WinnerHisHq_GetKData_(nullptr)
+    , p_stk_hisdata_item_vector_(nullptr)
 {
     //LoadDataFromFile("./data/600030.dat");
 
@@ -78,42 +82,73 @@ bool StockAllDaysInfo::Init()
 //    inputFile.close();
 //}
 
+void call_back_fun(T_K_Data *k_data, bool is_end, void *para/*, std::vector<T_StockHisDataItem> &data_item_vector*/)
+{
+    T_KDataCallBack *cb_obj = (T_KDataCallBack*)para;
+    StockAllDaysInfo *p_stk_alldaysinfo_obj = (StockAllDaysInfo *)(cb_obj->para);
+    std::vector<T_StockHisDataItem> *p_vector = p_stk_alldaysinfo_obj->p_stk_hisdata_item_vector_;
+    
+    T_StockHisDataItem item;
+    item.open_price = k_data->open;
+    item.close_price = k_data->close;
+    item.high_price = k_data->high;
+    item.low_price = k_data->low;
+    item.vol - k_data->vol;
+    item.date = k_data->yyyymmdd;
+
+    p_vector->push_back(std::move(item));
+    if( is_end )
+    {
+        p_stk_alldaysinfo_obj->is_fetched_stk_hisdata_ = true;
+    }
+    
+}
 // date is save from older date to newer. ps: data in container is series trade date
 T_HisDataItemContainer* StockAllDaysInfo::AppendStockData(const std::string &stk_code, int start_date, int end_date)
 {
-    T_StockHisDataItem *p_data_items = nullptr;
     const int count = 0;
-
-#ifdef USE_STK_QUOTER
-    assert( stk_his_data_ && stk_hisdata_release_ );
-    // ret p_data_items is from big date to small date. [0].date is biggest
-    count = stk_his_data_(const_cast<char*>(stk_code.c_str()), start_date, end_date, &p_data_items);
-#else
-
-    static auto call_back_fun = [](T_K_Data *k_data, bool is_end, void *para)
-    {
-
-    };
-
-    T_KDataCallBack  call_back_obj;
-    call_back_obj.call_back_func = call_back_fun;
-    bool is_index = false;
-    char error_info[1024] = {"\0"};
-    WinnerHisHq_GetKData_(const_cast<char*>(stk_code.c_str()), PeriodType::PERIOD_DAY, start_date, end_date
-                                                           , &call_back_obj, is_index, error_info);
-
-#endif
-    if( !p_data_items )
-    {
-        return nullptr;
-    }
-#if 1
-    // save data to stock_his_items_ and sort it ---------------------------
+    
     auto iter_already = stock_his_items_.find(stk_code);
     if( iter_already == stock_his_items_.end() )
         iter_already = stock_his_items_.insert(std::make_pair(stk_code, T_HisDataItemContainer())).first;
     if( count < 1 )
         return std::addressof(iter_already->second);
+
+#ifdef USE_STK_QUOTER
+    T_StockHisDataItem *p_data_items = nullptr;
+    assert( stk_his_data_ && stk_hisdata_release_ );
+    // ret p_data_items is from big date to small date. [0].date is biggest
+    count = stk_his_data_(const_cast<char*>(stk_code.c_str()), start_date, end_date, &p_data_items);
+#else 
+    //std::vector<T_StockHisDataItem> data_item_vector;
+   
+    call_back_obj_.call_back_func = call_back_fun;
+    if( p_stk_hisdata_item_vector_ ) 
+        delete p_stk_hisdata_item_vector_;
+    p_stk_hisdata_item_vector_ = new std::vector<T_StockHisDataItem>();
+    is_fetched_stk_hisdata_ = false;
+    bool is_index = false;
+    char error_info[1024] = {"\0"};
+    WinnerHisHq_GetKData_(const_cast<char*>(stk_code.c_str()), PeriodType::PERIOD_DAY, start_date, end_date
+                                                           , &call_back_obj_, is_index, error_info);
+
+    std::vector<T_StockHisDataItem> &p_data_items = *p_stk_hisdata_item_vector_;
+    bool ret = TSystem::WaitFor( [this]()->bool
+    { 
+        return this->is_fetched_stk_hisdata_;
+    }, 10 * 1000 * 1000);
+     
+    if( !ret )
+    {
+        delete p_stk_hisdata_item_vector_;
+        p_stk_hisdata_item_vector_ = nullptr;
+        return std::addressof(iter_already->second);
+    }
+#endif
+    
+#if 1
+    // save data to stock_his_items_ and sort it ---------------------------
+   
     // only can insert to back of front 
     std::deque<std::shared_ptr<T_KlineDataItem> > &items_in_container = iter_already->second; 
     if( !items_in_container.empty() )
@@ -156,6 +191,9 @@ T_HisDataItemContainer* StockAllDaysInfo::AppendStockData(const std::string &stk
 #endif 
 #ifdef USE_STK_QUOTER
 	stk_hisdata_release_(p_data_items);
+#else
+     delete p_stk_hisdata_item_vector_;
+     p_stk_hisdata_item_vector_ = nullptr;
 #endif
 
     TraverseSetUpwardFractal(items_in_container);
