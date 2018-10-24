@@ -812,6 +812,7 @@ void KLineWall::mouseMoveEvent(QMouseEvent *e)
 void KLineWall::keyPressEvent(QKeyEvent *e)
 {
     //qDebug() << "key " << e->key() << "\n";
+    assert(p_hisdata_container_);
     auto key_val = e->key();
     switch( key_val )
     {
@@ -831,15 +832,19 @@ void KLineWall::keyPressEvent(QKeyEvent *e)
         {  
             k_num_ ++;
             if( k_num_ > p_hisdata_container_->size() )
-            {
-                QDate qdate_obj(container_start_date_day_k_/10000, (container_start_date_day_k_%10000)/100, container_start_date_day_k_%100);
+            { 
+                int oldest_day = QDateTime::currentDateTime().toString("yyyyMMdd").toInt();
+                if( !p_hisdata_container_->empty() )
+                    oldest_day = p_hisdata_container_->front()->stk_item.date;
+
+                QDate qdate_obj(oldest_day/10000, (oldest_day%10000)/100, oldest_day%100);
                 //int mons = p_hisdata_container_->size() / 20;
                 auto start_date = qdate_obj.addDays( -1 * (4 * 30) ).toString("yyyyMMdd").toInt(); 
-                auto p_container = stockAllDaysInfo_.AppendStockData(stock_code_, start_date, container_start_date_day_k_);
+                auto p_container = stockAllDaysInfo_.AppendStockData(ToPeriodType(k_type_), stock_code_, start_date, oldest_day);
                 if( p_container )
                 {
                     p_hisdata_container_ = p_container;
-                    container_start_date_day_k_ = start_date;
+                    //container_start_date_day_k_ = start_date;
                     this->highestMaxPrice_ = stockAllDaysInfo_.GetHisDataHighestMaxPrice(stock_code_);
                     this->lowestMinPrice_ = stockAllDaysInfo_.GetHisDataLowestMinPrice(stock_code_);
                 }
@@ -894,14 +899,14 @@ bool KLineWall::ResetStock(const QString& stock)
     auto start_date = QDate::currentDate().addDays(-1 * (WOKRPLACE_DEFUALT_K_NUM / 20 * 30) ).toString("yyyyMMdd").toInt();
 	
     //p_hisdata_container_ = stockAllDaysInfo_.AppendStockData(stock_code_, 20171216, 20180108); 
-	p_hisdata_container_ = stockAllDaysInfo_.AppendStockData(stock_code_, start_date, cur_date);
+	p_hisdata_container_ = stockAllDaysInfo_.AppendStockData(ToPeriodType(k_type_), stock_code_, start_date, cur_date);
 	if( !p_hisdata_container_ )
 		return false;
     container_start_date_day_k_ = start_date;
     container_end_date_day_k_ = cur_date;
     k_num_ = p_hisdata_container_->size() / 2;
       
-	auto iter = stockAllDaysInfo_.stock_his_items_.find(stock_code_);
+	auto iter = stockAllDaysInfo_.day_stock_his_items_.find(stock_code_);
 
 	this->highestMaxPrice_ = stockAllDaysInfo_.GetHisDataHighestMaxPrice(stock_code_);
 	this->lowestMinPrice_ = stockAllDaysInfo_.GetHisDataLowestMinPrice(stock_code_);
@@ -1045,6 +1050,22 @@ void KLineWall::ClearForcastData()
    auto iter_3pup_vector = forcast_man_.Find3pForcastVector(stock_code_, k_type_, false);
    if( iter_3pup_vector )
        iter_3pup_vector->clear();
+}
+
+PeriodType KLineWall::ToPeriodType(TypePeriod src)
+{
+    switch(src)
+    {
+    case TypePeriod::PERIOD_5M: return PeriodType::PERIOD_5M;
+    case TypePeriod::PERIOD_15M: return PeriodType::PERIOD_15M;
+    case TypePeriod::PERIOD_30M: return PeriodType::PERIOD_30M;
+    case TypePeriod::PERIOD_HOUR: return PeriodType::PERIOD_HOUR;
+    case TypePeriod::PERIOD_DAY: return PeriodType::PERIOD_DAY;
+    case TypePeriod::PERIOD_WEEK: return PeriodType::PERIOD_WEEK;
+    case TypePeriod::PERIOD_MON: return PeriodType::PERIOD_MON;
+    assert(false); 
+    }
+    return PeriodType::PERIOD_DAY;
 }
 
 //void KLineWall::SetCursorShape(Qt::CursorShape& cursor_shapre)

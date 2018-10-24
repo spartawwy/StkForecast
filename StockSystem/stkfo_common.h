@@ -37,7 +37,9 @@
 
 enum class TypePeriod : unsigned char
 {
-    PERIOD_30M = 1,
+    PERIOD_5M = 1,
+    PERIOD_15M,
+    PERIOD_30M,
     PERIOD_HOUR,
     PERIOD_DAY,
     PERIOD_WEEK,

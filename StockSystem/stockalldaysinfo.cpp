@@ -43,10 +43,18 @@ void TraverseSetDownwardFractal( std::deque<std::shared_ptr<T_KlineDataItem> > &
 
 StockAllDaysInfo::StockAllDaysInfo()
     : WinnerHisHq_GetKData_(nullptr)
+    , WinnerHisHq_Connect_(nullptr)
+    , WinnerHisHq_DisConnect_(nullptr)
     , p_stk_hisdata_item_vector_(nullptr)
 {
     //LoadDataFromFile("./data/600030.dat");
 
+}
+
+StockAllDaysInfo::~StockAllDaysInfo()
+{
+    if( WinnerHisHq_DisConnect_ )
+        WinnerHisHq_DisConnect_();
 }
 
 bool StockAllDaysInfo::Init()
@@ -68,7 +76,41 @@ bool StockAllDaysInfo::Init()
         return true;
     else
         return false;
+#else
+    HMODULE moudle_handle = LoadLibrary("winner_api.dll");
+    if( !moudle_handle )
+    {
+        QMessageBox::information(nullptr, "ALERT", "can't load winner_api.dll");
+        return false;
+    }
+    WinnerHisHq_Connect_ = (WinnerHisHq_ConnectDelegate)GetProcAddress(moudle_handle, "WinnerHisHq_Connect"); 
+    if ( !WinnerHisHq_Connect_ )
+    {
+        std::cout << " GetProcAddress WinnerHisHq_Connect fail " << std::endl;
+        return false;
+    }
+
+    WinnerHisHq_DisConnect_ =  (WinnerHisHq_DisconnectDelegate)GetProcAddress(moudle_handle, "WinnerHisHq_Disconnect"); 
+    char result[1024] = {0};
+    char error[1024] = {0};
+#if 0
+    ret = WinnerHisHq_Connect("192.168.1.5", 50010, result, error);
+#else
+    ret  = 0 == WinnerHisHq_Connect_("128.1.4.156", 50010, result, error);
+#endif 
+    if( ret )
+    {
+        WinnerHisHq_GetKData_ = (WinnerHisHq_GetKDataDelegate)GetProcAddress(moudle_handle, "WinnerHisHq_GetKData");
+        if( WinnerHisHq_GetKData_ )
+            return true;
+        else
+            return false;
+    }else
+    {
+        QMessageBox::information(nullptr, QString::fromLocal8Bit("提示"), QString::fromLocal8Bit("连接行情服务器失败!")); 
+    }
 #endif
+
     return ret;
 }
 
@@ -85,8 +127,9 @@ bool StockAllDaysInfo::Init()
 void call_back_fun(T_K_Data *k_data, bool is_end, void *para/*, std::vector<T_StockHisDataItem> &data_item_vector*/)
 {
     T_KDataCallBack *cb_obj = (T_KDataCallBack*)para;
+    
     StockAllDaysInfo *p_stk_alldaysinfo_obj = (StockAllDaysInfo *)(cb_obj->para);
-    std::vector<T_StockHisDataItem> *p_vector = p_stk_alldaysinfo_obj->p_stk_hisdata_item_vector_;
+    std::vector<T_StockHisDataItem> *p_vector = p_stk_alldaysinfo_obj ? p_stk_alldaysinfo_obj->p_stk_hisdata_item_vector_ : nullptr;
     
     T_StockHisDataItem item;
     item.open_price = k_data->open;
@@ -95,37 +138,42 @@ void call_back_fun(T_K_Data *k_data, bool is_end, void *para/*, std::vector<T_St
     item.low_price = k_data->low;
     item.vol - k_data->vol;
     item.date = k_data->yyyymmdd;
-
-    p_vector->push_back(std::move(item));
-    if( is_end )
+    if( p_vector )
     {
-        p_stk_alldaysinfo_obj->is_fetched_stk_hisdata_ = true;
+        p_vector->push_back(std::move(item));
+        if( is_end )
+        {
+            p_stk_alldaysinfo_obj->is_fetched_stk_hisdata_ = true;
+        }
     }
-    
 }
 // date is save from older date to newer. ps: data in container is series trade date
-T_HisDataItemContainer* StockAllDaysInfo::AppendStockData(const std::string &stk_code, int start_date, int end_date)
+T_HisDataItemContainer* StockAllDaysInfo::AppendStockData(PeriodType period_type, const std::string &stk_code, int start_date, int end_date)
 {
-    const int count = 0;
-    
-    auto iter_already = stock_his_items_.find(stk_code);
-    if( iter_already == stock_his_items_.end() )
-        iter_already = stock_his_items_.insert(std::make_pair(stk_code, T_HisDataItemContainer())).first;
-    if( count < 1 )
-        return std::addressof(iter_already->second);
-
+    int count = 0;
+    T_HisDataItemContainer & items_in_container = GetHisDataContainer(period_type, stk_code);
+   /* auto iter_already = data_item_container.find(stk_code);
+    if( iter_already == day_stock_his_items_.end() )
+        iter_already = day_stock_his_items_.insert(std::make_pair(stk_code, T_HisDataItemContainer())).first;
+    */
 #ifdef USE_STK_QUOTER
     T_StockHisDataItem *p_data_items = nullptr;
     assert( stk_his_data_ && stk_hisdata_release_ );
     // ret p_data_items is from big date to small date. [0].date is biggest
     count = stk_his_data_(const_cast<char*>(stk_code.c_str()), start_date, end_date, &p_data_items);
+    if( count < 1 )
+      return std::addressof(iter_already->second);
 #else 
     //std::vector<T_StockHisDataItem> data_item_vector;
-   
+    if( !WinnerHisHq_GetKData_ )
+        return std::addressof(items_in_container);
+
     call_back_obj_.call_back_func = call_back_fun;
+    call_back_obj_.para = this;
     if( p_stk_hisdata_item_vector_ ) 
         delete p_stk_hisdata_item_vector_;
     p_stk_hisdata_item_vector_ = new std::vector<T_StockHisDataItem>();
+   
     is_fetched_stk_hisdata_ = false;
     bool is_index = false;
     char error_info[1024] = {"\0"};
@@ -136,21 +184,22 @@ T_HisDataItemContainer* StockAllDaysInfo::AppendStockData(const std::string &stk
     bool ret = TSystem::WaitFor( [this]()->bool
     { 
         return this->is_fetched_stk_hisdata_;
-    }, 10 * 1000 * 1000);
+    }, 30 * 1000 * 1000);
      
     if( !ret )
     {
         delete p_stk_hisdata_item_vector_;
         p_stk_hisdata_item_vector_ = nullptr;
-        return std::addressof(iter_already->second);
+        return std::addressof(items_in_container);
     }
+    count = p_data_items.size();
 #endif
     
 #if 1
-    // save data to stock_his_items_ and sort it ---------------------------
+    // save data to day_stock_his_items_ and sort it ---------------------------
    
     // only can insert to back of front 
-    std::deque<std::shared_ptr<T_KlineDataItem> > &items_in_container = iter_already->second; 
+    //std::deque<std::shared_ptr<T_KlineDataItem> > &items_in_container = iter_already->second; 
     if( !items_in_container.empty() )
     {
         if( p_data_items[0].date < items_in_container.back()->stk_item.date )
@@ -200,16 +249,36 @@ T_HisDataItemContainer* StockAllDaysInfo::AppendStockData(const std::string &stk
 
     TraverseSetDownwardFractal(items_in_container);
     
-	return std::addressof(iter_already->second);
+	return std::addressof(items_in_container);
 
 }
 
+T_HisDataItemContainer & StockAllDaysInfo::GetHisDataContainer(PeriodType period_type, const std::string& code)
+{
+    T_CodeMapHisDataItemContainer *p_code_map_container = nullptr;
+    switch(period_type)
+    {
+    case PeriodType::PERIOD_5M:   p_code_map_container = &m5_stock_his_items_; break;
+    case PeriodType::PERIOD_15M:  p_code_map_container = &m15_stock_his_items_; break;
+    case PeriodType::PERIOD_30M:  p_code_map_container = &m30_stock_his_items_; break;
+    case PeriodType::PERIOD_HOUR: p_code_map_container = &hour_stock_his_items_; break;
+    case PeriodType::PERIOD_DAY:  p_code_map_container = &day_stock_his_items_; break; 
+    case PeriodType::PERIOD_WEEK: p_code_map_container = &week_stock_his_items_; break;
+    case PeriodType::PERIOD_MON:  p_code_map_container = &mon_stock_his_items_; break;
+    default: assert(false);
+    }
+    auto container_iter = p_code_map_container->find(code);
+    if( container_iter == p_code_map_container->end() )
+        container_iter = p_code_map_container->insert(std::make_pair(code, T_HisDataItemContainer())).first;
+    return container_iter->second;
+}
+
 //在链表中搜索出最低价中的最小值
-float StockAllDaysInfo::GetLowestMinPrice()
+float StockAllDaysInfo::GetLowestMinPrice(PeriodType period_type, std::string &code)
 {
     float lowestMinPrice = 100000000.0f;
-    //std::list<StockDayInfo>::iterator iter;
-    for(auto iter = day_kline_data_container_.begin(); iter != day_kline_data_container_.end(); iter++)
+    T_HisDataItemContainer & item_container = GetHisDataContainer(period_type, code);
+    for(auto iter = item_container.begin(); iter != item_container.end(); ++iter)
     {
         //搜索当前元素是否比现有的最小值要更小，更小则替换
         if( lowestMinPrice > (*iter)->stk_item.low_price )
@@ -217,15 +286,14 @@ float StockAllDaysInfo::GetLowestMinPrice()
             lowestMinPrice = (*iter)->stk_item.low_price;
         }
     }
-
     return lowestMinPrice;
 }
 
-float StockAllDaysInfo::GetHighestMaxPrice()
+float StockAllDaysInfo::GetHighestMaxPrice(PeriodType period_type, std::string &code)
 {
     float higestMaxPrice = 0.0f;
-    //std::list<StockDayInfo>::iterator iter;
-    for( auto iter = day_kline_data_container_.begin(); iter != day_kline_data_container_.end(); iter++)
+   T_HisDataItemContainer & item_container = GetHisDataContainer(period_type, code);
+    for(auto iter = item_container.begin(); iter != item_container.end(); ++iter)
     { 
         if(higestMaxPrice < (*iter)->stk_item.high_price )
         {
@@ -237,8 +305,8 @@ float StockAllDaysInfo::GetHighestMaxPrice()
 
 float StockAllDaysInfo::GetHisDataLowestMinPrice(const std::string& stock)
 {
-	auto iter = stock_his_items_.find(stock);
-	if( iter == stock_his_items_.end() )
+	auto iter = day_stock_his_items_.find(stock);
+	if( iter == day_stock_his_items_.end() )
 		return 0.0;
 	 
 	float lowestMinPrice = 100000000.0f; 
@@ -254,8 +322,8 @@ float StockAllDaysInfo::GetHisDataLowestMinPrice(const std::string& stock)
 
 float StockAllDaysInfo::GetHisDataHighestMaxPrice(const std::string& stock)
 {
-	auto iter = stock_his_items_.find(stock);
-	if( iter == stock_his_items_.end() )
+	auto iter = day_stock_his_items_.find(stock);
+	if( iter == day_stock_his_items_.end() )
 		return 0.0;
 	float higestMaxPrice = 0.0f; 
 	std::for_each( std::begin(iter->second), std::end(iter->second), [&](const std::shared_ptr<T_KlineDataItem>& entry)

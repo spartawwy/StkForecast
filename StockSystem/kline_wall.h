@@ -37,6 +37,8 @@ public:
     void ResetDrawState(DrawAction draw_action);
     void ClearForcastData();
 
+    PeriodType ToPeriodType(TypePeriod src);
+
 protected:
 
     void paintEvent(QPaintEvent*) override;
@@ -93,7 +95,8 @@ private:
     std::string stock_code_;
     StockAllDaysInfo stockAllDaysInfo_;           //many stocks many daysinfo 
 	T_HisDataItemContainer *p_hisdata_container_; //point to stockAllDaysInfo_'s one stock's data
-    int container_start_date_day_k_;
+
+    int container_start_date_day_k_; // nddel
     int container_end_date_day_k_;
 
     float lowestMinPrice_;

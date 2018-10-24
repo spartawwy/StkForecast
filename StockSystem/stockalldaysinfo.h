@@ -17,39 +17,52 @@
 //typedef std::list<T_StockHisDataItem>  T_HisDataItemList;
 //typedef std::vector<std::shared_ptr<T_KlineDataItem> >  T_HisDataItemContainer;
 typedef std::deque<std::shared_ptr<T_KlineDataItem> >  T_HisDataItemContainer;
+typedef std::map<std::string, T_HisDataItemContainer>  T_CodeMapHisDataItemContainer;
 
 class StockAllDaysInfo
 {
 public:
 
     StockAllDaysInfo();
+    ~StockAllDaysInfo();
     bool Init();
+
+    //std::vector<std::shared_ptr<T_KlineDataItem> > &day_kline_data_container() { return day_kline_data_container_; }
 
 public:
     //list容器，数据类型为一只股票一天的消息，是StockAllDaysInfo的数据成员
     //std::list<StockDayInfo> stockAllDaysInfoList;
-    std::vector<std::shared_ptr<T_KlineDataItem> > day_kline_data_container_;
+    
 
     //从fileName指定的磁盘路径中将数据一行一行读取出来，每一行初始化一个StockDayInfo对象
     //void LoadDataFromFile(std::string &fileName);
 
-    T_HisDataItemContainer* AppendStockData(const std::string &stk_code, int start_date, int end_date);
+    T_HisDataItemContainer* AppendStockData(PeriodType period_type, const std::string &stk_code, int start_date, int end_date);
 	     
 public:
 
-    float GetLowestMinPrice();
-    float GetHighestMaxPrice();
+    float GetLowestMinPrice(PeriodType period_type, std::string &code);
+    float GetHighestMaxPrice(PeriodType period_type, std::string &code);
 
 	float GetHisDataLowestMinPrice(const std::string& stock);
 	float GetHisDataHighestMaxPrice(const std::string& stock);
 
 public:
      
+    T_HisDataItemContainer &GetHisDataContainer(PeriodType period_type, const std::string& code);
     // (stock , data)
-    std::map<std::string, T_HisDataItemContainer> stock_his_items_;
+    T_CodeMapHisDataItemContainer m5_stock_his_items_;
+    T_CodeMapHisDataItemContainer m15_stock_his_items_;
+    T_CodeMapHisDataItemContainer m30_stock_his_items_;
+    T_CodeMapHisDataItemContainer hour_stock_his_items_;
+    T_CodeMapHisDataItemContainer day_stock_his_items_;
+    T_CodeMapHisDataItemContainer week_stock_his_items_;
+    T_CodeMapHisDataItemContainer mon_stock_his_items_;
 #ifndef USE_STK_QUOTER
     std::vector<T_StockHisDataItem> *p_stk_hisdata_item_vector_;
     bool is_fetched_stk_hisdata_;
+#else
+
 #endif 
 
 private:
@@ -57,13 +70,14 @@ private:
     StkHisDataDelegate stk_his_data_;
     StkRelHisDataDelegate stk_hisdata_release_;
 #else
+    WinnerHisHq_ConnectDelegate WinnerHisHq_Connect_;
+    WinnerHisHq_DisconnectDelegate WinnerHisHq_DisConnect_;
     WinnerHisHq_GetKDataDelegate  WinnerHisHq_GetKData_;
     T_KDataCallBack  call_back_obj_;
 #endif
     std::shared_ptr<PyDataMan> py_data_man_;
-
-   
-    
+     
+    //std::vector<std::shared_ptr<T_KlineDataItem> > day_kline_data_container_;
 };
 
 #endif // STOCKALLDAYSINFO_H
