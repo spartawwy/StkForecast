@@ -51,15 +51,7 @@ KLineWall::KLineWall(StkForecastApp *app, QWidget *parent)
     bottom_h_ = bottom1_h_ + bottom2_h_;
     ResetDrawState(DrawAction::NO_ACTION);
     //kline_pos_data_.reserve(WOKRPLACE_DEFUALT_K_NUM*2);
-
-#if 0  // use file
-    StockDayInfo std_data;
-    std_data.ReadData("600816 20171116 14.30 14.25 14.42 14.09 339000000 235862");
-    stk_days_infos_.push_back(std_data);
-	this->highestMaxPrice_ = stockAllDaysInfo_.GetHighestMaxPrice();
-    this->lowestMinPrice_ = stockAllDaysInfo_.GetLowestMinPrice();
-    
-#endif
+ 
     // init ui -----------
     QPalette pal = this->palette();
     pal.setColor(QPalette::Background, Qt::black);
@@ -841,14 +833,23 @@ void KLineWall::keyPressEvent(QKeyEvent *e)
                 //int mons = p_hisdata_container_->size() / 20;
                 auto start_date = qdate_obj.addDays( -1 * (4 * 30) ).toString("yyyyMMdd").toInt(); 
                 auto p_container = stockAllDaysInfo_.AppendStockData(ToPeriodType(k_type_), stock_code_, start_date, oldest_day);
-                if( p_container )
-                {
-                    p_hisdata_container_ = p_container;
-                    //container_start_date_day_k_ = start_date;
-                    this->highestMaxPrice_ = stockAllDaysInfo_.GetHisDataHighestMaxPrice(stock_code_);
-                    this->lowestMinPrice_ = stockAllDaysInfo_.GetHisDataLowestMinPrice(stock_code_);
-                }
             }
+            T_HisDataItemContainer &container = stockAllDaysInfo_.GetHisDataContainer(ToPeriodType(k_type_), stock_code_);
+            int start_index = container.size() - k_num_; 
+            start_index = start_index > 0 ? start_index : 0;
+            int end_index = container.size() - 1 > 0 ? container.size() - 1 : 0;
+            if( container.at(start_index)->stk_item.high_price > this->highestMaxPrice_ )
+                this->highestMaxPrice_ = container.at(start_index)->stk_item.high_price;
+
+            if( container.at(end_index)->stk_item.high_price > this->highestMaxPrice_ )
+                this->highestMaxPrice_ = container.at(end_index)->stk_item.high_price;
+
+            if( container.at(start_index)->stk_item.low_price < this->lowestMinPrice_ )
+                this->lowestMinPrice_ = container.at(start_index)->stk_item.low_price;
+
+            if( container.at(end_index)->stk_item.low_price < this->lowestMinPrice_ )
+                this->lowestMinPrice_ = container.at(end_index)->stk_item.low_price; 
+            
             UpdatePosDatas();
             update();
             break;
@@ -904,13 +905,23 @@ bool KLineWall::ResetStock(const QString& stock)
 		return false;
     container_start_date_day_k_ = start_date;
     container_end_date_day_k_ = cur_date;
-    k_num_ = p_hisdata_container_->size() / 2;
-      
-	auto iter = stockAllDaysInfo_.day_stock_his_items_.find(stock_code_);
+    if( !p_hisdata_container_->empty() )
+    {
+        k_num_ = p_hisdata_container_->size() <= 60 ? p_hisdata_container_->size() : p_hisdata_container_->size() / 2;
 
-	this->highestMaxPrice_ = stockAllDaysInfo_.GetHisDataHighestMaxPrice(stock_code_);
-	this->lowestMinPrice_ = stockAllDaysInfo_.GetHisDataLowestMinPrice(stock_code_);
-
+#if 1
+        int start_index = p_hisdata_container_->size() - k_num_; 
+        start_index = start_index > 0 ? start_index : 0;
+        int begin_date = p_hisdata_container_->at(start_index)->stk_item.date;
+        this->highestMaxPrice_ = stockAllDaysInfo_.GetHisDataHighestMaxPrice(ToPeriodType(k_type_), stock_code_, begin_date, cur_date);
+        this->lowestMinPrice_ = stockAllDaysInfo_.GetHisDataLowestMinPrice(ToPeriodType(k_type_), stock_code_, begin_date, cur_date);
+#endif
+    }else
+    {
+        this->highestMaxPrice_ = 20.0;
+        this->lowestMinPrice_ = 0.0;
+    }
+    
     UpdatePosDatas();
  	return true;
 }

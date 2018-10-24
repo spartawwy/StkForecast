@@ -93,8 +93,8 @@ bool StockAllDaysInfo::Init()
     WinnerHisHq_DisConnect_ =  (WinnerHisHq_DisconnectDelegate)GetProcAddress(moudle_handle, "WinnerHisHq_Disconnect"); 
     char result[1024] = {0};
     char error[1024] = {0};
-#if 0
-    ret = WinnerHisHq_Connect("192.168.1.5", 50010, result, error);
+#if 1
+    ret  = 0 == WinnerHisHq_Connect_("192.168.1.5", 50010, result, error);
 #else
     ret  = 0 == WinnerHisHq_Connect_("128.1.4.156", 50010, result, error);
 #endif 
@@ -177,9 +177,10 @@ T_HisDataItemContainer* StockAllDaysInfo::AppendStockData(PeriodType period_type
     is_fetched_stk_hisdata_ = false;
     bool is_index = false;
     char error_info[1024] = {"\0"};
+    
     WinnerHisHq_GetKData_(const_cast<char*>(stk_code.c_str()), PeriodType::PERIOD_DAY, start_date, end_date
                                                            , &call_back_obj_, is_index, error_info);
-
+    // data's date is from small to big
     std::vector<T_StockHisDataItem> &p_data_items = *p_stk_hisdata_item_vector_;
     bool ret = TSystem::WaitFor( [this]()->bool
     { 
@@ -202,6 +203,7 @@ T_HisDataItemContainer* StockAllDaysInfo::AppendStockData(PeriodType period_type
     //std::deque<std::shared_ptr<T_KlineDataItem> > &items_in_container = iter_already->second; 
     if( !items_in_container.empty() )
     {
+#ifdef USE_STK_QUOTER
         if( p_data_items[0].date < items_in_container.back()->stk_item.date )
         { 
             for( int k = 0; k < count; ++k )
@@ -233,7 +235,39 @@ T_HisDataItemContainer* StockAllDaysInfo::AppendStockData(PeriodType period_type
             items_in_container.push_back(std::move(k_item));
         }
     }
-     
+#else
+        if( p_data_items[p_data_items.size()-1].date <= items_in_container.back()->stk_item.date )
+        { 
+            for( int k = count; k > 0; --k )
+            {
+                auto ck_val = p_data_items[k-1].date;
+                if( p_data_items[k-1].date < items_in_container.front()->stk_item.date )
+                {
+                    auto k_item = std::make_shared<T_KlineDataItem>(p_data_items[k-1]); 
+                    items_in_container.push_front(std::move(k_item));
+                }
+            }
+        }else
+        {
+            for( int k = 0; k < count; ++k )
+            {
+                if( p_data_items[k].date > items_in_container.back()->stk_item.date )
+                {
+                    auto k_item = std::make_shared<T_KlineDataItem>(p_data_items[k]); 
+                    items_in_container.push_back(std::move(k_item));
+                }
+            }
+        }
+        items_in_container.front()->stk_item.date;
+    }else
+    {
+        for( int k = 0; k < count; ++k )
+        {
+            auto k_item = std::make_shared<T_KlineDataItem>(p_data_items[k]); 
+            items_in_container.push_back(std::move(k_item));
+        }
+    }
+#endif
     // sort T_KlineDateItems by day from small to bigger
     std::sort(items_in_container.begin(), items_in_container.end(), dompare);
      
@@ -272,71 +306,79 @@ T_HisDataItemContainer & StockAllDaysInfo::GetHisDataContainer(PeriodType period
         container_iter = p_code_map_container->insert(std::make_pair(code, T_HisDataItemContainer())).first;
     return container_iter->second;
 }
-
-//在链表中搜索出最低价中的最小值
-float StockAllDaysInfo::GetLowestMinPrice(PeriodType period_type, std::string &code)
-{
-    float lowestMinPrice = 100000000.0f;
-    T_HisDataItemContainer & item_container = GetHisDataContainer(period_type, code);
-    for(auto iter = item_container.begin(); iter != item_container.end(); ++iter)
+ 
+// ok: ret <  MAX_PRICE
+float StockAllDaysInfo::GetHisDataLowestMinPrice(PeriodType period_type, const std::string& code, int start_date, int end_date)
+{ 
+	float lowestMinPrice = MAX_PRICE; 
+    assert(start_date <= end_date);
+    auto index_tuple = GetDateIndxFromContainer(period_type, code, start_date, end_date);
+    if( index_tuple == std::make_tuple(-1, -1) )
+        return lowestMinPrice;
+    T_HisDataItemContainer & container = GetHisDataContainer(period_type, code);
+     
+    for( int j = std::get<0>(index_tuple); j <= std::get<1>(index_tuple); ++j )
     {
-        //搜索当前元素是否比现有的最小值要更小，更小则替换
-        if( lowestMinPrice > (*iter)->stk_item.low_price )
+        if( lowestMinPrice > container.at(j)->stk_item.high_price )
         {
-            lowestMinPrice = (*iter)->stk_item.low_price;
+            lowestMinPrice = container.at(j)->stk_item.high_price;
         }
     }
     return lowestMinPrice;
 }
 
-float StockAllDaysInfo::GetHighestMaxPrice(PeriodType period_type, std::string &code)
+// ok : > 0.0 
+float StockAllDaysInfo::GetHisDataHighestMaxPrice(PeriodType period_type, const std::string& code, int start_date, int end_date)
 {
-    float higestMaxPrice = 0.0f;
-   T_HisDataItemContainer & item_container = GetHisDataContainer(period_type, code);
-    for(auto iter = item_container.begin(); iter != item_container.end(); ++iter)
-    { 
-        if(higestMaxPrice < (*iter)->stk_item.high_price )
+    float higestMaxPrice = MIN_PRICE; 
+    assert(start_date <= end_date);
+    auto index_tuple = GetDateIndxFromContainer(period_type, code, start_date, end_date);
+    if( index_tuple == std::make_tuple(-1, -1) )
+        return higestMaxPrice;
+
+    T_HisDataItemContainer & container = GetHisDataContainer(period_type, code);
+
+    for( int j = std::get<0>(index_tuple); j <= std::get<1>(index_tuple); ++j )
+    {
+        if( higestMaxPrice < container.at(j)->stk_item.high_price )
         {
-            higestMaxPrice = (*iter)->stk_item.high_price;
+            higestMaxPrice = container.at(j)->stk_item.high_price;
         }
     }
-    return higestMaxPrice;
-}
-
-float StockAllDaysInfo::GetHisDataLowestMinPrice(const std::string& stock)
-{
-	auto iter = day_stock_his_items_.find(stock);
-	if( iter == day_stock_his_items_.end() )
-		return 0.0;
-	 
-	float lowestMinPrice = 100000000.0f; 
-	std::for_each( std::begin(iter->second), std::end(iter->second), [&](const std::shared_ptr<T_KlineDataItem>& entry)
-    { 
-		if( lowestMinPrice > entry->stk_item.low_price )
-        {
-            lowestMinPrice = entry->stk_item.low_price;
-        }
-    }); 
-    return lowestMinPrice;
-}
-
-float StockAllDaysInfo::GetHisDataHighestMaxPrice(const std::string& stock)
-{
-	auto iter = day_stock_his_items_.find(stock);
-	if( iter == day_stock_his_items_.end() )
-		return 0.0;
-	float higestMaxPrice = 0.0f; 
-	std::for_each( std::begin(iter->second), std::end(iter->second), [&](const std::shared_ptr<T_KlineDataItem>& entry)
-    { 
-		if( higestMaxPrice < entry->stk_item.high_price )
-        {
-            higestMaxPrice = entry->stk_item.high_price;
-        }
-    }); 
 	return higestMaxPrice;
 }
 
- 
+// <-1, -1>: fail
+std::tuple<int, int> StockAllDaysInfo::GetDateIndxFromContainer(PeriodType period_type, const std::string& stock, int start_date, int end_date)
+{
+    assert(start_date <= end_date);
+    //std::tuple<int, int> result = std::make_tuple(-1, -1);
+
+    T_HisDataItemContainer & container = GetHisDataContainer(period_type, stock);
+    int temp_start_date = container.at(0)->stk_item.date;
+    if( end_date < container.at(0)->stk_item.date )
+        return std::make_tuple(-1, -1);
+    if( start_date > container.at(0)->stk_item.date )
+        temp_start_date = start_date;
+
+    int start_index = -1;
+    int end_index = -1;
+    for( int i = 0; i < container.size(); ++i )
+    {
+        if( start_index == -1 && temp_start_date == container.at(i)->stk_item.date ) 
+            start_index = i;
+        if( end_index == -1 && end_date == container.at(i)->stk_item.date ) 
+            end_index = i;
+        if( start_index != -1 && end_index != -1 )
+            break;
+    }
+    if( start_index == -1 )
+        start_index = 0;
+    if( end_index == -1 )
+        end_index = container.size() - 1;
+    return std::make_tuple(start_index, end_index);
+}
+
 void TraverseSetUpwardFractal( std::deque<std::shared_ptr<T_KlineDataItem> > &kline_data_items)
 {
     if( kline_data_items.size() < 1 )

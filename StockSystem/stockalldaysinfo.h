@@ -40,12 +40,9 @@ public:
     T_HisDataItemContainer* AppendStockData(PeriodType period_type, const std::string &stk_code, int start_date, int end_date);
 	     
 public:
-
-    float GetLowestMinPrice(PeriodType period_type, std::string &code);
-    float GetHighestMaxPrice(PeriodType period_type, std::string &code);
-
-	float GetHisDataLowestMinPrice(const std::string& stock);
-	float GetHisDataHighestMaxPrice(const std::string& stock);
+      
+	float GetHisDataLowestMinPrice(PeriodType period_type, const std::string& code, int start_date, int end_date);
+	float GetHisDataHighestMaxPrice(PeriodType period_type, const std::string& code, int start_date, int end_date);
 
 public:
      
@@ -64,7 +61,9 @@ public:
 #else
 
 #endif 
-
+private:
+    //std::vector<std::shared_ptr<T_KlineDataItem> > GetDataItemFromContainer(PeriodType period_type, const std::string& code, int start_date, int end_date);
+    std::tuple<int, int> GetDateIndxFromContainer(PeriodType period_type, const std::string& stock, int start_date, int end_date);
 private:
 #ifdef USE_STK_QUOTER
     StkHisDataDelegate stk_his_data_;
