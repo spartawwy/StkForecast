@@ -891,7 +891,7 @@ void KLineWall::leaveEvent(QEvent *)
     qDebug() << __FUNCTION__ << "\n";
 }
 
-bool KLineWall::ResetStock(const QString& stock)
+bool KLineWall::ResetStock(const QString& stock, bool is_index)
 {  
     stock_code_ = stock.toLocal8Bit().data(); 
 
@@ -900,7 +900,7 @@ bool KLineWall::ResetStock(const QString& stock)
     auto start_date = QDate::currentDate().addDays(-1 * (WOKRPLACE_DEFUALT_K_NUM / 20 * 30) ).toString("yyyyMMdd").toInt();
 	
     //p_hisdata_container_ = stockAllDaysInfo_.AppendStockData(stock_code_, 20171216, 20180108); 
-	p_hisdata_container_ = stockAllDaysInfo_.AppendStockData(ToPeriodType(k_type_), stock_code_, start_date, cur_date);
+	p_hisdata_container_ = stockAllDaysInfo_.AppendStockData(ToPeriodType(k_type_), stock_code_, start_date, cur_date, is_index);
 	if( !p_hisdata_container_ )
 		return false;
     container_start_date_day_k_ = start_date;
@@ -997,10 +997,19 @@ void KLineWall::StockInputDlgRet()
 {
 	QString stock_code = stock_input_dlg_.ui.stock_input->text().trimmed();
 	stock_input_dlg_.ui.stock_input->text().clear();
-
-	if( stock_code.toUpper() == "SZZS" )
+    bool is_index = false;
+	if( stock_code.toUpper() == "SZZS" || stock_code.toUpper() == "999999" )
 	{
-		stock_code_ = "000001";
+		stock_code_ = "999999";
+        is_index = true;
+    }else if( stock_code.toUpper() == "SZCZ" 
+        || stock_code.toUpper() == "SZCZ"
+        || stock_code.toUpper() == "CYBZ"
+        || stock_code.toUpper() == "SZ50"
+        || stock_code.toUpper() == "HS300" )
+    {
+        stock_code_ = TransIndexPinYin2Code(stock_code.toUpper().toLocal8Bit().data());
+        is_index = true;
 	}else
 	{
 		auto first_code = stock_code.toLocal8Bit().data();
@@ -1008,10 +1017,10 @@ void KLineWall::StockInputDlgRet()
 			return;
 		if( stock_code.length() != 6 || !IsNumber(stock_code.toLocal8Bit().data()) )
 			return;
+        stock_code_ = stock_code.toLocal8Bit().data();
 	}
-	stock_code_ = stock_code.toLocal8Bit().data();
-
-	ResetStock(stock_code_.c_str());
+	
+	ResetStock(stock_code_.c_str(), is_index);
 }
  
 void KLineWall::ResetDrawState(DrawAction action)

@@ -107,4 +107,7 @@ enum class DrawAction : unsigned char
 
 bool IsNumber(const std::string& str);
 
+std::string TransIndexPinYin2Code(const std::string &code);
+std::string TransIndex2TusharedCode(const std::string &code);
+
 #endif // STKFO_COMMON_SDF3DSF_H_

@@ -36,9 +36,12 @@ class KLINE:
         if self.log_file_handle:
             self.log_file_handle.close()
             
-    def getTargetKDataDir(self, code):
-        target_path = self.data_dir + "/" + code + "/kline"
-        #print("saveCodeTick2File : %s %s" %(code, target_path) )
+    def getTargetKDataDir(self, code, is_index=False):
+        temp_code = code
+        if code == "000001" and is_index:
+            temp_code = "999999"
+        target_path = self.data_dir + "/" + temp_code + "/kline"
+        #print("saveCodeTick2File : %s %s" %(temp_code, target_path) )
         if not os.path.isdir(target_path):
             os.makedirs(target_path)
         return target_path
@@ -103,9 +106,9 @@ class KLINE:
             #if arrow.utcnow().to("local") < end_date.ceil("year"): 
             file_full_path = ""
             if end_date.year >= now.year:
-                file_full_path = self.getTargetKDataDir(code) + "/" + beg_date_tag + "_" + today_tag + self.dayk_file_ext 
+                file_full_path = self.getTargetKDataDir(code, Index) + "/" + beg_date_tag + "_" + today_tag + self.dayk_file_ext 
             else:
-                file_full_path = self.getTargetKDataDir(code) + "/" + beg_date_tag + "_" + end_date_tag + self.dayk_file_ext 
+                file_full_path = self.getTargetKDataDir(code, Index) + "/" + beg_date_tag + "_" + end_date_tag + self.dayk_file_ext 
             if not os.path.exists(file_full_path):
                 if end_date.year >= now.year:
                     df = ts.get_k_data(code, ktype='d', autype='qfq', index=Index, start=beg_date_tag, end=today_tag)
@@ -121,7 +124,7 @@ class KLINE:
                 date0 = beg_date.shift(years=y-beg_date.year)
                 beg_taget_str = date0.floor("year").format("YYYY-MM-DD")
                 end_taget_str = date0.ceil("year").format("YYYY-MM-DD")
-                file_full_path = self.getTargetKDataDir(code) + "/" + beg_taget_str + "_" + end_taget_str + self.dayk_file_ext 
+                file_full_path = self.getTargetKDataDir(code, Index) + "/" + beg_taget_str + "_" + end_taget_str + self.dayk_file_ext 
                 if not os.path.exists(file_full_path):
                     df = ts.get_k_data(code, ktype='d', autype='qfq', index=Index, start=beg_taget_str, end=end_taget_str)
                     if not df.empty:
@@ -131,14 +134,14 @@ class KLINE:
                     ret_files_str += self.getFileStrFromFullPath(file_full_path) + ';'
             beg_date_tag = end_date.floor("year").format('YYYY-MM-DD')
             if end_date.year >= now.year:
-                file_full_path = self.getTargetKDataDir(code) + "/" + beg_date_tag + "_" + today_tag + self.dayk_file_ext 
+                file_full_path = self.getTargetKDataDir(code, Index) + "/" + beg_date_tag + "_" + today_tag + self.dayk_file_ext 
             else:
-                file_full_path = self.getTargetKDataDir(code) + "/" + beg_date_tag + "_" + end_date_tag + self.dayk_file_ext 
-            old_file = find_f_before_lowbar(self.getTargetKDataDir(code), beg_date_tag)
+                file_full_path = self.getTargetKDataDir(code, Index) + "/" + beg_date_tag + "_" + end_date_tag + self.dayk_file_ext 
+            old_file = find_f_before_lowbar(self.getTargetKDataDir(code, Index), beg_date_tag)
             is_to_get = True
             for file_str in old_file:
                 if file_full_path == file_str:
-                    print("not remove "+file_str)
+                    #print("not remove "+file_str)
                     is_to_get = False
                 else:
                     #print("remove"+file_str)
@@ -163,7 +166,7 @@ def find_f_before_lowbar(dir, name, recurve=False):
         tmpval = "".join(m)
         if tmpval == name:
             result.append(os.path.join(dir, i_str))
-            print(os.path.join(dir, i_str))
+            #print(os.path.join(dir, i_str))
     if recurve:
         for i_str in [x for x in os.listdir(dir) if os.path.isdir(os.path.join(dir,x))]:   #os.path.isfile() 需要完整路径或者相对当前目录的相对路径
             if os.listdir(os.path.join(dir, i_str))!=[]:
@@ -177,11 +180,13 @@ if __name__ == "__main__":
     if "PYTHONPATH" in os.environ:
         mystr = os.environ["PYTHONPATH"] 
         print(mystr)
-    code = "601699"
+    #code = "601699"
+    code = "000001"
+    is_index = True
     kobj = KLINE()
     beg_date_str = '2018-01-07'
     tmpv = arrow.get(beg_date_str, 'YYYY-MM-DD')
     #kobj.getDayKBarData(code, '2018-01-07', '2018-03-08') 
-    ret_str = kobj.getDayKBarData(code, '2010-02-07', '2012-02-08') 
+    ret_str = kobj.getDayKBarData(code, '2010-02-07', '2012-02-08', is_index) 
     print(ret_str)
      

@@ -37,7 +37,7 @@ public:
     //从fileName指定的磁盘路径中将数据一行一行读取出来，每一行初始化一个StockDayInfo对象
     //void LoadDataFromFile(std::string &fileName);
 
-    T_HisDataItemContainer* AppendStockData(PeriodType period_type, const std::string &stk_code, int start_date, int end_date);
+    T_HisDataItemContainer* AppendStockData(PeriodType period_type, const std::string &stk_code, int start_date, int end_date, bool is_index=false);
 	     
 public:
       
@@ -58,6 +58,7 @@ public:
 #ifndef USE_STK_QUOTER
     std::vector<T_StockHisDataItem> *p_stk_hisdata_item_vector_;
     bool is_fetched_stk_hisdata_;
+    //bool is_index_; // such as szzs
 #else
 
 #endif 

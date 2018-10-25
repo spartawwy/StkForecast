@@ -52,7 +52,7 @@ protected:
 
 private slots:
 
-	bool ResetStock(const QString& stock);
+	bool ResetStock(const QString& stock, bool is_index=false);
 
 	/*float HisDateItem_GetMinPrice();
     float HisDateItem_GetMaxPrice();
