@@ -134,8 +134,8 @@ Code3pForcastType & ForcastMan::Get3pDataHolder(TypePeriod type_period, bool is_
     case TypePeriod::PERIOD_30M:  return is_down ? stock_3pdown_forcast_30m_ : stock_3pup_forcast_30m_;
     case TypePeriod::PERIOD_HOUR: return is_down ? stock_3pdown_forcast_h_ : stock_3pup_forcast_h_;
     case TypePeriod::PERIOD_DAY:  return is_down ? stock_3pdown_forcast_d_ : stock_3pup_forcast_d_;
-    case TypePeriod::PERIOD_WEEK: return is_down ? stock_3pdown_forcast_w_ : stock_3pdown_forcast_w_;
-    case TypePeriod::PERIOD_MON:  return is_down ? stock_3pdown_forcast_mon_ : stock_3pdown_forcast_mon_;
+    case TypePeriod::PERIOD_WEEK: return is_down ? stock_3pdown_forcast_w_ : stock_3pup_forcast_w_;
+    case TypePeriod::PERIOD_MON:  return is_down ? stock_3pdown_forcast_mon_ : stock_3pup_forcast_mon_;
     default: assert(false);
     }
     return no_use_3p_;

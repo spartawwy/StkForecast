@@ -24,7 +24,7 @@ bool StockMan::Initialize()
     return true;
 }
 
-void StockMan::GetStockData(TypePeriod kline_type, const std::string &stk_code, int start_date, int end_date)
+void StockMan::GetStockData(TypePeriod kline_type, const std::string &stk_code, int /*start_date*/, int /*end_date*/)
 { 
     assert(stk_code.length() == 6 );
     if( kline_type == TypePeriod::PERIOD_DAY )

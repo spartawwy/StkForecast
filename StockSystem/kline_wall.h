@@ -54,11 +54,6 @@ private slots:
 
 	bool ResetStock(const QString& stock, bool is_index=false);
 
-	/*float HisDateItem_GetMinPrice();
-    float HisDateItem_GetMaxPrice();
-    float HisDateItem_GetOpenPrice();
-    float HisDateItem_GetClosePrice();*/
-
 private: 
 
     int height_axis_trans_in_paint_k(){ return this->height() - bottom_h_; }
@@ -68,9 +63,9 @@ private:
 
     void Draw3pDownForcast(QPainter &, const int mm_h, double item_w);
     void Draw3pUpForcast(QPainter &, const int mm_h, double item_w);
+    void _Draw3pForcast(QPainter &, const int mm_h, double item_w, bool is_down_forward);
 
     void UpdatePosDatas();
-    //void UpdateDrawingLinePos();
 
     T_KlineDataItem * GetKLineDataItemByXpos(int x);
     QPointF GetPointFromKLineDataItems(int x, bool is_get_top);
@@ -81,6 +76,12 @@ private:
     {  
         return -1 * (c_val - lowestMinPrice_)/(highestMaxPrice_ - lowestMinPrice_) * mm_h;
     }
+
+    void SetLowestMinPrice(float val) { lowestMinPrice_ = val;}
+    double GetLowestMinPrice() { return lowestMinPrice_; }
+    void SetHighestMaxPrice(float val) { highestMaxPrice_ = val;}
+    double GetHighestMaxPrice() { return highestMaxPrice_; }
+
 
     StkForecastApp *app_;
     MainWindow  *main_win_;
@@ -95,14 +96,11 @@ private:
     std::string stock_code_;
     StockAllDaysInfo stockAllDaysInfo_;           //many stocks many daysinfo 
 	T_HisDataItemContainer *p_hisdata_container_; //point to stockAllDaysInfo_'s one stock's data
-
-    int container_start_date_day_k_; // nddel
-    int container_end_date_day_k_;
-
-    float lowestMinPrice_;
-    float highestMaxPrice_;
+       
+    
+    double lowestMinPrice_;
+    double highestMaxPrice_;
     bool  show_cross_line_;
-    //bool  is_repaint_k_;
 
     int  k_num_;
     TypePeriod  k_type_;
@@ -112,22 +110,14 @@ private:
     int  date_;
     std::string k_data_str_;
 
-	//std::string cur_stock_code_;
-
     DrawAction draw_action_;
-#if 0
-    QPoint drawing_line_A_;
-    QPoint drawing_line_B_;
-    QPoint drawing_line_C_;
-
-    QPoint cur_mouse_point_;
-#else
+ 
     QPointF drawing_line_A_;
     QPointF drawing_line_B_;
     QPointF drawing_line_C_;
 
     QPointF cur_mouse_point_;
-#endif
+
     int pre_mm_w_;
     int pre_mm_h_;
      

@@ -167,27 +167,6 @@ void MainWindow::updateDateTime()
             QDateTime::currentDateTime().toString("yyyy-MM-dd HH:MM:ss"));
 #endif
 }
-
-//
-////双击某一行，显示出该支股票的日K线
-//void MainWindow::on_tableWidget_itemDoubleClicked(QTableWidgetItem* item)
-//{
-////    //获取当前行的股票代号
-//////    cout<<item->row()<<"\t"<<"0"<<endl;
-////    string strStockNum = ui->tableWidget->item(item->row(),0)->text().toStdString();
-////
-////    if(dayKLineDialog != NULL)
-////    {
-////        delete dayKLineDialog;
-////        dayKLineDialog = NULL;
-////    }
-////    dayKLineDialog = new DayKLineDialog(this);
-////    dayKLineDialog->setStockNum(strStockNum);
-////    dayKLineDialog->show();
-//
-//}
-//
-
-
+ 
 
 

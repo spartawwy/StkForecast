@@ -93,20 +93,6 @@ bool PyDataMan::Initiate()
     Py_XDECREF(result);
     return getDayKline_func_;
 #endif
-    
-}
-
-int PyDataMan::GetStockKlineData(const std::string &code, int start_date, int end_date)
-{
-    auto pArg = PyTuple_New(3);
-    PyTuple_SetItem(pArg, 0, Py_BuildValue("s", "601699"));
-    PyTuple_SetItem(pArg, 1, Py_BuildValue("s", "2017-12-07"));
-    PyTuple_SetItem(pArg, 2, Py_BuildValue("s", "2018-03-08"));
-    auto pRet = PyEval_CallObject((PyObject*)getDayKline_func_, pArg);
-    char *result;
-    PyArg_Parse(pRet, "s", &result);
-    Py_XDECREF(result);
-
-    return 1;
+    return true;
 }
 

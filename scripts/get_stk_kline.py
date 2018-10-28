@@ -1,5 +1,6 @@
 # coding=utf-8
 #  ts.get_k_data('399300', ktype='W', autype='qfq', index=True,start='2016-10-01', end='2016-10-31')
+#  D=日k线 W=周 M=月 5=5分钟 15=15分钟 30=30分钟 60=60分钟，默认为D
 #  日线按年存放;  ps: 系统时间跨年时, 以前的某日产生的日K可能成为遗留,目前没有清除
 #  要求调用者  
 import os

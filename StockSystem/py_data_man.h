@@ -12,8 +12,6 @@ public:
 
     bool Initiate();
 
-    int GetStockKlineData(const std::string &code, int start_date, int end_date);
-
 private:
 
     void * getDayKline_func_;

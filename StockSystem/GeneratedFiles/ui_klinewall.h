@@ -40,7 +40,7 @@ public:
 
     void retranslateUi(QWidget *KLineWallForm)
     {
-        KLineWallForm->setWindowTitle(QApplication::translate("KLineWallForm", "StockForcast", 0));
+        KLineWallForm->setWindowTitle(QApplication::translate("KLineWallForm", "StockForcast.sparta.wwy_version_1.0", 0));
     } // retranslateUi
 
 };

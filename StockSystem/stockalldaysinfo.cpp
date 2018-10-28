@@ -136,7 +136,7 @@ void call_back_fun(T_K_Data *k_data, bool is_end, void *para/*, std::vector<T_St
     item.close_price = k_data->close;
     item.high_price = k_data->high;
     item.low_price = k_data->low;
-    item.vol - k_data->vol;
+    item.vol = k_data->vol;
     item.date = k_data->yyyymmdd;
     if( p_vector )
     {
@@ -242,7 +242,7 @@ T_HisDataItemContainer* StockAllDaysInfo::AppendStockData(PeriodType period_type
         { 
             for( int k = count; k > 0; --k )
             {
-                auto ck_val = p_data_items[k-1].date;
+                //auto ck_val = p_data_items[k-1].date;
                 if( p_data_items[k-1].date < items_in_container.front()->stk_item.date )
                 {
                     auto k_item = std::make_shared<T_KlineDataItem>(p_data_items[k-1]); 
@@ -365,7 +365,7 @@ std::tuple<int, int> StockAllDaysInfo::GetDateIndxFromContainer(PeriodType perio
 
     int start_index = -1;
     int end_index = -1;
-    for( int i = 0; i < container.size(); ++i )
+    for( unsigned int i = 0; i < container.size(); ++i )
     {
         if( start_index == -1 && temp_start_date == container.at(i)->stk_item.date ) 
             start_index = i;
