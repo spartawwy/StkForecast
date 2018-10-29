@@ -93,7 +93,7 @@ bool StockAllDaysInfo::Init()
     WinnerHisHq_DisConnect_ =  (WinnerHisHq_DisconnectDelegate)GetProcAddress(moudle_handle, "WinnerHisHq_Disconnect"); 
     char result[1024] = {0};
     char error[1024] = {0};
-#if 1
+#if 0
     ret  = 0 == WinnerHisHq_Connect_("192.168.1.5", 50010, result, error);
 #else
     ret  = 0 == WinnerHisHq_Connect_("128.1.4.156", 50010, result, error);

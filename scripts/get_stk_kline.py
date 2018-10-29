@@ -102,17 +102,18 @@ class KLINE:
         end_date_tag = end_date.ceil("year").format('YYYY-MM-DD')
         now = arrow.utcnow().to("local")  
         today_tag = now.format('YYYY-MM-DD')
+        preday_tag = now.shift(days=-1).format('YYYY-MM-DD')
         if beg_date.year == end_date.year:
             beg_date_tag = beg_date.floor("year").format('YYYY-MM-DD')
             #if arrow.utcnow().to("local") < end_date.ceil("year"): 
             file_full_path = ""
             if end_date.year >= now.year:
-                file_full_path = self.getTargetKDataDir(code, Index) + "/" + beg_date_tag + "_" + today_tag + self.dayk_file_ext 
+                file_full_path = self.getTargetKDataDir(code, Index) + "/" + beg_date_tag + "_" + preday_tag + self.dayk_file_ext 
             else:
                 file_full_path = self.getTargetKDataDir(code, Index) + "/" + beg_date_tag + "_" + end_date_tag + self.dayk_file_ext 
             if not os.path.exists(file_full_path):
                 if end_date.year >= now.year:
-                    df = ts.get_k_data(code, ktype='d', autype='qfq', index=Index, start=beg_date_tag, end=today_tag)
+                    df = ts.get_k_data(code, ktype='d', autype='qfq', index=Index, start=beg_date_tag, end=preday_tag)
                 else:
                     df = ts.get_k_data(code, ktype='d', autype='qfq', index=Index, start=beg_date_tag, end=end_date_tag)
                 if not df.empty:
@@ -135,7 +136,7 @@ class KLINE:
                     ret_files_str += self.getFileStrFromFullPath(file_full_path) + ';'
             beg_date_tag = end_date.floor("year").format('YYYY-MM-DD')
             if end_date.year >= now.year:
-                file_full_path = self.getTargetKDataDir(code, Index) + "/" + beg_date_tag + "_" + today_tag + self.dayk_file_ext 
+                file_full_path = self.getTargetKDataDir(code, Index) + "/" + beg_date_tag + "_" + preday_tag + self.dayk_file_ext 
             else:
                 file_full_path = self.getTargetKDataDir(code, Index) + "/" + beg_date_tag + "_" + end_date_tag + self.dayk_file_ext 
             old_file = find_f_before_lowbar(self.getTargetKDataDir(code, Index), beg_date_tag)
@@ -160,6 +161,10 @@ class KLINE:
         return ret_files_str
         
         
+def get_realtime_k_data(code):
+    df = ts.get_realtime_quotes('600196')
+    df[['code','name','price', 'pre_close','open','high','low','amount', 'date','time']]
+    
 def find_f_before_lowbar(dir, name, recurve=False):
     result = []
     for i_str in [x for x in os.listdir(dir) if os.path.isfile(os.path.join(dir,x)) and name in os.path.splitext(x)[0]]:
