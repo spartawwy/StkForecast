@@ -2,7 +2,7 @@
 #  ts.get_k_data('399300', ktype='W', autype='qfq', index=True,start='2016-10-01', end='2016-10-31')
 #  D=日k线 W=周 M=月 5=5分钟 15=15分钟 30=30分钟 60=60分钟，默认为D
 #  日线按年存放;  ps: 系统时间跨年时, 以前的某日产生的日K可能成为遗留,目前没有清除
-#  要求调用者  
+# 周K线, 读取 年初到昨天的为一个文件, 若 发现年初到 某日的文件存在, 则直接读, 否则创建. 删除年初到某日较小的文件
 import os
 import time
 import sqlite3  
@@ -160,11 +160,30 @@ class KLINE:
             ret_files_str = ret_files_str[0:-1]
         return ret_files_str
         
-        
-def get_realtime_k_data(code):
-    df = ts.get_realtime_quotes('600196')
-    df[['code','name','price', 'pre_close','open','high','low','amount', 'date','time']]
-    
+    def get_realtime_k_data(self, code, Index):
+        print("get_realtime_k_data")
+        ret_str = ""
+        tmp_code = code
+        if Index:
+            if code == "000001":
+                tmp_code = "sh"
+            elif code == "399001":
+                tmp_code = "sz"
+            elif code == "399006":
+                tmp_code = "cyb"
+            elif code == "000016":
+                tmp_code = "sz50"
+            elif code == "000300":
+                tmp_code = "hs300"
+            else: 
+                return ""
+        df = ts.get_realtime_quotes(tmp_code)
+        df = df[['code','name','price', 'pre_close','open','high','low','amount', 'date','time']]
+        if not df.empty:
+            ret_str = df['price'] + ";" + df['pre_close'] + ";" + df['open'] + ";" + df['high'] + ";" + df['low'] + ";" + df['amount']
+        return ret_str
+
+
 def find_f_before_lowbar(dir, name, recurve=False):
     result = []
     for i_str in [x for x in os.listdir(dir) if os.path.isfile(os.path.join(dir,x)) and name in os.path.splitext(x)[0]]:
@@ -193,6 +212,7 @@ if __name__ == "__main__":
     beg_date_str = '2018-01-07'
     tmpv = arrow.get(beg_date_str, 'YYYY-MM-DD')
     #kobj.getDayKBarData(code, '2018-01-07', '2018-03-08') 
-    ret_str = kobj.getDayKBarData(code, '2010-02-07', '2012-02-08', is_index) 
-    print(ret_str)
+    #ret_str = kobj.getDayKBarData(code, '2010-02-07', '2012-02-08', is_index) 
+    ret_str = kobj.get_realtime_k_data('600196', False)
+    print("result:" + ret_str)
      

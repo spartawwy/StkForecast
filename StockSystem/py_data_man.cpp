@@ -14,7 +14,7 @@
 #define Py_XDECREF(a) (a)
 #endif
 
-PyDataMan::PyDataMan() : getDayKline_func_(nullptr)
+PyDataMan::PyDataMan() : getDayKline_func_(nullptr), getRealTimeK_func_(nullptr)
 {
 
 }
@@ -82,6 +82,7 @@ bool PyDataMan::Initiate()
         return false;  
     }
     getDayKline_func_ = PyObject_GetAttrString(p_stock_obj, "getDayKline");
+    
 #if 0
     auto pArg = PyTuple_New(3);
     PyTuple_SetItem(pArg, 0, Py_BuildValue("s", "601699"));
@@ -93,6 +94,8 @@ bool PyDataMan::Initiate()
     Py_XDECREF(result);
     return getDayKline_func_;
 #endif
+    getRealTimeK_func_ = PyObject_GetAttrString(pModule, "get_realtime_k_data"); 
+     
     return true;
 }
 
