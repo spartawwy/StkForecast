@@ -161,7 +161,7 @@ class KLINE:
         return ret_files_str
         
     def get_realtime_k_data(self, code, Index):
-        print("get_realtime_k_data")
+        #print("get_realtime_k_data")
         ret_str = ""
         tmp_code = code
         if Index:
@@ -180,7 +180,7 @@ class KLINE:
         df = ts.get_realtime_quotes(tmp_code)
         df = df[['code','name','price', 'pre_close','open','high','low','amount', 'date','time']]
         if not df.empty:
-            ret_str = df['price'] + ";" + df['pre_close'] + ";" + df['open'] + ";" + df['high'] + ";" + df['low'] + ";" + df['amount']
+            ret_str = str(df['price'][0]) + ";" + df['pre_close'][0] + ";" + df['open'][0] + ";" + df['high'][0] + ";" + df['low'][0] + ";" + df['amount'][0]
         return ret_str
 
 
