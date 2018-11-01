@@ -178,9 +178,9 @@ class KLINE:
             else: 
                 return ""
         df = ts.get_realtime_quotes(tmp_code)
-        df = df[['code','name','price', 'pre_close','open','high','low','amount', 'date','time']]
+        df = df[['code','name','price', 'pre_close','open','high','low','volume', 'date','time']]
         if not df.empty:
-            ret_str = str(df['price'][0]) + ";" + df['pre_close'][0] + ";" + df['open'][0] + ";" + df['high'][0] + ";" + df['low'][0] + ";" + df['amount'][0]
+            ret_str = str(df['price'][0]) + ";" + df['pre_close'][0] + ";" + df['open'][0] + ";" + df['high'][0] + ";" + df['low'][0] + ";" + df['volume'][0]
         return ret_str
 
 
@@ -213,6 +213,7 @@ if __name__ == "__main__":
     tmpv = arrow.get(beg_date_str, 'YYYY-MM-DD')
     #kobj.getDayKBarData(code, '2018-01-07', '2018-03-08') 
     #ret_str = kobj.getDayKBarData(code, '2010-02-07', '2012-02-08', is_index) 
-    ret_str = kobj.get_realtime_k_data('600196', False)
+    #ret_str = kobj.get_realtime_k_data('600196', False)
+    ret_str = kobj.get_realtime_k_data('000001', True)
     print("result:" + ret_str)
      
