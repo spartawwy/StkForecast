@@ -94,7 +94,20 @@ class KLINE:
         
     #ts.get_k_data('399300', ktype='W', autype='qfq', index=True,start='2016-10-01', end='2016-10-31')
     def getDayKBarData(self, code, beg_date_str, end_date_str, Index=False):
+        return self.getKBarData(code, beg_date_str, end_date_str, 'D', Index)
+        
+    def getWeekKBarData(self, code, beg_date_str, end_date_str, Index=False):
+        return self.getKBarData(code, beg_date_str, end_date_str, 'W', Index)
+        
+    def getKBarData(self, code, beg_date_str, end_date_str, k_type, Index=False):
         ret_files_str = ""
+        file_ext = self.dayk_file_ext
+        if k_type.upper() == 'D':
+            file_ext = self.dayk_file_ext
+        elif k_type.upper() == 'W':
+            file_ext = self.weekk_file_ext
+        else:
+            return ret_files_str
         beg_date = arrow.get(beg_date_str, 'YYYY-MM-DD') 
         end_date = arrow.get(end_date_str, 'YYYY-MM-DD')
         if beg_date > end_date:
@@ -108,14 +121,14 @@ class KLINE:
             #if arrow.utcnow().to("local") < end_date.ceil("year"): 
             file_full_path = ""
             if end_date.year >= now.year:
-                file_full_path = self.getTargetKDataDir(code, Index) + "/" + beg_date_tag + "_" + preday_tag + self.dayk_file_ext 
+                file_full_path = self.getTargetKDataDir(code, Index) + "/" + beg_date_tag + "_" + preday_tag + file_ext 
             else:
-                file_full_path = self.getTargetKDataDir(code, Index) + "/" + beg_date_tag + "_" + end_date_tag + self.dayk_file_ext 
+                file_full_path = self.getTargetKDataDir(code, Index) + "/" + beg_date_tag + "_" + end_date_tag + file_ext
             if not os.path.exists(file_full_path):
                 if end_date.year >= now.year:
-                    df = ts.get_k_data(code, ktype='d', autype='qfq', index=Index, start=beg_date_tag, end=preday_tag)
+                    df = ts.get_k_data(code, ktype=k_type, autype='qfq', index=Index, start=beg_date_tag, end=preday_tag)
                 else:
-                    df = ts.get_k_data(code, ktype='d', autype='qfq', index=Index, start=beg_date_tag, end=end_date_tag)
+                    df = ts.get_k_data(code, ktype=k_type, autype='qfq', index=Index, start=beg_date_tag, end=end_date_tag)
                 if not df.empty:
                     df.to_csv(file_full_path, columns=['date', 'open', 'close', 'high', 'low', 'volume'], header=None,index=None)
                     return self.getFileStrFromFullPath(file_full_path)
@@ -126,9 +139,9 @@ class KLINE:
                 date0 = beg_date.shift(years=y-beg_date.year)
                 beg_taget_str = date0.floor("year").format("YYYY-MM-DD")
                 end_taget_str = date0.ceil("year").format("YYYY-MM-DD")
-                file_full_path = self.getTargetKDataDir(code, Index) + "/" + beg_taget_str + "_" + end_taget_str + self.dayk_file_ext 
+                file_full_path = self.getTargetKDataDir(code, Index) + "/" + beg_taget_str + "_" + end_taget_str + file_ext
                 if not os.path.exists(file_full_path):
-                    df = ts.get_k_data(code, ktype='d', autype='qfq', index=Index, start=beg_taget_str, end=end_taget_str)
+                    df = ts.get_k_data(code, ktype=k_type, autype='qfq', index=Index, start=beg_taget_str, end=end_taget_str)
                     if not df.empty:
                         df.to_csv(file_full_path, columns=['date', 'open', 'close', 'high', 'low', 'volume'], header=None,index=None)
                         ret_files_str += self.getFileStrFromFullPath(file_full_path) + ';'
@@ -136,9 +149,9 @@ class KLINE:
                     ret_files_str += self.getFileStrFromFullPath(file_full_path) + ';'
             beg_date_tag = end_date.floor("year").format('YYYY-MM-DD')
             if end_date.year >= now.year:
-                file_full_path = self.getTargetKDataDir(code, Index) + "/" + beg_date_tag + "_" + preday_tag + self.dayk_file_ext 
+                file_full_path = self.getTargetKDataDir(code, Index) + "/" + beg_date_tag + "_" + preday_tag + file_ext
             else:
-                file_full_path = self.getTargetKDataDir(code, Index) + "/" + beg_date_tag + "_" + end_date_tag + self.dayk_file_ext 
+                file_full_path = self.getTargetKDataDir(code, Index) + "/" + beg_date_tag + "_" + end_date_tag + file_ext
             old_file = find_f_before_lowbar(self.getTargetKDataDir(code, Index), beg_date_tag)
             is_to_get = True
             for file_str in old_file:
@@ -150,7 +163,7 @@ class KLINE:
                     os.remove(file_str)
             if is_to_get:
                 #print("to create " + file_full_path)
-                df = ts.get_k_data(code, ktype='d', autype='qfq', index=Index, start=beg_date_tag, end=end_date_tag)
+                df = ts.get_k_data(code, ktype=k_type, autype='qfq', index=Index, start=beg_date_tag, end=end_date_tag)
                 if not df.empty:
                     df.to_csv(file_full_path, columns=['date', 'open', 'close', 'high', 'low', 'volume'], header=None, index=None)
                     ret_files_str += self.getFileStrFromFullPath(file_full_path)
@@ -159,7 +172,7 @@ class KLINE:
         if ret_files_str and ret_files_str[-1] == ';':
             ret_files_str = ret_files_str[0:-1]
         return ret_files_str
-        
+            
     def get_realtime_k_data(self, code, Index):
         #print("get_realtime_k_data")
         ret_str = ""
@@ -205,15 +218,24 @@ if __name__ == "__main__":
     if "PYTHONPATH" in os.environ:
         mystr = os.environ["PYTHONPATH"] 
         print(mystr)
-    #code = "601699"
-    code = "000001"
-    is_index = True
+    code = "600196"
+    #code = "000001"
+    is_index = False
     kobj = KLINE()
     beg_date_str = '2018-01-07'
     tmpv = arrow.get(beg_date_str, 'YYYY-MM-DD')
     #kobj.getDayKBarData(code, '2018-01-07', '2018-03-08') 
     #ret_str = kobj.getDayKBarData(code, '2010-02-07', '2012-02-08', is_index) 
+    ret_str = kobj.getWeekKBarData(code, '2010-02-07', '2012-02-08', is_index)
     #ret_str = kobj.get_realtime_k_data('600196', False)
-    ret_str = kobj.get_realtime_k_data('000001', True)
+    #ret_str = kobj.get_realtime_k_data('000001', True)
     print("result:" + ret_str)
+    #kobj.getWeekKBarData('600196', '2018-01-07', '2018-03-08', Index=False)
+    #b = arrow.utcnow()
+    #b.shift(days=-7)
+    #when get week k, if end date is today, it will only get week bar use yesterday 
+    #ret_str = ts.get_k_data(code, ktype='W', autype='qfq', index=is_index, start='2018-10-02', end='2018-11-01')
+    #print(ret_str)
+    
+    
      
