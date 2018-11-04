@@ -41,6 +41,8 @@ void ForcastMan::Append(TypePeriod type_period, const std::string &code, T_Data2
 std::vector<T_Data2pDownForcast> * ForcastMan::Find2pDownForcastVector(const std::string &code, TypePeriod type_period)
 {
     Code2pDownForcastType & holder_ref = Get2pDownDataHolder(type_period);
+    if( holder_ref.empty() )
+        return nullptr;
     auto vector_iter = holder_ref.find(code);
     if( vector_iter == stock_2pdown_forcast_d_.end() )
         return nullptr;
@@ -50,6 +52,8 @@ std::vector<T_Data2pDownForcast> * ForcastMan::Find2pDownForcastVector(const std
 std::vector<T_Data2pUpForcast> * ForcastMan::Find2pUpForcastVector(const std::string &code, TypePeriod type_period)
 {
     Code2pUpForcastType & holder_ref = Get2pUpDataHolder(type_period);
+    if( holder_ref.empty() )
+        return nullptr;
     auto vector_iter = holder_ref.find(code);
     if( vector_iter == stock_2pup_forcast_d_.end() )
         return nullptr;

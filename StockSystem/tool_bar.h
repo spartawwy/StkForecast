@@ -7,6 +7,7 @@
 
 class QLabel;
 class QPushButton;
+class QComboBox;
 class QToolButton;
 class MainWindow;
 class KLineWall;
@@ -25,6 +26,9 @@ public:
     void UncheckBtnABCDownPen();
     void UncheckBtnABCUpPen();
 
+    QComboBox * cycle_comb(){ return cycle_comb_;}
+    void SetCurCycleType(TypePeriod type_period);
+
 protected:
 
     // 双击标题栏进行界面的最大化/还原
@@ -35,7 +39,7 @@ protected:
 
     // 设置界面标题与图标
     virtual bool eventFilter(QObject *obj, QEvent *event) override;
-
+     
 private slots:
      
     void onClicked();
@@ -59,6 +63,7 @@ private:
     QPushButton *abc_up_for_d_pen_;
     QPushButton *clear_pen_;
     QPushButton *pre_btn_;
+    QComboBox   *cycle_comb_;
     DrawAction   pre_action_;
     //QPushButton *m_pMaximizeButton;
     //QPushButton *m_pCloseButton;

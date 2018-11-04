@@ -12,6 +12,7 @@
 #include <QDateTime>
 #include <QtWidgets/QCheckBox>
 #include <QtWidgets/QVBoxLayout>
+#include <QtWidgets/QComboBox>
 #include <QString>
 #include <QMessageBox>
 
@@ -61,9 +62,14 @@ bool MainWindow::Initialize()
     if( !kline_wall_->Init() )
         return false;
     kline_wall_->setMouseTracking(true);
+    kline_wall_->RestTypePeriod(TypePeriod::PERIOD_DAY);
+
     tool_bar_ = new ToolBar(this);
+    tool_bar_->SetCurCycleType(TypePeriod::PERIOD_DAY);
+    bool ret = connect(tool_bar_->cycle_comb(), SIGNAL(currentIndexChanged(int)), this, SLOT(onCycleChange(int)));
+    ret = ret;
+     
     layout_all->addWidget(tool_bar_);  
- 
     layout_all->addWidget(kline_wall_);  
       
     wd->setLayout(layout_all);  
@@ -167,6 +173,13 @@ void MainWindow::updateDateTime()
             QDateTime::currentDateTime().toString("yyyy-MM-dd HH:MM:ss"));
 #endif
 }
- 
+  
+void MainWindow::onCycleChange(int /*index*/)
+{
+    assert(kline_wall_);
+    kline_wall_->RestTypePeriod( TypePeriod(tool_bar_->cycle_comb()->currentData().toInt()) );
+     
+}
+
 
 

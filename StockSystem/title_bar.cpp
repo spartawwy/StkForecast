@@ -12,6 +12,8 @@
 #include <qt_windows.h>
 #endif
 
+//#define USE_ICON
+
 TitleBar::TitleBar(QWidget *parent)
     : QWidget(parent)
 {
@@ -21,34 +23,36 @@ TitleBar::TitleBar(QWidget *parent)
     pal.setColor(QPalette::Background, Qt::darkMagenta);
     this->setPalette(pal);
     this->setAutoFillBackground(true);
-     
+#ifdef USE_ICON
     m_pIconLabel = new QLabel(this);
-    m_pTitleLabel = new QLabel(this);
-    m_pMinimizeButton = new QPushButton("-", this);
-    m_pMaximizeButton = new QPushButton(QString::fromLocal8Bit("¿Ú"), this);
-    m_pCloseButton = new QPushButton("X", this);
-#if 1
-    m_pIconLabel->setFixedSize(20, 20);
+    m_pIconLabel->setFixedSize(20, 40);
     m_pIconLabel->setScaledContents(true);
-
+#endif
+    m_pTitleLabel = new QLabel(this);
     m_pTitleLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    m_pTitleLabel->setObjectName("whiteLabel");
+    m_pTitleLabel->setText("StockForcast.sparta.ver.0.1");
 
+    m_pMinimizeButton = new QPushButton("-", this);
     m_pMinimizeButton->setFixedSize(27, 22);
+    m_pMinimizeButton->setObjectName("minimizeButton");
+    m_pMinimizeButton->setToolTip("Minimize");
+
+    m_pMaximizeButton = new QPushButton(QString::fromLocal8Bit("¿Ú"), this);
+    m_pMaximizeButton->setObjectName("maximizeButton");
     m_pMaximizeButton->setFixedSize(27, 22);
+    m_pMaximizeButton->setToolTip("Maximize");
+
+    m_pCloseButton = new QPushButton("X", this);
+    m_pCloseButton->setObjectName("closeButton");
+    m_pCloseButton->setToolTip("Close");
     m_pCloseButton->setFixedSize(27, 22);
 
-    m_pTitleLabel->setObjectName("whiteLabel");
-    m_pMinimizeButton->setObjectName("minimizeButton");
-    m_pMaximizeButton->setObjectName("maximizeButton");
-    m_pCloseButton->setObjectName("closeButton");
-
-    m_pMinimizeButton->setToolTip("Minimize");
-    m_pMaximizeButton->setToolTip("Maximize");
-    m_pCloseButton->setToolTip("Close");
-
     QHBoxLayout *pLayout = new QHBoxLayout(this);
+#ifdef USE_ICON
     pLayout->addWidget(m_pIconLabel);
     pLayout->addSpacing(5);
+#endif
     pLayout->addWidget(m_pTitleLabel);
     pLayout->addWidget(m_pMinimizeButton);
     pLayout->addWidget(m_pMaximizeButton);
@@ -61,7 +65,6 @@ TitleBar::TitleBar(QWidget *parent)
     connect(m_pMinimizeButton, SIGNAL(clicked(bool)), this, SLOT(onClicked()));
     connect(m_pMaximizeButton, SIGNAL(clicked(bool)), this, SLOT(onClicked()));
     connect(m_pCloseButton, SIGNAL(clicked(bool)), this, SLOT(onClicked()));
-#endif
 }
 
 TitleBar::~TitleBar()

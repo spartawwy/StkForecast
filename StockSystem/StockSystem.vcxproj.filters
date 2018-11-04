@@ -65,9 +65,6 @@
     <ClCompile Include="GeneratedFiles\qrc_res.cpp">
       <Filter>Generated Files</Filter>
     </ClCompile>
-    <ClCompile Include="stockalldaysinfo.cpp">
-      <Filter>moudle</Filter>
-    </ClCompile>
     <ClCompile Include="kline_wall.cpp">
       <Filter>win</Filter>
     </ClCompile>
@@ -124,6 +121,9 @@
     </ClCompile>
     <ClCompile Include="forcast_man.cpp">
       <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="stock_data_man.cpp">
+      <Filter>moudle</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -187,9 +187,6 @@
     <ClInclude Include="stkfo_common.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="stockalldaysinfo.h">
-      <Filter>moudle</Filter>
-    </ClInclude>
     <ClInclude Include="kline_wall.h">
       <Filter>win</Filter>
     </ClInclude>
@@ -216,6 +213,9 @@
     </ClInclude>
     <ClInclude Include="include\winner_hq_api.h">
       <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="stock_data_man.h">
+      <Filter>moudle</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

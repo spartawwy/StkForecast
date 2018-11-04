@@ -5,7 +5,7 @@
 
 #include "ui_klinewall.h"
 
-#include "stockalldaysinfo.h"
+#include "stock_data_man.h"
 #include "stockinput_dlg.h"
  
 #include "forcast_man.h"
@@ -37,7 +37,10 @@ public:
     void ResetDrawState(DrawAction draw_action);
     void ClearForcastData();
 
+    void RestTypePeriod(TypePeriod  type);
+
     PeriodType ToPeriodType(TypePeriod src);
+    
 
 protected:
 
@@ -93,8 +96,9 @@ private:
      
 	StockInputDlg  stock_input_dlg_;
      
-    std::string stock_code_;
-    StockAllDaysInfo stockAllDaysInfo_;           //many stocks many daysinfo 
+    std::string  stock_code_;
+    bool         is_index_;
+    StockDataMan  stockAllDaysInfo_;           //many stocks many daysinfo 
 	T_HisDataItemContainer *p_hisdata_container_; //point to stockAllDaysInfo_'s one stock's data
        
     

@@ -64,6 +64,8 @@ private slots:
     //void on_tableWidget_itemDoubleClicked(QTableWidgetItem* item);
     void on_actionExit_triggered();
     void updateDateTime();
+
+    void onCycleChange(int /*index*/);
 };
 
 #endif // MAINWINDOW_H

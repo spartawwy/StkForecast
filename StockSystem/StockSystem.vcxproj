@@ -175,7 +175,7 @@
     </ClCompile>
     <ClCompile Include="stkfo_common.cpp" />
     <ClCompile Include="stk_forecast_app.cpp" />
-    <ClCompile Include="stockalldaysinfo.cpp" />
+    <ClCompile Include="stock_data_man.cpp" />
     <ClCompile Include="stockdayinfo.cpp" />
     <ClCompile Include="stockinput_dlg.cpp" />
     <ClCompile Include="stock_man.cpp" />
@@ -237,7 +237,7 @@
     <ClInclude Include="GeneratedFiles\ui_stockinputdlg.h" />
     <ClInclude Include="include\stk_quoter_api.h" />
     <ClInclude Include="kline_wall.h" />
-    <ClInclude Include="stockalldaysinfo.h" />
+    <ClInclude Include="stock_data_man.h" />
     <ClInclude Include="stockdayinfo.h" />
   </ItemGroup>
   <ItemGroup>

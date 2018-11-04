@@ -29,6 +29,7 @@ KLineWall::KLineWall(StkForecastApp *app, QWidget *parent)
     , bottom1_h_(30)
     , bottom2_h_(30) 
     , stock_code_()
+    , is_index_(false)
     , p_hisdata_container_(nullptr)
     , lowestMinPrice_(99.9)
     , highestMaxPrice_(0.0)
@@ -1058,7 +1059,7 @@ bool KLineWall::ResetStock(const QString& stock, bool is_index)
 	p_hisdata_container_ = stockAllDaysInfo_.AppendStockData(ToPeriodType(k_type_), stock_code_, start_date, cur_date, is_index);
 	if( !p_hisdata_container_ )
 		return false;
-
+    this->is_index_ = is_index;
     if( !p_hisdata_container_->empty() )
     {
         k_num_ = p_hisdata_container_->size() <= 60 ? p_hisdata_container_->size() : p_hisdata_container_->size() / 2;
@@ -1217,6 +1218,28 @@ void KLineWall::ClearForcastData()
        iter_3pup_vector->clear();
 }
 
+void KLineWall::RestTypePeriod(TypePeriod  type)
+{ 
+    if( k_type_ == type )
+        return;
+    switch( type )
+    {
+    case TypePeriod::PERIOD_5M:
+    case TypePeriod::PERIOD_15M:
+    case TypePeriod::PERIOD_30M:
+    case TypePeriod::PERIOD_HOUR:
+        break;
+    case TypePeriod::PERIOD_DAY:
+        k_type_ = type; 
+        ResetStock(stock_code_.c_str(), is_index_);
+        break;
+    case TypePeriod::PERIOD_WEEK:
+        k_type_ = type; 
+        ResetStock(stock_code_.c_str(), is_index_);
+        break;
+    }
+}
+
 PeriodType KLineWall::ToPeriodType(TypePeriod src)
 {
     switch(src)
@@ -1232,6 +1255,7 @@ PeriodType KLineWall::ToPeriodType(TypePeriod src)
     }
     return PeriodType::PERIOD_DAY;
 }
+
 
 //void KLineWall::SetCursorShape(Qt::CursorShape& cursor_shapre)
 //{

@@ -6,7 +6,9 @@
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QToolButton>
 #include <QtWidgets/QHBoxLayout>
+#include <QtWidgets/QComboBox>
 #include <QtWidgets/QMessageBox>
+#include <QVariant>
 #include <QEvent>
 #include <QMouseEvent>
 #include <QtWidgets/QApplication>
@@ -26,6 +28,7 @@ ToolBar::ToolBar(QWidget *parent)
     , ab_up_for_c_pen_(nullptr)
     , clear_pen_(nullptr)
     , pre_btn_(nullptr)
+    , cycle_comb_(nullptr)
     , pre_action_(DrawAction::NO_ACTION)
     , kline_wall_cursor_(Qt::ArrowCursor)
 {
@@ -49,22 +52,31 @@ ToolBar::ToolBar(QWidget *parent)
     abc_down_for_d_pen_ = new QPushButton("");
     QPixmap icon3(tr("img/abc_down_d.png"));
     abc_down_for_d_pen_->setIcon(icon3);
-    abc_down_for_d_pen_->setFixedSize(21, 21);
+    abc_down_for_d_pen_->setFixedSize(22, 22);
     abc_down_for_d_pen_->setCheckable(true);
    
     abc_up_for_d_pen_ = new QPushButton("");
     QPixmap icon4(tr("img/abc_up_d.png"));
     abc_up_for_d_pen_->setIcon(icon4);
-    abc_up_for_d_pen_->setFixedSize(21, 21);
+    abc_up_for_d_pen_->setFixedSize(22, 22);
     abc_up_for_d_pen_->setCheckable(true);
    
     clear_pen_ = new QPushButton("C");
     clear_pen_->setFixedSize(27, 22);
     clear_pen_->setObjectName(STR_CLRPEN);
-    
+    cycle_comb_ = new QComboBox();
+    cycle_comb_->addItem(QString::fromLocal8Bit("5分"), QVariant(int(TypePeriod::PERIOD_5M))); // index 0
+    cycle_comb_->addItem(QString::fromLocal8Bit("15分"), QVariant(int(TypePeriod::PERIOD_15M)));
+    cycle_comb_->addItem(QString::fromLocal8Bit("30分"), QVariant(int(TypePeriod::PERIOD_30M)));
+    cycle_comb_->addItem(QString::fromLocal8Bit("时"), QVariant(int(TypePeriod::PERIOD_HOUR)));
+    cycle_comb_->addItem(QString::fromLocal8Bit("日"), QVariant(int(TypePeriod::PERIOD_DAY)));
+    cycle_comb_->addItem(QString::fromLocal8Bit("周"), QVariant(int(TypePeriod::PERIOD_WEEK)));
+    cycle_comb_->addItem(QString::fromLocal8Bit("月"), QVariant(int(TypePeriod::PERIOD_MON)));
+    cycle_comb_->setFixedSize(50, 22);
+
     ConnectAllDrawNormalBtn();
     bool ret = connect(clear_pen_, SIGNAL(clicked(bool)), this, SLOT(onClicked()));
-    ret = ret;
+    
     QHBoxLayout *pLayout = new QHBoxLayout(this);
     //pLayout->setSpacing(50);
     pLayout->addWidget(ab_down_for_c_pen_);
@@ -76,11 +88,12 @@ ToolBar::ToolBar(QWidget *parent)
     pLayout->addWidget(abc_up_for_d_pen_);
     pLayout->addSpacing(5);
     pLayout->addWidget(clear_pen_);
+    pLayout->addSpacing(20);
+    pLayout->addWidget(cycle_comb_);
     pLayout->setSpacing(0);
     pLayout->setContentsMargins(5, 0, 5, 0);
      
     setLayout(pLayout);
-     
 }
 
 void ToolBar::UncheckBtnABDownPen()
@@ -105,6 +118,11 @@ void ToolBar::UncheckBtnABCUpPen()
 {
     if( abc_up_for_d_pen_ )
         abc_up_for_d_pen_->setChecked(false);
+}
+
+void ToolBar::SetCurCycleType(TypePeriod type_period)
+{
+    cycle_comb_->setCurrentIndex(int(type_period) - 1);
 }
 
 void ToolBar::mouseDoubleClickEvent(QMouseEvent *)
