@@ -6,6 +6,7 @@
 #include <assert.h>
 #include <memory>
 
+#include <TLib/core/tsystem_utility_functions.h>
 #include <TLib/core/tsystem_time.h>
 
 #include <Windows.h>
@@ -98,13 +99,14 @@ bool StockDataMan::Init()
     }
 
     WinnerHisHq_DisConnect_ =  (WinnerHisHq_DisconnectDelegate)GetProcAddress(moudle_handle, "WinnerHisHq_Disconnect"); 
+    
     char result[1024] = {0};
     char error[1024] = {0};
-#if 1
-    ret  = 0 == WinnerHisHq_Connect_("192.168.1.5", 50010, result, error);
-#else
-    ret  = 0 == WinnerHisHq_Connect_("128.1.4.156", 50010, result, error);
-#endif 
+    if( !stricmp(TSystem::utility::host().c_str(), "hzdev103") )
+        ret  = 0 == WinnerHisHq_Connect_("128.1.4.156", 50010, result, error);
+    else
+        ret  = 0 == WinnerHisHq_Connect_("192.168.1.5", 50010, result, error);
+ 
     if( ret )
     {
         WinnerHisHq_GetKData_ = (WinnerHisHq_GetKDataDelegate)GetProcAddress(moudle_handle, "WinnerHisHq_GetKData");
