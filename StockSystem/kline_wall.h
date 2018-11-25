@@ -55,7 +55,7 @@ protected:
 
 private slots:
 
-	bool ResetStock(const QString& stock, bool is_index=false);
+	bool ResetStock(const QString& stock, TypePeriod type_period, bool is_index=false);
 
 private: 
 

@@ -44,7 +44,7 @@ std::vector<T_Data2pDownForcast> * ForcastMan::Find2pDownForcastVector(const std
     if( holder_ref.empty() )
         return nullptr;
     auto vector_iter = holder_ref.find(code);
-    if( vector_iter == stock_2pdown_forcast_d_.end() )
+    if( vector_iter == holder_ref.end() )
         return nullptr;
     return std::addressof(vector_iter->second);
 }
@@ -55,7 +55,7 @@ std::vector<T_Data2pUpForcast> * ForcastMan::Find2pUpForcastVector(const std::st
     if( holder_ref.empty() )
         return nullptr;
     auto vector_iter = holder_ref.find(code);
-    if( vector_iter == stock_2pup_forcast_d_.end() )
+    if( vector_iter == holder_ref.end() )
         return nullptr;
     return std::addressof(vector_iter->second);
 }

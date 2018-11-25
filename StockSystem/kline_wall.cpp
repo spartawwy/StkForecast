@@ -66,7 +66,7 @@ bool KLineWall::Init()
     auto ret = stockAllDaysInfo_.Init();
     if( ret )
     {
-       return ResetStock("600196");
+       return ResetStock("600196", k_type_);
     }
     
     return false;
@@ -1047,9 +1047,13 @@ void KLineWall::leaveEvent(QEvent *)
     qDebug() << __FUNCTION__ << "\n";
 }
 
-bool KLineWall::ResetStock(const QString& stock, bool is_index)
+bool KLineWall::ResetStock(const QString& stock, TypePeriod type_period, bool is_index)
 {  
+    if( k_type_ == type_period && stock_code_ ==  stock.toLocal8Bit().data() )
+        return true;
+
     stock_code_ = stock.toLocal8Bit().data(); 
+    k_type_ = type_period;
 
     auto cur_date = QDate::currentDate().year() * 10000 + QDate::currentDate().month() * 100 + QDate::currentDate().day();
     // 20 k line per 30 days
@@ -1142,11 +1146,12 @@ T_KlinePosData * KLineWall::GetKLinePosDataByDate(int date)
 void KLineWall::StockInputDlgRet()
 {
 	QString stock_code = stock_input_dlg_.ui.stock_input->text().trimmed();
+    QString stock_code_changed;
 	stock_input_dlg_.ui.stock_input->text().clear();
     bool is_index = false;
 	if( stock_code.toUpper() == "SZZS" || stock_code.toUpper() == "999999" )
 	{
-		stock_code_ = "999999";
+		stock_code_changed = "999999";
         is_index = true;
     }else if( stock_code.toUpper() == "SZCZ" 
         || stock_code.toUpper() == "SZCZ"
@@ -1154,7 +1159,12 @@ void KLineWall::StockInputDlgRet()
         || stock_code.toUpper() == "SZ50"
         || stock_code.toUpper() == "HS300" )
     {
-        stock_code_ = TransIndexPinYin2Code(stock_code.toUpper().toLocal8Bit().data());
+        stock_code_changed = TransIndexPinYin2Code(stock_code.toUpper().toLocal8Bit().data()).c_str();
+        is_index = true;
+    }else if( stock_code == "999999" || stock_code == "399001" || stock_code == "399005" 
+        || stock_code == "399006" || stock_code == "000016" || stock_code == "000300" )
+    {
+        stock_code_changed = stock_code.toLocal8Bit().data();
         is_index = true;
 	}else
 	{
@@ -1163,10 +1173,10 @@ void KLineWall::StockInputDlgRet()
 			return;
 		if( stock_code.length() != 6 || !IsNumber(stock_code.toLocal8Bit().data()) )
 			return;
-        stock_code_ = stock_code.toLocal8Bit().data();
+        stock_code_changed = stock_code.toLocal8Bit().data();
 	}
 	
-	ResetStock(stock_code_.c_str(), is_index);
+	ResetStock(stock_code_changed, k_type_, is_index);
 }
  
 void KLineWall::ResetDrawState(DrawAction action)
@@ -1230,12 +1240,10 @@ void KLineWall::RestTypePeriod(TypePeriod  type)
     case TypePeriod::PERIOD_HOUR:
         break;
     case TypePeriod::PERIOD_DAY:
-        k_type_ = type; 
-        ResetStock(stock_code_.c_str(), is_index_);
+        ResetStock(stock_code_.c_str(), type, is_index_);
         break;
     case TypePeriod::PERIOD_WEEK:
-        k_type_ = type; 
-        ResetStock(stock_code_.c_str(), is_index_);
+        ResetStock(stock_code_.c_str(), type, is_index_);
         break;
     }
 }

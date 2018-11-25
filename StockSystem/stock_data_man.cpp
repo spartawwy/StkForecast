@@ -330,9 +330,9 @@ float StockDataMan::GetHisDataLowestMinPrice(PeriodType period_type, const std::
      
     for( int j = std::get<0>(index_tuple); j <= std::get<1>(index_tuple); ++j )
     {
-        if( lowestMinPrice > container.at(j)->stk_item.high_price )
+        if( lowestMinPrice > container.at(j)->stk_item.low_price )
         {
-            lowestMinPrice = container.at(j)->stk_item.high_price;
+            lowestMinPrice = container.at(j)->stk_item.low_price;
         }
     }
     return lowestMinPrice;

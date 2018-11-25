@@ -36,6 +36,7 @@ std::string TransIndexPinYin2Code(const std::string &code)
         return "000300"; 
     return code;
 }
+
 std::string TransIndex2TusharedCode(const std::string &code)
 {
     if( code == "999999" || code == "SZZS" ) //上证指数
