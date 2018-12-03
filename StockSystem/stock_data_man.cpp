@@ -21,20 +21,20 @@
 //#define FIRST_STARTPOS_IN_T_VECTOR  10000
 //#define USE_STK_QUOTER
 
-static bool compare(const T_StockHisDataItem &left_h, const T_StockHisDataItem &right_h)
+static bool compare(const T_StockHisDataItem &lh, const T_StockHisDataItem &rh)
 {
-    return left_h.date < right_h.date; // from small to big
+    return (lh.date < rh.date) || (lh.date == rh.date && lh.hhmmss < rh.hhmmss);
 }
  
 // from small to big
 static bool dompare( std::shared_ptr<T_KlineDataItem> &lh, std::shared_ptr<T_KlineDataItem> &rh)
 {
-    return lh->stk_item.date < rh->stk_item.date;
+    return (lh->stk_item.date < rh->stk_item.date) || (lh->stk_item.date == rh->stk_item.date && lh->stk_item.hhmmss < rh->stk_item.hhmmss);
 }
 
 static bool bompare(const T_KlineDataItem &lh, const T_KlineDataItem &rh)
 {
-    return lh.stk_item.date < rh.stk_item.date;
+    return (lh.stk_item.date < rh.stk_item.date) || (lh.stk_item.date == rh.stk_item.date && lh.stk_item.hhmmss < rh.stk_item.hhmmss);
 }
 
 // 下分形遍历
@@ -102,7 +102,7 @@ bool StockDataMan::Init()
     
     char result[1024] = {0};
     char error[1024] = {0};
-    if( !stricmp(TSystem::utility::host().c_str(), "hzdev103") )
+    if( !_stricmp(TSystem::utility::host().c_str(), "hzdev103") )
         ret  = 0 == WinnerHisHq_Connect_("128.1.4.156", 50010, result, error);
     else
         ret  = 0 == WinnerHisHq_Connect_("192.168.1.5", 50010, result, error);
@@ -123,22 +123,13 @@ bool StockDataMan::Init()
     return ret;
 }
 
-//void StockDataMan::LoadDataFromFile(std::string &fileName)
-//{
-//    std::ifstream inputFile(fileName.c_str());
-//    std::string strLine; 
-//    while(getline(inputFile, strLine))
-//    { 
-//    }
-//    inputFile.close();
-//}
 
 void call_back_fun(T_K_Data *k_data, bool is_end, void *para/*, std::vector<T_StockHisDataItem> &data_item_vector*/)
 {
     T_KDataCallBack *cb_obj = (T_KDataCallBack*)para;
     
-    StockDataMan *p_stk_alldaysinfo_obj = (StockDataMan *)(cb_obj->para);
-    std::vector<T_StockHisDataItem> *p_vector = p_stk_alldaysinfo_obj ? p_stk_alldaysinfo_obj->p_stk_hisdata_item_vector_ : nullptr;
+    StockDataMan *p_stk_data_man_obj = (StockDataMan *)(cb_obj->para);
+    std::vector<T_StockHisDataItem> *p_vector = p_stk_data_man_obj ? p_stk_data_man_obj->p_stk_hisdata_item_vector_ : nullptr;
     
     T_StockHisDataItem item;
     item.open_price = k_data->open;
@@ -147,17 +138,18 @@ void call_back_fun(T_K_Data *k_data, bool is_end, void *para/*, std::vector<T_St
     item.low_price = k_data->low;
     item.vol = k_data->vol;
     item.date = k_data->yyyymmdd;
+    item.hhmmss = k_data->hhmmdd;
     if( p_vector )
     {
         p_vector->push_back(std::move(item));
         if( is_end )
         {
-            p_stk_alldaysinfo_obj->is_fetched_stk_hisdata_ = true;
+            p_stk_data_man_obj->is_fetched_stk_hisdata_ = true;
         }
     }
 }
  
-// date is save from older date to newer. ps: data in container is series trade date
+// date is save from older(smaller) date to newer(bigger). ps: data in container is series trade date
 T_HisDataItemContainer* StockDataMan::AppendStockData(PeriodType period_type, const std::string &stk_code, int start_date, int end_date, bool is_index)
 {
     int count = 0;
@@ -191,7 +183,7 @@ T_HisDataItemContainer* StockDataMan::AppendStockData(PeriodType period_type, co
         code = TransIndex2TusharedCode(stk_code);
     WinnerHisHq_GetKData_(const_cast<char*>(code.c_str()), period_type, start_date, end_date
                                                            , &call_back_obj_, is_index, error_info);
-    // data's date is from small to big
+    // vector's date is from small to big
     std::vector<T_StockHisDataItem> &p_data_items = *p_stk_hisdata_item_vector_;
     bool ret = TSystem::WaitFor( [this]()->bool
     { 
@@ -210,7 +202,7 @@ T_HisDataItemContainer* StockDataMan::AppendStockData(PeriodType period_type, co
 #if 1
     // save data to day_stock_his_items_ and sort it ---------------------------
    
-    // only can insert to back of front 
+    // only can insert to back or front 
     //std::deque<std::shared_ptr<T_KlineDataItem> > &items_in_container = iter_already->second; 
     if( !items_in_container.empty() )
     {
@@ -376,12 +368,20 @@ std::tuple<int, int> StockDataMan::GetDateIndxFromContainer(PeriodType period_ty
     int end_index = -1;
     for( unsigned int i = 0; i < container.size(); ++i )
     {
-        if( start_index == -1 && temp_start_date == container.at(i)->stk_item.date ) 
+        if( temp_start_date == container.at(i)->stk_item.date ) 
+        {
             start_index = i;
-        if( end_index == -1 && end_date == container.at(i)->stk_item.date ) 
-            end_index = i;
-        if( start_index != -1 && end_index != -1 )
             break;
+        }
+    }
+
+    for( unsigned int i = container.size(); i > 0; --i )
+    {
+        if( end_date == container.at(i-1)->stk_item.date ) 
+        {
+            end_index = i - 1;
+            break;
+        }
     }
     if( start_index == -1 )
         start_index = 0;

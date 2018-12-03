@@ -76,7 +76,7 @@ ToolBar::ToolBar(QWidget *parent)
 
     ConnectAllDrawNormalBtn();
     bool ret = connect(clear_pen_, SIGNAL(clicked(bool)), this, SLOT(onClicked()));
-    
+    ret = ret;
     QHBoxLayout *pLayout = new QHBoxLayout(this);
     //pLayout->setSpacing(50);
     pLayout->addWidget(ab_down_for_c_pen_);

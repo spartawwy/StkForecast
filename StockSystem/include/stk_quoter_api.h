@@ -34,6 +34,7 @@ struct T_StockPriceInfo
 struct T_StockHisDataItem
 {
     int  date; 
+    int  hhmmss;
     double close_price;
     double high_price;
     double low_price;

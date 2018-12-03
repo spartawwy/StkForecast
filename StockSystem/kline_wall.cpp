@@ -63,7 +63,7 @@ bool KLineWall::Init()
     k_cycle_tag_ = DEFAULT_CYCLE_TAG;
     k_cycle_year_ = cst_default_year;
       
-    auto ret = stockAllDaysInfo_.Init();
+    auto ret = stock_data_man_.Init();
     if( ret )
     {
        return ResetStock("600196", k_type_);
@@ -925,7 +925,7 @@ void KLineWall::keyPressEvent(QKeyEvent *e)
     //qDebug() << "key " << e->key() << "\n";
     static auto get_container_max_min_price = [this](PeriodType period_type, const std::string& code, int k_num)->std::tuple<float, float>
     {
-        T_HisDataItemContainer &container = stockAllDaysInfo_.GetHisDataContainer(period_type, code);
+        T_HisDataItemContainer &container = stock_data_man_.GetHisDataContainer(period_type, code);
 
         unsigned int start_index = container.size() - k_num; 
         start_index = start_index > 0 ? start_index : 0;
@@ -978,12 +978,12 @@ void KLineWall::keyPressEvent(QKeyEvent *e)
                 //int mons = p_hisdata_container_->size() / 20;
                 auto start_date = qdate_obj.addDays( -1 * (4 * 30) ).toString("yyyyMMdd").toInt(); 
                 /*auto p_container = */
-                stockAllDaysInfo_.AppendStockData(ToPeriodType(k_type_), stock_code_, start_date, oldest_day);
+                stock_data_man_.AppendStockData(ToPeriodType(k_type_), stock_code_, start_date, oldest_day);
             }
-            // set wall max price and min price --------------
-            
 
-            T_HisDataItemContainer &container = stockAllDaysInfo_.GetHisDataContainer(ToPeriodType(k_type_), stock_code_);
+            // set wall max price and min price --------------
+
+            T_HisDataItemContainer &container = stock_data_man_.GetHisDataContainer(ToPeriodType(k_type_), stock_code_);
             int start_index = container.size() - k_num_; 
             start_index = start_index > 0 ? start_index : 0;
             int end_index = container.size() - 1 > 0 ? container.size() - 1 : 0;
@@ -1057,10 +1057,25 @@ bool KLineWall::ResetStock(const QString& stock, TypePeriod type_period, bool is
 
     auto cur_date = QDate::currentDate().year() * 10000 + QDate::currentDate().month() * 100 + QDate::currentDate().day();
     // 20 k line per 30 days
-    auto start_date = QDate::currentDate().addDays(-1 * (WOKRPLACE_DEFUALT_K_NUM / 20 * 30) ).toString("yyyyMMdd").toInt();
-	
-    //p_hisdata_container_ = stockAllDaysInfo_.AppendStockData(stock_code_, 20171216, 20180108); 
-	p_hisdata_container_ = stockAllDaysInfo_.AppendStockData(ToPeriodType(k_type_), stock_code_, start_date, cur_date, is_index);
+    int start_date = 0;
+    int span_day = 0;
+    switch( type_period )
+    {
+    case TypePeriod::PERIOD_DAY:
+    case TypePeriod::PERIOD_WEEK:
+        span_day = -1 * (WOKRPLACE_DEFUALT_K_NUM / 20 * 30);
+        break;
+    case TypePeriod::PERIOD_HOUR:
+        span_day = -1 * (WOKRPLACE_DEFUALT_K_NUM / (20 * 4) * 30);
+        break;
+    case TypePeriod::PERIOD_30M:
+        span_day = -1 * (WOKRPLACE_DEFUALT_K_NUM / (20 * 4 * 2) * 30);
+        break;
+    }
+    start_date = QDate::currentDate().addDays(span_day).toString("yyyyMMdd").toInt();
+
+    //p_hisdata_container_ = stock_data_man_.AppendStockData(stock_code_, 20171216, 20180108); 
+	p_hisdata_container_ = stock_data_man_.AppendStockData(ToPeriodType(k_type_), stock_code_, start_date, cur_date, is_index);
 	if( !p_hisdata_container_ )
 		return false;
     this->is_index_ = is_index;
@@ -1072,9 +1087,9 @@ bool KLineWall::ResetStock(const QString& stock, TypePeriod type_period, bool is
         int start_index = p_hisdata_container_->size() - k_num_; 
         start_index = start_index > 0 ? start_index : 0;
         int begin_date = p_hisdata_container_->at(start_index)->stk_item.date;
-        this->highestMaxPrice_ = stockAllDaysInfo_.GetHisDataHighestMaxPrice(ToPeriodType(k_type_), stock_code_, begin_date, cur_date);
+        this->highestMaxPrice_ = stock_data_man_.GetHisDataHighestMaxPrice(ToPeriodType(k_type_), stock_code_, begin_date, cur_date);
         this->highestMaxPrice_ *= 1.02;
-        this->lowestMinPrice_ = stockAllDaysInfo_.GetHisDataLowestMinPrice(ToPeriodType(k_type_), stock_code_, begin_date, cur_date);
+        this->lowestMinPrice_ = stock_data_man_.GetHisDataLowestMinPrice(ToPeriodType(k_type_), stock_code_, begin_date, cur_date);
         this->lowestMinPrice_ *= 0.95;
 #endif
     }else
@@ -1237,7 +1252,9 @@ void KLineWall::RestTypePeriod(TypePeriod  type)
     case TypePeriod::PERIOD_5M:
     case TypePeriod::PERIOD_15M:
     case TypePeriod::PERIOD_30M:
+        break;
     case TypePeriod::PERIOD_HOUR:
+        ResetStock(stock_code_.c_str(), type, is_index_);
         break;
     case TypePeriod::PERIOD_DAY:
         ResetStock(stock_code_.c_str(), type, is_index_);

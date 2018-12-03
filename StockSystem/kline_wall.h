@@ -96,10 +96,10 @@ private:
      
 	StockInputDlg  stock_input_dlg_;
      
-    std::string  stock_code_;
-    bool         is_index_;
-    StockDataMan  stockAllDaysInfo_;           //many stocks many daysinfo 
-	T_HisDataItemContainer *p_hisdata_container_; //point to stockAllDaysInfo_'s one stock's data
+    std::string    stock_code_;
+    bool           is_index_;
+    StockDataMan   stock_data_man_;              //many stocks many daysinfo 
+	T_HisDataItemContainer *p_hisdata_container_; //point to stock_data_man_'s one stock's data
        
     
     double lowestMinPrice_;
