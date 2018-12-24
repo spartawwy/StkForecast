@@ -53,3 +53,30 @@ std::string TransIndex2TusharedCode(const std::string &code)
         return "000300"; 
     return code;
 }
+
+FractalType  MaxFractalType(int val)
+{
+    if( (val & int(FractalType::TOP_AXIS_T_11)) == int(FractalType::TOP_AXIS_T_11) )
+        return FractalType::TOP_AXIS_T_11;
+    else if( (val & int(FractalType::TOP_AXIS_T_9)) == int(FractalType::TOP_AXIS_T_9) )
+        return FractalType::TOP_AXIS_T_9;
+    else if( (val & int(FractalType::TOP_AXIS_T_7)) == int(FractalType::TOP_AXIS_T_7) )
+        return FractalType::TOP_AXIS_T_7;
+    else if( (val & int(FractalType::TOP_AXIS_T_5)) == int(FractalType::TOP_AXIS_T_5) )
+        return FractalType::TOP_AXIS_T_5;
+    else if( (val & int(FractalType::TOP_AXIS_T_3)) == int(FractalType::TOP_AXIS_T_3) )
+        return FractalType::TOP_AXIS_T_3;
+
+    else if( (val & int(FractalType::BTM_AXIS_T_11)) == int(FractalType::BTM_AXIS_T_11) )
+        return FractalType::BTM_AXIS_T_11;
+    else if( (val & int(FractalType::BTM_AXIS_T_9)) == int(FractalType::BTM_AXIS_T_9) )
+        return FractalType::BTM_AXIS_T_9;
+    else if( (val & int(FractalType::BTM_AXIS_T_7)) == int(FractalType::BTM_AXIS_T_7) )
+        return FractalType::BTM_AXIS_T_7;
+    else if( (val & int(FractalType::BTM_AXIS_T_5)) == int(FractalType::BTM_AXIS_T_5) )
+        return FractalType::BTM_AXIS_T_5;
+    else if( (val & int(FractalType::BTM_AXIS_T_3)) == int(FractalType::BTM_AXIS_T_3) )
+        return FractalType::BTM_AXIS_T_3;
+    else
+        return FractalType::UNKNOW_FRACTAL;
+}

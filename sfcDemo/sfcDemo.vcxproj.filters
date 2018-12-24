@@ -41,5 +41,8 @@
     <ClCompile Include="test_tsl_hqapi.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="little_test.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

@@ -451,19 +451,19 @@ void TraverseSetUpwardFractal( std::deque<std::shared_ptr<T_KlineDataItem> > &kl
 
         if( n_fractal_ahead > 0 && n_fractal_follow > 0 )
         {
-            kline_data_items[index]->type |= BTM_AXIS_T_3;
+            kline_data_items[index]->type |= int(FractalType::BTM_AXIS_T_3);
             if( n_fractal_ahead > 1 && n_fractal_follow > 1 )
             {
-                kline_data_items[index]->type |= BTM_AXIS_T_5;
+                kline_data_items[index]->type |= int(FractalType::BTM_AXIS_T_5);
                 if( n_fractal_ahead > 2 && n_fractal_follow > 2 )
                 {
-                    kline_data_items[index]->type |= BTM_AXIS_T_7;
+                    kline_data_items[index]->type |= int(FractalType::BTM_AXIS_T_7);
                     if( n_fractal_ahead > 3 && n_fractal_follow > 3 )
                     {
-                        kline_data_items[index]->type |= BTM_AXIS_T_9;
+                        kline_data_items[index]->type |= int(FractalType::BTM_AXIS_T_9);
                         if( n_fractal_ahead > 4 && n_fractal_follow > 4 )
                         {
-                            kline_data_items[index]->type |= BTM_AXIS_T_11;
+                            kline_data_items[index]->type |= int(FractalType::BTM_AXIS_T_11);
                         }
                     }
                 }
@@ -534,19 +534,19 @@ void TraverseSetDownwardFractal( std::deque<std::shared_ptr<T_KlineDataItem> > &
 
         if( n_fractal_ahead > 0 && n_fractal_follow > 0 )
         {
-            kline_data_items[index]->type |= TOP_AXIS_T_3;
+            kline_data_items[index]->type |= int(FractalType::TOP_AXIS_T_3);
             if( n_fractal_ahead > 1 && n_fractal_follow > 1 )
             {
-                kline_data_items[index]->type |= TOP_AXIS_T_5;
+                kline_data_items[index]->type |= int(FractalType::TOP_AXIS_T_5);
                 if( n_fractal_ahead > 2 && n_fractal_follow > 2 )
                 {
-                    kline_data_items[index]->type |= TOP_AXIS_T_7;
+                    kline_data_items[index]->type |= int(FractalType::TOP_AXIS_T_7);
                     if( n_fractal_ahead > 3 && n_fractal_follow > 3 )
                     {
-                        kline_data_items[index]->type |= TOP_AXIS_T_9;
+                        kline_data_items[index]->type |= int(FractalType::TOP_AXIS_T_9);
                         if( n_fractal_ahead > 4 && n_fractal_follow > 4 )
                         {
-                            kline_data_items[index]->type |= TOP_AXIS_T_11;
+                            kline_data_items[index]->type |= int(FractalType::TOP_AXIS_T_11);
                         }
                     }
                 }

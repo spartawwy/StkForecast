@@ -8,18 +8,33 @@
 
 #include "stk_quoter_api.h"
 
-#define UNKNOW_FRACTAL   0
-#define BTM_AXIS_T_3     0x00000001
-#define BTM_AXIS_T_5     0x00000002
-#define BTM_AXIS_T_7     0x00000004
-#define BTM_AXIS_T_9     0x00000008
-#define BTM_AXIS_T_11    0x00000010
+//#define UNKNOW_FRACTAL   0
+//#define BTM_AXIS_T_3     0x00000001
+//#define BTM_AXIS_T_5     0x00000002
+//#define BTM_AXIS_T_7     0x00000004
+//#define BTM_AXIS_T_9     0x00000008
+//#define BTM_AXIS_T_11    0x00000010
+//
+//#define TOP_AXIS_T_3     0x00000020
+//#define TOP_AXIS_T_5     0x00000040
+//#define TOP_AXIS_T_7     0x00000080
+//#define TOP_AXIS_T_9     0x00000100
+//#define TOP_AXIS_T_11    0x00000200
+enum class FractalType : int
+{
+ UNKNOW_FRACTAL  = 0,
+ BTM_AXIS_T_3    = 0x00000001,
+ BTM_AXIS_T_5    = 0x00000002,
+ BTM_AXIS_T_7    = 0x00000004,
+ BTM_AXIS_T_9    = 0x00000008,
+ BTM_AXIS_T_11   = 0x00000010,
 
-#define TOP_AXIS_T_3     0x00000020
-#define TOP_AXIS_T_5     0x00000040
-#define TOP_AXIS_T_7     0x00000080
-#define TOP_AXIS_T_9     0x00000100
-#define TOP_AXIS_T_11    0x00000200
+ TOP_AXIS_T_3    = 0x00000020,
+ TOP_AXIS_T_5    = 0x00000040,
+ TOP_AXIS_T_7    = 0x00000080,
+ TOP_AXIS_T_9    = 0x00000100,
+ TOP_AXIS_T_11   = 0x00000200,
+};
 
 #define UPWARD_FRACTAL   0x10000000
 #define DOWNWARD_FRACTAL 0x20000000
@@ -69,7 +84,7 @@ typedef struct _t_kline_dataitem
     T_StockHisDataItem  stk_item;
     T_KlinePosData  kline_posdata;
     int  type;
-    _t_kline_dataitem() : type(UNKNOW_FRACTAL), kline_posdata()
+    _t_kline_dataitem() : type(int(FractalType::UNKNOW_FRACTAL)), kline_posdata()
     {
         memset(&stk_item, 0, sizeof(stk_item));
     }
@@ -109,5 +124,7 @@ bool IsNumber(const std::string& str);
 
 std::string TransIndexPinYin2Code(const std::string &code);
 std::string TransIndex2TusharedCode(const std::string &code);
+
+FractalType  MaxFractalType(int val);
 
 #endif // STKFO_COMMON_SDF3DSF_H_

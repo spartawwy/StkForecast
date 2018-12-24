@@ -700,14 +700,7 @@ void KLineWall::paintEvent(QPaintEvent*)
     \|/
     纵坐标(各行价格值)：((HighestMaxPrice - lowestMinPrice_) * i)/7  + lowestMinPrice_
     横坐标(日期)：分成60等份，每天15像素，每天的横坐标
-    j*15+1  j*15*8
-    每天的纵坐标:开盘价:350*(开盘价-lowestMinPrice_)/(HighestMaxPrice - lowestMinPrice_)
-    收盘价:350*(收盘价-lowestMinPrice_)/(HighestMaxPrice - lowestMinPrice_)
-    最高价:350*(最高价-lowestMinPrice_)/(HighestMaxPrice - lowestMinPrice_)
-    最低价:350*(最盘价-lowestMinPrice_)/(HighestMaxPrice - lowestMinPrice_)
-
-    矩形宽度：13像素
-    矩形高度：350*(开盘价-收盘价)/(HighestMaxPrice - lowestMinPrice_)像素
+    
     QFont font;  
     font.setPointSize(Y_SCALE_FONT_SIZE);      font.setFamily("Microsoft YaHei");  
     font.setLetterSpacing(QFont::AbsoluteSpacing,0);      painter.setFont(font);  
@@ -829,24 +822,35 @@ void KLineWall::paintEvent(QPaintEvent*)
 			brush.setColor(QColor(0,255,0));
         }
         // fengxin relate -------------------
-        if( ((*iter)->type & BTM_AXIS_T_3) == BTM_AXIS_T_3 
-            || ((*iter)->type & BTM_AXIS_T_5) == BTM_AXIS_T_5 
-            || ((*iter)->type & BTM_AXIS_T_7) == BTM_AXIS_T_7
-            || ((*iter)->type & BTM_AXIS_T_9) == BTM_AXIS_T_9
-            || ((*iter)->type & BTM_AXIS_T_11) == BTM_AXIS_T_11)
+        auto rac_type = MaxFractalType((*iter)->type);
+        if( rac_type > FractalType::UNKNOW_FRACTAL && rac_type < FractalType::TOP_AXIS_T_3 )
         {
+            // find left top_axis_iter 
+            auto left_tgt_iter = iter + 1;
+            int cp_j = j;
+            for( ; left_tgt_iter != p_hisdata_container_->rend() && cp_j > 0; 
+                ++left_tgt_iter, --cp_j)
+            {
+                auto left_frac_type = MaxFractalType((*left_tgt_iter)->type);
+                if( left_frac_type > FractalType::BTM_AXIS_T_11 )
+                    break;
+            }
+            if( left_tgt_iter != p_hisdata_container_->rend() )
+            {
+                T_KlinePosData &left_pos_data = left_tgt_iter->get()->kline_posdata;
+                painter.setPen(pen);
+                painter.drawLine(pos_data.bottom.x(), pos_data.bottom.y(), left_pos_data.top.x(), left_pos_data.top.y());
+            }
             //pen.setColor(QColor(0,0,255)); 
             //brush.setColor(QColor(0,0,255));
             if( iter->get()->stk_item.low_price < this->lowestMinPrice_ + 0.001 )
             {
                 is_lowest_k = true; 
             }
-        }else if( ((*iter)->type & TOP_AXIS_T_3) == TOP_AXIS_T_3 
-            || ((*iter)->type & TOP_AXIS_T_5) == TOP_AXIS_T_5 
-            || ((*iter)->type & TOP_AXIS_T_7) == TOP_AXIS_T_7
-            || ((*iter)->type & TOP_AXIS_T_9) == TOP_AXIS_T_9
-            || ((*iter)->type & TOP_AXIS_T_11) == TOP_AXIS_T_11)
+        }else if( rac_type > FractalType::BTM_AXIS_T_11 )
         {
+            // find left btm_axis_iter 
+
             //pen.setColor(QColor(0,255,255)); 
             //brush.setColor(QColor(0,255,255));
         }
@@ -859,6 +863,7 @@ void KLineWall::paintEvent(QPaintEvent*)
  
         if( pos_from_global.x() >= pos_data.x_left && pos_from_global.x() <= pos_data.x_right )
             k_data_str_ = std::to_string((*iter)->stk_item.date);
+
       }  // for all k line 
 
         // paint 3pdatas ----------------------

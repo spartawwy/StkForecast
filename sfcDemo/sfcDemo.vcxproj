@@ -90,6 +90,7 @@
   <ItemGroup>
     <ClCompile Include="python_get_data.cpp" />
     <ClCompile Include="sfcDemo.cpp" />
+    <ClCompile Include="little_test.cpp" />
     <ClCompile Include="test_tsl_hqapi.cpp" />
     <ClCompile Include="try_get_stock_data.cpp" />
     <ClCompile Include="stdafx.cpp" />
