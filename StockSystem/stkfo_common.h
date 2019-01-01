@@ -92,7 +92,7 @@ typedef struct _t_kline_dataitem
     {
         memcpy(this, &lh, sizeof(lh)); 
     }
-    explicit _t_kline_dataitem(const T_StockHisDataItem & stock_his_data_item)
+    explicit _t_kline_dataitem(const T_StockHisDataItem & stock_his_data_item): type(int(FractalType::UNKNOW_FRACTAL)), kline_posdata()
     {
         memcpy(&stk_item, &stock_his_data_item, sizeof(stock_his_data_item)); 
     }

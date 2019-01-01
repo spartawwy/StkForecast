@@ -1093,9 +1093,10 @@ bool KLineWall::ResetStock(const QString& stock, TypePeriod type_period, bool is
         start_index = start_index > 0 ? start_index : 0;
         int begin_date = p_hisdata_container_->at(start_index)->stk_item.date;
         this->highestMaxPrice_ = stock_data_man_.GetHisDataHighestMaxPrice(ToPeriodType(k_type_), stock_code_, begin_date, cur_date);
-        this->highestMaxPrice_ *= 1.02;
+        this->highestMaxPrice_ *= 1.01;
+         
         this->lowestMinPrice_ = stock_data_man_.GetHisDataLowestMinPrice(ToPeriodType(k_type_), stock_code_, begin_date, cur_date);
-        this->lowestMinPrice_ *= 0.95;
+        this->lowestMinPrice_ *= 0.99; 
 #endif
     }else
     {
