@@ -8,6 +8,9 @@
 
 #include "stk_quoter_api.h"
 
+#define  OUT
+#define  IN
+#define  INOUT
 //#define UNKNOW_FRACTAL   0
 //#define BTM_AXIS_T_3     0x00000001
 //#define BTM_AXIS_T_5     0x00000002
@@ -68,7 +71,21 @@ class T_KlinePosData
 {
 public:
     T_KlinePosData() : date(0), x_left(0.0), x_right(0.0), height(0.0), columnar_top_left(CST_MAGIC_POINT), top(CST_MAGIC_POINT), bottom(CST_MAGIC_POINT) {}
+    T_KlinePosData(const T_KlinePosData &lh)
+        : date(lh.date), x_left(lh.x_left), x_right(lh.x_right), height(lh.height), columnar_top_left(lh.columnar_top_left), top(lh.top), bottom(lh.bottom) {}
+    T_KlinePosData & operator = (const T_KlinePosData &lh)
+    {
+        if( this == &lh ) return *this;
+        date = lh.date;
+        x_left = lh.x_left;
+        x_right = lh.x_right;
+        height = lh.height;
+        columnar_top_left = lh.columnar_top_left;
+        top = lh.top;
+        bottom = lh.bottom;
+    }
     void Clear(){date = 0; x_left = 0.0; x_right = 0.0; height = 0.0; columnar_top_left = CST_MAGIC_POINT;top = CST_MAGIC_POINT; bottom = CST_MAGIC_POINT;}
+    
     int  date; 
     double x_left;
     double x_right;
@@ -126,5 +143,6 @@ std::string TransIndexPinYin2Code(const std::string &code);
 std::string TransIndex2TusharedCode(const std::string &code);
 
 FractalType  MaxFractalType(int val);
+FractalType  BtmestFractalType(int val);
 
 #endif // STKFO_COMMON_SDF3DSF_H_

@@ -85,6 +85,7 @@ private:
     void SetHighestMaxPrice(float val) { highestMaxPrice_ = val;}
     double GetHighestMaxPrice() { return highestMaxPrice_; }
 
+    bool FindTopFractalItem_TowardLeft(T_HisDataItemContainer &his_data, T_HisDataItemContainer::reverse_iterator iter, int k_index, T_KlinePosData *&left_pos_data);
 
     StkForecastApp *app_;
     MainWindow  *main_win_;
