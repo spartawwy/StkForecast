@@ -154,10 +154,7 @@ T_HisDataItemContainer* StockDataMan::AppendStockData(PeriodType period_type, co
 {
     int count = 0;
     T_HisDataItemContainer & items_in_container = GetHisDataContainer(period_type, stk_code);
-   /* auto iter_already = data_item_container.find(stk_code);
-    if( iter_already == day_stock_his_items_.end() )
-        iter_already = day_stock_his_items_.insert(std::make_pair(stk_code, T_HisDataItemContainer())).first;
-    */
+   
 #ifdef USE_STK_QUOTER
     T_StockHisDataItem *p_data_items = nullptr;
     assert( stk_his_data_ && stk_hisdata_release_ );
