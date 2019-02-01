@@ -869,7 +869,7 @@ void KLineWall::paintEvent(QPaintEvent*)
         
         if( pos_from_global.x() >= pos_data.x_left && pos_from_global.x() <= pos_data.x_right )
             k_data_str_ = std::to_string((*iter)->stk_item.date);
-
+          
       }  // for all k line 
 
         // paint 3pdatas ----------------------
@@ -1255,7 +1255,7 @@ void KLineWall::ClearForcastData()
        iter_3pup_vector->clear();
 }
 
-void KLineWall::RestTypePeriod(TypePeriod  type)
+void KLineWall::ResetTypePeriod(TypePeriod  type)
 { 
     if( k_type_ == type )
         return;

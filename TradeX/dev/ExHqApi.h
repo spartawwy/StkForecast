@@ -15,7 +15,7 @@ extern "C" {
 //
 // 连接券商行情服务器
 //
-bool WINAPI TdxExHq_Connect(
+int WINAPI TdxExHq_Connect(
     const char *pszIP,
     short nPort,
     char *pszResult,
@@ -24,12 +24,13 @@ bool WINAPI TdxExHq_Connect(
 //
 // 断开服务器
 //
-void WINAPI TdxExHq_Disconnect();
+void WINAPI TdxExHq_Disconnect(int nConnID);
 
 //
 //
 //
 void WINAPI TdxExHq_SetTimeout(
+    int nConnID,
     int nReadTimeout,
     int nWriteTimeout);
 
@@ -41,6 +42,7 @@ void WINAPI TdxExHq_SetTimeout(
 // <param name="ErrInfo">此API执行返回后，如果出错，保存了错误信息说明。一般要分配256字节的空间。没出错时为空字符串。</param>
 //
 bool WINAPI TdxExHq_GetMarkets(
+    int nConnID,
     char *pszResult,
     char *pszErrInfo);
 
@@ -48,6 +50,7 @@ bool WINAPI TdxExHq_GetMarkets(
 // 获取所有品种的数目
 //
 bool WINAPI TdxExHq_GetInstrumentCount(
+    int nConnID,
     int *nCount,
     char *pszErrInfo);
 
@@ -55,6 +58,7 @@ bool WINAPI TdxExHq_GetInstrumentCount(
 // 获取所有品种代码
 //
 bool WINAPI TdxExHq_GetInstrumentInfo(
+    int nConnID,
     int nStart,
     short* pnCount,
     char* pszResult,
@@ -64,6 +68,7 @@ bool WINAPI TdxExHq_GetInstrumentInfo(
 // 获取指定品种的盘口报价
 //
 bool WINAPI TdxExHq_GetInstrumentQuote(
+    int nConnID,
     char nMarket,
     const char* pszZqdm,
     char* pszResult,
@@ -73,6 +78,7 @@ bool WINAPI TdxExHq_GetInstrumentQuote(
 // 获取指定品种的K线数据
 //
 bool WINAPI TdxExHq_GetInstrumentBars(
+    int nConnID,
     char nCategory,
     char nMarket,
     const char* pszZqdm,
@@ -85,6 +91,7 @@ bool WINAPI TdxExHq_GetInstrumentBars(
 // 获取指定品种的分时图数据
 //
 bool WINAPI TdxExHq_GetMinuteTimeData(
+    int nConnID,
     char nMarket,
     const char* pszZqdm,
     char* pszResult,
@@ -94,6 +101,7 @@ bool WINAPI TdxExHq_GetMinuteTimeData(
 // 获取指定品种的分时图数据
 //
 bool WINAPI TdxExHq_GetHistoryMinuteTimeData(
+    int nConnID,
     char nMarket,
     const char* pszZqdm,
     int nDate,
@@ -104,6 +112,7 @@ bool WINAPI TdxExHq_GetHistoryMinuteTimeData(
 // 获取指定品种的分时成交数据
 //
 bool WINAPI TdxExHq_GetTransactionData(
+    int nConnID,
     char nMarket,
     const char* pszZqdm,
     int nStart,
@@ -115,6 +124,7 @@ bool WINAPI TdxExHq_GetTransactionData(
 // 获取指定品种的历史分时成交数据
 //
 bool WINAPI TdxExHq_GetHistoryTransactionData(
+    int nConnID,
     char nMarket,
     const char* pszZqdm,
     int nDate,
