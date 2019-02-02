@@ -116,7 +116,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>qtmaind.lib;Qt5Guid.lib;Qt5Cored.lib;Qt5Widgetsd.lib;libEGLd.lib;libGLESv2d.lib;TLib_d.lib;TLibTool_d.lib;SQLite_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(QT_DIR)\lib;$(PYTHONPATH)\libs;Z:\lib\win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(QT_DIR)\lib;$(PYTHONPATH)\libs;Z:\lib\win32;tdxhq;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>"/MANIFESTDEPENDENCY:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' publicKeyToken='6595b64144ccf1df' language='*' processorArchitecture='*'" %(AdditionalOptions)</AdditionalOptions>
       <DataExecutionPrevention>true</DataExecutionPrevention>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -161,6 +161,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mainwindow.cpp" />
     <ClCompile Include="py_data_man.cpp" />
+    <ClCompile Include="qrc_res.cpp" />
     <ClCompile Include="Release\moc_mainwindow.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
@@ -179,6 +180,7 @@
     <ClCompile Include="stockdayinfo.cpp" />
     <ClCompile Include="stockinput_dlg.cpp" />
     <ClCompile Include="stock_man.cpp" />
+    <ClCompile Include="tdx_hq_wrapper.cpp" />
     <ClCompile Include="title_bar.cpp" />
     <ClCompile Include="tool_bar.cpp" />
   </ItemGroup>
@@ -189,6 +191,11 @@
     <ClInclude Include="include\winner_hq_api.h" />
     <ClInclude Include="py_data_man.h" />
     <ClInclude Include="stkfo_common.h" />
+    <ClInclude Include="tdxhq\ExHqApi.h" />
+    <ClInclude Include="tdxhq\HqApi.h" />
+    <ClInclude Include="tdxhq\L2HqApi.h" />
+    <ClInclude Include="tdxhq\TradeApi-M.h" />
+    <ClInclude Include="tdx_hq_wrapper.h" />
     <CustomBuild Include="stk_forecast_app.h">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc%27ing stk_forecast_app.h...</Message>

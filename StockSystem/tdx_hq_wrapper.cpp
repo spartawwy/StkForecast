@@ -1,0 +1,141 @@
+#include "tdx_hq_wrapper.h"
+
+#include <string>
+#include <iostream>
+#include <cassert>
+#include <regex>
+
+#include "tdxhq/HqApi.h"
+
+#pragma comment(lib, "TradeX2-M.lib")
+
+TdxHqWrapper::TdxHqWrapper()
+    : conn_handle_(0)
+{
+
+}
+
+TdxHqWrapper::~TdxHqWrapper() 
+{ 
+    if( conn_handle_ ) 
+        TdxHq_Disconnect(conn_handle_); 
+}
+
+bool TdxHqWrapper::Init()
+{
+    //开始获取行情数据
+    
+    const int cst_result_len = 1024 * 1024;
+    const int cst_err_len = 1024; 
+
+    char* m_szResult = new char[cst_result_len];
+    char* m_szErrInfo = new char[cst_err_len];
+
+    memset(m_szResult, 0, cst_result_len);
+    memset(m_szErrInfo, 0, cst_err_len);
+
+    short Count = 10;
+
+    //连接服务器
+    conn_handle_ = TdxHq_Connect("218.75.126.9", 7709, m_szResult, m_szErrInfo);
+    if( conn_handle_ < 0 )
+    {
+        std::cout << m_szErrInfo << std::endl;
+        return false;
+    }
+
+    std::cout << m_szResult << std::endl;
+
+    return true;
+}
+
+int TdxHqWrapper::GetHisKBars(const std::string &code, TypePeriod kbar_type)
+{
+    const int cst_result_len = 1024 * 1024;
+    const int cst_err_len = 1024; 
+
+    char* m_szResult = new char[cst_result_len];
+    char* m_szErrInfo = new char[cst_err_len];
+
+    memset(m_szResult, 0, cst_result_len);
+    memset(m_szErrInfo, 0, cst_err_len);
+    
+    //获取股票K线数据
+    short count = 200;
+    //数据种类, 0->5分钟K线    1->15分钟K线    2->30分钟K线  3->1小时K线    4->日K线  5->周K线  6->月K线  7->1分钟K线  8->1分钟K线  9->日K线  10->季K线  11->年K线
+    int ktype = 4;
+    switch(kbar_type)
+    {
+    case TypePeriod::PERIOD_YEAR: ktype = 11; break;
+    case TypePeriod::PERIOD_MON:  ktype = 6; break;
+    case TypePeriod::PERIOD_WEEK: ktype = 5; break;
+    case TypePeriod::PERIOD_DAY:  ktype = 4; break;
+    case TypePeriod::PERIOD_HOUR: ktype = 3; break;
+    case TypePeriod::PERIOD_30M:  ktype = 2; break;
+    case TypePeriod::PERIOD_15M:  ktype = 1; break;
+    case TypePeriod::PERIOD_5M:   ktype = 0; break;
+    default:
+        assert(false);
+        ktype = 4; 
+        break;
+    }
+    int market_type = 0;
+    if( code == "000001" )
+        market_type = 0;
+    else if( code.at(0) == '6' )
+        market_type = 1;
+    else 
+        market_type = 0;
+
+    short start = 0;  // back forward
+    bool bool1 = TdxHq_GetSecurityBars(conn_handle_, ktype, market_type, const_cast<char*>(code.c_str()), start, &count, m_szResult, m_szErrInfo);
+    if( !bool1 )
+    { 
+        return count;
+    }
+    if( strlen(m_szResult) < 1 )
+    {
+        std::cout << " result empty !" << std::endl;
+        return 0;
+    }
+    
+    const bool has_time = ( ktype < 4 || ktype == 7 || ktype == 8 ) ? true : false;
+    std::string expresstion_str;
+    if( has_time )
+        expresstion_str = "^(\\d{4}-\\d{2}-\\d{2})\\s(\\d{2}:\\d{2})\\t(\\d+\\.\\d+)\\t(\\d+\\.\\d+)\\t(\\d+\\.\\d+)\\t(\\d+\\.\\d+)\\t(\\d+)\\t(\\d+\\.\\d+)$";
+    else
+        expresstion_str = "^(\\d{8})\\t(\\d+\\.\\d+)\\t(\\d+\\.\\d+)\\t(\\d+\\.\\d+)\\t(\\d+\\.\\d+)\\t(\\d+)\\t(\\d+\\.\\d+)$";
+
+    std::regex  regex_obj(expresstion_str);
+    char *p = m_szResult;
+    while( *p != '\0' && *p != '\n') ++p;
+    ++p;
+
+    char *p_line_beg = p;
+    while( *p != '\0')
+    {
+        p_line_beg = p;
+        while( *p != '\0' && *p != '\n')++p;
+        *p = '\0';
+        ++p;
+        std::string src_str = p_line_beg;
+
+        std::smatch  match_result;
+        if( std::regex_match(src_str.cbegin(), src_str.cend(), match_result, regex_obj) )
+        {
+            int index = 1;
+            std::cout << match_result[index] << " "; // date
+            if( has_time )
+                std::cout << match_result[++index] << " "; // time
+            std::cout << match_result[++index] << " "; // open 
+            std::cout << match_result[++index] << " "; // close 
+            std::cout << match_result[++index] << " "; // high
+            std::cout << match_result[++index] << " "; // low
+            std::cout << match_result[++index] << " "; // vol
+            std::cout << match_result[++index] << " " << std::endl; // amount
+        }
+    }
+
+    std::cout << m_szResult << std::endl;
+    return 0;
+}

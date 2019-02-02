@@ -16,10 +16,13 @@
  
 #include "py_data_man.h"
 
+#include "tdx_hq_wrapper.h"
+
 #define RESERVE_CAPACITY_IN_T_VECTOR    1024*16
 //#define RESERVE_SIZE_IN_T_VECTOR    1024*16
 //#define FIRST_STARTPOS_IN_T_VECTOR  10000
-//#define USE_STK_QUOTER
+
+TypePeriod ToTypePeriod(PeriodType src);
 
 static bool compare(const T_StockHisDataItem &lh, const T_StockHisDataItem &rh)
 {
@@ -50,9 +53,11 @@ StockDataMan::StockDataMan()
     , day_stock_his_items_(1024)
     , week_stock_his_items_(1024)
     , mon_stock_his_items_(1024)
+#ifdef USE_WINNER_API
     , WinnerHisHq_GetKData_(nullptr)
     , WinnerHisHq_Connect_(nullptr)
     , WinnerHisHq_DisConnect_(nullptr)
+#endif
     , p_stk_hisdata_item_vector_(nullptr)
 {
     //LoadDataFromFile("./data/600030.dat");
@@ -61,8 +66,10 @@ StockDataMan::StockDataMan()
 
 StockDataMan::~StockDataMan()
 {
+#ifdef USE_WINNER_API
     if( WinnerHisHq_DisConnect_ )
         WinnerHisHq_DisConnect_();
+#endif
 }
 
 bool StockDataMan::Init()
@@ -84,7 +91,7 @@ bool StockDataMan::Init()
         return true;
     else
         return false;
-#else
+#elif defined(USE_WINNER_API)
     HMODULE moudle_handle = LoadLibrary("winner_api.dll");
     if( !moudle_handle )
     {
@@ -118,6 +125,10 @@ bool StockDataMan::Init()
     {
         QMessageBox::information(nullptr, QString::fromLocal8Bit("提示"), QString::fromLocal8Bit("连接行情服务器失败!")); 
     }
+#elif defined(USE_TDXHQ)
+
+    tdx_hq_wrapper_.Init();
+
 #endif
 
     return ret;
@@ -149,6 +160,7 @@ void call_back_fun(T_K_Data *k_data, bool is_end, void *para/*, std::vector<T_St
     }
 }
  
+
 // date is save from older(smaller) date to newer(bigger). ps: data in container is series trade date
 T_HisDataItemContainer* StockDataMan::AppendStockData(PeriodType period_type, const std::string &stk_code, int start_date, int end_date, bool is_index)
 {
@@ -162,7 +174,8 @@ T_HisDataItemContainer* StockDataMan::AppendStockData(PeriodType period_type, co
     count = stk_his_data_(const_cast<char*>(stk_code.c_str()), start_date, end_date, &p_data_items);
     if( count < 1 )
       return std::addressof(iter_already->second);
-#else 
+
+#elif defined(USE_WINNER_API)
     //std::vector<T_StockHisDataItem> data_item_vector;
     if( !WinnerHisHq_GetKData_ )
         return std::addressof(items_in_container);
@@ -194,9 +207,11 @@ T_HisDataItemContainer* StockDataMan::AppendStockData(PeriodType period_type, co
         return std::addressof(items_in_container);
     }
     count = p_data_items.size();
+#elif defined(USE_TDXHQ)
+
+    tdx_hq_wrapper_.GetHisKBars(stk_code, ToTypePeriod(period_type));
 #endif
     
-#if 1
     // save data to day_stock_his_items_ and sort it ---------------------------
    
     // only can insert to back or front 
@@ -235,7 +250,7 @@ T_HisDataItemContainer* StockDataMan::AppendStockData(PeriodType period_type, co
             items_in_container.push_back(std::move(k_item));
         }
     }
-#else
+#elif defined(USE_WINNER_API)
         if( p_data_items[p_data_items.size()-1].date <= items_in_container.back()->stk_item.date )
         { 
             for( int k = count; k > 0; --k )
@@ -268,10 +283,11 @@ T_HisDataItemContainer* StockDataMan::AppendStockData(PeriodType period_type, co
         }
     }
 #endif
+    }
     // sort T_KlineDateItems by day from small to bigger
     std::sort(items_in_container.begin(), items_in_container.end(), dompare);
-     
-#endif 
+ 
+
 #ifdef USE_STK_QUOTER
 	stk_hisdata_release_(p_data_items);
 #else
@@ -551,4 +567,21 @@ void TraverseSetDownwardFractal( std::deque<std::shared_ptr<T_KlineDataItem> > &
         }
         ++index;
     }//while
+}
+
+
+TypePeriod ToTypePeriod(PeriodType src)
+{
+    switch(src)
+    {
+    case PeriodType::PERIOD_5M: return TypePeriod::PERIOD_5M;
+    case PeriodType::PERIOD_15M: return TypePeriod::PERIOD_15M;
+    case PeriodType::PERIOD_30M: return TypePeriod::PERIOD_30M;
+    case PeriodType::PERIOD_HOUR: return TypePeriod::PERIOD_HOUR;
+    case PeriodType::PERIOD_DAY: return TypePeriod::PERIOD_DAY;
+    case PeriodType::PERIOD_WEEK: return TypePeriod::PERIOD_WEEK;
+    case PeriodType::PERIOD_MON: return TypePeriod::PERIOD_MON;
+    assert(false); 
+    }
+    return TypePeriod::PERIOD_DAY;
 }

@@ -23,6 +23,11 @@
 //#define TOP_AXIS_T_7     0x00000080
 //#define TOP_AXIS_T_9     0x00000100
 //#define TOP_AXIS_T_11    0x00000200
+
+//#define USE_STK_QUOTER
+//#define USE_WINNER_API
+#define USE_TDXHQ
+
 enum class FractalType : int
 {
  UNKNOW_FRACTAL  = 0,
@@ -63,6 +68,7 @@ enum class TypePeriod : unsigned char
     PERIOD_DAY,
     PERIOD_WEEK,
     PERIOD_MON,
+    PERIOD_YEAR,
 };
 
 
@@ -144,5 +150,16 @@ std::string TransIndex2TusharedCode(const std::string &code);
 
 FractalType  MaxFractalType(int val);
 FractalType  BtmestFractalType(int val);
+
+typedef struct _t_k_data
+{
+    int yyyymmdd;
+    int hhmmdd;
+    double open;
+    double close;
+    double high;
+    double low;
+    int vol;
+}T_K_Data;
 
 #endif // STKFO_COMMON_SDF3DSF_H_

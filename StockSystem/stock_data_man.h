@@ -14,6 +14,8 @@
 #include "stk_quoter_api.h"
 #include "winner_hq_api.h"
 
+#include "tdx_hq_wrapper.h"
+
 //typedef std::list<T_StockHisDataItem>  T_HisDataItemList;
 //typedef std::vector<std::shared_ptr<T_KlineDataItem> >  T_HisDataItemContainer;
 typedef std::deque<std::shared_ptr<T_KlineDataItem> >  T_HisDataItemContainer;
@@ -69,11 +71,14 @@ private:
 #ifdef USE_STK_QUOTER
     StkHisDataDelegate stk_his_data_;
     StkRelHisDataDelegate stk_hisdata_release_;
-#else
+#elif defined(USE_WINNER_API)
     WinnerHisHq_ConnectDelegate WinnerHisHq_Connect_;
     WinnerHisHq_DisconnectDelegate WinnerHisHq_DisConnect_;
     WinnerHisHq_GetKDataDelegate  WinnerHisHq_GetKData_;
     T_KDataCallBack  call_back_obj_;
+
+#elif defined(USE_TDXHQ)
+    TdxHqWrapper  tdx_hq_wrapper_;
 #endif
     std::shared_ptr<PyDataMan> py_data_man_;
      

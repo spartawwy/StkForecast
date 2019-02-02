@@ -93,8 +93,12 @@ int test_hq_batch_funcs(const char *pszHqSvrIP, short nPort)
 
     //获取股票K线数据
     Count = 800;  //200 MAX IS 800 
+    //<param name="nCategory">K线种类, 0->5分钟K线    1->15分钟K线    2->30分钟K线  3->1小时K线    
+    // 4->日K线  5->周K线  6->月K线  7->1分钟  8->1分钟K线  9->日K线  10->季K线  11->年K线< / param>
     //bool1 = TdxHq_GetSecurityBars(nConn, 8, 0, "000001", 100, &Count, m_szResult, m_szErrInfo);//数据种类, 0->5分钟K线    1->15分钟K线    2->30分钟K线  3->1小时K线    4->日K线  5->周K线  6->月K线  7->1分钟K线  8->1分钟K线  9->日K线  10->季K线  11->年K线
-    bool1 = TdxHq_GetSecurityBars(nConn, 0, 1, "600196", 1000/*start pos from back to front*/, &Count, m_szResult, m_szErrInfo);//数据种类, 0->5分钟K线    1->15分钟K线    2->30分钟K线  3->1小时K线    4->日K线  5->周K线  6->月K线  7->1分钟K线  8->1分钟K线  9->日K线  10->季K线  11->年K线
+    
+    int kline_type = 5;  // if week kline the date stamp is Friday of each week
+    bool1 = TdxHq_GetSecurityBars(nConn, kline_type/*nCategory*/, 1, "600196", 0/*start pos from back to front*/, &Count, m_szResult, m_szErrInfo);//数据种类, 0->5分钟K线    1->15分钟K线    2->30分钟K线  3->1小时K线    4->日K线  5->周K线  6->月K线  7->1分钟K线  8->1分钟K线  9->日K线  10->季K线  11->年K线
     if( !bool1 )
     {
         cout << m_szErrInfo << endl;
@@ -105,7 +109,15 @@ int test_hq_batch_funcs(const char *pszHqSvrIP, short nPort)
         std::cout << " result empty !" << std::endl;
         return 0;
     }
-    std::regex  regex_obj("^(\\d{4}-\\d{2}-\\d{2})\\s(\\d{2}:\\d{2})\\t(\\d+\\.\\d+)\\t(\\d+\\.\\d+)\\t(\\d+\\.\\d+)\\t(\\d+\\.\\d+)\\t(\\d+)\\t(\\d+\\.\\d+)$");
+
+    bool has_time = ( kline_type < 4 || kline_type == 7 || kline_type == 8 ) ? true : false;
+    std::string expresstion_str;
+    if( has_time )
+        expresstion_str = "^(\\d{4}-\\d{2}-\\d{2})\\s(\\d{2}:\\d{2})\\t(\\d+\\.\\d+)\\t(\\d+\\.\\d+)\\t(\\d+\\.\\d+)\\t(\\d+\\.\\d+)\\t(\\d+)\\t(\\d+\\.\\d+)$";
+    else
+        expresstion_str = "^(\\d{8})\\t(\\d+\\.\\d+)\\t(\\d+\\.\\d+)\\t(\\d+\\.\\d+)\\t(\\d+\\.\\d+)\\t(\\d+)\\t(\\d+\\.\\d+)$";
+
+    std::regex  regex_obj(expresstion_str);
     char *p = m_szResult;
     while( *p != '\0' && *p != '\n') ++p;
     ++p;
@@ -122,14 +134,16 @@ int test_hq_batch_funcs(const char *pszHqSvrIP, short nPort)
         std::smatch  match_result;
         if( std::regex_match(src_str.cbegin(), src_str.cend(), match_result, regex_obj) )
         {
-            std::cout << match_result[1] << " "; // date
-            std::cout << match_result[2] << " "; // time
-            std::cout << match_result[3] << " "; // open 
-            std::cout << match_result[4] << " "; // close 
-            std::cout << match_result[5] << " "; // high
-            std::cout << match_result[6] << " "; // low
-            std::cout << match_result[7] << " "; // vol
-            std::cout << match_result[8] << " " << std::endl; // amount
+            int index = 1;
+            std::cout << match_result[index] << " "; // date
+            if( has_time )
+                std::cout << match_result[++index] << " "; // time
+            std::cout << match_result[++index] << " "; // open 
+            std::cout << match_result[++index] << " "; // close 
+            std::cout << match_result[++index] << " "; // high
+            std::cout << match_result[++index] << " "; // low
+            std::cout << match_result[++index] << " "; // vol
+            std::cout << match_result[++index] << " " << std::endl; // amount
         }
     }
     

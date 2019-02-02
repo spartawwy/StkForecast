@@ -51,6 +51,9 @@
     <Filter Include="win">
       <UniqueIdentifier>{33a668c1-7eac-425f-91bb-4411f1d3d620}</UniqueIdentifier>
     </Filter>
+    <Filter Include="include\tdxhq">
+      <UniqueIdentifier>{e37f4162-6998-4ded-b6de-bd48b215bc69}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -123,6 +126,12 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="stock_data_man.cpp">
+      <Filter>moudle</Filter>
+    </ClCompile>
+    <ClCompile Include="tdx_hq_wrapper.cpp">
+      <Filter>moudle</Filter>
+    </ClCompile>
+    <ClCompile Include="qrc_res.cpp">
       <Filter>moudle</Filter>
     </ClCompile>
   </ItemGroup>
@@ -216,6 +225,21 @@
     </ClInclude>
     <ClInclude Include="stock_data_man.h">
       <Filter>moudle</Filter>
+    </ClInclude>
+    <ClInclude Include="tdx_hq_wrapper.h">
+      <Filter>moudle</Filter>
+    </ClInclude>
+    <ClInclude Include="tdxhq\ExHqApi.h">
+      <Filter>include\tdxhq</Filter>
+    </ClInclude>
+    <ClInclude Include="tdxhq\HqApi.h">
+      <Filter>include\tdxhq</Filter>
+    </ClInclude>
+    <ClInclude Include="tdxhq\L2HqApi.h">
+      <Filter>include\tdxhq</Filter>
+    </ClInclude>
+    <ClInclude Include="tdxhq\TradeApi-M.h">
+      <Filter>include\tdxhq</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

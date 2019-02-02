@@ -37,7 +37,7 @@ public:
     void ResetDrawState(DrawAction draw_action);
     void ClearForcastData();
 
-    void ResetTypePeriod(TypePeriod  type);
+    void RestTypePeriod(TypePeriod  type);
 
     PeriodType ToPeriodType(TypePeriod src);
     
