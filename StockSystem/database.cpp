@@ -8,7 +8,9 @@
 #include <TLib/core/tsystem_core_common.h>
 #include <TLib/core/tsystem_sqlite_functions.h>
 #include <TLib/core/tsystem_utility_functions.h>
+#include <Tlib/core/tsystem_time.h>
 
+#include "exchange_calendar.h"
 #include "stk_forecast_app.h"
 #include "stock_man.h"
 
@@ -71,4 +73,39 @@ void DataBase::LoadAllStockBaseInfo(std::shared_ptr<StockMan> &stock_man)
         stock_man->code_stock_baseinfo_item_map_.insert( std::make_pair(item->code, std::move(item)) );
         return 0;
     });
+}
+
+
+void DataBase::LoadTradeDate(void *exchange_calendar)
+{
+    assert(db_conn_);
+    if( !db_conn_ )
+        Open(db_conn_);
+
+    if( !utility::ExistTable("ExchangeDate", *db_conn_) )
+        throw "DBMoudle::LoadTradeDate can't find table ExchangeDate"; 
+
+    //std::string sql = "SELECT date FROM ExchangeDate WHERE is_tradeday = 1 ORDER BY date ";
+    std::string sql = utility::FormatStr("SELECT date, is_tradeday FROM ExchangeDate WHERE date <= %d ORDER BY date DESC", TSystem::Today());
+    int num = 0;
+    ((ExchangeCalendar*)exchange_calendar)->min_trade_date_ = 0;
+    db_conn_->ExecuteSQL(sql.c_str(), [&num, &exchange_calendar, this](int num_cols, char** vals, char** names)->int
+    { 
+        try
+        { 
+            ++num;
+            int date =  boost::lexical_cast<int>(*(vals)); 
+            bool is_trade_date = boost::lexical_cast<bool>(*(vals + 1)); 
+            ((ExchangeCalendar*)exchange_calendar)->trade_dates_->insert(std::make_pair(date, is_trade_date));
+
+            if( ((ExchangeCalendar*)exchange_calendar)->min_trade_date_ == 0 )
+                ((ExchangeCalendar*)exchange_calendar)->min_trade_date_ = date;
+
+            ((ExchangeCalendar*)exchange_calendar)->max_trade_date_ = date;
+        }catch(boost::exception& )
+        {
+            return 0;
+        } 
+        return 0;
+    }); 
 }

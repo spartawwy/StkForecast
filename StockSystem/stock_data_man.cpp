@@ -45,7 +45,7 @@ void TraverseSetUpwardFractal( std::deque<std::shared_ptr<T_KlineDataItem> > &kl
 // 上分形遍历
 void TraverseSetDownwardFractal( std::deque<std::shared_ptr<T_KlineDataItem> > &kline_data_items);
 
-StockDataMan::StockDataMan()
+StockDataMan::StockDataMan(ExchangeCalendar *p_exchange_calendar)
     : m5_stock_his_items_(1024)
     , m15_stock_his_items_(1024)
     , m30_stock_his_items_(1024)
@@ -59,6 +59,7 @@ StockDataMan::StockDataMan()
     , WinnerHisHq_DisConnect_(nullptr)
 #endif
     , p_stk_hisdata_item_vector_(nullptr)
+    , tdx_hq_wrapper_(p_exchange_calendar)
 {
     //LoadDataFromFile("./data/600030.dat");
 
@@ -134,7 +135,7 @@ bool StockDataMan::Init()
     return ret;
 }
 
-
+#ifdef USE_WINNER_API
 void call_back_fun(T_K_Data *k_data, bool is_end, void *para/*, std::vector<T_StockHisDataItem> &data_item_vector*/)
 {
     T_KDataCallBack *cb_obj = (T_KDataCallBack*)para;
@@ -159,7 +160,7 @@ void call_back_fun(T_K_Data *k_data, bool is_end, void *para/*, std::vector<T_St
         }
     }
 }
- 
+#endif
 
 // date is save from older(smaller) date to newer(bigger). ps: data in container is series trade date
 T_HisDataItemContainer* StockDataMan::AppendStockData(PeriodType period_type, const std::string &stk_code, int start_date, int end_date, bool is_index)
@@ -207,9 +208,18 @@ T_HisDataItemContainer* StockDataMan::AppendStockData(PeriodType period_type, co
         return std::addressof(items_in_container);
     }
     count = p_data_items.size();
-#elif defined(USE_TDXHQ)
 
-    tdx_hq_wrapper_.GetHisKBars(stk_code, ToTypePeriod(period_type));
+#elif defined(USE_TDXHQ)
+    auto p_stk_hisdata_item_vector = new std::vector<T_StockHisDataItem>();
+    std::vector<T_StockHisDataItem> &p_data_items = *p_stk_hisdata_item_vector;  
+    bool ret = tdx_hq_wrapper_.GetHisKBars(stk_code, ToTypePeriod(period_type), start_date, end_date, *p_stk_hisdata_item_vector);
+    if( !ret )
+    {
+        delete p_stk_hisdata_item_vector_;
+        p_stk_hisdata_item_vector_ = nullptr;
+        return std::addressof(items_in_container);
+    }
+    count = p_stk_hisdata_item_vector->size();
 #endif
     
     // save data to day_stock_his_items_ and sort it ---------------------------
@@ -218,7 +228,7 @@ T_HisDataItemContainer* StockDataMan::AppendStockData(PeriodType period_type, co
     //std::deque<std::shared_ptr<T_KlineDataItem> > &items_in_container = iter_already->second; 
     if( !items_in_container.empty() )
     {
-#ifdef USE_STK_QUOTER
+#if  defined(USE_STK_QUOTER)
         if( p_data_items[0].date < items_in_container.back()->stk_item.date )
         { 
             for( int k = 0; k < count; ++k )
@@ -250,7 +260,7 @@ T_HisDataItemContainer* StockDataMan::AppendStockData(PeriodType period_type, co
             items_in_container.push_back(std::move(k_item));
         }
     }
-#elif defined(USE_WINNER_API)
+#elif defined(USE_WINNER_API) || defined(USE_TDXHQ)
         if( p_data_items[p_data_items.size()-1].date <= items_in_container.back()->stk_item.date )
         { 
             for( int k = count; k > 0; --k )
@@ -283,16 +293,18 @@ T_HisDataItemContainer* StockDataMan::AppendStockData(PeriodType period_type, co
         }
     }
 #endif
-    }
+    
     // sort T_KlineDateItems by day from small to bigger
     std::sort(items_in_container.begin(), items_in_container.end(), dompare);
  
-
-#ifdef USE_STK_QUOTER
-	stk_hisdata_release_(p_data_items);
-#else
+#if defined(USE_WINNER_API) 
      delete p_stk_hisdata_item_vector_;
      p_stk_hisdata_item_vector_ = nullptr;
+#elif defined(USE_TDXHQ)
+    delete p_stk_hisdata_item_vector;
+    p_stk_hisdata_item_vector = nullptr;
+#else
+    stk_hisdata_release_(p_data_items);
 #endif
 
     TraverseSetUpwardFractal(items_in_container);

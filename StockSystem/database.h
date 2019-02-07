@@ -30,6 +30,7 @@ public:
     bool Initialize();
 
     void LoadAllStockBaseInfo(std::shared_ptr<StockMan> &stock_man);
+    void LoadTradeDate(void *exchange_calendar);
 
 private:
      

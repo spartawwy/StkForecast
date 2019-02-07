@@ -32,6 +32,7 @@ typedef struct _t_quote_atom_data
     unsigned char bid_type; // 0: buy_pan  1 :sell_pan
 }T_QuoteAtomData;
 
+#ifndef T_K_Data
 typedef struct _t_k_data
 {
     int yyyymmdd;
@@ -43,6 +44,8 @@ typedef struct _t_k_data
     int vol;
 }T_K_Data;
 
+#define T_K_Data T_K_Data
+#endif
 typedef void (*FenbiCallBack)(T_QuoteAtomData *quote_data, bool is_end, void *para);
 typedef struct _t_fenbi_call_back
 {

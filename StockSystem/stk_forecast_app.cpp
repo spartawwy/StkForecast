@@ -5,6 +5,7 @@
 
 #include <Tlib/core/tsystem_core_common.h>
 
+#include "exchange_calendar.h"
 #include "database.h"
 #include "stock_man.h"
 
@@ -35,6 +36,7 @@ bool StkForecastApp::Init()
     work_dir(cur_dir);
     local_logger_.SetDir(cur_dir);
     //---------------
+
     data_base_ = std::make_shared<DataBase>(this);
     if( !data_base_->Initialize() )
     {
@@ -43,6 +45,8 @@ bool StkForecastApp::Init()
     stock_man_ = std::make_shared<StockMan>();
 
     data_base_->LoadAllStockBaseInfo(stock_man_);
+    exchange_calendar_ = std::make_shared<ExchangeCalendar>();
+    data_base_->LoadTradeDate(exchange_calendar_.get());
 
     if( !stock_man_->Initialize() )
     {

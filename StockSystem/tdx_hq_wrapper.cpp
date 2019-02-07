@@ -1,16 +1,19 @@
 #include "tdx_hq_wrapper.h"
 
+#include <boost/lexical_cast.hpp>
 #include <string>
 #include <iostream>
 #include <cassert>
 #include <regex>
 
 #include "tdxhq/HqApi.h"
+#include "exchange_calendar.h"
 
 #pragma comment(lib, "TradeX2-M.lib")
 
-TdxHqWrapper::TdxHqWrapper()
+TdxHqWrapper::TdxHqWrapper(ExchangeCalendar  *exchange_calendar)
     : conn_handle_(0)
+    , exchange_calendar_(exchange_calendar)
 {
 
 }
@@ -23,8 +26,13 @@ TdxHqWrapper::~TdxHqWrapper()
 
 bool TdxHqWrapper::Init()
 {
+   return ConnectServer();
+}
+
+bool TdxHqWrapper::ConnectServer()
+{
     //开始获取行情数据
-    
+
     const int cst_result_len = 1024 * 1024;
     const int cst_err_len = 1024; 
 
@@ -49,8 +57,11 @@ bool TdxHqWrapper::Init()
     return true;
 }
 
-int TdxHqWrapper::GetHisKBars(const std::string &code, TypePeriod kbar_type)
+// items date is from small to big
+bool TdxHqWrapper::GetHisKBars(const std::string &code, TypePeriod kbar_type, int start_date, int end_date, std::vector<T_StockHisDataItem> &items)
 {
+    assert(exchange_calendar_);
+    std::vector<T_K_Data> resut;
     const int cst_result_len = 1024 * 1024;
     const int cst_err_len = 1024; 
 
@@ -61,7 +72,7 @@ int TdxHqWrapper::GetHisKBars(const std::string &code, TypePeriod kbar_type)
     memset(m_szErrInfo, 0, cst_err_len);
     
     //获取股票K线数据
-    short count = 200;
+    
     //数据种类, 0->5分钟K线    1->15分钟K线    2->30分钟K线  3->1小时K线    4->日K线  5->周K线  6->月K线  7->1分钟K线  8->1分钟K线  9->日K线  10->季K线  11->年K线
     int ktype = 4;
     switch(kbar_type)
@@ -87,16 +98,28 @@ int TdxHqWrapper::GetHisKBars(const std::string &code, TypePeriod kbar_type)
     else 
         market_type = 0;
 
-    short start = 0;  // back forward
+    auto tuple_index_len = exchange_calendar_->GetStartDateAndLen_backforward(start_date, end_date);
+    
+    short start = std::get<0>(tuple_index_len);  // back forward
+    short count = std::get<1>(tuple_index_len);
     bool bool1 = TdxHq_GetSecurityBars(conn_handle_, ktype, market_type, const_cast<char*>(code.c_str()), start, &count, m_szResult, m_szErrInfo);
     if( !bool1 )
     { 
-        return count;
+        if (strstr(m_szErrInfo, "10038") )
+        {
+            if( ConnectServer() )
+            {
+                bool1 = TdxHq_GetSecurityBars(conn_handle_, ktype, market_type, const_cast<char*>(code.c_str()), start, &count, m_szResult, m_szErrInfo);
+                if( !bool1 )
+                    return false;
+            }
+        }else
+            return false;
     }
     if( strlen(m_szResult) < 1 )
     {
         std::cout << " result empty !" << std::endl;
-        return 0;
+        return false;
     }
     
     const bool has_time = ( ktype < 4 || ktype == 7 || ktype == 8 ) ? true : false;
@@ -109,6 +132,7 @@ int TdxHqWrapper::GetHisKBars(const std::string &code, TypePeriod kbar_type)
     std::regex  regex_obj(expresstion_str);
     char *p = m_szResult;
     while( *p != '\0' && *p != '\n') ++p;
+
     ++p;
 
     char *p_line_beg = p;
@@ -124,18 +148,35 @@ int TdxHqWrapper::GetHisKBars(const std::string &code, TypePeriod kbar_type)
         if( std::regex_match(src_str.cbegin(), src_str.cend(), match_result, regex_obj) )
         {
             int index = 1;
-            std::cout << match_result[index] << " "; // date
-            if( has_time )
-                std::cout << match_result[++index] << " "; // time
-            std::cout << match_result[++index] << " "; // open 
-            std::cout << match_result[++index] << " "; // close 
-            std::cout << match_result[++index] << " "; // high
-            std::cout << match_result[++index] << " "; // low
-            std::cout << match_result[++index] << " "; // vol
-            std::cout << match_result[++index] << " " << std::endl; // amount
+            T_StockHisDataItem  k_data;
+            try
+            {
+                std::cout << match_result[index] << " "; // date
+                k_data.date = boost::lexical_cast<int>(match_result[index]);
+                ++index;
+                if( has_time )
+                {
+                    k_data.hhmmss = boost::lexical_cast<int>(match_result[index]);
+                    ++index;
+                }
+                k_data.open_price = boost::lexical_cast<double>(match_result[index]);
+                ++index;
+                k_data.close_price = boost::lexical_cast<double>(match_result[index]);
+                ++index;
+                k_data.high_price = boost::lexical_cast<double>(match_result[index]);
+                ++index;
+                k_data.low_price = boost::lexical_cast<double>(match_result[index]);
+                ++index;
+                k_data.vol = boost::lexical_cast<int>(match_result[index]);
+                ++index;
+                items.push_back(std::move(k_data));
+
+            }catch(boost::exception& )
+            {
+
+            }
         }
     }
-
-    std::cout << m_szResult << std::endl;
-    return 0;
+    //std::cout << m_szResult << std::endl;
+    return true;
 }

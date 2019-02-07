@@ -6,7 +6,6 @@
 #include <memory>
 #include <unordered_map>
 #include <vector>
-#include <deque>
  
 #include "stkfo_common.h"
 
@@ -18,14 +17,14 @@
 
 //typedef std::list<T_StockHisDataItem>  T_HisDataItemList;
 //typedef std::vector<std::shared_ptr<T_KlineDataItem> >  T_HisDataItemContainer;
-typedef std::deque<std::shared_ptr<T_KlineDataItem> >  T_HisDataItemContainer;
-typedef std::unordered_map<std::string, T_HisDataItemContainer>  T_CodeMapHisDataItemContainer;
 
+
+class ExchangeCalendar;
 class StockDataMan
 {
 public:
 
-    StockDataMan();
+    StockDataMan(ExchangeCalendar *p_exchange_calendar);
     ~StockDataMan();
     bool Init();
 
@@ -83,6 +82,7 @@ private:
     std::shared_ptr<PyDataMan> py_data_man_;
      
     //std::vector<std::shared_ptr<T_KlineDataItem> > day_kline_data_container_;
+   
 };
 
 #endif // STOCK_DATA_MAN_H

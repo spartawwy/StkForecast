@@ -2,6 +2,9 @@
 #define  STKFO_COMMON_SDF3DSF_H_
 
 #include <string>
+#include <memory>
+#include <unordered_map>
+#include <deque>
 #include <QString>
 
 #include <QtCore/QPoint>
@@ -151,6 +154,7 @@ std::string TransIndex2TusharedCode(const std::string &code);
 FractalType  MaxFractalType(int val);
 FractalType  BtmestFractalType(int val);
 
+#ifndef T_K_Data
 typedef struct _t_k_data
 {
     int yyyymmdd;
@@ -161,5 +165,10 @@ typedef struct _t_k_data
     double low;
     int vol;
 }T_K_Data;
+#define T_K_Data  T_K_Data
+#endif
+
+typedef std::deque<std::shared_ptr<T_KlineDataItem> >  T_HisDataItemContainer;
+typedef std::unordered_map<std::string, T_HisDataItemContainer>  T_CodeMapHisDataItemContainer;
 
 #endif // STKFO_COMMON_SDF3DSF_H_

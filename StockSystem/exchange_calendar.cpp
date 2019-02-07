@@ -21,7 +21,7 @@ bool ExchangeCalendar::IsTradeDate(int date)
 int ExchangeCalendar::PreTradeDate(int date, unsigned int n)
 {   
     assert(trade_dates_->size() > 0);
-    auto date_time_point = TSystem::MakeTimePoint(date/10000, (date % 10000) / 100, date % 100);
+    // auto date_time_point = TSystem::MakeTimePoint(date/10000, (date % 10000) / 100, date % 100);
     unsigned int count = 0;
     int i = 1;
     T_DateMapIsopen &date_map_opend = *trade_dates_;
@@ -31,7 +31,8 @@ int ExchangeCalendar::PreTradeDate(int date, unsigned int n)
         a = DateAddDays(date, -1 * i);  
         if( a < min_trade_date_ )
             return 0;
-        if( date_map_opend.find(a) != date_map_opend.end() )
+        auto iter = date_map_opend.find(a);
+        if( iter != date_map_opend.end() && iter->second )
             ++count;
         ++i;
     }
@@ -41,7 +42,7 @@ int ExchangeCalendar::PreTradeDate(int date, unsigned int n)
 int ExchangeCalendar::NextTradeDate(int date, unsigned int n)
 {   
     assert(trade_dates_->size() > 0);
-    auto date_time_point = TSystem::MakeTimePoint(date/10000, (date % 10000) / 100, date % 100);
+    //auto date_time_point = TSystem::MakeTimePoint(date/10000, (date % 10000) / 100, date % 100);
     unsigned int count = 0;
     int i = 1;
     T_DateMapIsopen &date_map_opend = *trade_dates_;
@@ -51,11 +52,59 @@ int ExchangeCalendar::NextTradeDate(int date, unsigned int n)
         a = DateAddDays(date, i);  
         if( a > max_trade_date_ )
             return 0;
-        if( date_map_opend.find(a) != date_map_opend.end() )
+        auto iter = date_map_opend.find(a);
+        if( iter != date_map_opend.end() && iter->second )
             ++count;
         ++i;
     }
     return a;
+}
+
+// ps: end_date <= today
+T_TupleIndexLen ExchangeCalendar::GetStartDateAndLen_backforward(int start_date, int end_date)
+{
+    assert(trade_dates_->size() > 0);
+    assert(start_date <= end_date);
+
+    const int today = TSystem::Today();
+    int actual_end_date = end_date;
+    if( actual_end_date >= today )
+        actual_end_date = today;
+    int start_index = DateTradingSpan(actual_end_date, today);
+    int len = DateTradingSpan(start_date, actual_end_date);
+    return std::make_tuple(start_index, len + 1);
+}
+
+// return span of trading dates between
+// ps: start_date <= end_date
+int  ExchangeCalendar::DateTradingSpan(int start_date, int end_date)
+{
+    assert(start_date <= end_date);
+
+    if( start_date == end_date ) 
+        return 0;
+    int target_end_date = end_date;
+    if( !IsTradeDate(target_end_date) )
+        target_end_date = PreTradeDate(target_end_date, 1);
+
+    int target_start_date = start_date;
+    if( !IsTradeDate(target_start_date) )
+        target_start_date = NextTradeDate(target_start_date, 1);
+    if( target_end_date <= target_start_date ) 
+        return 0;
+
+    T_DateMapIsopen &date_map_opend = *trade_dates_;
+    int tmp_date = 0;
+    unsigned int span = 0;
+    int i = 1;
+    do{
+        tmp_date = DateAddDays(target_end_date, -1 * i++);  
+        auto iter = date_map_opend.find(tmp_date);
+        if( iter != date_map_opend.end() && iter->second )
+            ++span;
+    }while( target_start_date < tmp_date );
+
+    return span;
 }
 
 int ExchangeCalendar::TodayAddDays(int days)
