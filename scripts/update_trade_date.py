@@ -6,7 +6,8 @@ import sqlite3
 import getopt
 import tushare as ts
 
-DB_FILE_PATH = '../build/Win32/Debug/ExchBase.kd'
+#DB_FILE_PATH = '../build/Win32/Debug/ExchBase.kd'
+DB_FILE_PATH = './ExchBase.kd'
 g_db_conn = None
 g_dic_proditem = {}
  
@@ -48,7 +49,7 @@ if __name__ == "__main__":
     if df.empty:
         print("get trade calender fail!")
         os.exit(0)
-    sql = " INSERT INTO ExchangeDate VALUES (?, ?)"
+    sql = " INSERT OR REPLACE INTO ExchangeDate VALUES (?, ?)"
     cu = g_db_conn.cursor()
     cu.execute("DELETE FROM ExchangeDate")
     total = len(df['calendarDate'])   

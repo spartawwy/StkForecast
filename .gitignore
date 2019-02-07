@@ -24,7 +24,6 @@
 *.ilk
 *.unsuccessfulbuild
 *.opensdf
-*.kd
 *.idb
 *.suo
 
