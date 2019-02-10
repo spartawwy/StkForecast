@@ -134,6 +134,9 @@
     <ClCompile Include="qrc_res.cpp">
       <Filter>moudle</Filter>
     </ClCompile>
+    <ClCompile Include="zhibiao_window.cpp">
+      <Filter>win</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="klinewall.ui">
@@ -240,6 +243,9 @@
     </ClInclude>
     <ClInclude Include="tdxhq\TradeApi-M.h">
       <Filter>include\tdxhq</Filter>
+    </ClInclude>
+    <ClInclude Include="zhibiao_window.h">
+      <Filter>win</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -10,6 +10,8 @@
  
 #include "forcast_man.h"
 
+#include "zhibiao_window.h"
+
 //#define DRAW_FROM_LEFT
 #ifndef DRAW_FROM_LEFT 
 #define DRAW_FROM_RIGHT
@@ -58,8 +60,8 @@ private slots:
 	bool ResetStock(const QString& stock, TypePeriod type_period, bool is_index=false);
 
 private: 
-
-    int height_axis_trans_in_paint_k(){ return this->height() - bottom_h_; }
+    
+    int height_axis_trans_in_paint_k();
 
     void Draw2pDownForcast(QPainter &, const int mm_h, double item_w);
     void Draw2pUpForcast(QPainter &, const int mm_h, double item_w);
@@ -87,12 +89,14 @@ private:
 
     bool FindTopFractalItem_TowardLeft(T_HisDataItemContainer &his_data, T_HisDataItemContainer::reverse_iterator iter, int k_index, T_KlinePosData *&left_pos_data);
 
+    int Calculate_mm_h();
+
     StkForecastApp *app_;
     MainWindow  *main_win_;
 	Ui_KLineWallForm  ui;
     const int head_h_;
     const int bottom1_h_;
-    const int bottom2_h_;
+    const int bottom2_h_; 
     int bottom_h_;
      
 	StockInputDlg  stock_input_dlg_;
@@ -128,6 +132,8 @@ private:
      
     ForcastMan  forcast_man_;
     std::vector<T_Data2pDownForcast> data_2pforcast_downs_;
+
+    std::vector<std::shared_ptr<ZhibiaoWindow> > zb_windows_;
 };
 
 
