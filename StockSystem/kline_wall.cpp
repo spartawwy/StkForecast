@@ -28,6 +28,8 @@ KLineWall::KLineWall(StkForecastApp *app, QWidget *parent)
     , head_h_(30)
     , bottom1_h_(30)
     , bottom2_h_(30) 
+    , empty_right_w_(30)
+    , right_w_(30)
     , stock_code_()
     , is_index_(false)
     , stock_data_man_(app->exchange_calendar().get())
@@ -77,7 +79,7 @@ bool KLineWall::Init()
 int KLineWall::height_axis_trans_in_paint_k()
 { 
     int target_height = this->height() - bottom_h_; 
-    for( int i = 0 ; i < zb_windows_.size(); ++i )
+    for( unsigned int i = 0 ; i < zb_windows_.size(); ++i )
     {
         if( zb_windows_[i] )
             target_height -= zb_windows_[i]->height();
@@ -348,9 +350,7 @@ void KLineWall::UpdatePosDatas()
     const int mm_h = Calculate_mm_h();
      
     const int mm_w = this->width();
-    const int empty_right_w = 30;
-    static const int right_w = 30;
-    double item_w = double(mm_w - empty_right_w - right_w) / double(k_num_ + 1) ;
+    double item_w = double(mm_w - empty_right_w_ - right_w_) / double(k_num_ + 1) ;
     //double space_between_k = item_w / 4;
     double k_bar_w = item_w * 3 / 4;
     // clear position data
@@ -388,7 +388,7 @@ void KLineWall::UpdatePosDatas()
 
     // update position data --------------------------------
     int j = k_num_;
-    auto right_end = double(mm_w - empty_right_w - right_w) - k_bar_w;
+    auto right_end = double(mm_w - empty_right_w_ - right_w_) - k_bar_w;
 
     for( auto iter = p_hisdata_container_->rbegin();
         iter != p_hisdata_container_->rend() && j > 0; 
@@ -630,18 +630,31 @@ void KLineWall::paintEvent(QPaintEvent*)
         return w != this->pre_mm_w_ || h!= this->pre_mm_h_;
     }; 
  
+    static auto GetLargestVol = [this]()->double
+    {
+        double largest_vol = 0.0;
+        int k = k_num_;
+        for( auto iter = p_hisdata_container_->rbegin();
+            iter != p_hisdata_container_->rend() && k > 0; 
+            ++iter, --k)
+        if( (*iter)->stk_item.vol > largest_vol ) 
+            largest_vol = (*iter)->stk_item.vol;
+        return largest_vol;
+    };
     QPainter painter(this); 
+    QPen red_pen; red_pen.setColor(Qt::red); red_pen.setStyle(Qt::SolidLine); red_pen.setWidth(1);
+    QPen green_pen; green_pen.setColor(Qt::green); green_pen.setStyle(Qt::SolidLine); green_pen.setWidth(1);
+    QBrush red_brush(Qt::red);  
+    QBrush green_brush(Qt::green);  
+    QPen border_pen(red_pen); border_pen.setWidth(2);
+    QPen lit_border_pen(red_pen); lit_border_pen.setWidth(1);
     //qDebug() << "paintEvent QCursor::pos  x:" << QCursor::pos().x() << " y: "<< QCursor::pos().y() << "\n";
     auto pos_from_global = mapFromGlobal(QCursor::pos());
     //qDebug() << "paintEvent x:" << pos_from_global.x() << " y: "<< pos_from_global.y() << "\n";
-     
-    //const int mm_h = this->height() - head_h_ - bottom_h_;
+      
     const int mm_h = Calculate_mm_h();
     const int mm_w = this->width();
-    const int empty_right_w = 30;
-    const int right_w = 30;
-    
-      
+     
     const bool is_area_shape_change = IsAreaShapeChange(this->width(), this->height());
     if( is_area_shape_change )
     {
@@ -653,8 +666,7 @@ void KLineWall::paintEvent(QPaintEvent*)
      |
     \|/
     纵坐标(各行价格值)：((HighestMaxPrice - lowestMinPrice_) * i)/7  + lowestMinPrice_
-    横坐标(日期)：分成60等份，每天15像素，每天的横坐标
-    
+    横坐标(日期)：分成60等份，每天15像素，每天的横坐标 
     QFont font;  
     font.setPointSize(Y_SCALE_FONT_SIZE);      font.setFamily("Microsoft YaHei");  
     font.setLetterSpacing(QFont::AbsoluteSpacing,0);      painter.setFont(font);  
@@ -662,11 +674,11 @@ void KLineWall::paintEvent(QPaintEvent*)
     QFontMetricsF fontMetrics(font);  
     qreal wid = fontMetrics.width(scale_val_str);      qreal height = fontMetrics.height();  
     */ 
-    //painter.translate(30, 400);  //坐标平移
-    //painter.drawText(0, 0, "(0,0)");
-
+    //painter.translate(30, 400);  //坐标平移 //painter.drawText(0, 0, "(0,0)");
+    int trans_y_totoal = 0;
     const int h_axis_trans_in_paint_k = height_axis_trans_in_paint_k();
     painter.translate(0, h_axis_trans_in_paint_k); // translate frame of axes to bottom
+    trans_y_totoal += h_axis_trans_in_paint_k;
     QPointF cur_mous_point_trans(cur_mouse_point_.x(), cur_mouse_point_.y() - h_axis_trans_in_paint_k);
 
     do
@@ -674,7 +686,7 @@ void KLineWall::paintEvent(QPaintEvent*)
         if( draw_action_ == DrawAction::NO_ACTION ) 
             break;
         if( drawing_line_A_ == CST_MAGIC_POINT ) 
-            break;
+            break; 
         QPen pen;
         pen.setColor(Qt::magenta);
         pen.setWidth(2);
@@ -700,45 +712,38 @@ void KLineWall::paintEvent(QPaintEvent*)
     font.setPointSize(old_font.pointSize() * 2); 
    
     painter.setFont(font);
-    painter.drawText(mm_w - right_w - 70, -1 *(this->height() - 50), stock_code_.c_str());
+    painter.drawText(mm_w - right_w_ - 70, -1 *(this->height() - 50), stock_code_.c_str());
     painter.setFont(old_font); 
-    pen.setColor(Qt::red);
-    painter.setPen(pen);
-
+    
     // right vertical line |
-    painter.drawLine(mm_w - right_w, this->height() - h_axis_trans_in_paint_k, mm_w - right_w, -1 * this->height());
+    painter.setPen(border_pen);
+    painter.drawLine(mm_w - right_w_, this->height() - h_axis_trans_in_paint_k, mm_w - right_w_, -1 * this->height());
      
     const int num = 8;
-    const int part_h = mm_h / num;
-
-    // draw k line view bottom border line 
-    painter.drawLine(0, part_h, mm_w, part_h);
-
+    const int part_h = mm_h / num; 
+    // right vertical'  price scale ------------
+    pen.setColor(Qt::red);
     pen.setStyle(Qt::DotLine); // ............
     painter.setPen(pen); 
-    // right vertical'  price scale 
     const float price_per_len = (highestMaxPrice_ - lowestMinPrice_) / float(mm_h);
-    
     for(int i = 0; i < num; i++)
     {
         int pos_y = (-1) * part_h*i; 
-        painter.drawText(mm_w - right_w, pos_y, QString("%1").arg(lowestMinPrice_ + (price_per_len * part_h * i) ));
-        painter.drawLine(0, pos_y, mm_w-right_w, pos_y);
+        painter.drawText(mm_w - right_w_, pos_y, QString("%1").arg(lowestMinPrice_ + (price_per_len * part_h * i) ));
+        painter.drawLine(0, pos_y, mm_w-right_w_, pos_y);
     }
-       
-    //draw all k line -------------------------------------
+        
+    //draw k_num_ k line -------------------------------------
       
     float openPrice; 
     float closePrice; 
     float maxPrice; 
     float minPrice; 
-    //float marketMoney; //成交额
-     
+    //float marketMoney; //成交额 
 	if( p_hisdata_container_ )
 	{   
-        double item_w = double(mm_w - empty_right_w - right_w) / double(k_num_ + 1) ;
-       
-    // draw k_num_ k line ----------------------------------
+        double item_w = double(mm_w - empty_right_w_ - right_w_) / double(k_num_ + 1) ;
+        
 #ifdef DRAW_FROM_LEFT
     int j = 0;
 	for( auto iter = p_hisdata_container_->begin();
@@ -760,14 +765,12 @@ void KLineWall::paintEvent(QPaintEvent*)
 		maxPrice = (*iter)->stk_item.high_price;
 		openPrice = (*iter)->stk_item.open_price;
 		closePrice = (*iter)->stk_item.close_price;
-
-        //qDebug() << openPrice<< "\t"  << closePrice << minPrice << "\t" << maxPrice<< "\t" << "\n";
-          
+         
 		QBrush brush(QColor(255,0,0));  
 		pen.setStyle(Qt::SolidLine);
          
         if(openPrice <= closePrice)
-        {
+        { 
             pen.setColor(QColor(255,0,0));
 			brush.setColor(QColor(255,0,0));
         }else
@@ -792,8 +795,7 @@ void KLineWall::paintEvent(QPaintEvent*)
                 if( FindTopFractalItem_TowardLeft(*p_hisdata_container_, iter, j, left_pos_data) )
                 {
                     painter.drawLine(pos_data.bottom.x(), pos_data.bottom.y(), left_pos_data->top.x(), left_pos_data->top.y());
-                }
-
+                } 
             }else // top fractal 
             {
                 //painter.drawText(pos_data.top.x(), pos_data.top.y(), "TOP");
@@ -815,7 +817,7 @@ void KLineWall::paintEvent(QPaintEvent*)
             }
         }
 		
-        // draw k columnar  ---------------------------------------    
+        // draw k columnar  -------------- 
         painter.setPen(pen);  
         painter.setBrush(brush);   
         painter.drawRect(pos_data.columnar_top_left.x(), pos_data.columnar_top_left.y(), pos_data.x_right - pos_data.x_left, pos_data.height);
@@ -832,49 +834,65 @@ void KLineWall::paintEvent(QPaintEvent*)
 
         Draw3pDownForcast(painter, mm_h, item_w);
         Draw3pUpForcast(painter, mm_h, item_w);
-    }
+    } //if( p_hisdata_container_ )
 
-    // draw zibiao-----------------------
-    for( int i = 0 ; i < zb_windows_.size(); ++i )
+    // draw k line view bottom border line 
+    painter.translate(0, part_h);
+    trans_y_totoal += part_h;
+    painter.setPen(lit_border_pen);
+    painter.drawLine(0, 0, mm_w, 0);
+
+    // draw zibiao----------------------- 
+    const double item_w = double(mm_w - empty_right_w_ - right_w_) / double(k_num_ + 1) ;
+    const double k_bar_w = item_w * 3 / 4;
+    const int right_end = double(mm_w - empty_right_w_ - right_w_) - k_bar_w;
+    const double largest_vol = GetLargestVol();
+    for( unsigned int i = 0 ; i < zb_windows_.size(); ++i )
     {
-        if( zb_windows_[i] )
+        if( zb_windows_[i] && zb_windows_[i]->zhibiao_type() == ZhibiaoType::VOL )
         {
-            painter.translate(0, zb_windows_[i]->height());
+            const int zb_h = zb_windows_[i]->height();
+            painter.translate(0, zb_h + lit_border_pen.width());
+            trans_y_totoal += zb_h + lit_border_pen.width();
+            painter.setPen(lit_border_pen);
             painter.drawLine(0, 0, mm_w, 0);
+            //------------------  
+            int k = k_num_;
+            for( auto iter = p_hisdata_container_->rbegin();
+                iter != p_hisdata_container_->rend() && k > 0; 
+                ++iter, --k)
+            {
+                if( (*iter)->stk_item.close_price < (*iter)->stk_item.open_price )
+                {
+                    painter.setPen(green_pen);
+                    painter.setBrush(green_brush);
+                }else 
+                {   
+                    painter.setPen(red_pen);
+                    painter.setBrush(red_brush);
+                }
+                double height = (*iter)->stk_item.vol * zb_h / largest_vol;
+                double x_right = right_end - item_w * (k_num_ - k);  
+                painter.drawRect(x_right, -1*height, -1*k_bar_w, height);
+            }
+            //------------------
         }
     }
-#if 0
-    int j = k_num_;
-    for( auto iter = p_hisdata_container_->rbegin();
-        iter != p_hisdata_container_->rend() && j > 0; 
-        ++iter, --j)
-    { 
-
-        T_KlinePosData &pos_data = iter->get()->kline_posdata;
-        double vol = iter->get()->stk_item.vol;
-    }
-    // end of -------------------------------
-#endif
+    // end of draw zibiao-----------------------
+ 
     // bottom calender  ------------------------------------
     painter.translate(0, bottom1_h_);
+    trans_y_totoal += bottom1_h_;
+    painter.setPen(border_pen);
     painter.drawLine(0, 0, mm_w, 0);
-    //painter.drawLine(0, bottom1_h_, mm_w, bottom1_h_);
-    //painter.drawLine(0, bottom_h_-1, mm_w, bottom_h_-1);
-
-    painter.drawText(mm_w - right_w, bottom_h_-1, QString::fromLocal8Bit(k_cycle_tag_.c_str()));
+    
+    pen.setColor(Qt::white);    pen.setStyle(Qt::SolidLine); 
+    painter.setPen(pen);
+    painter.drawText(mm_w - right_w_, bottom_h_-1, QString::fromLocal8Bit(k_cycle_tag_.c_str()));
     painter.drawText(0, bottom_h_-1, QString("%1").arg(k_cycle_year_));
 
-
 	// translate axis back
-    painter.translate(0, -1 * h_axis_trans_in_paint_k);
-    for( int i = 0 ; i < zb_windows_.size(); ++i )
-    {
-        if( zb_windows_[i] )
-        {
-            painter.translate(0, -1 * zb_windows_[i]->height()); 
-        }
-    }
-    painter.translate(0, -1 * bottom1_h_);
+    painter.translate(0, -1 * trans_y_totoal);
 
     pen.setColor(Qt::white);
     pen.setStyle(Qt::SolidLine); 
@@ -883,10 +901,10 @@ void KLineWall::paintEvent(QPaintEvent*)
     {
         qDebug() << " show_cross_line_ pos y " << (float)pos_from_global.y() << "\n";
         // horizontal line 
-        painter.drawLine(0, pos_from_global.y(), mm_w-right_w, pos_from_global.y());
+        painter.drawLine(0, pos_from_global.y(), mm_w-right_w_, pos_from_global.y());
         // vertical line 
         painter.drawLine(pos_from_global.x(), head_h_, pos_from_global.x(), this->height()); 
-        painter.drawText( mm_w-right_w, pos_from_global.y(), QString("%1").arg(lowestMinPrice_ + price_per_len * (h_axis_trans_in_paint_k - pos_from_global.y()) ) );
+        painter.drawText( mm_w-right_w_, pos_from_global.y(), QString("%1").arg(lowestMinPrice_ + price_per_len * (h_axis_trans_in_paint_k - pos_from_global.y()) ) );
     }
     
 
@@ -1312,7 +1330,7 @@ bool KLineWall::FindTopFractalItem_TowardLeft(T_HisDataItemContainer &his_data, 
 int KLineWall::Calculate_mm_h()
 {
     int mm_h = this->height() - head_h_ - bottom_h_;
-    for( int i = 0 ; i < zb_windows_.size(); ++i )
+    for( unsigned int i = 0 ; i < zb_windows_.size(); ++i )
     {
         if( zb_windows_[i] )
             mm_h -= zb_windows_[i]->height();

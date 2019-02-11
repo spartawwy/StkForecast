@@ -99,6 +99,9 @@ private:
     const int bottom2_h_; 
     int bottom_h_;
      
+    int empty_right_w_;
+    int right_w_;
+
 	StockInputDlg  stock_input_dlg_;
      
     std::string    stock_code_;
