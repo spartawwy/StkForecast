@@ -640,7 +640,7 @@ void KLineWall::paintEvent(QPaintEvent*)
     const int mm_w = this->width();
     const int empty_right_w = 30;
     const int right_w = 30;
-    float price_per_len = (highestMaxPrice_ - lowestMinPrice_) / float(mm_h);
+    
       
     const bool is_area_shape_change = IsAreaShapeChange(this->width(), this->height());
     if( is_area_shape_change )
@@ -700,27 +700,32 @@ void KLineWall::paintEvent(QPaintEvent*)
     font.setPointSize(old_font.pointSize() * 2); 
    
     painter.setFont(font);
-    painter.drawText(mm_w - right_w - 70, -1 *(this->height() - 100), stock_code_.c_str());
+    painter.drawText(mm_w - right_w - 70, -1 *(this->height() - 50), stock_code_.c_str());
     painter.setFont(old_font); 
     pen.setColor(Qt::red);
     painter.setPen(pen);
 
-    // right line
-    //painter.drawLine(mm_w - right_w, bottom_h_, mm_w - right_w, -1 * this->height());
-    painter.drawLine(mm_w - right_w, 0, mm_w - right_w, -1 * this->height());
+    // right vertical line |
+    painter.drawLine(mm_w - right_w, this->height() - h_axis_trans_in_paint_k, mm_w - right_w, -1 * this->height());
+     
+    const int num = 8;
+    const int part_h = mm_h / num;
+
+    // draw k line view bottom border line 
+    painter.drawLine(0, part_h, mm_w, part_h);
 
     pen.setStyle(Qt::DotLine); // ............
     painter.setPen(pen); 
     // right vertical'  price scale 
-    const int num = 8;
-    const int part_h = mm_h / num;
+    const float price_per_len = (highestMaxPrice_ - lowestMinPrice_) / float(mm_h);
+    
     for(int i = 0; i < num; i++)
     {
         int pos_y = (-1) * part_h*i; 
         painter.drawText(mm_w - right_w, pos_y, QString("%1").arg(lowestMinPrice_ + (price_per_len * part_h * i) ));
         painter.drawLine(0, pos_y, mm_w-right_w, pos_y);
     }
-      
+       
     //draw all k line -------------------------------------
       
     float openPrice; 

@@ -8,19 +8,19 @@ using namespace std;
 
 #include "TradeX.h"
 
-#define F1  1 // TdxL2Hq_GetSecurityCount
-#define F2  1 // TdxL2Hq_GetSecurityList
-#define F3  1 // TdxL2Hq_GetSecurityQuotes
-#define F4  1 // TdxL2Hq_GetSecurityBars
-#define F5  1 // TdxL2Hq_GetIndexBars
+//#define F1  1 // TdxL2Hq_GetSecurityCount
+//#define F2  1 // TdxL2Hq_GetSecurityList
+//#define F3  1 // TdxL2Hq_GetSecurityQuotes
+//#define F4  1 // TdxL2Hq_GetSecurityBars
+//#define F5  1 // TdxL2Hq_GetIndexBars
 #define F6  1 // TdxL2Hq_GetMinuteTimeData
-#define F7  1 // TdxL2Hq_GetHistoryMinuteTimeData
-#define F8  1 // TdxL2Hq_GetTransactionData
-#define F9  1 // TdxL2Hq_GetHistoryTransactionData
-#define F10 1 // TdxL2Hq_GetCompanyInfoCategory
-#define F11 1 // TdxL2Hq_GetCompanyInfoContent
-#define F12 1 // TdxL2Hq_GetXDXRInfo
-#define F13 1 // TdxL2Hq_GetFinanceInfo
+//#define F7  1 // TdxL2Hq_GetHistoryMinuteTimeData
+//#define F8  1 // TdxL2Hq_GetTransactionData
+//#define F9  1 // TdxL2Hq_GetHistoryTransactionData
+//#define F10 1 // TdxL2Hq_GetCompanyInfoCategory
+//#define F11 1 // TdxL2Hq_GetCompanyInfoContent
+//#define F12 1 // TdxL2Hq_GetXDXRInfo
+//#define F13 1 // TdxL2Hq_GetFinanceInfo
 
 #define F14 1 // TdxL2Hq_GetSecurityQuotes10
 #define F15 1 // TdxL2Hq_GetDetailTransactionData
