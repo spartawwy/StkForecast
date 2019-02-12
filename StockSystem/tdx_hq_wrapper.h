@@ -14,7 +14,7 @@ public:
 
     bool Init();
     bool ConnectServer();
-    bool GetHisKBars(const std::string &code, TypePeriod kbar_type, int start_date, int end_date, std::vector<T_StockHisDataItem> &items);
+    bool GetHisKBars(const std::string &code, bool is_index, TypePeriod kbar_type, int start_date, int end_date, std::vector<T_StockHisDataItem> &items);
 
 private:
 

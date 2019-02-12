@@ -58,8 +58,21 @@ bool TdxHqWrapper::ConnectServer()
 }
 
 // items date is from small to big
-bool TdxHqWrapper::GetHisKBars(const std::string &code, TypePeriod kbar_type, int start_date, int end_date, std::vector<T_StockHisDataItem> &items)
+bool TdxHqWrapper::GetHisKBars(const std::string &code, bool is_index, TypePeriod kbar_type, int start_date, int end_date, std::vector<T_StockHisDataItem> &items)
 {
+    bool (WINAPI* pFuncGetSecurityKData)(int nConnID,
+                                char nCategory,
+                                char nMarket,
+                                const char *pszZqdm,
+                                short nStart,
+                                short *pnCount,
+                                char *pszResult,
+                                char *pszErrInfo);
+    if( is_index )
+        pFuncGetSecurityKData = &TdxHq_GetIndexBars;
+    else 
+        pFuncGetSecurityKData = &TdxHq_GetSecurityBars;
+
     assert(exchange_calendar_);
     std::vector<T_K_Data> resut;
     const int cst_result_len = 1024 * 1024;
@@ -102,18 +115,15 @@ bool TdxHqWrapper::GetHisKBars(const std::string &code, TypePeriod kbar_type, in
     
     short start = std::get<0>(tuple_index_len);  // back forward
     short count = std::get<1>(tuple_index_len);
-    bool bool1 = TdxHq_GetSecurityBars(conn_handle_, ktype, market_type, const_cast<char*>(code.c_str()), start, &count, m_szResult, m_szErrInfo);
+    bool bool1 = pFuncGetSecurityKData(conn_handle_, ktype, market_type, const_cast<char*>(code.c_str()), start, &count, m_szResult, m_szErrInfo);
     if( !bool1 )
     { 
-        if (strstr(m_szErrInfo, "10038") )
+        if( ConnectServer() )
         {
-            if( ConnectServer() )
-            {
-                bool1 = TdxHq_GetSecurityBars(conn_handle_, ktype, market_type, const_cast<char*>(code.c_str()), start, &count, m_szResult, m_szErrInfo);
-                if( !bool1 )
-                    return false;
-            }
-        }else
+            bool1 = pFuncGetSecurityKData(conn_handle_, ktype, market_type, const_cast<char*>(code.c_str()), start, &count, m_szResult, m_szErrInfo);
+            if( !bool1 )
+                return false;
+        } else
             return false;
     }
     if( strlen(m_szResult) < 1 )
@@ -125,9 +135,11 @@ bool TdxHqWrapper::GetHisKBars(const std::string &code, TypePeriod kbar_type, in
     const bool has_time = ( ktype < 4 || ktype == 7 || ktype == 8 ) ? true : false;
     std::string expresstion_str;
     if( has_time )
-        expresstion_str = "^(\\d{4}-\\d{2}-\\d{2})\\s(\\d{2}:\\d{2})\\t(\\d+\\.\\d+)\\t(\\d+\\.\\d+)\\t(\\d+\\.\\d+)\\t(\\d+\\.\\d+)\\t(\\d+)\\t(\\d+\\.\\d+)$";
+        //expresstion_str = "^(\\d{4}-\\d{2}-\\d{2})\\s(\\d{2}:\\d{2})\\t(\\d+\\.\\d+)\\t(\\d+\\.\\d+)\\t(\\d+\\.\\d+)\\t(\\d+\\.\\d+)\\t(\\d+)\\t(\\d+\\.\\d+)$";
+        expresstion_str = "^(\\d{4}-\\d{2}-\\d{2})\\s+(\\d{2}:\\d{2})\\s+(\\d+\\.\\d+)\\s+(\\d+\\.\\d+)\\s+(\\d+\\.\\d+)\\s+(\\d+\\.\\d+)\\s+(\\d+)\\s+(\\d+\\.\\d+).*";
     else
-        expresstion_str = "^(\\d{8})\\t(\\d+\\.\\d+)\\t(\\d+\\.\\d+)\\t(\\d+\\.\\d+)\\t(\\d+\\.\\d+)\\t(\\d+)\\t(\\d+\\.\\d+)$";
+        expresstion_str = "^(\\d{8})\\s+(\\d+\\.\\d+)\\s+(\\d+\\.\\d+)\\s+(\\d+\\.\\d+)\\s+(\\d+\\.\\d+)\\s+(\\d+)\\s+(\\d+\\.\\d+).*";
+        //expresstion_str = "^(\\d{8})\\t(\\d+\\.\\d+)\\t(\\d+\\.\\d+)\\t(\\d+\\.\\d+)\\t(\\d+\\.\\d+)\\t(\\d+)\\t(\\d+\\.\\d+)$";
 
     std::regex  regex_obj(expresstion_str);
     char *p = m_szResult;

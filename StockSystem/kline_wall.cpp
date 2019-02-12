@@ -1191,7 +1191,7 @@ void KLineWall::StockInputDlgRet()
     bool is_index = false;
 	if( stock_code.toUpper() == "SZZS" || stock_code.toUpper() == "999999" )
 	{
-		stock_code_changed = "999999";
+		stock_code_changed = "000001";
         is_index = true;
     }else if( stock_code.toUpper() == "SZCZ" 
         || stock_code.toUpper() == "SZCZ"
@@ -1201,7 +1201,7 @@ void KLineWall::StockInputDlgRet()
     {
         stock_code_changed = TransIndexPinYin2Code(stock_code.toUpper().toLocal8Bit().data()).c_str();
         is_index = true;
-    }else if( stock_code == "999999" || stock_code == "399001" || stock_code == "399005" 
+    }else if( stock_code == "999999" || stock_code == "000001" || stock_code == "399001" || stock_code == "399005" 
         || stock_code == "399006" || stock_code == "000016" || stock_code == "000300" )
     {
         stock_code_changed = stock_code.toLocal8Bit().data();

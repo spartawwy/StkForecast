@@ -23,7 +23,7 @@ bool IsNumber(const std::string& str)
 std::string TransIndexPinYin2Code(const std::string &code)
 {
     if( code == "SZZS" ) //上证指数
-        return "999999";
+        return "000001";
     else if( code == "SZCZ" ) // 深圳成指
         return "399001"; 
     else if( code == "ZXBZ" ) //中小板指数

@@ -13,7 +13,7 @@ using namespace std;
 //#define F3  1 // TdxHq_GetMinuteTimeData
 #define F4  1 // TdxHq_GetSecurityBars
 //#define F5  1 // TdxHq_GetHistoryMinuteTimeData
-//#define F6  1 // TdxHq_GetIndexBars
+#define F6  1 // TdxHq_GetIndexBars
 //#define F7  1 // TdxHq_GetTransactionData
 //#define F8  1 // TdxHq_GetHistoryTransactionData
 //#define F9  1 // TdxHq_GetSecurityQuotes
@@ -92,13 +92,15 @@ int test_hq_batch_funcs(const char *pszHqSvrIP, short nPort)
     cout << "\n*** TdxHq_GetSecurityBars\n";
 
     //获取股票K线数据
-    Count = 800;  //200 MAX IS 800 
+    Count = 10;  //200 MAX IS 800 
     //<param name="nCategory">K线种类, 0->5分钟K线    1->15分钟K线    2->30分钟K线  3->1小时K线    
     // 4->日K线  5->周K线  6->月K线  7->1分钟  8->1分钟K线  9->日K线  10->季K线  11->年K线< / param>
     //bool1 = TdxHq_GetSecurityBars(nConn, 8, 0, "000001", 100, &Count, m_szResult, m_szErrInfo);//数据种类, 0->5分钟K线    1->15分钟K线    2->30分钟K线  3->1小时K线    4->日K线  5->周K线  6->月K线  7->1分钟K线  8->1分钟K线  9->日K线  10->季K线  11->年K线
     
     int kline_type = 0;  // if week kline the date stamp is Friday of each week
+    bool is_index = true;
     bool1 = TdxHq_GetSecurityBars(nConn, kline_type/*nCategory*/, 1, "600196", 0/*start pos from back to front*/, &Count, m_szResult, m_szErrInfo);//数据种类, 0->5分钟K线    1->15分钟K线    2->30分钟K线  3->1小时K线    4->日K线  5->周K线  6->月K线  7->1分钟K线  8->1分钟K线  9->日K线  10->季K线  11->年K线
+    //bool1 = TdxHq_GetIndexBars(nConn, kline_type, 1, "000001", 0, &Count, m_szResult, m_szErrInfo);
     if( !bool1 )
     {
         cout << m_szErrInfo << endl;
@@ -109,13 +111,15 @@ int test_hq_batch_funcs(const char *pszHqSvrIP, short nPort)
         std::cout << " result empty !" << std::endl;
         return 0;
     }
+    cout << m_szResult << endl;
 
     bool has_time = ( kline_type < 4 || kline_type == 7 || kline_type == 8 ) ? true : false;
     std::string expresstion_str;
     if( has_time )
-        expresstion_str = "^(\\d{4}-\\d{2}-\\d{2})\\s(\\d{2}:\\d{2})\\t(\\d+\\.\\d+)\\t(\\d+\\.\\d+)\\t(\\d+\\.\\d+)\\t(\\d+\\.\\d+)\\t(\\d+)\\t(\\d+\\.\\d+)$";
+        //expresstion_str = "^(\\d{4}-\\d{2}-\\d{2})\\s(\\d{2}:\\d{2})\\t(\\d+\\.\\d+)\\t(\\d+\\.\\d+)\\t(\\d+\\.\\d+)\\t(\\d+\\.\\d+)\\t(\\d+)\\t(\\d+\\.\\d+)";
+        expresstion_str = "^(\\d{4}-\\d{2}-\\d{2})\\s+(\\d{2}:\\d{2})\\s+(\\d+\\.\\d+)\\s+(\\d+\\.\\d+)\\s+(\\d+\\.\\d+)\\s+(\\d+\\.\\d+)\\s+(\\d+)\\s+(\\d+\\.\\d+).*";
     else
-        expresstion_str = "^(\\d{8})\\t(\\d+\\.\\d+)\\t(\\d+\\.\\d+)\\t(\\d+\\.\\d+)\\t(\\d+\\.\\d+)\\t(\\d+)\\t(\\d+\\.\\d+)$";
+        expresstion_str = "^(\\d{8})\\s+(\\d+\\.\\d+)\\s+(\\d+\\.\\d+)\\s+(\\d+\\.\\d+)\\s+(\\d+\\.\\d+)\\s+(\\d+)\\s+(\\d+\\.\\d+).*";
 
     std::regex  regex_obj(expresstion_str);
     char *p = m_szResult;
@@ -147,7 +151,7 @@ int test_hq_batch_funcs(const char *pszHqSvrIP, short nPort)
         }
     }
     
-    cout << m_szResult << endl;
+    
     getchar();
 #endif
 
@@ -176,6 +180,9 @@ int test_hq_batch_funcs(const char *pszHqSvrIP, short nPort)
         cout << m_szErrInfo << endl;
         return 0;
     }
+
+    // 时间    开盘价  收盘价  最高价  最低价  成交量  成交额  涨家数  跌家数
+    // 2019-02-12 14:15        2665.500000     2660.750000     2665.500000     2660.180000     28225014        2822504448.000000       1007    391
     cout << m_szResult << endl;
     getchar();
 #endif

@@ -212,7 +212,7 @@ T_HisDataItemContainer* StockDataMan::AppendStockData(PeriodType period_type, co
 #elif defined(USE_TDXHQ)
     auto p_stk_hisdata_item_vector = new std::vector<T_StockHisDataItem>();
     std::vector<T_StockHisDataItem> &p_data_items = *p_stk_hisdata_item_vector;  
-    bool ret = tdx_hq_wrapper_.GetHisKBars(stk_code, ToTypePeriod(period_type), start_date, end_date, *p_stk_hisdata_item_vector);
+    bool ret = tdx_hq_wrapper_.GetHisKBars(stk_code, is_index, ToTypePeriod(period_type), start_date, end_date, *p_stk_hisdata_item_vector);
     if( !ret )
     {
         delete p_stk_hisdata_item_vector_;
