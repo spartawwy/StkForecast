@@ -165,6 +165,7 @@ void call_back_fun(T_K_Data *k_data, bool is_end, void *para/*, std::vector<T_St
 // date is save from older(smaller) date to newer(bigger). ps: data in container is series trade date
 T_HisDataItemContainer* StockDataMan::AppendStockData(PeriodType period_type, const std::string &stk_code, int start_date, int end_date, bool is_index)
 {
+    assert( !stk_code.empty() );
     int count = 0;
     T_HisDataItemContainer & items_in_container = GetHisDataContainer(period_type, stk_code);
    
@@ -210,9 +211,12 @@ T_HisDataItemContainer* StockDataMan::AppendStockData(PeriodType period_type, co
     count = p_data_items.size();
 
 #elif defined(USE_TDXHQ)
+    std::string code = stk_code;
+    if( is_index )
+        code = TransIndex2TusharedCode(stk_code);
     auto p_stk_hisdata_item_vector = new std::vector<T_StockHisDataItem>();
     std::vector<T_StockHisDataItem> &p_data_items = *p_stk_hisdata_item_vector;  
-    bool ret = tdx_hq_wrapper_.GetHisKBars(stk_code, is_index, ToTypePeriod(period_type), start_date, end_date, *p_stk_hisdata_item_vector);
+    bool ret = tdx_hq_wrapper_.GetHisKBars(code, is_index, ToTypePeriod(period_type), start_date, end_date, *p_stk_hisdata_item_vector);
     if( !ret )
     {
         delete p_stk_hisdata_item_vector_;

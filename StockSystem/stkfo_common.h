@@ -55,6 +55,9 @@ enum class FractalType : int
 #define CST_MAGIC_POINT QPointF(-1, -1)
 #define MAX_PRICE 100000000.0f
 #define MIN_PRICE 0.0f
+
+#define MARKET_TYPE_SH  1
+#define MARKET_TYPE_SZ  0
 //enum class KLineType : unsigned char
 //{
 //    KLINE_DAY = 0,

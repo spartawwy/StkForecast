@@ -11,7 +11,7 @@ using namespace std;
 //#define F1  1 // TdxHq_GetSecurityCount
 //#define F2  1 // TdxHq_GetSecurityList
 //#define F3  1 // TdxHq_GetMinuteTimeData
-#define F4  1 // TdxHq_GetSecurityBars
+//#define F4  1 // TdxHq_GetSecurityBars
 //#define F5  1 // TdxHq_GetHistoryMinuteTimeData
 #define F6  1 // TdxHq_GetIndexBars
 //#define F7  1 // TdxHq_GetTransactionData
@@ -174,7 +174,13 @@ int test_hq_batch_funcs(const char *pszHqSvrIP, short nPort)
     cout << "\n*** TdxHq_GetIndexBars\n";
 
     //获取指数K线数据
-    bool1 = TdxHq_GetIndexBars(nConn, 4, 1, "000001", 0, &Count, m_szResult, m_szErrInfo);//数据种类, 0->5分钟K线    1->15分钟K线    2->30分钟K线  3->1小时K线    4->日K线  5->周K线  6->月K线  7->1分钟K线     8->1分钟K线    9->日K线  10->季K线  11->年K线
+    //bool1 = TdxHq_GetIndexBars(nConn, 4, 1, "000001", 0, &Count, m_szResult, m_szErrInfo);//数据种类, 0->5分钟K线    1->15分钟K线    2->30分钟K线  3->1小时K线    4->日K线  5->周K线  6->月K线  7->1分钟K线     8->1分钟K线    9->日K线  10->季K线  11->年K线
+    int start = 0;
+    Count = 80;
+    //bool1 = TdxHq_GetIndexBars(nConn, 4, 1, "000001", start, &Count, m_szResult, m_szErrInfo);
+    //bool1 = TdxHq_GetIndexBars(nConn, 4, 0, "399006", start, &Count, m_szResult, m_szErrInfo);
+    bool1 = TdxHq_GetIndexBars(nConn, 4, 1, "880471", start, &Count, m_szResult, m_szErrInfo);
+    //bool1 = TdxHq_GetIndexBars(nConn, 4, 0, "IF300", start, &Count, m_szResult, m_szErrInfo);  //NO RESULT
     if (!bool1)
     {
         cout << m_szErrInfo << endl;
@@ -184,6 +190,10 @@ int test_hq_batch_funcs(const char *pszHqSvrIP, short nPort)
     // 时间    开盘价  收盘价  最高价  最低价  成交量  成交额  涨家数  跌家数
     // 2019-02-12 14:15        2665.500000     2660.750000     2665.500000     2660.180000     28225014        2822504448.000000       1007    391
     cout << m_szResult << endl;
+   /* start = 80;
+    Count = 80;
+    bool1 = TdxHq_GetIndexBars(nConn, 4, 1, "000001", start, &Count, m_szResult, m_szErrInfo);
+    cout << m_szResult << endl;*/
     getchar();
 #endif
 

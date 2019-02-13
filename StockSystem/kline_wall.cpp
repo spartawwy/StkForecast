@@ -15,7 +15,7 @@
 #include "stk_forecast_app.h"
  
 
-#define  WOKRPLACE_DEFUALT_K_NUM  (4*20)
+#define  WOKRPLACE_DEFUALT_K_NUM  (4*20 + 100)
 #define  DEFAULT_CYCLE_TAG  "ÈÕÏß"
 
 //static const QPoint CST_MAGIC_POINT(-1, -1);
@@ -70,7 +70,7 @@ bool KLineWall::Init()
     auto ret = stock_data_man_.Init();
     if( ret )
     {
-       return ResetStock("600196", k_type_);
+       return ResetStock("600196", k_type_, false);
     }
     
     return false;
@@ -712,7 +712,8 @@ void KLineWall::paintEvent(QPaintEvent*)
     font.setPointSize(old_font.pointSize() * 2); 
    
     painter.setFont(font);
-    painter.drawText(mm_w - right_w_ - 70, -1 *(this->height() - 50), stock_code_.c_str());
+    auto ck_h = this->height();
+    painter.drawText(mm_w - right_w_ - 70, -1 *(h_axis_trans_in_paint_k* 0.9), stock_code_.c_str());
     painter.setFont(old_font); 
     
     // right vertical line |
@@ -1002,7 +1003,7 @@ void KLineWall::keyPressEvent(QKeyEvent *e)
                 //int mons = p_hisdata_container_->size() / 20;
                 auto start_date = qdate_obj.addDays( -1 * (4 * 30) ).toString("yyyyMMdd").toInt(); 
                 /*auto p_container = */
-                stock_data_man_.AppendStockData(ToPeriodType(k_type_), stock_code_, start_date, oldest_day);
+                stock_data_man_.AppendStockData(ToPeriodType(k_type_), stock_code_, start_date, oldest_day, is_index_);
             }
 
             // set wall max price and min price --------------
@@ -1087,13 +1088,16 @@ bool KLineWall::ResetStock(const QString& stock, TypePeriod type_period, bool is
     {
     case TypePeriod::PERIOD_DAY:
     case TypePeriod::PERIOD_WEEK:
-        span_day = -1 * (WOKRPLACE_DEFUALT_K_NUM / 20 * 30);
+        span_day = -1 * (WOKRPLACE_DEFUALT_K_NUM * 30 / 20);
         break;
     case TypePeriod::PERIOD_HOUR:
-        span_day = -1 * (WOKRPLACE_DEFUALT_K_NUM / (20 * 4) * 30);
+        span_day = -1 * (WOKRPLACE_DEFUALT_K_NUM * 30 / (20 * 4));
         break;
     case TypePeriod::PERIOD_30M:
-        span_day = -1 * (WOKRPLACE_DEFUALT_K_NUM / (20 * 4 * 2) * 30);
+        span_day = -1 * (WOKRPLACE_DEFUALT_K_NUM * 30 / (20 * 4 * 2));
+        break;
+    case TypePeriod::PERIOD_15M:
+        span_day = -1 * (WOKRPLACE_DEFUALT_K_NUM * 30 / (20 * 4 * 2 * 2));
         break;
     }
     start_date = QDate::currentDate().addDays(span_day).toString("yyyyMMdd").toInt();
@@ -1105,7 +1109,12 @@ bool KLineWall::ResetStock(const QString& stock, TypePeriod type_period, bool is
     this->is_index_ = is_index;
     if( !p_hisdata_container_->empty() )
     {
-        k_num_ = p_hisdata_container_->size() <= 60 ? p_hisdata_container_->size() : p_hisdata_container_->size() / 2;
+        if( p_hisdata_container_->size() > 180 )
+            k_num_ = p_hisdata_container_->size() / 3;
+        else if( p_hisdata_container_->size() > 60 )
+            k_num_ = p_hisdata_container_->size() / 2;
+        else 
+            k_num_ = p_hisdata_container_->size();
 
 #if 1
         int start_index = p_hisdata_container_->size() - k_num_; 
@@ -1191,7 +1200,7 @@ void KLineWall::StockInputDlgRet()
     bool is_index = false;
 	if( stock_code.toUpper() == "SZZS" || stock_code.toUpper() == "999999" )
 	{
-		stock_code_changed = "000001";
+		stock_code_changed = "999999";
         is_index = true;
     }else if( stock_code.toUpper() == "SZCZ" 
         || stock_code.toUpper() == "SZCZ"
@@ -1201,7 +1210,7 @@ void KLineWall::StockInputDlgRet()
     {
         stock_code_changed = TransIndexPinYin2Code(stock_code.toUpper().toLocal8Bit().data()).c_str();
         is_index = true;
-    }else if( stock_code == "999999" || stock_code == "000001" || stock_code == "399001" || stock_code == "399005" 
+    }else if( stock_code == "999999" /*|| stock_code == "000001"*/ || stock_code == "399001" || stock_code == "399005" 
         || stock_code == "399006" || stock_code == "000016" || stock_code == "000300" )
     {
         stock_code_changed = stock_code.toLocal8Bit().data();

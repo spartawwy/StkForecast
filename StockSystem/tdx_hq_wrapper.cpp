@@ -9,6 +9,8 @@
 #include "tdxhq/HqApi.h"
 #include "exchange_calendar.h"
 
+#include <qdebug.h>
+
 #pragma comment(lib, "TradeX2-M.lib")
 
 TdxHqWrapper::TdxHqWrapper(ExchangeCalendar  *exchange_calendar)
@@ -103,13 +105,17 @@ bool TdxHqWrapper::GetHisKBars(const std::string &code, bool is_index, TypePerio
         ktype = 4; 
         break;
     }
-    int market_type = 0;
-    if( code == "000001" )
-        market_type = 0;
-    else if( code.at(0) == '6' )
-        market_type = 1;
+    int market_type = MARKET_TYPE_SH;
+    if( is_index )
+    {
+        if( code.at(0) == '3' )
+            market_type = MARKET_TYPE_SZ;
+        else
+            market_type = MARKET_TYPE_SH;
+    }else if( code.at(0) == '6' )
+        market_type = MARKET_TYPE_SH;
     else 
-        market_type = 0;
+        market_type = MARKET_TYPE_SZ;
 
     auto tuple_index_len = exchange_calendar_->GetStartDateAndLen_backforward(start_date, end_date);
     
@@ -131,7 +137,8 @@ bool TdxHqWrapper::GetHisKBars(const std::string &code, bool is_index, TypePerio
         std::cout << " result empty !" << std::endl;
         return false;
     }
-    
+    qDebug() << m_szResult << "\n";
+
     const bool has_time = ( ktype < 4 || ktype == 7 || ktype == 8 ) ? true : false;
     std::string expresstion_str;
     if( has_time )
