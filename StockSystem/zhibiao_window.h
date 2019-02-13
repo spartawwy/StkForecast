@@ -1,11 +1,8 @@
 #ifndef ZHIBIAO_WINDOW_SDF2SDF_
 #define ZHIBIAO_WINDOW_SDF2SDF_
 
-enum class ZhibiaoType: unsigned char
-{
-    VOL = 0,
-};
-
+#include "stkfo_common.h"
+ 
 class ZhibiaoWindow
 {
 public:

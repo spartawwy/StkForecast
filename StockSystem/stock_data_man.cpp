@@ -17,6 +17,7 @@
 #include "py_data_man.h"
 
 #include "tdx_hq_wrapper.h"
+#include "zhibiao.h"
 
 #define RESERVE_CAPACITY_IN_T_VECTOR    1024*16
 //#define RESERVE_SIZE_IN_T_VECTOR    1024*16
@@ -62,7 +63,7 @@ StockDataMan::StockDataMan(ExchangeCalendar *p_exchange_calendar)
     , tdx_hq_wrapper_(p_exchange_calendar)
 {
     //LoadDataFromFile("./data/600030.dat");
-
+    zhibiao_types_.push_back(ZhibiaoType::MOMENTUM); // momentum is in pos MOMENTUM_POS: 0
 }
 
 StockDataMan::~StockDataMan()
@@ -273,6 +274,7 @@ T_HisDataItemContainer* StockDataMan::AppendStockData(PeriodType period_type, co
                 if( p_data_items[k-1].date < items_in_container.front()->stk_item.date )
                 {
                     auto k_item = std::make_shared<T_KlineDataItem>(p_data_items[k-1]); 
+                    k_item->zhibiao_atoms.push_back(std::move(std::make_shared<MomentumZhibiao>()));
                     items_in_container.push_front(std::move(k_item));
                 }
             }
@@ -283,16 +285,18 @@ T_HisDataItemContainer* StockDataMan::AppendStockData(PeriodType period_type, co
                 if( p_data_items[k].date > items_in_container.back()->stk_item.date )
                 {
                     auto k_item = std::make_shared<T_KlineDataItem>(p_data_items[k]); 
+                    k_item->zhibiao_atoms.push_back(std::move(std::make_shared<MomentumZhibiao>()));
                     items_in_container.push_back(std::move(k_item));
                 }
             }
         }
-        items_in_container.front()->stk_item.date;
+        //items_in_container.front()->stk_item.date;
     }else
     {
         for( int k = 0; k < count; ++k )
         {
             auto k_item = std::make_shared<T_KlineDataItem>(p_data_items[k]); 
+            k_item->zhibiao_atoms.push_back(std::move(std::make_shared<MomentumZhibiao>()));
             items_in_container.push_back(std::move(k_item));
         }
     }
@@ -300,7 +304,7 @@ T_HisDataItemContainer* StockDataMan::AppendStockData(PeriodType period_type, co
     
     // sort T_KlineDateItems by day from small to bigger
     std::sort(items_in_container.begin(), items_in_container.end(), dompare);
- 
+    CaculateZhibiao(items_in_container);
 #if defined(USE_WINNER_API) 
      delete p_stk_hisdata_item_vector_;
      p_stk_hisdata_item_vector_ = nullptr;
@@ -317,6 +321,23 @@ T_HisDataItemContainer* StockDataMan::AppendStockData(PeriodType period_type, co
     
 	return std::addressof(items_in_container);
 
+}
+
+// ps: data has sorted
+void StockDataMan::CaculateZhibiao(T_HisDataItemContainer &data_items_in_container)
+{
+    for (unsigned int i = 0; i < zhibiao_types_.size(); ++i )
+    {
+        switch(zhibiao_types_[i])
+        {
+        case ZhibiaoType::MOMENTUM:
+            {
+                MomentumZhibiao::Caculate(data_items_in_container);
+                break;
+            }
+        default: break;
+        }
+    }
 }
 
 T_HisDataItemContainer & StockDataMan::GetHisDataContainer(PeriodType period_type, const std::string& code)

@@ -85,6 +85,9 @@ public:
     T_KlinePosData() : date(0), x_left(0.0), x_right(0.0), height(0.0), columnar_top_left(CST_MAGIC_POINT), top(CST_MAGIC_POINT), bottom(CST_MAGIC_POINT) {}
     T_KlinePosData(const T_KlinePosData &lh)
         : date(lh.date), x_left(lh.x_left), x_right(lh.x_right), height(lh.height), columnar_top_left(lh.columnar_top_left), top(lh.top), bottom(lh.bottom) {}
+    T_KlinePosData(T_KlinePosData &&lh)
+        : date(lh.date), x_left(lh.x_left), x_right(lh.x_right), height(lh.height), columnar_top_left(lh.columnar_top_left), top(lh.top), bottom(lh.bottom) {}
+
     T_KlinePosData & operator = (const T_KlinePosData &lh)
     {
         if( this == &lh ) return *this;
@@ -108,24 +111,64 @@ public:
 
 };
 
-typedef struct _t_kline_dataitem
+enum class ZhibiaoType: unsigned char
 {
+    VOL = 0,
+    MOMENTUM 
+};
+class ZhiBiaoAtom
+{
+public:
+    ZhiBiaoAtom(){}
+    virtual ~ZhiBiaoAtom() {}
+    virtual void val0( double ){}
+    virtual double val0(){ return 0.0;}
+    virtual void val1( double ){}
+    virtual double val1(){ return 0.0;}
+    virtual void val2( double ){}
+    virtual double val2(){ return 0.0;}
+};
+
+class T_KlineDataItem //_t_kline_dataitem
+{
+public:
     T_StockHisDataItem  stk_item;
     T_KlinePosData  kline_posdata;
     int  type;
-    _t_kline_dataitem() : type(int(FractalType::UNKNOW_FRACTAL)), kline_posdata()
+    std::vector<std::shared_ptr<ZhiBiaoAtom> > zhibiao_atoms;
+    T_KlineDataItem() : type(int(FractalType::UNKNOW_FRACTAL)), kline_posdata()
     {
         memset(&stk_item, 0, sizeof(stk_item));
     }
-    explicit _t_kline_dataitem(const _t_kline_dataitem & lh)
+    explicit T_KlineDataItem(const T_KlineDataItem & lh)
     {
-        memcpy(this, &lh, sizeof(lh)); 
+        if( this == &lh ) 
+            return;
+        CreateHelper(lh);
     }
-    explicit _t_kline_dataitem(const T_StockHisDataItem & stock_his_data_item): type(int(FractalType::UNKNOW_FRACTAL)), kline_posdata()
+    explicit T_KlineDataItem(T_KlineDataItem && lh): stk_item(std::move(lh.stk_item)), kline_posdata(std::move(lh.kline_posdata))
+        , zhibiao_atoms(std::move(lh.zhibiao_atoms))
+    {  
+    }
+    T_KlineDataItem & operator = (const T_KlineDataItem & lh)
+    {
+        if( this == &lh )
+            return *this;
+        CreateHelper(lh);
+        return *this;
+    }
+    explicit T_KlineDataItem(const T_StockHisDataItem & stock_his_data_item): type(int(FractalType::UNKNOW_FRACTAL)), kline_posdata()
     {
         memcpy(&stk_item, &stock_his_data_item, sizeof(stock_his_data_item)); 
     }
-}T_KlineDataItem;
+private:
+    void CreateHelper(const T_KlineDataItem & lh)
+    {
+        memcpy(&stk_item, &lh.stk_item, sizeof(lh.stk_item)); 
+        this->kline_posdata = lh.kline_posdata;
+        this->zhibiao_atoms = lh.zhibiao_atoms;
+    }
+};
 
 class T_StockBaseInfoItem
 { 
@@ -173,5 +216,7 @@ typedef struct _t_k_data
 
 typedef std::deque<std::shared_ptr<T_KlineDataItem> >  T_HisDataItemContainer;
 typedef std::unordered_map<std::string, T_HisDataItemContainer>  T_CodeMapHisDataItemContainer;
+
+#define  MOMENTUM_POS 0
 
 #endif // STKFO_COMMON_SDF3DSF_H_

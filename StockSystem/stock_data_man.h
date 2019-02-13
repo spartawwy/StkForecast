@@ -66,6 +66,8 @@ public:
 private:
     //std::vector<std::shared_ptr<T_KlineDataItem> > GetDataItemFromContainer(PeriodType period_type, const std::string& code, int start_date, int end_date);
     std::tuple<int, int> GetDateIndxFromContainer(PeriodType period_type, const std::string& stock, int start_date, int end_date);
+    void CaculateZhibiao(T_HisDataItemContainer &data_items_in_container);
+
 private:
 #ifdef USE_STK_QUOTER
     StkHisDataDelegate stk_his_data_;
@@ -82,7 +84,7 @@ private:
     std::shared_ptr<PyDataMan> py_data_man_;
      
     //std::vector<std::shared_ptr<T_KlineDataItem> > day_kline_data_container_;
-   
+   std::vector<ZhibiaoType> zhibiao_types_;
 };
 
 #endif // STOCK_DATA_MAN_H

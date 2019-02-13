@@ -137,6 +137,9 @@
     <ClCompile Include="zhibiao_window.cpp">
       <Filter>win</Filter>
     </ClCompile>
+    <ClCompile Include="zhibiao.cpp">
+      <Filter>moudle</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="klinewall.ui">
@@ -246,6 +249,9 @@
     </ClInclude>
     <ClInclude Include="zhibiao_window.h">
       <Filter>win</Filter>
+    </ClInclude>
+    <ClInclude Include="zhibiao.h">
+      <Filter>moudle</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

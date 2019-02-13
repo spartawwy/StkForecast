@@ -183,6 +183,7 @@
     <ClCompile Include="tdx_hq_wrapper.cpp" />
     <ClCompile Include="title_bar.cpp" />
     <ClCompile Include="tool_bar.cpp" />
+    <ClCompile Include="zhibiao.cpp" />
     <ClCompile Include="zhibiao_window.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -197,6 +198,7 @@
     <ClInclude Include="tdxhq\L2HqApi.h" />
     <ClInclude Include="tdxhq\TradeApi-M.h" />
     <ClInclude Include="tdx_hq_wrapper.h" />
+    <ClInclude Include="zhibiao.h" />
     <ClInclude Include="zhibiao_window.h" />
     <CustomBuild Include="stk_forecast_app.h">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
