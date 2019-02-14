@@ -59,7 +59,8 @@ KLineWall::KLineWall(StkForecastApp *app, QWidget *parent)
     this->setAutoFillBackground(true);
     this->setPalette(pal);
      
-    zb_windows_.push_back( std::move(std::make_shared<ZhibiaoWindow>(ZhibiaoType::VOL)) );
+    zb_windows_.push_back( std::move(std::make_shared<ZhibiaoWindow>(ZhibiaoType::MOMENTUM, this)) );
+    zb_windows_.push_back( std::move(std::make_shared<ZhibiaoWindow>(ZhibiaoType::VOL, this)) );
 }
 
 bool KLineWall::Init()
@@ -844,6 +845,9 @@ void KLineWall::paintEvent(QPaintEvent*)
     painter.drawLine(0, 0, mm_w, 0);
 
     // draw zibiao----------------------- 
+
+    //void DrawWindow(QPainter &painter, int mm_w, );
+
     const double item_w = double(mm_w - empty_right_w_ - right_w_) / double(k_num_ + 1) ;
     const double k_bar_w = item_w * 3 / 4;
     const int right_end = double(mm_w - empty_right_w_ - right_w_) - k_bar_w;

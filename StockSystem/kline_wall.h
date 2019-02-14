@@ -137,6 +137,8 @@ private:
     std::vector<T_Data2pDownForcast> data_2pforcast_downs_;
 
     std::vector<std::shared_ptr<ZhibiaoWindow> > zb_windows_;
+
+    friend class ZhibiaoWindow;
 };
 
 

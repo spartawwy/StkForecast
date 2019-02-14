@@ -186,15 +186,17 @@ bool TdxHqWrapper::GetHisKBars(const std::string &code, bool is_index, TypePerio
                 ++index;
                 k_data.low_price = boost::lexical_cast<double>(match_result[index]);
                 ++index;
-                k_data.vol = boost::lexical_cast<int>(match_result[index]);
+                k_data.vol = boost::lexical_cast<double>(match_result[index]);
                 ++index;
+                k_data.capital = boost::lexical_cast<double>(match_result[index]);
                 items.push_back(std::move(k_data));
 
-            }catch(boost::exception& )
+            }catch(boost::exception& e )
             {
-
+                e = e; 
             }
-        }
+        }else
+            qDebug() << "match fail!\n";
     }
     //std::cout << m_szResult << std::endl;
     return true;

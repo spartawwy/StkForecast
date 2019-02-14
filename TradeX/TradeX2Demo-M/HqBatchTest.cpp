@@ -11,7 +11,7 @@ using namespace std;
 //#define F1  1 // TdxHq_GetSecurityCount
 //#define F2  1 // TdxHq_GetSecurityList
 //#define F3  1 // TdxHq_GetMinuteTimeData
-//#define F4  1 // TdxHq_GetSecurityBars
+#define F4  1 // TdxHq_GetSecurityBars
 //#define F5  1 // TdxHq_GetHistoryMinuteTimeData
 #define F6  1 // TdxHq_GetIndexBars
 //#define F7  1 // TdxHq_GetTransactionData
@@ -97,9 +97,10 @@ int test_hq_batch_funcs(const char *pszHqSvrIP, short nPort)
     // 4->日K线  5->周K线  6->月K线  7->1分钟  8->1分钟K线  9->日K线  10->季K线  11->年K线< / param>
     //bool1 = TdxHq_GetSecurityBars(nConn, 8, 0, "000001", 100, &Count, m_szResult, m_szErrInfo);//数据种类, 0->5分钟K线    1->15分钟K线    2->30分钟K线  3->1小时K线    4->日K线  5->周K线  6->月K线  7->1分钟K线  8->1分钟K线  9->日K线  10->季K线  11->年K线
     
-    int kline_type = 0;  // if week kline the date stamp is Friday of each week
+    int kline_type = 4;  // if week kline the date stamp is Friday of each week
     bool is_index = true;
-    bool1 = TdxHq_GetSecurityBars(nConn, kline_type/*nCategory*/, 1, "600196", 0/*start pos from back to front*/, &Count, m_szResult, m_szErrInfo);//数据种类, 0->5分钟K线    1->15分钟K线    2->30分钟K线  3->1小时K线    4->日K线  5->周K线  6->月K线  7->1分钟K线  8->1分钟K线  9->日K线  10->季K线  11->年K线
+    //bool1 = TdxHq_GetSecurityBars(nConn, kline_type/*nCategory*/, 1, "600196", 0/*start pos from back to front*/, &Count, m_szResult, m_szErrInfo);//数据种类, 0->5分钟K线    1->15分钟K线    2->30分钟K线  3->1小时K线    4->日K线  5->周K线  6->月K线  7->1分钟K线  8->1分钟K线  9->日K线  10->季K线  11->年K线
+    bool1 = TdxHq_GetSecurityBars(nConn, kline_type/*nCategory*/, 0, "000725", 0/*start pos from back to front*/, &Count, m_szResult, m_szErrInfo);//数据种类, 0->5分钟K线    1->15分钟K线    2->30分钟K线  3->1小时K线    4->日K线  5->周K线  6->月K线  7->1分钟K线  8->1分钟K线  9->日K线  10->季K线  11->年K线
     //bool1 = TdxHq_GetIndexBars(nConn, kline_type, 1, "000001", 0, &Count, m_szResult, m_szErrInfo);
     if( !bool1 )
     {
