@@ -7,30 +7,18 @@
 
 
 void ZhibiaoWindow::DrawWindow(QPainter &painter, int mm_w)
-{
-    static auto GetLargestVol = [this]()->double
-    {
-        double largest_vol = 0.0;
-        int k = parent_->k_num_;
-        for( auto iter = parent_->p_hisdata_container_->rbegin();
-            iter != parent_->p_hisdata_container_->rend() && k > 0; 
-            ++iter, --k)
-        if( (*iter)->stk_item.vol > largest_vol ) 
-            largest_vol = (*iter)->stk_item.vol;
-        return largest_vol;
-    };
-
+{ 
     const double item_w = double(mm_w - parent_->empty_right_w_ -  parent_->right_w_) / double( parent_->k_num_ + 1) ;
     const double k_bar_w = item_w * 3 / 4;
     const int right_end = double(mm_w -  parent_->empty_right_w_ -  parent_->right_w_) - k_bar_w;
-    const double largest_vol = GetLargestVol();
+    const double largest_vol = parent_->GetCurWinKLargetstVol();
      
-    painter.translate(0, zb_h + lit_border_pen.width());
-    trans_y_totoal += zb_h + lit_border_pen.width();
-    painter.setPen(lit_border_pen);
-    painter.drawLine(0, 0, mm_w, 0);
+    QPen red_pen; red_pen.setColor(Qt::red); red_pen.setStyle(Qt::SolidLine); red_pen.setWidth(1);
+    QPen green_pen; green_pen.setColor(Qt::green); green_pen.setStyle(Qt::SolidLine); green_pen.setWidth(1);  
+    QBrush red_brush(Qt::red);  
+    QBrush green_brush(Qt::green);  
     //------------------  
-    int k = k_num_;
+    int k = parent_->k_num_;
     for( auto iter = parent_->p_hisdata_container_->rbegin();
         iter != parent_->p_hisdata_container_->rend() && k > 0; 
         ++iter, --k)
@@ -44,9 +32,9 @@ void ZhibiaoWindow::DrawWindow(QPainter &painter, int mm_w)
             painter.setPen(red_pen);
             painter.setBrush(red_brush);
         }
-        double height = (*iter)->stk_item.vol * height_ / largest_vol;
-        double x_right = right_end - item_w * (k_num_ - k);  
-        painter.drawRect(x_right, -1*height, -1*k_bar_w, height);
+        double high = (*iter)->stk_item.vol * height() / largest_vol;
+        double x_right = right_end - item_w * (parent_->k_num_ - k);  
+        painter.drawRect(x_right, -1*high, -1*k_bar_w, high);
     }
     //------------------
 }

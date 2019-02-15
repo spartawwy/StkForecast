@@ -631,17 +631,7 @@ void KLineWall::paintEvent(QPaintEvent*)
         return w != this->pre_mm_w_ || h!= this->pre_mm_h_;
     }; 
  
-    static auto GetLargestVol = [this]()->double
-    {
-        double largest_vol = 0.0;
-        int k = k_num_;
-        for( auto iter = p_hisdata_container_->rbegin();
-            iter != p_hisdata_container_->rend() && k > 0; 
-            ++iter, --k)
-        if( (*iter)->stk_item.vol > largest_vol ) 
-            largest_vol = (*iter)->stk_item.vol;
-        return largest_vol;
-    };
+     
     QPainter painter(this); 
     QPen red_pen; red_pen.setColor(Qt::red); red_pen.setStyle(Qt::SolidLine); red_pen.setWidth(1);
     QPen green_pen; green_pen.setColor(Qt::green); green_pen.setStyle(Qt::SolidLine); green_pen.setWidth(1);
@@ -845,13 +835,13 @@ void KLineWall::paintEvent(QPaintEvent*)
     painter.drawLine(0, 0, mm_w, 0);
 
     // draw zibiao----------------------- 
-
+    painter.translate(0, height() + lit_border_pen.width());
     //void DrawWindow(QPainter &painter, int mm_w, );
 
     const double item_w = double(mm_w - empty_right_w_ - right_w_) / double(k_num_ + 1) ;
     const double k_bar_w = item_w * 3 / 4;
     const int right_end = double(mm_w - empty_right_w_ - right_w_) - k_bar_w;
-    const double largest_vol = GetLargestVol();
+    const double largest_vol = GetCurWinKLargetstVol();
     for( unsigned int i = 0 ; i < zb_windows_.size(); ++i )
     {
         if( zb_windows_[i] && zb_windows_[i]->zhibiao_type() == ZhibiaoType::VOL )
@@ -861,7 +851,11 @@ void KLineWall::paintEvent(QPaintEvent*)
             trans_y_totoal += zb_h + lit_border_pen.width();
             painter.setPen(lit_border_pen);
             painter.drawLine(0, 0, mm_w, 0);
+
+            zb_windows_[i]->DrawWindow(painter, mm_h);
+
             //------------------  
+#if 0 
             int k = k_num_;
             for( auto iter = p_hisdata_container_->rbegin();
                 iter != p_hisdata_container_->rend() && k > 0; 
@@ -880,6 +874,7 @@ void KLineWall::paintEvent(QPaintEvent*)
                 double x_right = right_end - item_w * (k_num_ - k);  
                 painter.drawRect(x_right, -1*height, -1*k_bar_w, height);
             }
+#endif 
             //------------------
         }
     }
@@ -1319,7 +1314,17 @@ PeriodType KLineWall::ToPeriodType(TypePeriod src)
     return PeriodType::PERIOD_DAY;
 }
 
-
+double KLineWall::GetCurWinKLargetstVol()
+{
+    double largest_vol = 0.0;
+    int k = k_num_;
+    for( auto iter = p_hisdata_container_->rbegin();
+        iter != p_hisdata_container_->rend() && k > 0; 
+        ++iter, --k)
+    if( (*iter)->stk_item.vol > largest_vol ) 
+        largest_vol = (*iter)->stk_item.vol;
+    return largest_vol;
+}
 
 bool KLineWall::FindTopFractalItem_TowardLeft(T_HisDataItemContainer &his_data, T_HisDataItemContainer::reverse_iterator iter, int k_index, T_KlinePosData *&left_pos_data)
 {

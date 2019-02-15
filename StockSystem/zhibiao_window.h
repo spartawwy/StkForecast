@@ -3,6 +3,7 @@
 
 #include "stkfo_common.h"
  
+class QPainter;
 class KLineWall;
 class ZhibiaoWindow
 {

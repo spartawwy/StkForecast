@@ -43,6 +43,7 @@ public:
 
     PeriodType ToPeriodType(TypePeriod src);
     
+    double GetCurWinKLargetstVol();
 
 protected:
 
