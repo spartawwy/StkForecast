@@ -48,7 +48,7 @@ double EmaLong(const unsigned int zb_index, T_HisDataItemContainer &items, int i
     return temp;
 }
 
-
+// ps : Emalong EmaShort has excuted
 double EmaDea(const unsigned int zb_index, T_HisDataItemContainer &items, int index)
 { 
     // DIF:EMA(CLOSE,SHORT) - EMA(CLOSE,LONG); { 白线 快线}
@@ -74,7 +74,7 @@ double EmaDea(const unsigned int zb_index, T_HisDataItemContainer &items, int in
     return temp;
 }
 
-
+// ps : EmaDea has excuted
 double Macd(const unsigned int zb_index, T_HisDataItemContainer &items, int index)
 { 
     // DIF:EMA(CLOSE,SHORT) - EMA(CLOSE,LONG); { 白线 快线}
@@ -84,7 +84,9 @@ double Macd(const unsigned int zb_index, T_HisDataItemContainer &items, int inde
     assert( items.at(0)->zhibiao_atoms.size() > zb_index );
 
     double dif = items.at(index)->zhibiao_atoms[zb_index]->val0() - items.at(index)->zhibiao_atoms[zb_index]->val1();
-    return (dif - items.at(index)->zhibiao_atoms[zb_index]->val2()) * 2 * 3.12;
+    double temp = (dif - items.at(index)->zhibiao_atoms[zb_index]->val2()) * 2 * 3.12;
+    items.at(index)->zhibiao_atoms[zb_index]->val3(temp);
+    return temp;
 }
 
 void MomentumZhibiao::Caculate(T_HisDataItemContainer &data_items_in_container)
@@ -95,8 +97,9 @@ void MomentumZhibiao::Caculate(T_HisDataItemContainer &data_items_in_container)
     { 
         double st = EmaShort(MOMENTUM_POS, data_items_in_container, i);
         double lg = EmaLong(MOMENTUM_POS, data_items_in_container, i);
-        EmaDea(MOMENTUM_POS, data_items_in_container, i);
+        double dea = EmaDea(MOMENTUM_POS, data_items_in_container, i);
         double macd = Macd(MOMENTUM_POS, data_items_in_container, i);
         macd = macd;
     } 
 }
+

@@ -120,13 +120,16 @@ class ZhiBiaoAtom
 {
 public:
     ZhiBiaoAtom(){}
-    virtual ~ZhiBiaoAtom() {}
+    virtual ~ZhiBiaoAtom() {} 
+
     virtual void val0( double ){}
     virtual double val0(){ return 0.0;}
     virtual void val1( double ){}
     virtual double val1(){ return 0.0;}
     virtual void val2( double ){}
     virtual double val2(){ return 0.0;}
+    virtual void val3( double ){}
+    virtual double val3(){ return 0.0;}
 };
 
 class T_KlineDataItem //_t_kline_dataitem

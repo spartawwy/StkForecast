@@ -45,6 +45,9 @@ public:
     
     double GetCurWinKLargetstVol();
 
+    int HeadHeight() { return int(height() * head_h_percent_); }
+    int BottomHeight() { return int(height() * bottom_h_percent_); }
+
 protected:
 
     void paintEvent(QPaintEvent*) override;
@@ -89,16 +92,17 @@ private:
     double GetHighestMaxPrice() { return highestMaxPrice_; }
 
     bool FindTopFractalItem_TowardLeft(T_HisDataItemContainer &his_data, T_HisDataItemContainer::reverse_iterator iter, int k_index, T_KlinePosData *&left_pos_data);
+    bool FindBtmFractalItem_TowardLeft(T_HisDataItemContainer &his_data, T_HisDataItemContainer::reverse_iterator iter, int k_index, T_KlinePosData *&left_pos_data);
 
-    int Calculate_mm_h();
+    int Calculate_k_mm_h();
 
     StkForecastApp *app_;
     MainWindow  *main_win_;
 	Ui_KLineWallForm  ui;
-    const int head_h_;
-    const int bottom1_h_;
-    const int bottom2_h_; 
-    int bottom_h_;
+    const double head_h_percent_;
+   /* const int bottom1_h_;
+    const int bottom2_h_; */
+    const double bottom_h_percent_;
      
     int empty_right_w_;
     int right_w_;
@@ -140,6 +144,8 @@ private:
     std::vector<std::shared_ptr<ZhibiaoWindow> > zb_windows_;
 
     friend class ZhibiaoWindow;
+    friend class VolZhibiaoWin;
+    friend class MomentumZhibiaoWin;
 };
 
 
