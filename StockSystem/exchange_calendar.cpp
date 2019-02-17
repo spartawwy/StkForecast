@@ -3,7 +3,7 @@
 #include <ctime>
 #include <chrono>
 #include <TLib/core/tsystem_time.h>
-
+ 
 ExchangeCalendar::ExchangeCalendar() : min_trade_date_(0), max_trade_date_(0)
 { 
     trade_dates_ = std::make_shared<T_DateMapIsopen>(10*1024);
@@ -14,7 +14,44 @@ bool ExchangeCalendar::IsTradeDate(int date)
      assert(trade_dates_->size() > 0);
 
      T_DateMapIsopen &date_map_opend = *trade_dates_;
-     return date_map_opend.find(date) != date_map_opend.end();
+     auto iter = date_map_opend.find(date);
+     return iter != date_map_opend.end() && iter->second;
+}
+
+// ceiling trade date may be bigger then param date
+int ExchangeCalendar::CeilingTradeDate(int date)
+{
+    assert(trade_dates_->size() > 0); 
+    T_DateMapIsopen &date_map_opend = *trade_dates_;
+    int a = 0;
+    for( int i = 0; i < 30; ++i )
+    {
+        a = DateAddDays(date, i);
+        if( a > max_trade_date_ )
+            return 0;
+        auto iter = date_map_opend.find(a);
+        if( iter != date_map_opend.end() && iter->second )
+           return a;
+    }
+    return 0;
+}
+
+// ceiling trade date may be smaller then param date
+int ExchangeCalendar::FloorTradeDate(int date)
+{
+    assert(trade_dates_->size() > 0); 
+    T_DateMapIsopen &date_map_opend = *trade_dates_;
+    int a = 0;
+    for( int i = 0; i < 30; ++i )
+    {
+        a = DateAddDays(date, -1 * i);
+        if( a < min_trade_date_ )
+            return 0;
+        auto iter = date_map_opend.find(a);
+        if( iter != date_map_opend.end() && iter->second )
+            return a;
+    }
+    return 0;
 }
 
 // pre n trade date 
@@ -60,19 +97,53 @@ int ExchangeCalendar::NextTradeDate(int date, unsigned int n)
     return a;
 }
 
-// ps: end_date <= today
-T_TupleIndexLen ExchangeCalendar::GetStartDateAndLen_backforward(int start_date, int end_date)
+// ps: end_date <= today . ndedt
+T_TupleIndexLen ExchangeCalendar::GetStartIndexAndLen_backforward(TypePeriod type_period, int start_date, int end_date)
 {
     assert(trade_dates_->size() > 0);
     assert(start_date <= end_date);
-
     const int today = TSystem::Today();
+
+    const int latest_trade_date = FloorTradeDate(today);
+
+    int actual_start_date = CeilingTradeDate(start_date);
+
     int actual_end_date = end_date;
     if( actual_end_date >= today )
         actual_end_date = today;
-    int start_index = DateTradingSpan(actual_end_date, today);
-    int len = DateTradingSpan(start_date, actual_end_date);
-    return std::make_tuple(start_index, len + 1);
+    actual_end_date = FloorTradeDate(actual_end_date);
+
+    int start_index = DateTradingSpan(actual_end_date, latest_trade_date);
+
+    int span_len = DateTradingSpan(actual_start_date, actual_end_date);
+     
+    switch( type_period )
+    {
+    case TypePeriod::PERIOD_DAY: break;
+    case TypePeriod::PERIOD_WEEK:
+        if( start_index > 5 )
+            start_index /= 5;
+        if( span_len > 5 )
+            span_len /= 5;
+        break;
+    case TypePeriod::PERIOD_HOUR:
+        start_index *= 4;
+        span_len *= 4;
+        break;
+    case TypePeriod::PERIOD_30M:
+        start_index *= 8;
+        span_len *= 8;
+        break;
+    case TypePeriod::PERIOD_15M:
+        start_index *= 16;
+        span_len *= 16;
+        break;
+    case TypePeriod::PERIOD_5M:
+        start_index *= 16*3;
+        span_len *= 16*3;
+        break;
+    }
+    return std::make_tuple(start_index, span_len);
 }
 
 // return span of trading dates between

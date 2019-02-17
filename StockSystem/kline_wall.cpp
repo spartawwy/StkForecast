@@ -6,14 +6,14 @@
 #include <QPainter>
 #include <qevent.h> 
 #include <qdebug.h>
-//#include <QTime>
+ 
 #include <qdatetime.h>
 #include <QtWidgets/QMessageBox>
 
 #include "mainwindow.h"
 #include "stkfo_common.h"
 #include "stk_forecast_app.h"
- 
+#include "exchange_calendar.h"
 
 #define  WOKRPLACE_DEFUALT_K_NUM  (4*20 + 100)
 #define  DEFAULT_CYCLE_TAG  "»’œﬂ"
@@ -937,12 +937,12 @@ void KLineWall::mouseMoveEvent(QMouseEvent *e)
 void KLineWall::keyPressEvent(QKeyEvent *e)
 {
     //qDebug() << "key " << e->key() << "\n";
-    static auto get_container_max_min_price = [this](PeriodType period_type, const std::string& code, int k_num)->std::tuple<float, float>
+    static auto get_container_max_min_price = [this](PeriodType period_type, const std::string& code, int k_num, std::tuple<float, float>& ret)->bool
     {
         T_HisDataItemContainer &container = stock_data_man_.GetHisDataContainer(period_type, code);
-
-        unsigned int start_index = container.size() - k_num; 
-        start_index = start_index > 0 ? start_index : 0;
+        if( container.empty() )
+            return false;
+        unsigned int start_index = container.size() > k_num ?  container.size() - k_num : 0; 
         unsigned int end_index = container.size() - 1 > 0 ? container.size() - 1 : 0;
         float highest_price = 0.0;
         float lowest_price = 9999.9;
@@ -953,7 +953,9 @@ void KLineWall::keyPressEvent(QKeyEvent *e)
             if( container.at(i)->stk_item.low_price < lowest_price )
                 lowest_price = container.at(i)->stk_item.low_price;
         } 
-        return std::make_tuple(highest_price, lowest_price);
+         
+        ret = std::make_tuple(highest_price, lowest_price);
+        return true;
     };
     assert(p_hisdata_container_);
     auto key_val = e->key();
@@ -966,14 +968,16 @@ void KLineWall::keyPressEvent(QKeyEvent *e)
             if( k_num_ > 1 )
             {
                 k_num_ --;
-                auto price_tuple = get_container_max_min_price(ToPeriodType(k_type_), stock_code_, k_num_);
-                double try_new_high = std::get<0>(price_tuple) * 1.02;
-                if( try_new_high < this->highestMaxPrice_ )
-                    SetHighestMaxPrice(try_new_high);
-                double try_new_low = std::get<1>(price_tuple) * 0.95;
-                if( try_new_low > this->lowestMinPrice_ )
-                    SetLowestMinPrice(try_new_low);
-
+                std::tuple<float, float> price_tuple;
+                if( get_container_max_min_price(ToPeriodType(k_type_), stock_code_, k_num_, price_tuple) )
+                {
+                    double try_new_high = std::get<0>(price_tuple) * 1.02;
+                    if( try_new_high < this->highestMaxPrice_ )
+                        SetHighestMaxPrice(try_new_high);
+                    double try_new_low = std::get<1>(price_tuple) * 0.95;
+                    if( try_new_low > this->lowestMinPrice_ )
+                        SetLowestMinPrice(try_new_low);
+                }
                 UpdatePosDatas();
                 update();
             }
@@ -1063,7 +1067,9 @@ void KLineWall::leaveEvent(QEvent *)
 
 bool KLineWall::ResetStock(const QString& stock, TypePeriod type_period, bool is_index)
 {  
-    if( k_type_ == type_period && stock_code_ ==  stock.toLocal8Bit().data() )
+    T_HisDataItemContainer & items_in_container = stock_data_man_.GetHisDataContainer(ToPeriodType(k_type_), stock.toLocal8Bit().data());
+
+    if( k_type_ == type_period && stock_code_ ==  stock.toLocal8Bit().data() && !items_in_container.empty() )
         return true;
 
     stock_code_ = stock.toLocal8Bit().data(); 
@@ -1088,11 +1094,22 @@ bool KLineWall::ResetStock(const QString& stock, TypePeriod type_period, bool is
     case TypePeriod::PERIOD_15M:
         span_day = -1 * (WOKRPLACE_DEFUALT_K_NUM * 30 / (20 * 4 * 2 * 2));
         break;
+    case TypePeriod::PERIOD_5M:
+        span_day = -1 * (WOKRPLACE_DEFUALT_K_NUM * 30 / (20 * 4 * 2 * 2 * 3));
+        break;
     }
     start_date = QDate::currentDate().addDays(span_day).toString("yyyyMMdd").toInt();
-
-    //p_hisdata_container_ = stock_data_man_.AppendStockData(stock_code_, 20171216, 20180108); 
-	p_hisdata_container_ = stock_data_man_.AppendStockData(ToPeriodType(k_type_), stock_code_, start_date, cur_date, is_index);
+    /*int real_start_date = stock_data_man_.exchange_calendar()->CeilingTradeDate(start_date);
+    int real_end_date = stock_data_man_.exchange_calendar()->FloorTradeDate(cur_date);
+    if( FindIndex(items_in_container, real_start_date) > -1 && FindIndex(items_in_container, real_end_date) > -1 )
+        return true;*/
+    p_hisdata_container_ = stock_data_man_.FindStockData(ToPeriodType(k_type_), stock_code_, start_date, cur_date);
+    if( !p_hisdata_container_ )
+    {
+        //p_hisdata_container_ = stock_data_man_.AppendStockData(stock_code_, 20171216, 20180108); 
+        p_hisdata_container_ = stock_data_man_.AppendStockData(ToPeriodType(k_type_), stock_code_, start_date, cur_date, is_index);
+    }
+    
 	if( !p_hisdata_container_ )
 		return false;
     this->is_index_ = is_index;
@@ -1275,6 +1292,7 @@ void KLineWall::RestTypePeriod(TypePeriod  type)
     case TypePeriod::PERIOD_5M:
     case TypePeriod::PERIOD_15M:
     case TypePeriod::PERIOD_30M:
+        ResetStock(stock_code_.c_str(), type, is_index_);
         break;
     case TypePeriod::PERIOD_HOUR:
         ResetStock(stock_code_.c_str(), type, is_index_);

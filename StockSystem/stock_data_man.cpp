@@ -18,6 +18,7 @@
 
 #include "tdx_hq_wrapper.h"
 #include "zhibiao.h"
+#include "exchange_calendar.h"
 
 #define RESERVE_CAPACITY_IN_T_VECTOR    1024*16
 //#define RESERVE_SIZE_IN_T_VECTOR    1024*16
@@ -61,6 +62,7 @@ StockDataMan::StockDataMan(ExchangeCalendar *p_exchange_calendar)
 #endif
     , p_stk_hisdata_item_vector_(nullptr)
     , tdx_hq_wrapper_(p_exchange_calendar)
+    , p_exchange_calendar_(p_exchange_calendar)
 {
     //LoadDataFromFile("./data/600030.dat");
     zhibiao_types_.push_back(ZhibiaoType::MOMENTUM); // momentum is in pos MOMENTUM_POS: 0
@@ -163,6 +165,17 @@ void call_back_fun(T_K_Data *k_data, bool is_end, void *para/*, std::vector<T_St
 }
 #endif
 
+T_HisDataItemContainer* StockDataMan::FindStockData(PeriodType period_type, const std::string &stk_code, int start_date, int end_date, bool /*is_index*/)
+{
+    assert( !stk_code.empty() ); 
+    T_HisDataItemContainer & items_in_container = GetHisDataContainer(period_type, stk_code);
+    int real_start_date = exchange_calendar()->CeilingTradeDate(start_date);
+    int real_end_date = exchange_calendar()->FloorTradeDate(end_date);
+    if( FindIndex(items_in_container, real_start_date) > -1 && FindIndex(items_in_container, real_end_date) > -1 )
+        return &items_in_container;
+    return nullptr;
+}
+
 // date is save from older(smaller) date to newer(bigger). ps: data in container is series trade date
 T_HisDataItemContainer* StockDataMan::AppendStockData(PeriodType period_type, const std::string &stk_code, int start_date, int end_date, bool is_index)
 {
@@ -218,7 +231,7 @@ T_HisDataItemContainer* StockDataMan::AppendStockData(PeriodType period_type, co
     auto p_stk_hisdata_item_vector = new std::vector<T_StockHisDataItem>();
     std::vector<T_StockHisDataItem> &p_data_items = *p_stk_hisdata_item_vector;  
     bool ret = tdx_hq_wrapper_.GetHisKBars(code, is_index, ToTypePeriod(period_type), start_date, end_date, *p_stk_hisdata_item_vector);
-    if( !ret )
+    if( !ret || p_data_items.empty() )
     {
         delete p_stk_hisdata_item_vector_;
         p_stk_hisdata_item_vector_ = nullptr;
@@ -271,7 +284,9 @@ T_HisDataItemContainer* StockDataMan::AppendStockData(PeriodType period_type, co
             for( int k = count; k > 0; --k )
             {
                 //auto ck_val = p_data_items[k-1].date;
-                if( p_data_items[k-1].date < items_in_container.front()->stk_item.date )
+                if( p_data_items[k-1].date < items_in_container.front()->stk_item.date || 
+                    (p_data_items[k-1].date == items_in_container.front()->stk_item.date &&
+                    p_data_items[k-1].hhmmss < items_in_container.front()->stk_item.hhmmss) )
                 {
                     auto k_item = std::make_shared<T_KlineDataItem>(p_data_items[k-1]); 
                     k_item->zhibiao_atoms.push_back(std::move(std::make_shared<MomentumZhibiao>()));
@@ -282,7 +297,9 @@ T_HisDataItemContainer* StockDataMan::AppendStockData(PeriodType period_type, co
         {
             for( int k = 0; k < count; ++k )
             {
-                if( p_data_items[k].date > items_in_container.back()->stk_item.date )
+                if( p_data_items[k].date > items_in_container.back()->stk_item.date ||
+                    (p_data_items[k].date == items_in_container.back()->stk_item.date &&
+                    p_data_items[k].hhmmss > items_in_container.back()->stk_item.hhmmss) )
                 {
                     auto k_item = std::make_shared<T_KlineDataItem>(p_data_items[k]); 
                     k_item->zhibiao_atoms.push_back(std::move(std::make_shared<MomentumZhibiao>()));
@@ -339,6 +356,12 @@ void StockDataMan::CaculateZhibiao(T_HisDataItemContainer &data_items_in_contain
         }
     }
 }
+
+//// < 0 : meaning no related data
+//int StockDataMan::FindRelateIndex(PeriodType period_type, const std::string& code)
+//{
+//
+//}
 
 T_HisDataItemContainer & StockDataMan::GetHisDataContainer(PeriodType period_type, const std::string& code)
 {
@@ -621,4 +644,15 @@ TypePeriod ToTypePeriod(PeriodType src)
     assert(false); 
     }
     return TypePeriod::PERIOD_DAY;
+}
+
+// < 0 : meaning no related data
+int FindIndex(T_HisDataItemContainer &data_items_in_container, int date)
+{
+    for( unsigned int i = 0; i < data_items_in_container.size(); ++i )
+    {
+        if( data_items_in_container.at(i)->stk_item.date == date )
+            return i;
+    }
+    return -1;
 }

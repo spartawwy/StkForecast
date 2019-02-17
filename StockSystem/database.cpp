@@ -88,7 +88,7 @@ void DataBase::LoadTradeDate(void *exchange_calendar)
     //std::string sql = "SELECT date FROM ExchangeDate WHERE is_tradeday = 1 ORDER BY date ";
     std::string sql = utility::FormatStr("SELECT date, is_tradeday FROM ExchangeDate WHERE date <= %d ORDER BY date DESC", TSystem::Today());
     int num = 0;
-    ((ExchangeCalendar*)exchange_calendar)->min_trade_date_ = 0;
+    ((ExchangeCalendar*)exchange_calendar)->max_trade_date_ = 0;
     db_conn_->ExecuteSQL(sql.c_str(), [&num, &exchange_calendar, this](int num_cols, char** vals, char** names)->int
     { 
         try
@@ -98,10 +98,10 @@ void DataBase::LoadTradeDate(void *exchange_calendar)
             bool is_trade_date = boost::lexical_cast<bool>(*(vals + 1)); 
             ((ExchangeCalendar*)exchange_calendar)->trade_dates_->insert(std::make_pair(date, is_trade_date));
 
-            if( ((ExchangeCalendar*)exchange_calendar)->min_trade_date_ == 0 )
-                ((ExchangeCalendar*)exchange_calendar)->min_trade_date_ = date;
+            if( ((ExchangeCalendar*)exchange_calendar)->max_trade_date_ == 0 )
+                ((ExchangeCalendar*)exchange_calendar)->max_trade_date_ = date;
 
-            ((ExchangeCalendar*)exchange_calendar)->max_trade_date_ = date;
+            ((ExchangeCalendar*)exchange_calendar)->min_trade_date_ = date;
         }catch(boost::exception& )
         {
             return 0;

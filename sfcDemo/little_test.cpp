@@ -20,6 +20,11 @@ enum class FractalType : int
 
 int main()
 {
+    char temp_str[] = "2018-01-06";
+    char buf[64] = {"\0"};
+    //sscanf_s(temp_str, "%04d-%02d-%02d", buf);  // fail
+     
+
     printf(" %d %d %d %d %d \n %d %d %d %d %d"
         , FractalType::BTM_AXIS_T_3
         , FractalType::BTM_AXIS_T_5

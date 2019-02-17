@@ -29,7 +29,7 @@ public:
     bool Init();
 
     //std::vector<std::shared_ptr<T_KlineDataItem> > &day_kline_data_container() { return day_kline_data_container_; }
-
+    ExchangeCalendar * exchange_calendar() { return p_exchange_calendar_;}
 public:
     //list容器，数据类型为一只股票一天的消息，是StockDataMan的数据成员
     //std::list<StockDayInfo> stockAllDaysInfoList;
@@ -38,6 +38,7 @@ public:
     //从fileName指定的磁盘路径中将数据一行一行读取出来，每一行初始化一个StockDayInfo对象
     //void LoadDataFromFile(std::string &fileName);
 
+    T_HisDataItemContainer* FindStockData(PeriodType period_type, const std::string &stk_code, int start_date, int end_date, bool is_index=false);
     T_HisDataItemContainer* AppendStockData(PeriodType period_type, const std::string &stk_code, int start_date, int end_date, bool is_index=false);
 	     
 public:
@@ -46,7 +47,8 @@ public:
 	float GetHisDataHighestMaxPrice(PeriodType period_type, const std::string& code, int start_date, int end_date);
 
 public:
-     
+    //// < 0 : meaning no related data
+    //int FindRelateIndex(PeriodType period_type, const std::string& code, int date);
     T_HisDataItemContainer &GetHisDataContainer(PeriodType period_type, const std::string& code);
     // (stock , data)
     T_CodeMapHisDataItemContainer m5_stock_his_items_;
@@ -85,6 +87,10 @@ private:
      
     //std::vector<std::shared_ptr<T_KlineDataItem> > day_kline_data_container_;
    std::vector<ZhibiaoType> zhibiao_types_;
+   ExchangeCalendar *p_exchange_calendar_;
 };
+
+// < 0 : meaning no related data
+int FindIndex(T_HisDataItemContainer &data_items_in_container, int date);
 
 #endif // STOCK_DATA_MAN_H

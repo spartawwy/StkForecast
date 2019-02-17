@@ -6,7 +6,7 @@
 #include <unordered_map>
 #include <tuple>
 
-//#include "common_base.h"
+#include "stkfo_common.h"
  
 typedef std::unordered_map<int, bool> T_DateMapIsopen;
 typedef std::tuple<int, int> T_TupleIndexLen;
@@ -17,16 +17,19 @@ public:
 
 	 // return: yyyymmdd
     static int TodayAddDays(int days=0);
+    // days can be nigative -
     static int DateAddDays(int date, int days);
 
     ExchangeCalendar();
 
     bool IsTradeDate(int date);
+    int CeilingTradeDate(int date);
+    int FloorTradeDate(int date);
     int PreTradeDate(int date, unsigned int n);
     int NextTradeDate(int date, unsigned int n);
 	 
     int DateTradingSpan(int start_date, int end_date);
-    T_TupleIndexLen GetStartDateAndLen_backforward(int start_date, int end_date);
+    T_TupleIndexLen GetStartIndexAndLen_backforward(TypePeriod type_period, int start_date, int end_date);
 
 private:
 
