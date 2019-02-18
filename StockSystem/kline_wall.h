@@ -106,6 +106,7 @@ private:
      
     int empty_right_w_;
     int right_w_;
+    int h_axis_trans_in_paint_k_;
 
 	StockInputDlg  stock_input_dlg_;
      

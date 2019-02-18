@@ -6,9 +6,10 @@
 #include <QPainter>
 #include <qevent.h> 
 #include <qdebug.h>
- 
 #include <qdatetime.h>
 #include <QtWidgets/QMessageBox>
+
+#include <TLib/core/tsystem_utility_functions.h>
 
 #include "mainwindow.h"
 #include "stkfo_common.h"
@@ -17,6 +18,10 @@
 
 #define  WOKRPLACE_DEFUALT_K_NUM  (4*20 + 100)
 #define  DEFAULT_CYCLE_TAG  "»’œﬂ"
+
+typedef std::tuple<QPointF, std::string> T_TuplePointStr;
+
+using namespace TSystem;
 
 //static const QPoint CST_MAGIC_POINT(-1, -1);
 static const int cst_default_year = 2017;
@@ -31,6 +36,7 @@ KLineWall::KLineWall(StkForecastApp *app, QWidget *parent)
     , bottom_h_percent_(0.04)
     , empty_right_w_(30)
     , right_w_(30)
+    , h_axis_trans_in_paint_k_(0)
     , stock_code_()
     , is_index_(false)
     , stock_data_man_(app->exchange_calendar().get())
@@ -100,7 +106,7 @@ void KLineWall::Draw2pDownForcast(QPainter &painter, const int mm_h, double item
         pen.setWidth(2);
         //painter.setPen(pen); 
         const auto font_size = painter.font().pointSizeF();
-        std::vector<std::tuple<QPointF, double> >  fronts_to_draw;
+        std::vector<T_TuplePointStr>  fronts_to_draw;
         
         for( unsigned int i = 0; i < p_data_vector->size(); ++i )
         {
@@ -114,8 +120,8 @@ void KLineWall::Draw2pDownForcast(QPainter &painter, const int mm_h, double item
                     pen.setStyle(Qt::SolidLine); 
                     painter.setPen(pen);  
                     painter.drawLine(item_a->kline_posdata.top, item_b->kline_posdata.bottom);
-fronts_to_draw.push_back(std::make_tuple(QPointF(item_a->kline_posdata.top.x()-item_w/2, item_a->kline_posdata.top.y()), item_a->stk_item.high_price));
-fronts_to_draw.push_back(std::make_tuple(QPointF(item_b->kline_posdata.bottom.x()-item_w/2, item_b->kline_posdata.bottom.y() + painter.font().pointSizeF()), item_b->stk_item.low_price));
+fronts_to_draw.push_back(std::make_tuple(QPointF(item_a->kline_posdata.top.x()-item_w/2, item_a->kline_posdata.top.y()), "A"));
+fronts_to_draw.push_back(std::make_tuple(QPointF(item_b->kline_posdata.bottom.x()-item_w/2, item_b->kline_posdata.bottom.y() + painter.font().pointSizeF()), "B"));
                     double y1 = get_pointc_y(data_2pforcastdown.c1, mm_h);
                     double y2 = get_pointc_y(data_2pforcastdown.c2, mm_h);
                     double y3 = get_pointc_y(data_2pforcastdown.c3, mm_h);
@@ -129,13 +135,13 @@ fronts_to_draw.push_back(std::make_tuple(QPointF(item_b->kline_posdata.bottom.x(
                     // horzon forcast line -----------
                     double h_line_left = item_b->kline_posdata.bottom.x() - item_w;
                     painter.drawLine(QPointF(h_line_left, y1), QPointF(x_b + 5*item_w, y1));
-fronts_to_draw.push_back(std::make_tuple(QPointF(h_line_left - font_size*6, y1), data_2pforcastdown.c1));
+fronts_to_draw.push_back(std::make_tuple(QPointF(h_line_left - font_size*6, y1), utility::FormatStr("C1: %.2f", data_2pforcastdown.c1))); 
 
                     painter.drawLine(QPointF(h_line_left, y2), QPointF(x_b + 10*item_w, y2));
-fronts_to_draw.push_back(std::make_tuple(QPointF(h_line_left - font_size*6, y2), data_2pforcastdown.c2));
+fronts_to_draw.push_back(std::make_tuple(QPointF(h_line_left - font_size*6, y2), utility::FormatStr("C2: %.2f", data_2pforcastdown.c2))); 
 
                     painter.drawLine(QPointF(h_line_left, y3), QPointF(x_b + 20*item_w, y3));
-fronts_to_draw.push_back(std::make_tuple(QPointF(h_line_left - font_size*6, y3), data_2pforcastdown.c3));                        
+fronts_to_draw.push_back(std::make_tuple(QPointF(h_line_left - font_size*6, y3), utility::FormatStr("C3: %.2f", data_2pforcastdown.c3)));            
                 }else 
                 {
                     painter.drawLine(item_a->kline_posdata.bottom, item_b->kline_posdata.top);
@@ -147,11 +153,11 @@ fronts_to_draw.push_back(std::make_tuple(QPointF(h_line_left - font_size*6, y3),
         pen.setColor(Qt::white);
         pen.setStyle(Qt::SolidLine); 
         painter.setPen(pen);
-        char buf[32] = {0};
-        std::for_each( std::begin(fronts_to_draw), std::end(fronts_to_draw), [&painter, &buf, this](std::tuple<QPointF, double>& in)
+        //char buf[32] = {0};
+        std::for_each( std::begin(fronts_to_draw), std::end(fronts_to_draw), [&painter, /*&buf, */this](T_TuplePointStr& in)
         {
-            sprintf_s(buf, sizeof(buf), "%.2f\0", std::get<1>(in));
-            painter.drawText(std::get<0>(in), buf);
+            //sprintf_s(buf, sizeof(buf), "%.2f\0", std::get<1>(in));
+            painter.drawText(std::get<0>(in), std::get<1>(in).c_str());
         });
   }
   // end of paint 3pdates -------------------------
@@ -165,11 +171,11 @@ void KLineWall::Draw2pUpForcast(QPainter &painter, const int mm_h, double item_w
         return;
 
     QPen pen;   
-    pen.setColor(Qt::magenta);
+    pen.setColor(Qt::cyan);
     pen.setWidth(2);
     //painter.setPen(pen); 
     const auto font_size = painter.font().pointSizeF();
-    std::vector<std::tuple<QPointF, double> >  fronts_to_draw;
+    std::vector<T_TuplePointStr> fronts_to_draw;
         
     for( unsigned int i = 0; i < p_data_vector->size(); ++i )
     {
@@ -183,8 +189,8 @@ void KLineWall::Draw2pUpForcast(QPainter &painter, const int mm_h, double item_w
                 pen.setStyle(Qt::SolidLine); 
                 painter.setPen(pen);  
                 painter.drawLine(item_a->kline_posdata.bottom, item_b->kline_posdata.top);
- fronts_to_draw.push_back(std::make_tuple(QPointF(item_a->kline_posdata.bottom.x()-item_w/2, item_a->kline_posdata.bottom.y()), item_a->stk_item.low_price));
- fronts_to_draw.push_back(std::make_tuple(QPointF(item_b->kline_posdata.top.x()-item_w/2, item_b->kline_posdata.top.y() + painter.font().pointSizeF()), item_b->stk_item.high_price));
+ fronts_to_draw.push_back(std::make_tuple(QPointF(item_a->kline_posdata.bottom.x()-item_w/2, item_a->kline_posdata.bottom.y()), "A"));
+ fronts_to_draw.push_back(std::make_tuple(QPointF(item_b->kline_posdata.top.x()-item_w/2, item_b->kline_posdata.top.y() + painter.font().pointSizeF()), "B"));
                 double y1 = get_pointc_y(data_2pforcast.c1, mm_h);
                 double y2 = get_pointc_y(data_2pforcast.c2, mm_h);
                 double y3 = get_pointc_y(data_2pforcast.c3, mm_h);
@@ -196,13 +202,13 @@ void KLineWall::Draw2pUpForcast(QPainter &painter, const int mm_h, double item_w
                 // horzon forcast line -----------
                 double h_line_left = item_b->kline_posdata.bottom.x() - item_w;
                 painter.drawLine(QPointF(h_line_left, y1), QPointF(x_b + 5*item_w, y1));
-fronts_to_draw.push_back(std::make_tuple(QPointF(h_line_left - font_size*6, y1), data_2pforcast.c1));
+fronts_to_draw.push_back(std::make_tuple(QPointF(h_line_left - font_size*6, y1), utility::FormatStr("C1: %.2f", data_2pforcast.c1)));
 
                 painter.drawLine(QPointF(h_line_left, y2), QPointF(x_b + 10*item_w, y2));
-fronts_to_draw.push_back(std::make_tuple(QPointF(h_line_left - font_size*6, y2), data_2pforcast.c2));
+fronts_to_draw.push_back(std::make_tuple(QPointF(h_line_left - font_size*6, y2), utility::FormatStr("C2: %.2f", data_2pforcast.c2)));
 
                 painter.drawLine(QPointF(h_line_left, y3), QPointF(x_b + 20*item_w, y3));
-fronts_to_draw.push_back(std::make_tuple(QPointF(h_line_left - font_size*6, y3), data_2pforcast.c3));                        
+fronts_to_draw.push_back(std::make_tuple(QPointF(h_line_left - font_size*6, y3),  utility::FormatStr("C3: %.2f", data_2pforcast.c3)));           
             }else 
             {
                 painter.drawLine(item_a->kline_posdata.top, item_b->kline_posdata.bottom);
@@ -212,12 +218,10 @@ fronts_to_draw.push_back(std::make_tuple(QPointF(h_line_left - font_size*6, y3),
 
     pen.setColor(Qt::white);
     pen.setStyle(Qt::SolidLine); 
-    painter.setPen(pen);
-    char buf[32] = {0};
-    std::for_each( std::begin(fronts_to_draw), std::end(fronts_to_draw), [&painter, &buf, this](std::tuple<QPointF, double>& in)
+    painter.setPen(pen); 
+    std::for_each( std::begin(fronts_to_draw), std::end(fronts_to_draw), [&painter, this](T_TuplePointStr& in)
     {
-        sprintf_s(buf, sizeof(buf), "%.2f\0", std::get<1>(in));
-        painter.drawText(std::get<0>(in), buf);
+        painter.drawText(std::get<0>(in), std::get<1>(in).c_str());
     });
 }
 
@@ -239,10 +243,13 @@ void KLineWall::_Draw3pForcast(QPainter &painter, const int mm_h, double item_w,
         return;
 
     QPen pen;  
-    pen.setColor(Qt::magenta);
+    if( is_down_forward )
+        pen.setColor(Qt::cyan);
+    else
+        pen.setColor(Qt::magenta);
     pen.setWidth(2);
     const auto font_size = painter.font().pointSizeF();
-    std::vector<std::tuple<QPointF, double> >  fronts_to_draw;
+    std::vector<T_TuplePointStr>  fronts_to_draw;
     double lowest_price = 9999.9;
     double highest_price = 0.0;
     bool has_set_price = false;
@@ -280,12 +287,12 @@ void KLineWall::_Draw3pForcast(QPainter &painter, const int mm_h, double item_w,
             pen.setStyle(Qt::SolidLine);
             painter.setPen(pen); 
             painter.drawLine(point_a, point_b);
-            fronts_to_draw.push_back(std::make_tuple(QPointF(point_a.x()-item_w/2, point_a.y()), price_a));
+            fronts_to_draw.push_back(std::make_tuple(QPointF(point_a.x()-item_w/2, point_a.y()), "A"));
             if( item_c )
             {
                 painter.drawLine(point_b, point_c);
-                fronts_to_draw.push_back(std::make_tuple(QPointF(point_b.x()-item_w/2, point_b.y()), price_b));
-                fronts_to_draw.push_back(std::make_tuple(QPointF(point_c.x()-item_w/2, point_c.y()), price_c));
+                fronts_to_draw.push_back(std::make_tuple(QPointF(point_b.x()-item_w/2, point_b.y()), "B"));
+                fronts_to_draw.push_back(std::make_tuple(QPointF(point_c.x()-item_w/2, point_c.y()), "C"));
                 double y1 = get_pointc_y(data_3p_forcast.d1, mm_h);
                 double y2 = get_pointc_y(data_3p_forcast.d2, mm_h);
                 double y3 = get_pointc_y(data_3p_forcast.d3, mm_h);
@@ -297,13 +304,13 @@ void KLineWall::_Draw3pForcast(QPainter &painter, const int mm_h, double item_w,
                 // horzon forcast line -----------
                 double h_line_left = point_c.x() - item_w;
                 painter.drawLine(QPointF(h_line_left, y1), QPointF(x_c + 5*item_w, y1));
-                fronts_to_draw.push_back(std::make_tuple(QPointF(h_line_left - font_size*6, y1), data_3p_forcast.d1));
+                fronts_to_draw.push_back(std::make_tuple(QPointF(h_line_left - font_size*6, y1), utility::FormatStr("D1: %.2f", data_3p_forcast.d1)));
 
                 painter.drawLine(QPointF(h_line_left, y2), QPointF(x_c + 10*item_w, y2));
-                fronts_to_draw.push_back(std::make_tuple(QPointF(h_line_left - font_size*6, y2), data_3p_forcast.d2));
+                fronts_to_draw.push_back(std::make_tuple(QPointF(h_line_left - font_size*6, y2), utility::FormatStr("D1: %.2f", data_3p_forcast.d2)));
 
                 painter.drawLine(QPointF(h_line_left, y3), QPointF(x_c + 20*item_w, y3));
-                fronts_to_draw.push_back(std::make_tuple(QPointF(h_line_left - font_size*6, y3), data_3p_forcast.d3));    
+                fronts_to_draw.push_back(std::make_tuple(QPointF(h_line_left - font_size*6, y3), utility::FormatStr("D1: %.2f", data_3p_forcast.d3)));
 
                 lowest_price = std::min(lowest_price, data_3p_forcast.d1);
                 lowest_price = std::min(lowest_price, data_3p_forcast.d3);
@@ -316,12 +323,10 @@ void KLineWall::_Draw3pForcast(QPainter &painter, const int mm_h, double item_w,
     }// for
     pen.setColor(Qt::white);
     pen.setStyle(Qt::SolidLine); 
-    painter.setPen(pen);
-    char buf[32] = {0};
-    std::for_each( std::begin(fronts_to_draw), std::end(fronts_to_draw), [&painter, &buf, this](std::tuple<QPointF, double>& in)
-    {
-        sprintf_s(buf, sizeof(buf), "%.2f\0", std::get<1>(in));
-        painter.drawText(std::get<0>(in), buf);
+    painter.setPen(pen); 
+    std::for_each( std::begin(fronts_to_draw), std::end(fronts_to_draw), [&painter, this](T_TuplePointStr& in)
+    { 
+        painter.drawText(std::get<0>(in), std::get<1>(in).c_str());
     });
     /*if( has_set_price )
     {
@@ -476,7 +481,7 @@ void KLineWall::mousePressEvent(QMouseEvent * event )
 
     if( drawing_line_A_ == CST_MAGIC_POINT )
     {
-        drawing_line_A_ = QPointF( event->pos().x(), event->pos().y() - height_axis_trans_in_paint_k());
+        drawing_line_A_ = QPointF( event->pos().x(), event->pos().y() - h_axis_trans_in_paint_k_);
         return;
     }
 
@@ -677,11 +682,11 @@ void KLineWall::paintEvent(QPaintEvent*)
     const int price_scale_num = 8;
     const int scale_part_h = k_mm_h / (price_scale_num + 1); 
     int trans_y_totoal = 0;
-    const int h_axis_trans_in_paint_k = height_axis_trans_in_paint_k() - scale_part_h;
-    painter.translate(0, h_axis_trans_in_paint_k); // translate frame of axes to k mm bottom
-    trans_y_totoal += h_axis_trans_in_paint_k;
+    h_axis_trans_in_paint_k_ = height_axis_trans_in_paint_k() - scale_part_h;
+    painter.translate(0, h_axis_trans_in_paint_k_); // translate frame of axes to k mm bottom
+    trans_y_totoal += h_axis_trans_in_paint_k_;
 
-    QPointF cur_mous_point_trans(cur_mouse_point_.x(), cur_mouse_point_.y() - h_axis_trans_in_paint_k);
+    QPointF cur_mous_point_trans(cur_mouse_point_.x(), cur_mouse_point_.y() - h_axis_trans_in_paint_k_);
     do
     {   
         if( draw_action_ == DrawAction::NO_ACTION ) 
@@ -714,13 +719,13 @@ void KLineWall::paintEvent(QPaintEvent*)
     QFont font;  
     font.setPointSize(old_font.pointSize() * 2); 
     painter.setFont(font);
-    painter.drawText(mm_w - right_w_ - 70, -1 * (h_axis_trans_in_paint_k * 0.9), stock_code_.c_str());
+    painter.drawText(mm_w - right_w_ - 70, -1 * (h_axis_trans_in_paint_k_ * 0.9), stock_code_.c_str());
      
     painter.setFont(old_font); 
     
     // right vertical line |
     painter.setPen(border_pen);
-    painter.drawLine(mm_w - right_w_, this->height() - h_axis_trans_in_paint_k, mm_w - right_w_, -1 * this->height());
+    painter.drawLine(mm_w - right_w_, this->height() - h_axis_trans_in_paint_k_, mm_w - right_w_, -1 * this->height());
      
     // vertical' price scale ------------
     
@@ -894,7 +899,7 @@ void KLineWall::paintEvent(QPaintEvent*)
         painter.drawLine(0, pos_from_global.y(), mm_w-right_w_, pos_from_global.y());
         // vertical line 
         painter.drawLine(pos_from_global.x(), HeadHeight(), pos_from_global.x(), this->height()); 
-        painter.drawText( mm_w-right_w_, pos_from_global.y(), QString("%1").arg(lowestMinPrice_ + price_per_len * (h_axis_trans_in_paint_k - pos_from_global.y()) ) );
+        painter.drawText( mm_w-right_w_, pos_from_global.y(), QString("%1").arg(lowestMinPrice_ + price_per_len * (h_axis_trans_in_paint_k_ - pos_from_global.y()) ) );
     }
 
     // draw date
