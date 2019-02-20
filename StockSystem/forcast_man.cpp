@@ -192,7 +192,7 @@ double ForcastMan::FindMaxForcastPrice(const std::string &code, TypePeriod type_
     if( vector_iter == code_3p_down_fcst.end() )
         return 0.0;
     std::vector<T_Data3pForcast> & forcasts = vector_iter->second;
-    double max_price = 0.0;
+    double max_price = MIN_PRICE;
     for(int i = 0; i < forcasts.size(); ++i )
     {
         if( forcasts.at(i).date_c >= start_date && forcasts.at(i).date_c <= end_date )
@@ -210,9 +210,9 @@ double ForcastMan::FindMinForcastPrice(const std::string &code, TypePeriod type_
     Code3pForcastType &code_3p_down_fcst = Get3pDataHolder(type_period, true);
     auto vector_iter = code_3p_down_fcst.find(code);
     if( vector_iter == code_3p_down_fcst.end() )
-        return 999.0;
+        return MAX_PRICE;
     std::vector<T_Data3pForcast> & forcasts = vector_iter->second;
-    double min_price = 999.9;
+    double min_price = MAX_PRICE;
     for(int i = 0; i < forcasts.size(); ++i )
     {
         if( forcasts.at(i).date_c >= start_date && forcasts.at(i).date_c <= end_date )

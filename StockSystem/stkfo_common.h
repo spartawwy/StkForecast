@@ -82,16 +82,17 @@ class PyDataMan;
 class T_KlinePosData
 {
 public:
-    T_KlinePosData() : date(0), x_left(0.0), x_right(0.0), height(0.0), columnar_top_left(CST_MAGIC_POINT), top(CST_MAGIC_POINT), bottom(CST_MAGIC_POINT) {}
+    T_KlinePosData() : date(0), hhmm(0), x_left(0.0), x_right(0.0), height(0.0), columnar_top_left(CST_MAGIC_POINT), top(CST_MAGIC_POINT), bottom(CST_MAGIC_POINT) {}
     T_KlinePosData(const T_KlinePosData &lh)
-        : date(lh.date), x_left(lh.x_left), x_right(lh.x_right), height(lh.height), columnar_top_left(lh.columnar_top_left), top(lh.top), bottom(lh.bottom) {}
+        : date(lh.date), hhmm(lh.hhmm), x_left(lh.x_left), x_right(lh.x_right), height(lh.height), columnar_top_left(lh.columnar_top_left), top(lh.top), bottom(lh.bottom) {}
     T_KlinePosData(T_KlinePosData &&lh)
-        : date(lh.date), x_left(lh.x_left), x_right(lh.x_right), height(lh.height), columnar_top_left(lh.columnar_top_left), top(lh.top), bottom(lh.bottom) {}
+        : date(lh.date), hhmm(lh.hhmm), x_left(lh.x_left), x_right(lh.x_right), height(lh.height), columnar_top_left(lh.columnar_top_left), top(lh.top), bottom(lh.bottom) {}
 
     T_KlinePosData & operator = (const T_KlinePosData &lh)
     {
         if( this == &lh ) return *this;
         date = lh.date;
+        hhmm = lh.hhmm;
         x_left = lh.x_left;
         x_right = lh.x_right;
         height = lh.height;
@@ -99,9 +100,10 @@ public:
         top = lh.top;
         bottom = lh.bottom;
     }
-    void Clear(){date = 0; x_left = 0.0; x_right = 0.0; height = 0.0; columnar_top_left = CST_MAGIC_POINT;top = CST_MAGIC_POINT; bottom = CST_MAGIC_POINT;}
+    void Clear(){date = 0; hhmm = 0; x_left = 0.0; x_right = 0.0; height = 0.0; columnar_top_left = CST_MAGIC_POINT;top = CST_MAGIC_POINT; bottom = CST_MAGIC_POINT;}
     
     int  date; 
+    int  hhmm;
     double x_left;
     double x_right;
     double height;

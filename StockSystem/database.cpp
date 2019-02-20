@@ -89,7 +89,7 @@ void DataBase::LoadTradeDate(void *exchange_calendar)
     std::string sql = utility::FormatStr("SELECT date, is_tradeday FROM ExchangeDate WHERE date <= %d ORDER BY date DESC", TSystem::Today());
     int num = 0;
     ((ExchangeCalendar*)exchange_calendar)->max_trade_date_ = 0;
-    db_conn_->ExecuteSQL(sql.c_str(), [&num, &exchange_calendar, this](int num_cols, char** vals, char** names)->int
+    db_conn_->ExecuteSQL(sql.c_str(), [&num, &exchange_calendar, this](int /*num_cols*/, char** vals, char** /*names*/)->int
     { 
         try
         { 

@@ -78,8 +78,8 @@ private:
 
     T_KlineDataItem * GetKLineDataItemByXpos(int x);
     QPointF GetPointFromKLineDataItems(int x, bool is_get_top);
-    T_KlineDataItem * GetKLineDataItemByDate(int date);
-    T_KlinePosData * GetKLinePosDataByDate(int date);
+    T_KlineDataItem * GetKLineDataItemByDate(int date, int hhmm);
+    T_KlinePosData * GetKLinePosDataByDate(int date, int hhmm);
 
     double get_pointc_y(double c_val, int mm_h)
     {  

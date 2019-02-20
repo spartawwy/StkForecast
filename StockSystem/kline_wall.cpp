@@ -111,8 +111,8 @@ void KLineWall::Draw2pDownForcast(QPainter &painter, const int mm_h, double item
         for( unsigned int i = 0; i < p_data_vector->size(); ++i )
         {
             T_Data2pDownForcast &data_2pforcastdown = p_data_vector->at(i);
-            auto item_a = GetKLineDataItemByDate(data_2pforcastdown.date_a);
-            auto item_b = GetKLineDataItemByDate(data_2pforcastdown.date_b);
+            auto item_a = GetKLineDataItemByDate(data_2pforcastdown.date_a, data_2pforcastdown.hhmm_a);
+            auto item_b = GetKLineDataItemByDate(data_2pforcastdown.date_b, data_2pforcastdown.hhmm_b);
             if( item_a && item_a->kline_posdata.date != 0 && item_b && item_b->kline_posdata.date != 0 )
             {
                 if( abs(item_a->kline_posdata.top.y()) > abs(item_b->kline_posdata.top.y()) )  // y is negative
@@ -180,8 +180,8 @@ void KLineWall::Draw2pUpForcast(QPainter &painter, const int mm_h, double item_w
     for( unsigned int i = 0; i < p_data_vector->size(); ++i )
     {
         T_Data2pUpForcast &data_2pforcast = p_data_vector->at(i);
-        auto item_a = GetKLineDataItemByDate(data_2pforcast.date_a);
-        auto item_b = GetKLineDataItemByDate(data_2pforcast.date_b);
+        auto item_a = GetKLineDataItemByDate(data_2pforcast.date_a, data_2pforcast.hhmm_a);
+        auto item_b = GetKLineDataItemByDate(data_2pforcast.date_b, data_2pforcast.hhmm_b);
         if( item_a && item_a->kline_posdata.date != 0 && item_b && item_b->kline_posdata.date != 0 )
         {
             if( abs(item_a->kline_posdata.top.y()) < abs(item_b->kline_posdata.top.y()) )  // y is negative
@@ -250,15 +250,15 @@ void KLineWall::_Draw3pForcast(QPainter &painter, const int mm_h, double item_w,
     pen.setWidth(2);
     const auto font_size = painter.font().pointSizeF();
     std::vector<T_TuplePointStr>  fronts_to_draw;
-    double lowest_price = 9999.9;
-    double highest_price = 0.0;
+    double lowest_price = MAX_PRICE;
+    double highest_price = MIN_PRICE;
     bool has_set_price = false;
     for( unsigned int i = 0; i < p_data_vector->size(); ++i )
     {
         T_Data3pForcast &data_3p_forcast = p_data_vector->at(i);
-        auto item_a = GetKLineDataItemByDate(data_3p_forcast.date_a);
-        auto item_b = GetKLineDataItemByDate(data_3p_forcast.date_b);
-        auto item_c = GetKLineDataItemByDate(data_3p_forcast.date_c);
+        auto item_a = GetKLineDataItemByDate(data_3p_forcast.date_a, data_3p_forcast.hhmm_a);
+        auto item_b = GetKLineDataItemByDate(data_3p_forcast.date_b, data_3p_forcast.hhmm_b);
+        auto item_c = GetKLineDataItemByDate(data_3p_forcast.date_c, data_3p_forcast.hhmm_c);
         QPointF point_a, point_b, point_c;
         double price_a = 0.0, price_b = 0.0, price_c = 0.0;
         if( item_a && item_a->kline_posdata.date != 0 && item_b && item_b->kline_posdata.date != 0 )
@@ -402,6 +402,7 @@ void KLineWall::UpdatePosDatas()
     { 
         T_KlinePosData &pos_data = iter->get()->kline_posdata; 
         pos_data.date = iter->get()->stk_item.date;
+        pos_data.hhmm = iter->get()->stk_item.hhmmss;
         auto openPrice = (*iter)->stk_item.open_price;
         auto closePrice = (*iter)->stk_item.close_price;
         auto minPrice = (*iter)->stk_item.low_price;
@@ -418,7 +419,7 @@ void KLineWall::UpdatePosDatas()
         pos_data.bottom = QPointF(pos_data.x_left + k_bar_w / 2, -1 * (minPrice-lowestMinPrice_)/(highestMaxPrice_ - lowestMinPrice_) * k_mm_h);
 
         // update drawing line point ---------------------
-        if( item_a && item_a->stk_item.date == iter->get()->stk_item.date )
+        if( item_a && item_a->stk_item.date == iter->get()->stk_item.date && item_a->stk_item.hhmmss == iter->get()->stk_item.hhmmss)
         {
             switch(draw_action_)
             {
@@ -431,7 +432,7 @@ void KLineWall::UpdatePosDatas()
                 drawing_line_A_ = pos_data.bottom;
                 break;
             }
-        }else if( item_b && item_b->stk_item.date == iter->get()->stk_item.date )
+        }else if( item_b && item_b->stk_item.date == iter->get()->stk_item.date && item_b->stk_item.hhmmss == iter->get()->stk_item.hhmmss )
         {
             switch(draw_action_)
             {
@@ -444,7 +445,7 @@ void KLineWall::UpdatePosDatas()
                 drawing_line_B_ = pos_data.top;
                 break;
             }
-        }else if( item_c && item_c->stk_item.date == iter->get()->stk_item.date )
+        }else if( item_c && item_c->stk_item.date == iter->get()->stk_item.date && item_c->stk_item.hhmmss == iter->get()->stk_item.hhmmss )
         {
             switch(draw_action_)
             { 
@@ -498,7 +499,8 @@ void KLineWall::mousePressEvent(QMouseEvent * event )
         auto item_b = GetKLineDataItemByXpos(event->pos().x());
         if( !item_b )
             return;
-        if( item_b->stk_item.date <= item_a->stk_item.date )
+        if( item_b->stk_item.date < item_a->stk_item.date
+            || item_b->stk_item.date == item_a->stk_item.date && item_b->stk_item.hhmmss <= item_a->stk_item.hhmmss )
         {   // todo: show warning msg
             return;
         }
@@ -532,7 +534,9 @@ void KLineWall::mousePressEvent(QMouseEvent * event )
                 T_Data2pUpForcast data_2pup_fcst;
                 data_2pup_fcst.stock_code = stock_code_; 
                 data_2pup_fcst.date_a = item_a->stk_item.date; 
+                data_2pup_fcst.hhmm_a = item_a->stk_item.hhmmss; 
                 data_2pup_fcst.date_b = item_b->stk_item.date; 
+                data_2pup_fcst.hhmm_b = item_b->stk_item.hhmmss; 
 
                 auto c1_c2_c3 = ForcastC_ABUp(item_a->stk_item.low_price, item_b->stk_item.high_price);
                 data_2pup_fcst.c1 = std::get<0>(c1_c2_c3);
@@ -581,7 +585,8 @@ void KLineWall::mousePressEvent(QMouseEvent * event )
             return ResetDrawState(DrawAction::NO_ACTION); 
         }
         auto item_c = GetKLineDataItemByXpos(event->pos().x());
-        if( !item_c || item_c->stk_item.date <= item_b->stk_item.date)
+        if( !item_c || item_c->stk_item.date < item_b->stk_item.date 
+            || (item_c->stk_item.date == item_b->stk_item.date && item_c->stk_item.hhmmss <= item_b->stk_item.hhmmss) )
         {   // todo: show warning msg
             return;
         }
@@ -592,6 +597,7 @@ void KLineWall::mousePressEvent(QMouseEvent * event )
             assert(p_data_3pfcst);
             // set to point C-----
             p_data_3pfcst->date_c = item_c->stk_item.date;
+            p_data_3pfcst->hhmm_c = item_c->stk_item.hhmmss;
             //drawing_line_C_ = item_c->kline_posdata.top;
             auto d1_d2_d3 = ForcastD_ABC_Down(item_a->stk_item.high_price, item_b->stk_item.low_price);
             p_data_3pfcst->d1 = std::get<0>(d1_d2_d3);
@@ -615,6 +621,7 @@ void KLineWall::mousePressEvent(QMouseEvent * event )
             assert(p_data_3pfcst);
             // set to point C-----
             p_data_3pfcst->date_c = item_c->stk_item.date;
+            p_data_3pfcst->hhmm_c = item_c->stk_item.hhmmss;
             //drawing_line_C_ = item_b->kline_posdata.bottom;
             auto d1_d2_d3 = ForcastD_ABC_Up(item_a->stk_item.low_price, item_b->stk_item.high_price);
             p_data_3pfcst->d1 = std::get<0>(d1_d2_d3);
@@ -707,12 +714,12 @@ void KLineWall::paintEvent(QPaintEvent*)
             pen.setColor(Qt::cyan);
         pen.setWidth(2);
         painter.setPen(pen); 
-        if( drawing_line_B_ == CST_MAGIC_POINT ) 
-        {
+        if( drawing_line_B_ == CST_MAGIC_POINT ) // draw line AB
+        {   
             painter.drawLine(drawing_line_A_.x(), drawing_line_A_.y(), cur_mous_point_trans.x(), cur_mous_point_trans.y() );
             break;
         }else if( draw_action_ == DrawAction::DRAWING_FOR_3PDOWN_D || draw_action_ == DrawAction::DRAWING_FOR_3PUP_D )
-        {
+        {   // draw line BC
             painter.drawLine(drawing_line_B_.x(), drawing_line_B_.y(), cur_mous_point_trans.x(), cur_mous_point_trans.y() );
             break;
         }
@@ -721,7 +728,7 @@ void KLineWall::paintEvent(QPaintEvent*)
 
     auto ck_h = this->height();
 
-    // draw stock code -----
+    // draw stock code     -------------
     QPen pen; 
     pen.setColor(Qt::white);
     painter.setPen(pen);
@@ -733,7 +740,7 @@ void KLineWall::paintEvent(QPaintEvent*)
      
     painter.setFont(old_font); 
     
-    // right vertical line |
+    // right vertical line | -----------
     painter.setPen(border_pen);
     painter.drawLine(mm_w - right_w_, this->height() - h_axis_trans_in_paint_k_, mm_w - right_w_, -1 * this->height());
      
@@ -850,7 +857,7 @@ void KLineWall::paintEvent(QPaintEvent*)
 
     const double item_w = double(mm_w - empty_right_w_ - right_w_) / double(k_num_ + 1) ;
     const double k_bar_w = item_w * 3 / 4;
-    const int right_end = double(mm_w - empty_right_w_ - right_w_) - k_bar_w;
+    //const int right_end = double(mm_w - empty_right_w_ - right_w_) - k_bar_w;
     //const double largest_vol = GetCurWinKLargetstVol();
     for( unsigned int i = 0 ; i < zb_windows_.size(); ++i )
     {
@@ -862,30 +869,8 @@ void KLineWall::paintEvent(QPaintEvent*)
 
             painter.setPen(lit_border_pen);
             painter.drawLine(0, 0, mm_w, 0);// horizental line -----
-#if 1
+ 
             zb_windows_[i]->DrawWindow(painter, mm_w);
-
-            //------------------  
-#else 
-            int k = k_num_;
-            for( auto iter = p_hisdata_container_->rbegin();
-                iter != p_hisdata_container_->rend() && k > 0; 
-                ++iter, --k)
-            {
-                if( (*iter)->stk_item.close_price < (*iter)->stk_item.open_price )
-                {
-                    painter.setPen(green_pen);
-                    painter.setBrush(green_brush);
-                }else 
-                {   
-                    painter.setPen(red_pen);
-                    painter.setBrush(red_brush);
-                }
-                double height = (*iter)->stk_item.vol * zb_h / largest_vol;
-                double x_right = right_end - item_w * (k_num_ - k);  
-                painter.drawRect(x_right, -1*height, -1*k_bar_w, height);
-            }
-#endif 
             //------------------
         }
     }
@@ -965,8 +950,8 @@ void KLineWall::keyPressEvent(QKeyEvent *e)
             return false;
         unsigned int start_index = container.size() > k_num ?  container.size() - k_num : 0; 
         unsigned int end_index = container.size() - 1 > 0 ? container.size() - 1 : 0;
-        float highest_price = 0.0;
-        float lowest_price = 9999.9;
+        float highest_price = MIN_PRICE;
+        float lowest_price = MAX_PRICE;
         for( unsigned int i = start_index; i < end_index; ++ i )
         {
             if( container.at(i)->stk_item.high_price > highest_price )
@@ -1182,25 +1167,25 @@ QPointF KLineWall::GetPointFromKLineDataItems(int x, bool is_get_top)
     return CST_MAGIC_POINT;
 }
 
-T_KlineDataItem * KLineWall::GetKLineDataItemByDate(int date)
+T_KlineDataItem * KLineWall::GetKLineDataItemByDate(int date, int hhmm)
 { 
     for( auto iter = p_hisdata_container_->rbegin();
         iter != p_hisdata_container_->rend(); 
         ++iter )
     {   
-        if( iter->get()->stk_item.date == date )
+        if( iter->get()->stk_item.date == date && iter->get()->stk_item.hhmmss == hhmm )
             return iter->get(); 
     }
     return nullptr;
 }
 
-T_KlinePosData * KLineWall::GetKLinePosDataByDate(int date)
+T_KlinePosData * KLineWall::GetKLinePosDataByDate(int date, int hhmm)
 {
     for( auto iter = p_hisdata_container_->rbegin();
         iter != p_hisdata_container_->rend(); 
         ++iter )
     {   
-        if( iter->get()->kline_posdata.date == date )
+        if( iter->get()->kline_posdata.date == date && iter->get()->kline_posdata.hhmm == hhmm )
             return std::addressof(iter->get()->kline_posdata);
     }
     return nullptr;

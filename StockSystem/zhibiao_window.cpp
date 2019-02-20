@@ -50,7 +50,6 @@ void MomentumZhibiaoWin::DrawWindow(QPainter &painter, int mm_w)
     const double item_w = double(mm_w - parent_->empty_right_w_ -  parent_->right_w_) / double( parent_->k_num_ + 1) ;
     const double k_bar_w = item_w * 3 / 4;
     const int right_end = double(mm_w -  parent_->empty_right_w_ -  parent_->right_w_) - k_bar_w;
-    const double largest_vol = parent_->GetCurWinKLargetstVol();
 
     QPen red_pen; red_pen.setColor(Qt::red); red_pen.setStyle(Qt::SolidLine); red_pen.setWidth(1);
      
