@@ -227,6 +227,7 @@ bool TdxHqWrapper::GetHisKBars(const std::string &code, bool is_index, TypePerio
                 }else
                 {
                     k_data.date = boost::lexical_cast<int>(match_result[index]);
+                    k_data.hhmmss = 0;
                 }
                 ++index;
                 k_data.open_price = boost::lexical_cast<double>(match_result[index]);
@@ -387,6 +388,7 @@ bool TdxHqWrapper::__GetHisKBars(const std::string &code, bool is_index, TypePer
                 }else
                 {
                     k_data.date = boost::lexical_cast<int>(match_result[index]);
+                    k_data.hhmmss = 0;
                 }
                 ++index;
                 k_data.open_price = boost::lexical_cast<double>(match_result[index]);

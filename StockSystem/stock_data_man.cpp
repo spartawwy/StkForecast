@@ -24,8 +24,6 @@
 //#define RESERVE_SIZE_IN_T_VECTOR    1024*16
 //#define FIRST_STARTPOS_IN_T_VECTOR  10000
 
-TypePeriod ToTypePeriod(PeriodType src);
-
 static bool compare(const T_StockHisDataItem &lh, const T_StockHisDataItem &rh)
 {
     return (lh.date < rh.date) || (lh.date == rh.date && lh.hhmmss < rh.hhmmss);
@@ -321,7 +319,9 @@ T_HisDataItemContainer* StockDataMan::AppendStockData(PeriodType period_type, co
     
     // sort T_KlineDateItems by day from small to bigger
     std::sort(items_in_container.begin(), items_in_container.end(), dompare);
+
     CaculateZhibiao(items_in_container);
+
 #if defined(USE_WINNER_API) 
      delete p_stk_hisdata_item_vector_;
      p_stk_hisdata_item_vector_ = nullptr;

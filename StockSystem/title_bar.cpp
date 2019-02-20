@@ -31,7 +31,7 @@ TitleBar::TitleBar(QWidget *parent)
     m_pTitleLabel = new QLabel(this);
     m_pTitleLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     m_pTitleLabel->setObjectName("whiteLabel");
-    m_pTitleLabel->setText("StockForcast.sparta.ver.0.1");
+    m_pTitleLabel->setText("StockForcast.sparta.ver.1.0"); // titile 
 
     m_pMinimizeButton = new QPushButton("-", this);
     m_pMinimizeButton->setFixedSize(27, 22);

@@ -65,7 +65,7 @@ private slots:
 
 private: 
     
-    int height_axis_trans_in_paint_k();
+    //int height_axis_trans_in_paint_k();
 
     void Draw2pDownForcast(QPainter &, const int mm_h, double item_w);
     void Draw2pUpForcast(QPainter &, const int mm_h, double item_w);
@@ -126,7 +126,7 @@ private:
     
     int  k_cycle_year_;
     int  date_;
-    std::string k_data_str_;
+    std::string k_date_time_str_;
 
     DrawAction draw_action_;
  

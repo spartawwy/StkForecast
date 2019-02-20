@@ -107,13 +107,13 @@ void MomentumZhibiaoWin::DrawWindow(QPainter &painter, int mm_w)
         {
             is_sign_change = false;
             double font_y = 0.0;
-            if( val > 0 )
+            if( val < 0 ) 
                 font_y = half_h;
             else
                 font_y = half_h - painter.font().pointSize();
             char tmp_buf[16];
             sprintf_s(tmp_buf, sizeof(tmp_buf), "%.2f", total_zb_val);
-            painter.drawText( (tag_x_pos_end + x_right)/2, (val > 0 ? 1 : -1) * font_y, QString("%1").arg(tmp_buf));
+            painter.drawText( (tag_x_pos_end + x_right)/2, (val < 0 ? 1 : -1) * font_y, QString("%1").arg(tmp_buf));
             total_zb_val = 0.0; 
             tag_x_pos_end = x_right; 
         }else

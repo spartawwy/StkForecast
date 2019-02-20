@@ -11,14 +11,16 @@
 class T_Data2pDownForcast
 {
 public:
-    T_Data2pDownForcast() : date_a(0), date_b(0), c1(0.0), c2(0.0), c3(0.0) {}
+    T_Data2pDownForcast() : date_a(0), hhmm_a(0), date_b(0), hhmm_b(0), c1(0.0), c2(0.0), c3(0.0) {}
     T_Data2pDownForcast(const T_Data2pDownForcast & lh) : stock_code(lh.stock_code), 
-        date_a(lh.date_a), date_b(lh.date_b), c1(lh.c1), c2(lh.c2), c3(lh.c3) {}
+        date_a(lh.date_a), hhmm_a(lh.hhmm_a), date_b(lh.date_b), hhmm_b(lh.hhmm_b), c1(lh.c1), c2(lh.c2), c3(lh.c3) {}
     T_Data2pDownForcast(T_Data2pDownForcast && lh) : stock_code(std::move(lh.stock_code)),
-        date_a(lh.date_a), date_b(lh.date_b), c1(lh.c1), c2(lh.c2), c3(lh.c3) {}
+        date_a(lh.date_a), hhmm_a(lh.hhmm_a), date_b(lh.date_b), hhmm_b(lh.hhmm_b), c1(lh.c1), c2(lh.c2), c3(lh.c3) {}
     std::string  stock_code;
     int date_a;
+    int hhmm_a;
     int date_b;
+    int hhmm_b;
     double  c1;
     double  c2;
     double  c3; 
@@ -27,14 +29,16 @@ public:
 class T_Data2pUpForcast
 {
 public:
-    T_Data2pUpForcast() : date_a(0), date_b(0), c1(0.0), c2(0.0), c3(0.0) {}
+    T_Data2pUpForcast() : date_a(0), hhmm_a(0), date_b(0), hhmm_b(0), c1(0.0), c2(0.0), c3(0.0) {}
     T_Data2pUpForcast(const T_Data2pUpForcast & lh) : stock_code(lh.stock_code), 
-        date_a(lh.date_a), date_b(lh.date_b), c1(lh.c1), c2(lh.c2), c3(lh.c3) {}
+        date_a(lh.date_a), hhmm_a(lh.hhmm_a), date_b(lh.date_b), hhmm_b(lh.hhmm_b), c1(lh.c1), c2(lh.c2), c3(lh.c3) {}
     T_Data2pUpForcast(T_Data2pUpForcast && lh) : stock_code(std::move(lh.stock_code)),
-        date_a(lh.date_a), date_b(lh.date_b), c1(lh.c1), c2(lh.c2), c3(lh.c3) {}
+        date_a(lh.date_a), hhmm_a(lh.hhmm_a), date_b(lh.date_b), hhmm_b(lh.hhmm_b), c1(lh.c1), c2(lh.c2), c3(lh.c3) {}
     std::string  stock_code;
     int date_a;
+    int hhmm_a;
     int date_b;
+    int hhmm_b;
     double  c1;
     double  c2;
     double  c3; 
@@ -43,19 +47,22 @@ public:
 class T_Data3pForcast
 {
 public:
-    T_Data3pForcast(bool down=false) : is_down(down), date_a(0), date_b(0), date_c(0), d1(0.0), d2(0.0), d3(0.0) {}
+    explicit T_Data3pForcast(bool down=false) : is_down(down), date_a(0), hhmm_a(0), date_b(0), hhmm_b(0), date_c(0), hhmm_c(0), d1(0.0), d2(0.0), d3(0.0) {}
 
     T_Data3pForcast(const T_Data3pForcast & lh) : stock_code(lh.stock_code), is_down(lh.is_down)
-        ,date_a(lh.date_a), date_b(lh.date_b), date_c(lh.date_c), d1(lh.d1), d2(lh.d2), d3(lh.d3) {}
+        ,date_a(lh.date_a), hhmm_a(lh.hhmm_a), date_b(lh.date_b), hhmm_b(lh.hhmm_b), date_c(lh.date_c), hhmm_c(lh.hhmm_c), d1(lh.d1), d2(lh.d2), d3(lh.d3) {}
 
     T_Data3pForcast(T_Data3pForcast && lh) : stock_code(std::move(lh.stock_code)), is_down(lh.is_down)
-        , date_a(lh.date_a), date_b(lh.date_b), date_c(lh.date_c), d1(lh.d1), d2(lh.d2), d3(lh.d3) {}
+        , date_a(lh.date_a), hhmm_a(lh.hhmm_a), date_b(lh.date_b), hhmm_b(lh.hhmm_b), date_c(lh.date_c), hhmm_c(lh.hhmm_c), d1(lh.d1), d2(lh.d2), d3(lh.d3) {}
 
     std::string  stock_code;
     bool is_down;
     int date_a;
+    int hhmm_a;
     int date_b;
+    int hhmm_b;
     int date_c;
+    int hhmm_c;
     double  d1;
     double  d2;
     double  d3; 
@@ -86,6 +93,9 @@ public:
     void Append(TypePeriod type_period, const std::string &code, bool is_down_forward, T_Data3pForcast& );
     T_Data3pForcast * Find3pForcast(const std::string &code, TypePeriod type_period, bool is_down_forward, T_KlineDataItem &item_a, T_KlineDataItem &item_b);
     std::vector<T_Data3pForcast> * Find3pForcastVector(const std::string &code, TypePeriod type_period, bool is_down_forward);
+
+    double FindMaxForcastPrice(const std::string &code, TypePeriod type_period, int start_date, int end_date);
+    double FindMinForcastPrice(const std::string &code, TypePeriod type_period, int start_date, int end_date);
 
 private:
      

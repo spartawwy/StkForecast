@@ -18,6 +18,7 @@
 //typedef std::list<T_StockHisDataItem>  T_HisDataItemList;
 //typedef std::vector<std::shared_ptr<T_KlineDataItem> >  T_HisDataItemContainer;
 
+TypePeriod ToTypePeriod(PeriodType src);
 
 class ExchangeCalendar;
 class StockDataMan
@@ -50,7 +51,7 @@ public:
     //// < 0 : meaning no related data
     //int FindRelateIndex(PeriodType period_type, const std::string& code, int date);
     T_HisDataItemContainer &GetHisDataContainer(PeriodType period_type, const std::string& code);
-    // (stock , data)
+    // (stock , data)  date is from small to big
     T_CodeMapHisDataItemContainer m5_stock_his_items_;
     T_CodeMapHisDataItemContainer m15_stock_his_items_;
     T_CodeMapHisDataItemContainer m30_stock_his_items_;

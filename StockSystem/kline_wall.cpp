@@ -30,7 +30,7 @@ KLineWall::KLineWall(StkForecastApp *app, QWidget *parent)
     : QWidget(parent) 
     , app_(app)
     , main_win_((MainWindow*)parent)
-    , head_h_percent_(0.06)
+    , head_h_percent_(0.03)
    /* , bottom1_h_(30)
     , bottom2_h_(30) */
     , bottom_h_percent_(0.04)
@@ -49,7 +49,7 @@ KLineWall::KLineWall(StkForecastApp *app, QWidget *parent)
     , k_cycle_tag_()
     , k_cycle_year_(0)
     , date_(0)
-    , k_data_str_() 
+    , k_date_time_str_() 
 	, stock_input_dlg_(this)
     , draw_action_(DrawAction::NO_ACTION)
     , pre_mm_w_(-1)
@@ -83,16 +83,16 @@ bool KLineWall::Init()
     return false;
 }
 
-int KLineWall::height_axis_trans_in_paint_k()
-{ 
-    int target_height = this->height() - BottomHeight(); 
-    for( unsigned int i = 0 ; i < zb_windows_.size(); ++i )
-    {
-        if( zb_windows_[i] )
-            target_height -= zb_windows_[i]->Height();
-    }
-    return target_height;
-}
+//int KLineWall::height_axis_trans_in_paint_k()
+//{ 
+//    int target_height = this->height() - BottomHeight(); 
+//    for( unsigned int i = 0 ; i < zb_windows_.size(); ++i )
+//    {
+//        if( zb_windows_[i] )
+//            target_height -= zb_windows_[i]->Height();
+//    }
+//    return target_height;
+//}
 
 void KLineWall::Draw2pDownForcast(QPainter &painter, const int mm_h, double item_w)
 {
@@ -307,10 +307,10 @@ void KLineWall::_Draw3pForcast(QPainter &painter, const int mm_h, double item_w,
                 fronts_to_draw.push_back(std::make_tuple(QPointF(h_line_left - font_size*6, y1), utility::FormatStr("D1: %.2f", data_3p_forcast.d1)));
 
                 painter.drawLine(QPointF(h_line_left, y2), QPointF(x_c + 10*item_w, y2));
-                fronts_to_draw.push_back(std::make_tuple(QPointF(h_line_left - font_size*6, y2), utility::FormatStr("D1: %.2f", data_3p_forcast.d2)));
+                fronts_to_draw.push_back(std::make_tuple(QPointF(h_line_left - font_size*6, y2), utility::FormatStr("D2: %.2f", data_3p_forcast.d2)));
 
                 painter.drawLine(QPointF(h_line_left, y3), QPointF(x_c + 20*item_w, y3));
-                fronts_to_draw.push_back(std::make_tuple(QPointF(h_line_left - font_size*6, y3), utility::FormatStr("D1: %.2f", data_3p_forcast.d3)));
+                fronts_to_draw.push_back(std::make_tuple(QPointF(h_line_left - font_size*6, y3), utility::FormatStr("D3: %.2f", data_3p_forcast.d3)));
 
                 lowest_price = std::min(lowest_price, data_3p_forcast.d1);
                 lowest_price = std::min(lowest_price, data_3p_forcast.d3);
@@ -468,7 +468,9 @@ void KLineWall::mousePressEvent(QMouseEvent * event )
         data_3p.stock_code = stock_code_;
         data_3p.is_down = is_down;
         data_3p.date_a = item_a.stk_item.date; 
+        data_3p.hhmm_a = item_a.stk_item.hhmmss; 
         data_3p.date_b = item_b.stk_item.date; 
+        data_3p.hhmm_b = item_b.stk_item.hhmmss; 
         this->forcast_man_.Append(k_type_, stock_code_, is_down, data_3p);
     };
     //qDebug() << "paintEvent QCursor::pos  x:" << QCursor::pos().x() << " y: "<< QCursor::pos().y() << "\n"; 
@@ -509,7 +511,9 @@ void KLineWall::mousePressEvent(QMouseEvent * event )
                 T_Data2pDownForcast data_2pdown_fcst;
                 data_2pdown_fcst.stock_code = stock_code_;
                 data_2pdown_fcst.date_a = item_a->stk_item.date; 
+                data_2pdown_fcst.hhmm_a = item_a->stk_item.hhmmss;
                 data_2pdown_fcst.date_b = item_b->stk_item.date; 
+                data_2pdown_fcst.hhmm_b = item_b->stk_item.hhmmss;
 
                 auto c1_c2_c3 = ForcastC_ABDown(item_a->stk_item.high_price, item_b->stk_item.low_price);
                 data_2pdown_fcst.c1 = std::get<0>(c1_c2_c3);
@@ -599,7 +603,7 @@ void KLineWall::mousePressEvent(QMouseEvent * event )
             lowestMinPrice_ = std::min(lowestMinPrice_, p_data_3pfcst->d3);
             if( lowestMinPrice_ < ori_price )
             {
-                lowestMinPrice_ *= 0.95;
+                lowestMinPrice_ *= 0.98;
                 UpdatePosDatas();
             }
             //update();
@@ -636,8 +640,8 @@ void KLineWall::paintEvent(QPaintEvent*)
         return w != this->pre_mm_w_ || h!= this->pre_mm_h_;
     }; 
     /* window lay:********************
-      | header
-      | k mm
+      |      | header
+      | k mm | body 
       | zhi_biao windows 
       | bottom (show date)
     *********************************/
@@ -680,9 +684,12 @@ void KLineWall::paintEvent(QPaintEvent*)
     //painter.translate(30, 400);  //坐标 向下 向右 平移 
     
     const int price_scale_num = 8;
-    const int scale_part_h = k_mm_h / (price_scale_num + 1); 
+    const int scale_part_h = k_mm_h / price_scale_num; 
     int trans_y_totoal = 0;
-    h_axis_trans_in_paint_k_ = height_axis_trans_in_paint_k() - scale_part_h;
+    //painter.translate(0, HeadHeight());
+    //trans_y_totoal += HeadHeight();
+    //h_axis_trans_in_paint_k_ = height_axis_trans_in_paint_k();
+    h_axis_trans_in_paint_k_ = k_mm_h + HeadHeight(); 
     painter.translate(0, h_axis_trans_in_paint_k_); // translate frame of axes to k mm bottom
     trans_y_totoal += h_axis_trans_in_paint_k_;
 
@@ -694,7 +701,10 @@ void KLineWall::paintEvent(QPaintEvent*)
         if( drawing_line_A_ == CST_MAGIC_POINT ) 
             break; 
         QPen pen;
-        pen.setColor(Qt::magenta);
+        if( draw_action_ == DrawAction::DRAWING_FOR_2PDOWN_C || draw_action_ == DrawAction::DRAWING_FOR_3PUP_D )
+            pen.setColor(Qt::magenta);
+        else
+            pen.setColor(Qt::cyan);
         pen.setWidth(2);
         painter.setPen(pen); 
         if( drawing_line_B_ == CST_MAGIC_POINT ) 
@@ -717,9 +727,9 @@ void KLineWall::paintEvent(QPaintEvent*)
     painter.setPen(pen);
     
     QFont font;  
-    font.setPointSize(old_font.pointSize() * 2); 
+    font.setPointSize(HeadHeight() * 0.9); 
     painter.setFont(font);
-    painter.drawText(mm_w - right_w_ - 70, -1 * (h_axis_trans_in_paint_k_ * 0.9), stock_code_.c_str());
+    painter.drawText(mm_w - right_w_ - 70, -1 * (h_axis_trans_in_paint_k_ - font.pointSize()), stock_code_.c_str());
      
     painter.setFont(old_font); 
     
@@ -737,7 +747,7 @@ void KLineWall::paintEvent(QPaintEvent*)
     {
         int pos_y = (-1) * scale_part_h * i; 
         painter.drawText(mm_w - right_w_, pos_y, QString("%1").arg(lowestMinPrice_ + (price_per_len * scale_part_h * i) ));
-        painter.drawLine(0, pos_y, mm_w-right_w_, pos_y);
+        painter.drawLine(0, pos_y, mm_w - right_w_, pos_y);
     }
         
     //draw k_num_ k line -------------------------------------
@@ -807,9 +817,14 @@ void KLineWall::paintEvent(QPaintEvent*)
         
         if( pos_from_global.x() >= pos_data.x_left && pos_from_global.x() <= pos_data.x_right )
         {
-            k_data_str_ = std::to_string((*iter)->stk_item.date);
             char temp_str[1024];
-            sprintf_s(temp_str, sizeof(temp_str), "%s 开:%.2f 高:%.2f 低:%.2f 收:%.2f  ", stock_code_.c_str(), (*iter)->stk_item.open_price
+            if( k_type_ < TypePeriod::PERIOD_DAY )
+                sprintf_s(temp_str, "%08d:%04d\0", (*iter)->stk_item.date, (*iter)->stk_item.hhmmss);
+            else
+                sprintf_s(temp_str, "%08d\0", (*iter)->stk_item.date);
+            k_date_time_str_ = temp_str;
+            
+            sprintf_s(temp_str, sizeof(temp_str), "%s 开:%.2f 高:%.2f 低:%.2f 收:%.2f  \0", stock_code_.c_str(), (*iter)->stk_item.open_price
                                                   , (*iter)->stk_item.high_price, (*iter)->stk_item.low_price, (*iter)->stk_item.close_price);
             k_detail_str = QString::fromLocal8Bit(temp_str);
         }
@@ -824,8 +839,8 @@ void KLineWall::paintEvent(QPaintEvent*)
     } //if( p_hisdata_container_ )
    
     // a scale h place for show extreme low price 
-    painter.translate(0, scale_part_h);
-    trans_y_totoal += scale_part_h;
+    //painter.translate(0, scale_part_h);
+    //trans_y_totoal += scale_part_h;
 
     //k line view bottom border horizontal line (----------)
     painter.setPen(lit_border_pen); 
@@ -888,9 +903,10 @@ void KLineWall::paintEvent(QPaintEvent*)
     pen.setColor(Qt::white);
     pen.setStyle(Qt::SolidLine); 
     painter.setPen(pen); 
-    font.setPointSize(old_font.pointSize() * 1.2); 
+    font.setPointSize(HeadHeight() * 0.9);
+    painter.setFont(font);
     painter.drawText(0, font.pointSize() * 1.2, k_detail_str);
-
+    painter.setFont(old_font);
     // draw cross line --------------------
     if( show_cross_line_ )
     {
@@ -903,7 +919,7 @@ void KLineWall::paintEvent(QPaintEvent*)
     }
 
     // draw date
-    painter.drawText(pos_from_global.x(), this->height()-1, k_data_str_.c_str());
+    painter.drawText(pos_from_global.x(), this->height()-1, k_date_time_str_.c_str());
    
     this->pre_mm_w_ = this->width();
     this->pre_mm_h_ = this->height();
@@ -958,9 +974,29 @@ void KLineWall::keyPressEvent(QKeyEvent *e)
             if( container.at(i)->stk_item.low_price < lowest_price )
                 lowest_price = container.at(i)->stk_item.low_price;
         } 
-         
+        double tmp_price = forcast_man_.FindMaxForcastPrice(code, ToTypePeriod(period_type), container.at(start_index)->stk_item.date, container.at(end_index)->stk_item.date);
+        if( tmp_price > highest_price )
+            highest_price = tmp_price;
+        tmp_price = forcast_man_.FindMinForcastPrice(code, ToTypePeriod(period_type), container.at(start_index)->stk_item.date, container.at(end_index)->stk_item.date);
+        if( tmp_price < lowest_price )
+            lowest_price = tmp_price;
+
         ret = std::make_tuple(highest_price, lowest_price);
         return true;
+    };
+
+    static auto update_kwall_min_max_price = [this]()
+    {
+        std::tuple<float, float> price_tuple;
+        if( get_container_max_min_price(ToPeriodType(k_type_), stock_code_, k_num_, price_tuple) )
+        {
+            double try_new_high = std::get<0>(price_tuple) * 1.02;
+            if( try_new_high < this->highestMaxPrice_ || try_new_high > this->highestMaxPrice_)
+                SetHighestMaxPrice(try_new_high);
+            double try_new_low = std::get<1>(price_tuple) * 0.98;
+            if( try_new_low < this->lowestMinPrice_ || try_new_low > this->lowestMinPrice_)
+                SetLowestMinPrice(try_new_low);
+        }
     };
     assert(p_hisdata_container_);
     auto key_val = e->key();
@@ -973,16 +1009,7 @@ void KLineWall::keyPressEvent(QKeyEvent *e)
             if( k_num_ > 1 )
             {
                 k_num_ --;
-                std::tuple<float, float> price_tuple;
-                if( get_container_max_min_price(ToPeriodType(k_type_), stock_code_, k_num_, price_tuple) )
-                {
-                    double try_new_high = std::get<0>(price_tuple) * 1.02;
-                    if( try_new_high < this->highestMaxPrice_ )
-                        SetHighestMaxPrice(try_new_high);
-                    double try_new_low = std::get<1>(price_tuple) * 0.95;
-                    if( try_new_low > this->lowestMinPrice_ )
-                        SetLowestMinPrice(try_new_low);
-                }
+                update_kwall_min_max_price();
                 UpdatePosDatas();
                 update();
             }
@@ -1004,31 +1031,7 @@ void KLineWall::keyPressEvent(QKeyEvent *e)
                 stock_data_man_.AppendStockData(ToPeriodType(k_type_), stock_code_, start_date, oldest_day, is_index_);
             }
 
-            // set wall max price and min price --------------
-
-            T_HisDataItemContainer &container = stock_data_man_.GetHisDataContainer(ToPeriodType(k_type_), stock_code_);
-            int start_index = container.size() - k_num_; 
-            start_index = start_index > 0 ? start_index : 0;
-            int end_index = container.size() - 1 > 0 ? container.size() - 1 : 0;
-            float ori_highest_price = this->highestMaxPrice_;
-            if( container.at(start_index)->stk_item.high_price > this->highestMaxPrice_ )
-                this->highestMaxPrice_ = container.at(start_index)->stk_item.high_price;
-
-            if( container.at(end_index)->stk_item.high_price > this->highestMaxPrice_ )
-                this->highestMaxPrice_ = container.at(end_index)->stk_item.high_price;
-            if( this->highestMaxPrice_ > ori_highest_price )
-                this->highestMaxPrice_ *= 1.02;
-
-            float ori_lowest_price = this->lowestMinPrice_;
-            if( container.at(start_index)->stk_item.low_price < this->lowestMinPrice_ )
-                this->lowestMinPrice_ = container.at(start_index)->stk_item.low_price;
-
-            if( container.at(end_index)->stk_item.low_price < this->lowestMinPrice_ )
-                this->lowestMinPrice_ = container.at(end_index)->stk_item.low_price; 
-
-            if( this->lowestMinPrice_ < ori_lowest_price )
-                this->lowestMinPrice_ *= 0.95;
-
+            update_kwall_min_max_price();
             UpdatePosDatas();
             update();
             break;
