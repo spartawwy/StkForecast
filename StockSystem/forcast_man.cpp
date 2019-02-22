@@ -113,6 +113,7 @@ Code2pUpForcastType & ForcastMan::Get2pUpDataHolder(TypePeriod type_period)
 {
     switch (type_period)
     {
+    case TypePeriod::PERIOD_5M: return stock_2pup_forcast_5m_;
     case TypePeriod::PERIOD_15M: return stock_2pup_forcast_15m_;
     case TypePeriod::PERIOD_30M: return stock_2pup_forcast_30m_;
     case TypePeriod::PERIOD_HOUR: return stock_2pup_forcast_h_;
@@ -128,6 +129,7 @@ Code2pDownForcastType & ForcastMan::Get2pDownDataHolder(TypePeriod type_period)
 {
     switch (type_period)
     {
+    case TypePeriod::PERIOD_5M:  return stock_2pdown_forcast_5m_;
     case TypePeriod::PERIOD_15M: return stock_2pdown_forcast_15m_;
     case TypePeriod::PERIOD_30M: return stock_2pdown_forcast_30m_;
     case TypePeriod::PERIOD_HOUR: return stock_2pdown_forcast_h_;
@@ -143,6 +145,7 @@ Code3pForcastType & ForcastMan::Get3pDataHolder(TypePeriod type_period, bool is_
 {
     switch (type_period)
     {
+    case TypePeriod::PERIOD_5M:  return  is_down ? stock_3pdown_forcast_5m_ : stock_3pup_forcast_5m_;
     case TypePeriod::PERIOD_15M:  return is_down ? stock_3pdown_forcast_15m_ : stock_3pup_forcast_15m_;
     case TypePeriod::PERIOD_30M:  return is_down ? stock_3pdown_forcast_30m_ : stock_3pup_forcast_30m_;
     case TypePeriod::PERIOD_HOUR: return is_down ? stock_3pdown_forcast_h_ : stock_3pup_forcast_h_;

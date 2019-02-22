@@ -91,6 +91,8 @@ private:
     void SetHighestMaxPrice(float val) { highestMaxPrice_ = val;}
     double GetHighestMaxPrice() { return highestMaxPrice_; }
 
+    bool GetContainerMaxMinPrice(PeriodType period_type, const std::string& code, int k_num, std::tuple<float, float>& ret);
+
     bool FindTopFractalItem_TowardLeft(T_HisDataItemContainer &his_data, T_HisDataItemContainer::reverse_iterator iter, int k_index, T_KlinePosData *&left_pos_data);
     bool FindBtmFractalItem_TowardLeft(T_HisDataItemContainer &his_data, T_HisDataItemContainer::reverse_iterator iter, int k_index, T_KlinePosData *&left_pos_data);
 

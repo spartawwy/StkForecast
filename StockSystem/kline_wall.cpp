@@ -25,6 +25,8 @@ using namespace TSystem;
 
 //static const QPoint CST_MAGIC_POINT(-1, -1);
 static const int cst_default_year = 2017;
+static const double cst_k_mm_enlarge_times = 1.02; 
+static const double cst_k_mm_narrow_times = 0.98; 
 
 KLineWall::KLineWall(StkForecastApp *app, QWidget *parent) 
     : QWidget(parent) 
@@ -943,7 +945,7 @@ void KLineWall::mouseMoveEvent(QMouseEvent *e)
 void KLineWall::keyPressEvent(QKeyEvent *e)
 {
     //qDebug() << "key " << e->key() << "\n";
-    static auto get_container_max_min_price = [this](PeriodType period_type, const std::string& code, int k_num, std::tuple<float, float>& ret)->bool
+    /*static auto get_container_max_min_price = [this](PeriodType period_type, const std::string& code, int k_num, std::tuple<float, float>& ret)->bool
     {
         T_HisDataItemContainer &container = stock_data_man_.GetHisDataContainer(period_type, code);
         if( container.empty() )
@@ -968,17 +970,17 @@ void KLineWall::keyPressEvent(QKeyEvent *e)
 
         ret = std::make_tuple(highest_price, lowest_price);
         return true;
-    };
+    };*/
 
     static auto update_kwall_min_max_price = [this]()
     {
         std::tuple<float, float> price_tuple;
-        if( get_container_max_min_price(ToPeriodType(k_type_), stock_code_, k_num_, price_tuple) )
+        if( GetContainerMaxMinPrice(ToPeriodType(k_type_), stock_code_, k_num_, price_tuple) )
         {
-            double try_new_high = std::get<0>(price_tuple) * 1.02;
+            double try_new_high = std::get<0>(price_tuple) * cst_k_mm_enlarge_times;
             if( try_new_high < this->highestMaxPrice_ || try_new_high > this->highestMaxPrice_)
                 SetHighestMaxPrice(try_new_high);
-            double try_new_low = std::get<1>(price_tuple) * 0.98;
+            double try_new_low = std::get<1>(price_tuple) * cst_k_mm_narrow_times;
             if( try_new_low < this->lowestMinPrice_ || try_new_low > this->lowestMinPrice_)
                 SetLowestMinPrice(try_new_low);
         }
@@ -1092,19 +1094,17 @@ bool KLineWall::ResetStock(const QString& stock, TypePeriod type_period, bool is
         break;
     }
     start_date = QDate::currentDate().addDays(span_day).toString("yyyyMMdd").toInt();
-    /*int real_start_date = stock_data_man_.exchange_calendar()->CeilingTradeDate(start_date);
-    int real_end_date = stock_data_man_.exchange_calendar()->FloorTradeDate(cur_date);
-    if( FindIndex(items_in_container, real_start_date) > -1 && FindIndex(items_in_container, real_end_date) > -1 )
-        return true;*/
+     
     p_hisdata_container_ = stock_data_man_.FindStockData(ToPeriodType(k_type_), stock_code_, start_date, cur_date);
     if( !p_hisdata_container_ )
     {
         //p_hisdata_container_ = stock_data_man_.AppendStockData(stock_code_, 20171216, 20180108); 
         p_hisdata_container_ = stock_data_man_.AppendStockData(ToPeriodType(k_type_), stock_code_, start_date, cur_date, is_index);
     }
-    
-	if( !p_hisdata_container_ )
+	
+    if( !p_hisdata_container_ )
 		return false;
+
     this->is_index_ = is_index;
     if( !p_hisdata_container_->empty() )
     {
@@ -1115,16 +1115,16 @@ bool KLineWall::ResetStock(const QString& stock, TypePeriod type_period, bool is
         else 
             k_num_ = p_hisdata_container_->size();
 
-#if 1
-        int start_index = p_hisdata_container_->size() - k_num_; 
-        start_index = start_index > 0 ? start_index : 0;
-        int begin_date = p_hisdata_container_->at(start_index)->stk_item.date;
-        this->highestMaxPrice_ = stock_data_man_.GetHisDataHighestMaxPrice(ToPeriodType(k_type_), stock_code_, begin_date, cur_date);
-        this->highestMaxPrice_ *= 1.01;
-         
-        this->lowestMinPrice_ = stock_data_man_.GetHisDataLowestMinPrice(ToPeriodType(k_type_), stock_code_, begin_date, cur_date);
-        this->lowestMinPrice_ *= 0.99; 
-#endif
+        std::tuple<float, float> price_tuple;
+        if( GetContainerMaxMinPrice(ToPeriodType(k_type_), stock_code_, k_num_, price_tuple) )
+        {
+            double try_new_high = std::get<0>(price_tuple) * cst_k_mm_enlarge_times;
+            if( try_new_high < this->highestMaxPrice_ || try_new_high > this->highestMaxPrice_)
+                SetHighestMaxPrice(try_new_high);
+            double try_new_low = std::get<1>(price_tuple) * cst_k_mm_narrow_times;
+            if( try_new_low < this->lowestMinPrice_ || try_new_low > this->lowestMinPrice_)
+                SetLowestMinPrice(try_new_low);
+        }
     }else
     {
         this->highestMaxPrice_ = 20.0;
@@ -1189,6 +1189,33 @@ T_KlinePosData * KLineWall::GetKLinePosDataByDate(int date, int hhmm)
             return std::addressof(iter->get()->kline_posdata);
     }
     return nullptr;
+}
+
+bool KLineWall::GetContainerMaxMinPrice(PeriodType period_type, const std::string& code, int k_num, std::tuple<float, float>& ret)
+{
+    T_HisDataItemContainer &container = stock_data_man_.GetHisDataContainer(period_type, code);
+    if( container.empty() )
+        return false;
+    unsigned int start_index = container.size() > k_num ?  container.size() - k_num : 0; 
+    unsigned int end_index = container.size() - 1 > 0 ? container.size() - 1 : 0;
+    float highest_price = MIN_PRICE;
+    float lowest_price = MAX_PRICE;
+    for( unsigned int i = start_index; i < end_index; ++ i )
+    {
+        if( container.at(i)->stk_item.high_price > highest_price )
+            highest_price = container.at(i)->stk_item.high_price; 
+        if( container.at(i)->stk_item.low_price < lowest_price )
+            lowest_price = container.at(i)->stk_item.low_price;
+    } 
+    double tmp_price = forcast_man_.FindMaxForcastPrice(code, ToTypePeriod(period_type), container.at(start_index)->stk_item.date, container.at(end_index)->stk_item.date);
+    if( tmp_price > highest_price )
+        highest_price = tmp_price;
+    tmp_price = forcast_man_.FindMinForcastPrice(code, ToTypePeriod(period_type), container.at(start_index)->stk_item.date, container.at(end_index)->stk_item.date);
+    if( tmp_price < lowest_price )
+        lowest_price = tmp_price;
+
+    ret = std::make_tuple(highest_price, lowest_price);
+    return true;
 }
 
 void KLineWall::StockInputDlgRet()
