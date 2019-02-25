@@ -177,6 +177,7 @@ void MainWindow::updateDateTime()
 void MainWindow::onCycleChange(int /*index*/)
 {
     assert(kline_wall_);
+    tool_bar_->cycle_comb()->clearFocus();
     kline_wall_->RestTypePeriod( TypePeriod(tool_bar_->cycle_comb()->currentData().toInt()) );
      
 }
