@@ -42,6 +42,8 @@ public:
     T_HisDataItemContainer* FindStockData(PeriodType period_type, const std::string &stk_code, int start_date, int end_date, bool is_index=false);
     T_HisDataItemContainer* AppendStockData(PeriodType period_type, const std::string &stk_code, int start_date, int end_date, bool is_index=false);
 	     
+    bool UpdateLatestItemStockData(PeriodType period_type, const std::string &stk_code, bool is_index=false);
+
 public:
       
 	float GetHisDataLowestMinPrice(PeriodType period_type, const std::string& code, int start_date, int end_date);

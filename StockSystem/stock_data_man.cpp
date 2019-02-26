@@ -340,6 +340,23 @@ T_HisDataItemContainer* StockDataMan::AppendStockData(PeriodType period_type, co
 
 }
 
+bool StockDataMan::UpdateLatestItemStockData(PeriodType period_type, const std::string &stk_code, bool is_index)
+{
+    assert( !stk_code.empty() );
+    int count = 0;
+    T_HisDataItemContainer & items_in_container = GetHisDataContainer(period_type, stk_code);
+    
+    T_StockHisDataItem  item;
+    memset(&item, 0, sizeof(item));
+    tdx_hq_wrapper_.GetLatestKBar(stk_code, is_index, ToTypePeriod(period_type), item);
+    if( items_in_container.back()->stk_item.date == item.date && items_in_container.back()->stk_item.hhmmss == item.hhmmss )
+    {
+        memcpy( std::addressof(items_in_container.back()->stk_item), &item, sizeof(item) );
+        return true;
+    }else
+        return false;
+}
+
 // ps: data has sorted
 void StockDataMan::CaculateZhibiao(T_HisDataItemContainer &data_items_in_container)
 {

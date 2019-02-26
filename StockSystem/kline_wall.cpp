@@ -1100,6 +1100,9 @@ bool KLineWall::ResetStock(const QString& stock, TypePeriod type_period, bool is
     {
         //p_hisdata_container_ = stock_data_man_.AppendStockData(stock_code_, 20171216, 20180108); 
         p_hisdata_container_ = stock_data_man_.AppendStockData(ToPeriodType(k_type_), stock_code_, start_date, cur_date, is_index);
+    }else
+    {
+        stock_data_man_.UpdateLatestItemStockData(ToPeriodType(k_type_), stock_code_, is_index);
     }
 	
     if( !p_hisdata_container_ )
@@ -1200,7 +1203,7 @@ bool KLineWall::GetContainerMaxMinPrice(PeriodType period_type, const std::strin
     unsigned int end_index = container.size() - 1 > 0 ? container.size() - 1 : 0;
     float highest_price = MIN_PRICE;
     float lowest_price = MAX_PRICE;
-    for( unsigned int i = start_index; i < end_index; ++ i )
+    for( unsigned int i = start_index; i <= end_index; ++ i )
     {
         if( container.at(i)->stk_item.high_price > highest_price )
             highest_price = container.at(i)->stk_item.high_price; 

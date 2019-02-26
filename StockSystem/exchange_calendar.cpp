@@ -115,7 +115,7 @@ T_TupleIndexLen ExchangeCalendar::GetStartIndexAndLen_backforward(TypePeriod typ
 
     int start_index = DateTradingSpan(actual_end_date, latest_trade_date);
 
-    int span_len = DateTradingSpan(actual_start_date, actual_end_date);
+    int span_len = DateTradingSpan(actual_start_date, actual_end_date) + 1;
      
     switch( type_period )
     {

@@ -255,6 +255,17 @@ bool TdxHqWrapper::GetHisKBars(const std::string &code, bool is_index, TypePerio
 #endif
 }
 
+bool TdxHqWrapper::GetLatestKBar(const std::string &code, bool is_index, TypePeriod kbar_type, T_StockHisDataItem &item)
+{
+    std::vector<T_StockHisDataItem>  items;
+    short count = 1;
+    if( __GetHisKBars(code, is_index, kbar_type, 0, count, items) )
+    {
+        memcpy(&item, &items[0], sizeof(T_StockHisDataItem));
+        return true;
+    }else
+        return false;
+}
 
 // items date is from small to big
 bool TdxHqWrapper::__GetHisKBars(const std::string &code, bool is_index, TypePeriod kbar_type, short start, short &count, std::vector<T_StockHisDataItem> &items)
