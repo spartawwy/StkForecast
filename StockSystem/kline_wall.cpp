@@ -3,6 +3,7 @@
 
 #include <cassert>
 #include <tuple>
+#include <array>
 #include <QPainter>
 #include <qevent.h> 
 #include <qdebug.h>
@@ -1062,6 +1063,17 @@ void KLineWall::leaveEvent(QEvent *)
 
 bool KLineWall::ResetStock(const QString& stock, TypePeriod type_period, bool is_index)
 {  
+    static auto get_hhmm = [](int hhmm_para, int *tp_array, int num)->int
+    {
+        assert(num > 0);
+        for( int i = 0; i < num; ++i )
+        {
+            if( hhmm_para <= tp_array[i] ) 
+                return tp_array[i];
+        }
+        return tp_array[num-1];
+    };
+
     T_HisDataItemContainer & items_in_container = stock_data_man_.GetHisDataContainer(ToPeriodType(k_type_), stock.toLocal8Bit().data());
 
     if( k_type_ == type_period && stock_code_ ==  stock.toLocal8Bit().data() && !items_in_container.empty() )
@@ -1074,28 +1086,60 @@ bool KLineWall::ResetStock(const QString& stock, TypePeriod type_period, bool is
     // 20 k line per 30 days
     int start_date = 0;
     int span_day = 0;
+    int hhmm = 0; 
+    int tmp_hhmm = QTime::currentTime().hour() * 100 + QTime::currentTime().minute();
+    
+    //std::array<int, 4> hour_array = {1030, 1300, 1400, 1500};
+
     switch( type_period )
     {
     case TypePeriod::PERIOD_DAY:
     case TypePeriod::PERIOD_WEEK:
         span_day = -1 * (WOKRPLACE_DEFUALT_K_NUM * 30 / 20);
         break;
-    case TypePeriod::PERIOD_HOUR:
+    case TypePeriod::PERIOD_HOUR:  // ndchk 
+        {
         span_day = -1 * (WOKRPLACE_DEFUALT_K_NUM * 30 / (20 * 4));
+        //10:30 13:00 14:00 15:00
+        int tp_array[] = { 1030, 1300, 1400, 1500 };
+        hhmm = get_hhmm(tmp_hhmm, tp_array, sizeof(tp_array)/sizeof(tp_array[0]));
+        //if( tmp_hhmm <= 1030 )
+        //    hhmm = 1030;
+        //else if( tmp_hhmm <= 1300 )
+        //    hhmm = 1300;
+        //else if( tmp_hhmm <= 1400 )
+        //    hhmm = 1400;
+        //else // >= 1400
+        //    hhmm = 1500;
         break;
+        }
     case TypePeriod::PERIOD_30M:
-        span_day = -1 * (WOKRPLACE_DEFUALT_K_NUM * 30 / (20 * 4 * 2));
+        {
+        span_day = -1 * (WOKRPLACE_DEFUALT_K_NUM * 30 / (20 * 4 * 2)); 
+        int tp_array[] = { 1000, 1030, 1100, 1130, 1330, 1400, 1430, 1500 };
+        hhmm = get_hhmm(tmp_hhmm, tp_array, sizeof(tp_array)/sizeof(tp_array[0]));
         break;
+        }
     case TypePeriod::PERIOD_15M:
-        span_day = -1 * (WOKRPLACE_DEFUALT_K_NUM * 30 / (20 * 4 * 2 * 2));
+        {
+        span_day = -1 * (WOKRPLACE_DEFUALT_K_NUM * 30 / (20 * 4 * 2 * 2));  
+        int tp_array[] = { 945, 1000, 1015, 1030, 1045, 1100, 1115, 1130, 1315, 1330, 1345, 1400, 1415, 1430, 1445, 1500};
+        hhmm = get_hhmm(tmp_hhmm, tp_array, sizeof(tp_array)/sizeof(tp_array[0]));
         break;
+        }
     case TypePeriod::PERIOD_5M:
+        {
         span_day = -1 * (WOKRPLACE_DEFUALT_K_NUM * 30 / (20 * 4 * 2 * 2 * 3));
+        int tp_array[] = {935,940,945,950,955,1000,1005,1010,1015,1020,1025,1030,1035,1040,1045,1050,1055,1100,1105
+                         ,1110,1115,1120,1125,1130,1305,1310,1315,1320,1325,1330,1335,1340,1345,1350,1355,1400,1405
+                         ,1410,1415,1420,1425,1430,1435,1440,1445,1450,1455,1500};
+        hhmm = get_hhmm(tmp_hhmm, tp_array, sizeof(tp_array)/sizeof(tp_array[0]));
         break;
+        }
     }
     start_date = QDate::currentDate().addDays(span_day).toString("yyyyMMdd").toInt();
-     
-    p_hisdata_container_ = stock_data_man_.FindStockData(ToPeriodType(k_type_), stock_code_, start_date, cur_date);
+      
+    p_hisdata_container_ = stock_data_man_.FindStockData(ToPeriodType(k_type_), stock_code_, start_date, cur_date, hhmm, is_index);
     if( !p_hisdata_container_ )
     {
         //p_hisdata_container_ = stock_data_man_.AppendStockData(stock_code_, 20171216, 20180108); 

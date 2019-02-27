@@ -39,7 +39,7 @@ public:
     //从fileName指定的磁盘路径中将数据一行一行读取出来，每一行初始化一个StockDayInfo对象
     //void LoadDataFromFile(std::string &fileName);
 
-    T_HisDataItemContainer* FindStockData(PeriodType period_type, const std::string &stk_code, int start_date, int end_date, bool is_index=false);
+    T_HisDataItemContainer* FindStockData(PeriodType period_type, const std::string &stk_code, int start_date, int end_date, int cur_hhmm, bool is_index=false);
     T_HisDataItemContainer* AppendStockData(PeriodType period_type, const std::string &stk_code, int start_date, int end_date, bool is_index=false);
 	     
     bool UpdateLatestItemStockData(PeriodType period_type, const std::string &stk_code, bool is_index=false);
@@ -94,6 +94,6 @@ private:
 };
 
 // < 0 : meaning no related data
-int FindIndex(T_HisDataItemContainer &data_items_in_container, int date);
+int FindDataIndex(T_HisDataItemContainer &data_items_in_container, int date, int cur_hhmm);
 
 #endif // STOCK_DATA_MAN_H

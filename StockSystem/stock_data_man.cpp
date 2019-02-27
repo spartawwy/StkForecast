@@ -163,13 +163,29 @@ void call_back_fun(T_K_Data *k_data, bool is_end, void *para/*, std::vector<T_St
 }
 #endif
 
-T_HisDataItemContainer* StockDataMan::FindStockData(PeriodType period_type, const std::string &stk_code, int start_date, int end_date, bool /*is_index*/)
+T_HisDataItemContainer* StockDataMan::FindStockData(PeriodType period_type, const std::string &stk_code, int start_date, int end_date, int cur_hhmm, bool /*is_index*/)
 {
     assert( !stk_code.empty() ); 
     T_HisDataItemContainer & items_in_container = GetHisDataContainer(period_type, stk_code);
     int real_start_date = exchange_calendar()->CeilingTradeDate(start_date);
     int real_end_date = exchange_calendar()->FloorTradeDate(end_date);
-    if( FindIndex(items_in_container, real_start_date) > -1 && FindIndex(items_in_container, real_end_date) > -1 )
+    int start_hhmm = 0;
+    switch(period_type)
+    {
+        case PeriodType::PERIOD_MON:
+        case PeriodType::PERIOD_WEEK:
+        case PeriodType::PERIOD_DAY:
+            start_hhmm = 0; break;
+        case PeriodType::PERIOD_HOUR:
+            start_hhmm = 1030; break;
+        case PeriodType::PERIOD_30M:
+            start_hhmm = 1000; break;
+        case PeriodType::PERIOD_15M:
+            start_hhmm = 945; break;
+        case PeriodType::PERIOD_5M:
+            start_hhmm = 935; break;
+    }
+    if( FindDataIndex(items_in_container, real_start_date, start_hhmm) > -1 && FindDataIndex(items_in_container, real_end_date, cur_hhmm) > -1 )
         return &items_in_container;
     return nullptr;
 }
@@ -352,6 +368,7 @@ bool StockDataMan::UpdateLatestItemStockData(PeriodType period_type, const std::
     if( items_in_container.back()->stk_item.date == item.date && items_in_container.back()->stk_item.hhmmss == item.hhmmss )
     {
         memcpy( std::addressof(items_in_container.back()->stk_item), &item, sizeof(item) );
+        CaculateZhibiao(items_in_container);
         return true;
     }else
         return false;
@@ -664,11 +681,11 @@ TypePeriod ToTypePeriod(PeriodType src)
 }
 
 // < 0 : meaning no related data
-int FindIndex(T_HisDataItemContainer &data_items_in_container, int date)
+int FindDataIndex(T_HisDataItemContainer &data_items_in_container, int date, int cur_hhmm)
 {
     for( unsigned int i = 0; i < data_items_in_container.size(); ++i )
     {
-        if( data_items_in_container.at(i)->stk_item.date == date )
+        if( data_items_in_container.at(i)->stk_item.date == date && data_items_in_container.at(i)->stk_item.hhmmss == cur_hhmm)
             return i;
     }
     return -1;
