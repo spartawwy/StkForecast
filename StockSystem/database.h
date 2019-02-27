@@ -9,6 +9,13 @@
 #include <atomic>
 #include <unordered_map>
 
+struct T_StockCodeName
+{
+    std::string code;
+    std::string name;
+    T_StockCodeName(const std::string &cd, const std::string &nm) : code(cd), name(nm){}
+    T_StockCodeName(const T_StockCodeName &lh) : code(lh.code), name(lh.name){}
+};
 namespace SQLite
 {
     class SQLiteConnection;
@@ -31,6 +38,8 @@ public:
 
     void LoadAllStockBaseInfo(std::shared_ptr<StockMan> &stock_man);
     void LoadTradeDate(void *exchange_calendar);
+
+    void GetStockCode(const std::string &code, std::vector<T_StockCodeName>& ret);
 
 private:
      

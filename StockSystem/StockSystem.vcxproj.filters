@@ -140,6 +140,21 @@
     <ClCompile Include="zhibiao.cpp">
       <Filter>moudle</Filter>
     </ClCompile>
+    <ClCompile Include="HintList.cpp">
+      <Filter>win</Filter>
+    </ClCompile>
+    <ClCompile Include="Debug\moc_HintList.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Release\moc_HintList.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Debug\moc_stockinput_dlg.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Release\moc_stockinput_dlg.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="klinewall.ui">
@@ -156,6 +171,12 @@
     </CustomBuild>
     <CustomBuild Include="stk_forecast_app.h">
       <Filter>src</Filter>
+    </CustomBuild>
+    <CustomBuild Include="HintList.h">
+      <Filter>win</Filter>
+    </CustomBuild>
+    <CustomBuild Include="stockinput_dlg.h">
+      <Filter>win</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
@@ -203,9 +224,6 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="kline_wall.h">
-      <Filter>win</Filter>
-    </ClInclude>
-    <ClInclude Include="stockinput_dlg.h">
       <Filter>win</Filter>
     </ClInclude>
     <ClInclude Include="py_data_man.h">

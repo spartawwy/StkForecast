@@ -10,7 +10,8 @@ import datetime as dt
 from pypinyin import pinyin, lazy_pinyin
   
 ROOT_DIR = './' 
-DB_FILE_PATH = ROOT_DIR + "exchbase.kd"
+DB_FILE_PATH = '../build/Win32/Debug/ExchBase.kd'
+#DB_FILE_PATH = './ExchBase.kd'
     
 class STOCKBASIC:  
     def __init__(self):  
@@ -42,7 +43,7 @@ class STOCKBASIC:
             os._exit(0)
         self.g_db_conn = sqlite3.connect(DB_FILE_PATH, detect_types=sqlite3.PARSE_COLNAMES)
         if self.g_db_conn is not None:
-            #print ("opened database successfully")
+            print ("opened {0} successful!".format(DB_FILE_PATH))
             pass
         else:
             #print ("opened database fail!")
@@ -91,15 +92,18 @@ class STOCKBASIC:
             break
         stock_info = ts.get_stock_basics() 
         self.cur.execute("SELECT count(code) FROM stock") 
-        if count < len(stock_info.index):
-            self.cur.execute("DELETE FROM stock")
-            self.g_db_conn.commit()
-            for i in stock_info.index:
-                py_str = ''.join(self.getpinyinhead(stock_info.ix[i]['name']))
-                #print("{0} {1} {2} {3} {4}".format(i, stock_info.ix[i]['name'], stock_info.ix[i]['timeToMarket'], stock_info.ix[i]['industry'], stock_info.ix[i]['area']) )
-                sql = "INSERT INTO stock VALUES(?, ?, ?, ?, ?, ?, '')"
-                self.cur.execute(sql, (i, stock_info.ix[i]['name'], py_str, str(stock_info.ix[i]['timeToMarket']), stock_info.ix[i]['industry'], stock_info.ix[i]['area']))
-            self.g_db_conn.commit()
+        #if count < len(stock_info.index):
+            #self.cur.execute("DELETE FROM stock")
+            #self.g_db_conn.commit()
+        num = 0
+        for i in stock_info.index:
+            py_str = ''.join(self.getpinyinhead(stock_info.ix[i]['name'])) 
+            sql = "INSERT OR REPLACE INTO stock VALUES(?, ?, ?, ?, ?, ?, '')"
+            self.cur.execute(sql, (i, stock_info.ix[i]['name'], py_str, str(stock_info.ix[i]['timeToMarket']), stock_info.ix[i]['industry'], stock_info.ix[i]['area']))
+            #print("{}, {}, {}, {}, {}, {}, ''".format(i, stock_info.ix[i]['name'], py_str, str(stock_info.ix[i]['timeToMarket']), stock_info.ix[i]['industry'], stock_info.ix[i]['area']))
+            num += 1
+        self.g_db_conn.commit()
+        print("has insert or replace {} records".format(num))
         return "ok"
         
 if __name__ == "__main__":  

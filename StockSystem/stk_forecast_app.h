@@ -27,6 +27,7 @@ public:
     void Stop();
 
     std::shared_ptr<ExchangeCalendar>&  exchange_calendar() { return exchange_calendar_;}
+    std::shared_ptr<DataBase>& data_base() { return data_base_; }
 
 protected:
 

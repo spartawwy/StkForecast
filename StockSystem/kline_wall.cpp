@@ -53,7 +53,7 @@ KLineWall::KLineWall(StkForecastApp *app, QWidget *parent)
     , k_cycle_year_(0)
     , date_(0)
     , k_date_time_str_() 
-	, stock_input_dlg_(this)
+	, stock_input_dlg_(this, app->data_base())
     , draw_action_(DrawAction::NO_ACTION)
     , pre_mm_w_(-1)
     , pre_mm_h_(-1)
@@ -739,7 +739,9 @@ void KLineWall::paintEvent(QPaintEvent*)
     QFont font;  
     font.setPointSize(HeadHeight() * 0.9); 
     painter.setFont(font);
-    painter.drawText(mm_w - right_w_ - 70, -1 * (h_axis_trans_in_paint_k_ - font.pointSize()), stock_code_.c_str());
+
+    QString code_name = QString::fromLocal8Bit((stock_code_ + stock_name_).c_str());
+    painter.drawText(mm_w - right_w_ - 70 - 70, -1 * (h_axis_trans_in_paint_k_ - font.pointSize()), code_name);
      
     painter.setFont(old_font); 
     
@@ -859,7 +861,7 @@ void KLineWall::paintEvent(QPaintEvent*)
     // draw zibiao----------------------- 
 
     const double item_w = double(mm_w - empty_right_w_ - right_w_) / double(k_num_ + 1) ;
-    const double k_bar_w = item_w * 3 / 4;
+    //const double k_bar_w = item_w * 3 / 4;
     //const int right_end = double(mm_w - empty_right_w_ - right_w_) - k_bar_w;
     //const double largest_vol = GetCurWinKLargetstVol();
     for( unsigned int i = 0 ; i < zb_windows_.size(); ++i )
@@ -946,33 +948,6 @@ void KLineWall::mouseMoveEvent(QMouseEvent *e)
 void KLineWall::keyPressEvent(QKeyEvent *e)
 {
     //qDebug() << "key " << e->key() << "\n";
-    /*static auto get_container_max_min_price = [this](PeriodType period_type, const std::string& code, int k_num, std::tuple<float, float>& ret)->bool
-    {
-        T_HisDataItemContainer &container = stock_data_man_.GetHisDataContainer(period_type, code);
-        if( container.empty() )
-            return false;
-        unsigned int start_index = container.size() > k_num ?  container.size() - k_num : 0; 
-        unsigned int end_index = container.size() - 1 > 0 ? container.size() - 1 : 0;
-        float highest_price = MIN_PRICE;
-        float lowest_price = MAX_PRICE;
-        for( unsigned int i = start_index; i < end_index; ++ i )
-        {
-            if( container.at(i)->stk_item.high_price > highest_price )
-                highest_price = container.at(i)->stk_item.high_price; 
-            if( container.at(i)->stk_item.low_price < lowest_price )
-                lowest_price = container.at(i)->stk_item.low_price;
-        } 
-        double tmp_price = forcast_man_.FindMaxForcastPrice(code, ToTypePeriod(period_type), container.at(start_index)->stk_item.date, container.at(end_index)->stk_item.date);
-        if( tmp_price > highest_price )
-            highest_price = tmp_price;
-        tmp_price = forcast_man_.FindMinForcastPrice(code, ToTypePeriod(period_type), container.at(start_index)->stk_item.date, container.at(end_index)->stk_item.date);
-        if( tmp_price < lowest_price )
-            lowest_price = tmp_price;
-
-        ret = std::make_tuple(highest_price, lowest_price);
-        return true;
-    };*/
-
     static auto update_kwall_min_max_price = [this]()
     {
         std::tuple<float, float> price_tuple;
@@ -1267,26 +1242,42 @@ bool KLineWall::GetContainerMaxMinPrice(PeriodType period_type, const std::strin
 
 void KLineWall::StockInputDlgRet()
 {
-	QString stock_code = stock_input_dlg_.ui.stock_input->text().trimmed();
+    QString::SectionFlag flag = QString::SectionSkipEmpty;
+    QString tgt_tag = stock_input_dlg_.ui.stock_input->text().section('/', 0, 0, flag);
+    QString stock_code = tgt_tag.toLocal8Bit().data();
+    /*if( !IsStrNum(stock_code) || stock_code.size() != 6 )
+    return;*/
+    QString stock_name = stock_input_dlg_.ui.stock_input->text().section('/', 1, 1, flag);
+
     QString stock_code_changed;
 	stock_input_dlg_.ui.stock_input->text().clear();
     bool is_index = false;
+    std::string tmp_cn_name;
 	if( stock_code.toUpper() == "SZZS" || stock_code.toUpper() == "999999" )
 	{
 		stock_code_changed = "999999";
+        stock_name_ = "上证指数";
         is_index = true;
     }else if( stock_code.toUpper() == "SZCZ" 
         || stock_code.toUpper() == "SZCZ"
-        || stock_code.toUpper() == "CYBZ"
+        || stock_code.toUpper() == "CYBZ" 
+        || stock_code.toUpper() == "ZXBZ"
         || stock_code.toUpper() == "SZ50"
         || stock_code.toUpper() == "HS300" )
     {
-        stock_code_changed = TransIndexPinYin2Code(stock_code.toUpper().toLocal8Bit().data()).c_str();
-        is_index = true;
-    }else if( stock_code == "999999" /*|| stock_code == "000001"*/ || stock_code == "399001" || stock_code == "399005" 
-        || stock_code == "399006" || stock_code == "000016" || stock_code == "000300" )
+        std::string code;
+        if( TransIndexPinYin2CodeName(stock_code.toUpper().toLocal8Bit().data(), code, tmp_cn_name) )
+        {
+            stock_code_changed = code.c_str();
+            stock_name_ = tmp_cn_name;
+            is_index = true;
+        }else
+            return;
+        
+    }else if( TransIndexCode2Name(stock_code.toLocal8Bit().data(), tmp_cn_name) )
     {
         stock_code_changed = stock_code.toLocal8Bit().data();
+        stock_name_ = tmp_cn_name;
         is_index = true;
 	}else
 	{
@@ -1296,8 +1287,9 @@ void KLineWall::StockInputDlgRet()
 		if( stock_code.length() != 6 || !IsNumber(stock_code.toLocal8Bit().data()) )
 			return;
         stock_code_changed = stock_code.toLocal8Bit().data();
+        stock_name_ = stock_name.toLocal8Bit().data();
 	}
-	
+	 
 	ResetStock(stock_code_changed, k_type_, is_index);
 }
  

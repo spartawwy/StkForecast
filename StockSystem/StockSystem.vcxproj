@@ -137,10 +137,16 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="database.cpp" />
+    <ClCompile Include="Debug\moc_HintList.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="Debug\moc_mainwindow.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Debug\moc_stk_forecast_app.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Debug\moc_stockinput_dlg.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Debug\moc_title_bar.cpp">
@@ -157,15 +163,22 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="HintList.cpp" />
     <ClCompile Include="kline_wall.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mainwindow.cpp" />
     <ClCompile Include="py_data_man.cpp" />
     <ClCompile Include="qrc_res.cpp" />
+    <ClCompile Include="Release\moc_HintList.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="Release\moc_mainwindow.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Release\moc_stk_forecast_app.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Release\moc_stockinput_dlg.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Release\moc_title_bar.cpp">
@@ -190,6 +203,16 @@
     <ClInclude Include="database.h" />
     <ClInclude Include="exchange_calendar.h" />
     <ClInclude Include="forcast_man.h" />
+    <CustomBuild Include="HintList.h">
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc%27ing HintList.h...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DWIN32 -DQT_GUI_LIB -DQT_CORE_LIB -DQT_OPENGL_ES_2 -DQT_OPENGL_ES_2_ANGLE -D_MBCS "-I$(QT_DIR)\include" "-I$(QT_DIR)\include\QtGui" "-I$(QT_DIR)\include\QtANGLE" "-I$(QT_DIR)\include\QtCore" "-I$(QT_DIR)\include\QtWidgets" "-I$(QT_DIR)\mkspecs\win32-msvc2012" "-I.\GeneratedFiles" "-I.\include" "-I$(PYTHONPATH)\include" "-Iz:\include"</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc%27ing HintList.h...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DWIN32 -D_NDEBUG -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -DQT_OPENGL_ES_2 -DQT_OPENGL_ES_2_ANGLE -D_MBCS "-I$(QT_DIR)\include" "-I$(QT_DIR)\include\QtGui" "-I$(QT_DIR)\include\QtANGLE" "-I$(QT_DIR)\include\QtWidgets" "-I$(QT_DIR)\include\QtCore" "-I.\release" "-I$(QT_DIR)\mkspecs\win32-msvc2012" "-I.\GeneratedFiles" "-I.\include" "-I$(PYTHONPATH)\include"</Command>
+    </CustomBuild>
     <ClInclude Include="include\winner_hq_api.h" />
     <ClInclude Include="py_data_man.h" />
     <ClInclude Include="stkfo_common.h" />
@@ -210,7 +233,16 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DWIN32 -D_NDEBUG -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -DQT_OPENGL_ES_2 -DQT_OPENGL_ES_2_ANGLE -D_MBCS  "-I$(QT_DIR)\include" "-I$(QT_DIR)\include\QtGui" "-I$(QT_DIR)\include\QtANGLE" "-I$(QT_DIR)\include\QtWidgets" "-I$(QT_DIR)\include\QtCore" "-I.\release" "-I$(QT_DIR)\mkspecs\win32-msvc2012" "-I.\GeneratedFiles" "-I.\include" "-I$(PYTHONPATH)\include"</Command>
     </CustomBuild>
-    <ClInclude Include="stockinput_dlg.h" />
+    <CustomBuild Include="stockinput_dlg.h">
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc%27ing stockinput_dlg.h...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DWIN32 -DQT_GUI_LIB -DQT_CORE_LIB -DQT_OPENGL_ES_2 -DQT_OPENGL_ES_2_ANGLE -D_MBCS "-I$(QT_DIR)\include" "-I$(QT_DIR)\include\QtGui" "-I$(QT_DIR)\include\QtANGLE" "-I$(QT_DIR)\include\QtCore" "-I$(QT_DIR)\include\QtWidgets" "-I$(QT_DIR)\mkspecs\win32-msvc2012" "-I.\GeneratedFiles" "-I.\include" "-I$(PYTHONPATH)\include" "-Iz:\include"</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc%27ing stockinput_dlg.h...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DWIN32 -D_NDEBUG -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -DQT_OPENGL_ES_2 -DQT_OPENGL_ES_2_ANGLE -D_MBCS "-I$(QT_DIR)\include" "-I$(QT_DIR)\include\QtGui" "-I$(QT_DIR)\include\QtANGLE" "-I$(QT_DIR)\include\QtWidgets" "-I$(QT_DIR)\include\QtCore" "-I.\release" "-I$(QT_DIR)\mkspecs\win32-msvc2012" "-I.\GeneratedFiles" "-I.\include" "-I$(PYTHONPATH)\include"</Command>
+    </CustomBuild>
     <ClInclude Include="stock_man.h" />
     <CustomBuild Include="tool_bar.h">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>

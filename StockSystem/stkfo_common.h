@@ -199,7 +199,8 @@ enum class DrawAction : unsigned char
 
 bool IsNumber(const std::string& str);
 
-std::string TransIndexPinYin2Code(const std::string &code);
+bool TransIndexPinYin2CodeName(const std::string &pinyin, std::string &code, std::string &name);
+bool TransIndexCode2Name(const std::string &code, std::string &name);
 std::string TransIndex2TusharedCode(const std::string &code);
 
 FractalType  MaxFractalType(int val);
@@ -221,6 +222,12 @@ typedef struct _t_k_data
 
 typedef std::deque<std::shared_ptr<T_KlineDataItem> >  T_HisDataItemContainer;
 typedef std::unordered_map<std::string, T_HisDataItemContainer>  T_CodeMapHisDataItemContainer;
+
+
+bool IsStrAlpha(const std::string& str);
+bool IsStrNum(const std::string& str);
+void utf8ToGbk(std::string& strUtf8);
+void gbkToUtf8(std::string& strGbk);
 
 #define  MOMENTUM_POS 0
 

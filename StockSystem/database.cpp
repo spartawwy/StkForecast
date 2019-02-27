@@ -109,3 +109,41 @@ void DataBase::LoadTradeDate(void *exchange_calendar)
         return 0;
     }); 
 }
+
+
+void DataBase::GetStockCode(const std::string &code, std::vector<T_StockCodeName>& ret)
+{
+    ret.clear();
+
+    if( !db_conn_ )
+    {
+        Open(db_conn_);
+    }
+
+    std::string sql;
+    if( IsStrAlpha(code) )
+    {
+        sql = utility::FormatStr("SELECT code, name from stock WHERE pinyin like '%s%%' ORDER BY code LIMIT 5", code.c_str());
+    }else if( IsStrNum(code) )
+    {
+        sql = utility::FormatStr("SELECT code, name from stock WHERE code like '%s%%' ORDER BY code LIMIT 5", code.c_str());
+    }else
+    {
+        sql = utility::FormatStr("SELECT code, name from stock WHERE name like '%s%%' ORDER BY code LIMIT 5", code.c_str());
+    }
+
+    if( !utility::ExistTable("stock", *db_conn_) )
+        return;
+
+    db_conn_->ExecuteSQL(sql.c_str(),[&ret, this](int /*num_cols*/, char** vals, char** /*names*/)->int
+    { /*
+      T_StockCodeName code_name;
+      code_name.code = *vals;
+      code_name.name = *(vals + 1);*/
+        std::string name = *(vals + 1);
+        utf8ToGbk(name);
+        ret.emplace_back(*vals, std::move(name));
+        return 0;
+    });
+    return;
+}

@@ -58,13 +58,10 @@ protected:
 
     void enterEvent(QEvent *e) override;
     void leaveEvent(QEvent *e) override;
-
-private slots:
-
-	bool ResetStock(const QString& stock, TypePeriod type_period, bool is_index=false);
-
+ 
 private: 
     
+    bool ResetStock(const QString& stock, TypePeriod type_period, bool is_index=false);
     //int height_axis_trans_in_paint_k();
 
     void Draw2pDownForcast(QPainter &, const int mm_h, double item_w);
@@ -113,6 +110,7 @@ private:
 	StockInputDlg  stock_input_dlg_;
      
     std::string    stock_code_;
+    std::string    stock_name_;
     bool           is_index_;
     StockDataMan   stock_data_man_;              //many stocks many daysinfo 
 	T_HisDataItemContainer *p_hisdata_container_; //point to stock_data_man_'s one stock's data
