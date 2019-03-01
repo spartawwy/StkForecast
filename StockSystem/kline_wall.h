@@ -52,6 +52,8 @@ protected:
 
     void paintEvent(QPaintEvent*) override;
 	void mousePressEvent( QMouseEvent * event ) override;
+    void mouseReleaseEvent(QMouseEvent * e) override;
+
     void mouseDoubleClickEvent(QMouseEvent * e)  override;
     void mouseMoveEvent(QMouseEvent *e) override;
     void keyPressEvent(QKeyEvent *e) override;
@@ -72,6 +74,7 @@ private:
     void _Draw3pForcast(QPainter &, const int mm_h, double item_w, bool is_down_forward);
 
     void UpdatePosDatas();
+    void UpdateKwallMinMaxPrice();
 
     T_KlineDataItem * GetKLineDataItemByXpos(int x);
     QPointF GetPointFromKLineDataItems(int x, bool is_get_top);
@@ -121,8 +124,13 @@ private:
     bool  show_cross_line_;
 
     int  k_num_;
+    int  k_rend_index_;
+    int  pre_k_rend_index_;
+    int  k_move_temp_index_;
+
     TypePeriod  k_type_;
     std::string  k_cycle_tag_;
+    
     
     int  k_cycle_year_;
     int  date_;
@@ -135,6 +143,9 @@ private:
     QPointF drawing_line_C_;
 
     QPointF cur_mouse_point_;
+
+    bool mm_move_flag_;
+    QPoint move_start_point_;
 
     int pre_mm_w_;
     int pre_mm_h_;
