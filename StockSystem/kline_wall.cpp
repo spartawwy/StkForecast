@@ -34,8 +34,6 @@ KLineWall::KLineWall(StkForecastApp *app, QWidget *parent)
     , app_(app)
     , main_win_((MainWindow*)parent)
     , head_h_percent_(0.03)
-   /* , bottom1_h_(30)
-    , bottom2_h_(30) */
     , bottom_h_percent_(0.04)
     , empty_right_w_(30)
     , right_w_(30)
@@ -48,8 +46,8 @@ KLineWall::KLineWall(StkForecastApp *app, QWidget *parent)
     , highestMaxPrice_(0.0)
     , show_cross_line_(false)
     , k_num_(WOKRPLACE_DEFUALT_K_NUM)
-    , k_rend_index_(1) // ndedt
-    , pre_k_rend_index_(1)
+    , k_rend_index_(0)  
+    , pre_k_rend_index_(0)
     , k_type_(TypePeriod::PERIOD_DAY)
     , k_cycle_tag_()
     , k_cycle_year_(0)
@@ -63,7 +61,6 @@ KLineWall::KLineWall(StkForecastApp *app, QWidget *parent)
     , pre_mm_h_(-1)
 {
     ui.setupUi(this);
-    //bottom_h_ = bottom1_h_ + bottom2_h_;
     ResetDrawState(DrawAction::NO_ACTION); 
  
     // init ui -----------
@@ -90,17 +87,6 @@ bool KLineWall::Init()
     return false;
 }
 
-//int KLineWall::height_axis_trans_in_paint_k()
-//{ 
-//    int target_height = this->height() - BottomHeight(); 
-//    for( unsigned int i = 0 ; i < zb_windows_.size(); ++i )
-//    {
-//        if( zb_windows_[i] )
-//            target_height -= zb_windows_[i]->Height();
-//    }
-//    return target_height;
-//}
-
 void KLineWall::Draw2pDownForcast(QPainter &painter, const int mm_h, double item_w)
 {
     std::vector<T_Data2pDownForcast> *p_data_vector = forcast_man_.Find2pDownForcastVector(stock_code_, k_type_);
@@ -111,7 +97,7 @@ void KLineWall::Draw2pDownForcast(QPainter &painter, const int mm_h, double item
         //pen.setStyle(Qt::DotLine);
         pen.setColor(Qt::magenta);
         pen.setWidth(2);
-        //painter.setPen(pen); 
+       
         const auto font_size = painter.font().pointSizeF();
         std::vector<T_TuplePointStr>  fronts_to_draw;
         
@@ -335,11 +321,7 @@ void KLineWall::_Draw3pForcast(QPainter &painter, const int mm_h, double item_w,
     { 
         painter.drawText(std::get<0>(in), std::get<1>(in).c_str());
     });
-    /*if( has_set_price )
-    {
-    lowestMinPrice_ = std::min(lowest_price, lowestMinPrice_);
-    highestMaxPrice_ = std::max(highest_price, highestMaxPrice_);
-    }*/
+    
 }
 
 void KLineWall::UpdatePosDatas()
@@ -358,13 +340,12 @@ void KLineWall::UpdatePosDatas()
     if( drawing_line_C_ != CST_MAGIC_POINT )
         item_c = GetKLineDataItemByXpos(drawing_line_C_.x());
 
-    // update ----------------------------------------------
-    //int mm_h = this->height() - head_h_ - bottom_h_;
+    // update ---------------------------------------------- 
     const int k_mm_h = Calculate_k_mm_h();
      
     const int mm_w = this->width();
     double item_w = double(mm_w - empty_right_w_ - right_w_) / double(k_num_ + 1) ;
-    //double space_between_k = item_w / 4;
+    //  space between k is: item_w / 4;
     double k_bar_w = item_w * 3 / 4;
     // clear position data
     std::for_each( std::begin(*p_hisdata_container_), std::end(*p_hisdata_container_), [this](T_HisDataItemContainer::reference entry)
@@ -492,6 +473,7 @@ void KLineWall::mousePressEvent(QMouseEvent * event )
     {
         mm_move_flag_ = true;
         move_start_point_ = event->pos();
+        pre_k_rend_index_ = k_rend_index_;
         return;
     }
     if( drawing_line_A_ == CST_MAGIC_POINT )
@@ -714,9 +696,7 @@ void KLineWall::paintEvent(QPaintEvent*)
     const int price_scale_num = 8;
     const int scale_part_h = k_mm_h / price_scale_num; 
     int trans_y_totoal = 0;
-    //painter.translate(0, HeadHeight());
-    //trans_y_totoal += HeadHeight();
-    //h_axis_trans_in_paint_k_ = height_axis_trans_in_paint_k();
+     
     h_axis_trans_in_paint_k_ = k_mm_h + HeadHeight(); 
     painter.translate(0, h_axis_trans_in_paint_k_); // translate frame of axes to k mm bottom
     trans_y_totoal += h_axis_trans_in_paint_k_;
@@ -870,20 +850,12 @@ void KLineWall::paintEvent(QPaintEvent*)
         Draw3pUpForcast(painter, k_mm_h, item_w);
     } //if( p_hisdata_container_ )
    
-    // a scale h place for show extreme low price 
-    //painter.translate(0, scale_part_h);
-    //trans_y_totoal += scale_part_h;
-
     //k line view bottom border horizontal line (----------)
     painter.setPen(lit_border_pen); 
     painter.drawLine(0, 0, mm_w, 0); 
  
     // draw zibiao----------------------- 
-
     const double item_w = double(mm_w - empty_right_w_ - right_w_) / double(k_num_ + 1) ;
-    //const double k_bar_w = item_w * 3 / 4;
-    //const int right_end = double(mm_w - empty_right_w_ - right_w_) - k_bar_w;
-    //const double largest_vol = GetCurWinKLargetstVol();
     for( unsigned int i = 0 ; i < zb_windows_.size(); ++i )
     {
         if( zb_windows_[i] )
@@ -892,11 +864,11 @@ void KLineWall::paintEvent(QPaintEvent*)
             painter.translate(0, zb_h + lit_border_pen.width());
             trans_y_totoal += zb_h + lit_border_pen.width();
 
+            // horizental line -----
             painter.setPen(lit_border_pen);
-            painter.drawLine(0, 0, mm_w, 0);// horizental line -----
+            painter.drawLine(0, 0, mm_w, 0);
  
             zb_windows_[i]->DrawWindow(painter, mm_w);
-            //------------------
         }
     }
     // end of draw zibiao-----------------------
@@ -955,39 +927,40 @@ void KLineWall::mouseMoveEvent(QMouseEvent *e)
           
     //auto pos_mapped = mapFromGlobal(e->pos());
     //auto pos_mapped = mapToParent(e->pos());
-    //is_repaint_k_ = false;
-
+     
     if( draw_action_ != DrawAction::NO_ACTION )
     {
         //qDebug() << " mouseMoveEvent DRAWING_FOR_2PDOWN_C " << "\n";
         cur_mouse_point_ = e->pos();
-
     }else
     {
         if( mm_move_flag_ && k_num_ > 0 )
         {
-            int distance = e->pos().x() - move_start_point_.x();
-
-            int atom_k_width = this->width() / k_num_;
+            const int atom_k_width = this->width() / k_num_;
+            const int distance = e->pos().x() - move_start_point_.x();
             if( distance > 0 ) // drag to right 
-            {
-                k_rend_index_ = pre_k_rend_index_ + abs(distance) / atom_k_width;
-                if( p_hisdata_container_->size() < k_rend_index_ + k_num_ + 10 )
-                {
-                    int oldest_day = QDateTime::currentDateTime().toString("yyyyMMdd").toInt();
-                    if( !p_hisdata_container_->empty() )
-                        oldest_day = p_hisdata_container_->front()->stk_item.date;
-
-                    QDate qdate_obj(oldest_day/10000, (oldest_day%10000)/100, oldest_day%100);
-                    auto start_date = qdate_obj.addDays( -1 * (4 * 30) ).toString("yyyyMMdd").toInt(); 
-                    stock_data_man_.AppendStockData(ToPeriodType(k_type_), stock_code_, start_date, oldest_day, is_index_);
-
-                    UpdateKwallMinMaxPrice();
+            { 
+                const int tmp_k_rend_index = pre_k_rend_index_ + abs(distance) / atom_k_width;
+                if( p_hisdata_container_->size() < tmp_k_rend_index + k_num_ + 20)
+                { 
+                    AppendData();
+                    if( p_hisdata_container_->size() > 0 )
+                    { 
+                        if( tmp_k_rend_index >= p_hisdata_container_->size() )
+                            k_rend_index_ = p_hisdata_container_->size() - 1;
+                        else
+                            k_rend_index_ = tmp_k_rend_index;
+                    }else
+                        k_rend_index_ = 0;
+                }else
+                { 
+                    int tmp_val = p_hisdata_container_->size() > 0 ? p_hisdata_container_->size() - 1 : 0;
+                    k_rend_index_ = std::min(tmp_k_rend_index, tmp_val);
                 }
 
             }else // drag to left
             {
-                int num = pre_k_rend_index_ - abs(distance) / atom_k_width;
+                const int num = pre_k_rend_index_ - abs(distance) / atom_k_width;
                 if( num <= 0 )
                     k_rend_index_ = 0;
                 else
@@ -1020,21 +993,8 @@ void KLineWall::UpdateKwallMinMaxPrice()
 
 void KLineWall::keyPressEvent(QKeyEvent *e)
 {
-    //qDebug() << "key " << e->key() << "\n";
-    /*static auto update_kwall_min_max_price = [this]()
-    {
-        std::tuple<float, float> price_tuple;
-        if( GetContainerMaxMinPrice(ToPeriodType(k_type_), stock_code_, k_num_, price_tuple) )
-        {
-            double try_new_high = std::get<0>(price_tuple) * cst_k_mm_enlarge_times;
-            if( try_new_high < this->highestMaxPrice_ || try_new_high > this->highestMaxPrice_)
-                SetHighestMaxPrice(try_new_high);
-            double try_new_low = std::get<1>(price_tuple) * cst_k_mm_narrow_times;
-            if( try_new_low < this->lowestMinPrice_ || try_new_low > this->lowestMinPrice_)
-                SetLowestMinPrice(try_new_low);
-        }
-    };*/
     assert(p_hisdata_container_);
+    assert(p_hisdata_container_->size() >  k_rend_index_ );
     auto key_val = e->key();
     switch( key_val )
     {
@@ -1054,18 +1014,8 @@ void KLineWall::keyPressEvent(QKeyEvent *e)
     case Qt::Key_Down: //zoom in 
         {  
             k_num_ ++;
-            if( k_num_ > p_hisdata_container_->size() )
-            { 
-                int oldest_day = QDateTime::currentDateTime().toString("yyyyMMdd").toInt();
-                if( !p_hisdata_container_->empty() )
-                    oldest_day = p_hisdata_container_->front()->stk_item.date;
-
-                QDate qdate_obj(oldest_day/10000, (oldest_day%10000)/100, oldest_day%100);
-                //int mons = p_hisdata_container_->size() / 20;
-                auto start_date = qdate_obj.addDays( -1 * (4 * 30) ).toString("yyyyMMdd").toInt(); 
-                /*auto p_container = */
-                stock_data_man_.AppendStockData(ToPeriodType(k_type_), stock_code_, start_date, oldest_day, is_index_);
-            }
+            if( k_num_ + 20 > p_hisdata_container_->size() - k_rend_index_ )
+                AppendData();
 
             UpdateKwallMinMaxPrice();
             UpdatePosDatas();
@@ -1126,6 +1076,9 @@ bool KLineWall::ResetStock(const QString& stock, TypePeriod type_period, bool is
 
     if( k_type_ == type_period && stock_code_ ==  stock.toLocal8Bit().data() && !items_in_container.empty() )
         return true;
+    k_rend_index_ = 0;
+    pre_k_rend_index_ = 0;
+    k_move_temp_index_ = 0;
 
     stock_code_ = stock.toLocal8Bit().data(); 
     k_type_ = type_period;
@@ -1141,6 +1094,10 @@ bool KLineWall::ResetStock(const QString& stock, TypePeriod type_period, bool is
 
     switch( type_period )
     {
+    case TypePeriod::PERIOD_YEAR: 
+    case TypePeriod::PERIOD_MON:
+         span_day = -1 * 365 * 10;
+         break;
     case TypePeriod::PERIOD_DAY:
     case TypePeriod::PERIOD_WEEK:
         span_day = -1 * (WOKRPLACE_DEFUALT_K_NUM * 30 / 20);
@@ -1151,14 +1108,6 @@ bool KLineWall::ResetStock(const QString& stock, TypePeriod type_period, bool is
         //10:30 13:00 14:00 15:00
         int tp_array[] = { 1030, 1300, 1400, 1500 };
         hhmm = get_hhmm(tmp_hhmm, tp_array, sizeof(tp_array)/sizeof(tp_array[0]));
-        //if( tmp_hhmm <= 1030 )
-        //    hhmm = 1030;
-        //else if( tmp_hhmm <= 1300 )
-        //    hhmm = 1300;
-        //else if( tmp_hhmm <= 1400 )
-        //    hhmm = 1400;
-        //else // >= 1400
-        //    hhmm = 1500;
         break;
         }
     case TypePeriod::PERIOD_30M:
@@ -1230,6 +1179,30 @@ bool KLineWall::ResetStock(const QString& stock, TypePeriod type_period, bool is
  	return true;
 }
 
+void KLineWall::AppendData()
+{ 
+    int oldest_day = QDateTime::currentDateTime().toString("yyyyMMdd").toInt();
+    if( !p_hisdata_container_->empty() )
+        oldest_day = p_hisdata_container_->front()->stk_item.date;
+
+    QDate qdate_obj(oldest_day/10000, (oldest_day%10000)/100, oldest_day%100);
+    int start_date = qdate_obj.addDays( -1 * (4 * 30) ).toString("yyyyMMdd").toInt(); 
+    switch(k_type_)
+    {
+    case TypePeriod::PERIOD_YEAR: start_date = qdate_obj.addDays( -1 * (5 * 12 * 30) ).toString("yyyyMMdd").toInt(); break;
+    case TypePeriod::PERIOD_MON:
+    case TypePeriod::PERIOD_WEEK: start_date = qdate_obj.addDays( -1 * (2 * 12 * 30) ).toString("yyyyMMdd").toInt(); break;
+    case TypePeriod::PERIOD_DAY: start_date = qdate_obj.addDays( -1 * (1 * 12 * 30) ).toString("yyyyMMdd").toInt(); break;
+    case TypePeriod::PERIOD_HOUR:start_date = qdate_obj.addDays( -1 * (6 * 30) ).toString("yyyyMMdd").toInt(); break;
+    case TypePeriod::PERIOD_30M: start_date = qdate_obj.addDays( -1 * (3 * 30) ).toString("yyyyMMdd").toInt(); break;
+    case TypePeriod::PERIOD_15M: start_date = qdate_obj.addDays( -1 * (1 * 30) ).toString("yyyyMMdd").toInt(); break;
+    case TypePeriod::PERIOD_5M: start_date = qdate_obj.addDays( -1 * (1 * 15) ).toString("yyyyMMdd").toInt(); break;
+    default: break;
+    }
+    /*auto p_container = */
+    stock_data_man_.AppendStockData(ToPeriodType(k_type_), stock_code_, start_date, oldest_day, is_index_);
+}
+
 T_KlineDataItem * KLineWall::GetKLineDataItemByXpos(int x)
 {
 #ifdef DRAW_FROM_LEFT
@@ -1240,7 +1213,7 @@ T_KlineDataItem * KLineWall::GetKLineDataItemByXpos(int x)
     { 
 #else
     int j = k_num_;
-    for( auto iter = p_hisdata_container_->rbegin();
+    for( auto iter = p_hisdata_container_->rbegin() + k_rend_index_;
         iter != p_hisdata_container_->rend() && j > 0; 
         ++iter, --j)
     { 
@@ -1426,15 +1399,10 @@ void KLineWall::RestTypePeriod(TypePeriod  type)
     case TypePeriod::PERIOD_5M:
     case TypePeriod::PERIOD_15M:
     case TypePeriod::PERIOD_30M:
-        ResetStock(stock_code_.c_str(), type, is_index_);
-        break;
     case TypePeriod::PERIOD_HOUR:
-        ResetStock(stock_code_.c_str(), type, is_index_);
-        break;
     case TypePeriod::PERIOD_DAY:
-        ResetStock(stock_code_.c_str(), type, is_index_);
-        break;
     case TypePeriod::PERIOD_WEEK:
+    case TypePeriod::PERIOD_MON:
         ResetStock(stock_code_.c_str(), type, is_index_);
         break;
     }

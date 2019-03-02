@@ -64,7 +64,7 @@ protected:
 private: 
     
     bool ResetStock(const QString& stock, TypePeriod type_period, bool is_index=false);
-    //int height_axis_trans_in_paint_k();
+    void AppendData();
 
     void Draw2pDownForcast(QPainter &, const int mm_h, double item_w);
     void Draw2pUpForcast(QPainter &, const int mm_h, double item_w);
@@ -102,8 +102,6 @@ private:
     MainWindow  *main_win_;
 	Ui_KLineWallForm  ui;
     const double head_h_percent_;
-   /* const int bottom1_h_;
-    const int bottom2_h_; */
     const double bottom_h_percent_;
      
     int empty_right_w_;
@@ -130,7 +128,6 @@ private:
 
     TypePeriod  k_type_;
     std::string  k_cycle_tag_;
-    
     
     int  k_cycle_year_;
     int  date_;
@@ -160,5 +157,4 @@ private:
     friend class MomentumZhibiaoWin;
 };
 
-
-#endif
+#endif // K_LINE_WALL_SDF32DSF_

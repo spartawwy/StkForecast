@@ -172,6 +172,7 @@ T_HisDataItemContainer* StockDataMan::FindStockData(PeriodType period_type, cons
     int start_hhmm = 0;
     switch(period_type)
     {
+        case PeriodType::PERIOD_YEAR:
         case PeriodType::PERIOD_MON:
         case PeriodType::PERIOD_WEEK:
         case PeriodType::PERIOD_DAY:
@@ -359,7 +360,7 @@ T_HisDataItemContainer* StockDataMan::AppendStockData(PeriodType period_type, co
 bool StockDataMan::UpdateLatestItemStockData(PeriodType period_type, const std::string &stk_code, bool is_index)
 {
     assert( !stk_code.empty() );
-    int count = 0;
+   
     T_HisDataItemContainer & items_in_container = GetHisDataContainer(period_type, stk_code);
     
     T_StockHisDataItem  item;
