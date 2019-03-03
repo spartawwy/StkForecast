@@ -1,7 +1,8 @@
 #include "forcast_man.h"
 
-ForcastMan::ForcastMan()
-    : stock_2pdown_forcast_15m_(1024)
+ForcastMan::ForcastMan(int wall_index)
+    : wall_index_(wall_index)
+    , stock_2pdown_forcast_15m_(1024)
     , stock_2pdown_forcast_30m_(1024)
     , stock_2pdown_forcast_h_(1024)
     , stock_2pdown_forcast_d_(1024)
@@ -82,7 +83,7 @@ bool ForcastMan::HasIn2pDownwardForcast(const std::string &code, TypePeriod type
     Code2pDownForcastType & code_2pdown_fcst = Get2pDownDataHolder(type_period);
     auto vector_iter = code_2pdown_fcst.find(code);
     if( vector_iter != code_2pdown_fcst.end() )
-        return has_in2pforcasts(vector_iter->second, item_a.kline_posdata.date, item_a.stk_item.hhmmss, item_b.kline_posdata.date, item_b.stk_item.hhmmss);
+        return has_in2pforcasts(vector_iter->second, item_a.kline_posdata(wall_index_).date, item_a.stk_item.hhmmss, item_b.kline_posdata(wall_index_).date, item_b.stk_item.hhmmss);
     else 
         return false;
 }
@@ -104,7 +105,7 @@ bool ForcastMan::HasIn2pUpForcast(const std::string &code, TypePeriod type_perio
     Code2pUpForcastType &code_2pup_fcst = Get2pUpDataHolder(type_period);
     auto vector_iter = code_2pup_fcst.find(code);
     if( vector_iter != code_2pup_fcst.end() )
-        return has_in2pforcasts(vector_iter->second, item_a.kline_posdata.date, item_a.stk_item.hhmmss, item_b.kline_posdata.date, item_b.stk_item.hhmmss);
+        return has_in2pforcasts(vector_iter->second, item_a.kline_posdata(wall_index_).date, item_a.stk_item.hhmmss, item_b.kline_posdata(wall_index_).date, item_b.stk_item.hhmmss);
     else 
         return false;
 }

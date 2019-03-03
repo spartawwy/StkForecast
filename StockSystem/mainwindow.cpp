@@ -58,7 +58,7 @@ bool MainWindow::Initialize()
     title_ = new TitleBar(this);
     layout_all->addWidget(title_);  
 
-    kline_wall_ = new KLineWall(app_, this);
+    kline_wall_ = new KLineWall(app_, this, 0);
     if( !kline_wall_->Init() )
         return false;
     kline_wall_->setMouseTracking(true);

@@ -41,7 +41,7 @@ public:
 class MomentumZhibiaoWin : public ZhibiaoWindow
 {
 public:
-    MomentumZhibiaoWin(KLineWall *parent) : ZhibiaoWindow(parent, 0.08){}
+    MomentumZhibiaoWin(KLineWall *parent) : ZhibiaoWindow(parent, 0.2/*0.08*/){}
 
     virtual void DrawWindow(QPainter &painter, int mm_w) override;
 };

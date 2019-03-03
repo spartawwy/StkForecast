@@ -79,7 +79,7 @@ typedef std::unordered_map<std::string, std::vector<T_Data3pForcast> > Code3pFor
 class ForcastMan
 {
 public:
-    ForcastMan();
+    ForcastMan(int wall_index);
     ~ForcastMan(){}
      
     void Append(TypePeriod type_period, const std::string &code, T_Data2pDownForcast& ); 
@@ -180,6 +180,8 @@ private:
     Code3pForcastType    stock_3pup_forcast_w_;
     Code3pForcastType    stock_3pup_forcast_mon_;
     Code3pForcastType    no_use_3p_;
+
+    int wall_index_;
 };
 
 // return: c1, c2, c3 ; ps: make sure a > b > 0;

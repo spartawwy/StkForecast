@@ -26,7 +26,7 @@ class KLineWall : public QWidget
 {
 public:
      
-    KLineWall(StkForecastApp *app, QWidget *parent);
+    KLineWall(StkForecastApp *app, QWidget *parent, int index);
 	~KLineWall() { }
 	 
     bool Init();
@@ -101,11 +101,16 @@ private:
     StkForecastApp *app_;
     MainWindow  *main_win_;
 	Ui_KLineWallForm  ui;
+    const int wall_index_;
+
     const double head_h_percent_;
     const double bottom_h_percent_;
      
     int empty_right_w_;
     int right_w_;
+    
+    int pre_mm_w_;
+    int pre_mm_h_;
     int h_axis_trans_in_paint_k_;
 
 	StockInputDlg  stock_input_dlg_;
@@ -113,9 +118,8 @@ private:
     std::string    stock_code_;
     std::string    stock_name_;
     bool           is_index_;
-    StockDataMan   stock_data_man_;              //many stocks many daysinfo 
-	T_HisDataItemContainer *p_hisdata_container_; //point to stock_data_man_'s one stock's data
-       
+   
+	T_HisDataItemContainer *p_hisdata_container_; //point to stock_data_man_'s a stock's data
     
     double lowestMinPrice_;
     double highestMaxPrice_;
@@ -143,12 +147,8 @@ private:
 
     bool mm_move_flag_;
     QPoint move_start_point_;
-
-    int pre_mm_w_;
-    int pre_mm_h_;
      
     ForcastMan  forcast_man_;
-    std::vector<T_Data2pDownForcast> data_2pforcast_downs_;
 
     std::vector<std::shared_ptr<ZhibiaoWindow> > zb_windows_;
 

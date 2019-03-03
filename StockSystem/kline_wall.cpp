@@ -29,18 +29,20 @@ static const int cst_default_year = 2017;
 static const double cst_k_mm_enlarge_times = 1.02; 
 static const double cst_k_mm_narrow_times = 0.98; 
 
-KLineWall::KLineWall(StkForecastApp *app, QWidget *parent) 
+KLineWall::KLineWall(StkForecastApp *app, QWidget *parent, int index) 
     : QWidget(parent) 
     , app_(app)
     , main_win_((MainWindow*)parent)
+    , wall_index_(index)
     , head_h_percent_(0.03)
     , bottom_h_percent_(0.04)
     , empty_right_w_(30)
     , right_w_(30)
+    , pre_mm_w_(-1)
+    , pre_mm_h_(-1)
     , h_axis_trans_in_paint_k_(0)
     , stock_code_()
     , is_index_(false)
-    , stock_data_man_(app->exchange_calendar().get())
     , p_hisdata_container_(nullptr)
     , lowestMinPrice_(99.9)
     , highestMaxPrice_(0.0)
@@ -57,8 +59,7 @@ KLineWall::KLineWall(StkForecastApp *app, QWidget *parent)
     , draw_action_(DrawAction::NO_ACTION)
     , mm_move_flag_(false)
     , move_start_point_(0, 0)
-    , pre_mm_w_(-1)
-    , pre_mm_h_(-1)
+    , forcast_man_(index)
 {
     ui.setupUi(this);
     ResetDrawState(DrawAction::NO_ACTION); 
@@ -79,12 +80,11 @@ bool KLineWall::Init()
     k_cycle_tag_ = DEFAULT_CYCLE_TAG;
     k_cycle_year_ = cst_default_year;
       
-    auto ret = stock_data_man_.Init();
-    if( ret )
+    //auto ret = app_->stock_data_man().Init();
+    //if( ret )
     {
        return ResetStock("600196", k_type_, false);
     }
-    return false;
 }
 
 void KLineWall::Draw2pDownForcast(QPainter &painter, const int mm_h, double item_w)
@@ -106,27 +106,27 @@ void KLineWall::Draw2pDownForcast(QPainter &painter, const int mm_h, double item
             T_Data2pDownForcast &data_2pforcastdown = p_data_vector->at(i);
             auto item_a = GetKLineDataItemByDate(data_2pforcastdown.date_a, data_2pforcastdown.hhmm_a);
             auto item_b = GetKLineDataItemByDate(data_2pforcastdown.date_b, data_2pforcastdown.hhmm_b);
-            if( item_a && item_a->kline_posdata.date != 0 && item_b && item_b->kline_posdata.date != 0 )
+            if( item_a && item_a->kline_posdata(wall_index_).date != 0 && item_b && item_b->kline_posdata(wall_index_).date != 0 )
             {
-                if( abs(item_a->kline_posdata.top.y()) > abs(item_b->kline_posdata.top.y()) )  // y is negative
+                if( abs(item_a->kline_posdata(wall_index_).top.y()) > abs(item_b->kline_posdata(wall_index_).top.y()) )  // y is negative
                 {  
                     pen.setStyle(Qt::SolidLine); 
                     painter.setPen(pen);  
-                    painter.drawLine(item_a->kline_posdata.top, item_b->kline_posdata.bottom);
-fronts_to_draw.push_back(std::make_tuple(QPointF(item_a->kline_posdata.top.x()-item_w/2, item_a->kline_posdata.top.y()), "A"));
-fronts_to_draw.push_back(std::make_tuple(QPointF(item_b->kline_posdata.bottom.x()-item_w/2, item_b->kline_posdata.bottom.y() + painter.font().pointSizeF()), "B"));
+                    painter.drawLine(item_a->kline_posdata(wall_index_).top, item_b->kline_posdata(wall_index_).bottom);
+fronts_to_draw.push_back(std::make_tuple(QPointF(item_a->kline_posdata(wall_index_).top.x()-item_w/2, item_a->kline_posdata(wall_index_).top.y()), "A"));
+fronts_to_draw.push_back(std::make_tuple(QPointF(item_b->kline_posdata(wall_index_).bottom.x()-item_w/2, item_b->kline_posdata(wall_index_).bottom.y() + painter.font().pointSizeF()), "B"));
                     double y1 = get_pointc_y(data_2pforcastdown.c1, mm_h);
                     double y2 = get_pointc_y(data_2pforcastdown.c2, mm_h);
                     double y3 = get_pointc_y(data_2pforcastdown.c3, mm_h);
-                    double x_b = item_b->kline_posdata.bottom.x();
+                    double x_b = item_b->kline_posdata(wall_index_).bottom.x();
                     pen.setStyle(Qt::DotLine); 
                     painter.setPen(pen);  
                     // vertical line ----
-                    painter.drawLine(item_b->kline_posdata.bottom, QPointF(x_b, y1));
+                    painter.drawLine(item_b->kline_posdata(wall_index_).bottom, QPointF(x_b, y1));
                     painter.drawLine(QPointF(x_b, y1), QPointF(x_b, y2));
                     painter.drawLine(QPointF(x_b, y2), QPointF(x_b, y3));
                     // horzon forcast line -----------
-                    double h_line_left = item_b->kline_posdata.bottom.x() - item_w;
+                    double h_line_left = item_b->kline_posdata(wall_index_).bottom.x() - item_w;
                     painter.drawLine(QPointF(h_line_left, y1), QPointF(x_b + 5*item_w, y1));
 fronts_to_draw.push_back(std::make_tuple(QPointF(h_line_left - font_size*6, y1), utility::FormatStr("C1: %.2f", data_2pforcastdown.c1))); 
 
@@ -137,11 +137,11 @@ fronts_to_draw.push_back(std::make_tuple(QPointF(h_line_left - font_size*6, y2),
 fronts_to_draw.push_back(std::make_tuple(QPointF(h_line_left - font_size*6, y3), utility::FormatStr("C3: %.2f", data_2pforcastdown.c3)));            
                 }else 
                 {
-                    painter.drawLine(item_a->kline_posdata.bottom, item_b->kline_posdata.top);
+                    painter.drawLine(item_a->kline_posdata(wall_index_).bottom, item_b->kline_posdata(wall_index_).top);
 
                 }
             }
-        } // for data_2pforcast_downs_
+        }  
 
         pen.setColor(Qt::white);
         pen.setStyle(Qt::SolidLine); 
@@ -175,25 +175,25 @@ void KLineWall::Draw2pUpForcast(QPainter &painter, const int mm_h, double item_w
         T_Data2pUpForcast &data_2pforcast = p_data_vector->at(i);
         auto item_a = GetKLineDataItemByDate(data_2pforcast.date_a, data_2pforcast.hhmm_a);
         auto item_b = GetKLineDataItemByDate(data_2pforcast.date_b, data_2pforcast.hhmm_b);
-        if( item_a && item_a->kline_posdata.date != 0 && item_b && item_b->kline_posdata.date != 0 )
+        if( item_a && item_a->kline_posdata(wall_index_).date != 0 && item_b && item_b->kline_posdata(wall_index_).date != 0 )
         {
-            if( abs(item_a->kline_posdata.top.y()) < abs(item_b->kline_posdata.top.y()) )  // y is negative
+            if( abs(item_a->kline_posdata(wall_index_).top.y()) < abs(item_b->kline_posdata(wall_index_).top.y()) )  // y is negative
             {  
                 pen.setStyle(Qt::SolidLine); 
                 painter.setPen(pen);  
-                painter.drawLine(item_a->kline_posdata.bottom, item_b->kline_posdata.top);
- fronts_to_draw.push_back(std::make_tuple(QPointF(item_a->kline_posdata.bottom.x()-item_w/2, item_a->kline_posdata.bottom.y()), "A"));
- fronts_to_draw.push_back(std::make_tuple(QPointF(item_b->kline_posdata.top.x()-item_w/2, item_b->kline_posdata.top.y() + painter.font().pointSizeF()), "B"));
+                painter.drawLine(item_a->kline_posdata(wall_index_).bottom, item_b->kline_posdata(wall_index_).top);
+ fronts_to_draw.push_back(std::make_tuple(QPointF(item_a->kline_posdata(wall_index_).bottom.x()-item_w/2, item_a->kline_posdata(wall_index_).bottom.y()), "A"));
+ fronts_to_draw.push_back(std::make_tuple(QPointF(item_b->kline_posdata(wall_index_).top.x()-item_w/2, item_b->kline_posdata(wall_index_).top.y() + painter.font().pointSizeF()), "B"));
                 double y1 = get_pointc_y(data_2pforcast.c1, mm_h);
                 double y2 = get_pointc_y(data_2pforcast.c2, mm_h);
                 double y3 = get_pointc_y(data_2pforcast.c3, mm_h);
-                double x_b = item_b->kline_posdata.bottom.x();
+                double x_b = item_b->kline_posdata(wall_index_).bottom.x();
                 pen.setStyle(Qt::DotLine); 
                 painter.setPen(pen);  
                 // vertical line ----
-                painter.drawLine(item_b->kline_posdata.top, QPointF(x_b, y3));
+                painter.drawLine(item_b->kline_posdata(wall_index_).top, QPointF(x_b, y3));
                 // horzon forcast line -----------
-                double h_line_left = item_b->kline_posdata.bottom.x() - item_w;
+                double h_line_left = item_b->kline_posdata(wall_index_).bottom.x() - item_w;
                 painter.drawLine(QPointF(h_line_left, y1), QPointF(x_b + 5*item_w, y1));
 fronts_to_draw.push_back(std::make_tuple(QPointF(h_line_left - font_size*6, y1), utility::FormatStr("C1: %.2f", data_2pforcast.c1)));
 
@@ -204,10 +204,10 @@ fronts_to_draw.push_back(std::make_tuple(QPointF(h_line_left - font_size*6, y2),
 fronts_to_draw.push_back(std::make_tuple(QPointF(h_line_left - font_size*6, y3),  utility::FormatStr("C3: %.2f", data_2pforcast.c3)));           
             }else 
             {
-                painter.drawLine(item_a->kline_posdata.top, item_b->kline_posdata.bottom);
+                painter.drawLine(item_a->kline_posdata(wall_index_).top, item_b->kline_posdata(wall_index_).bottom);
             }
         }
-    } // for data_2pforcast_downs_
+    }
 
     pen.setColor(Qt::white);
     pen.setStyle(Qt::SolidLine); 
@@ -254,25 +254,25 @@ void KLineWall::_Draw3pForcast(QPainter &painter, const int mm_h, double item_w,
         auto item_c = GetKLineDataItemByDate(data_3p_forcast.date_c, data_3p_forcast.hhmm_c);
         QPointF point_a, point_b, point_c;
         double price_a = 0.0, price_b = 0.0, price_c = 0.0;
-        if( item_a && item_a->kline_posdata.date != 0 && item_b && item_b->kline_posdata.date != 0 )
+        if( item_a && item_a->kline_posdata(wall_index_).date != 0 && item_b && item_b->kline_posdata(wall_index_).date != 0 )
         {
             if( is_down_forward )
             {
-                if( !(abs(item_a->kline_posdata.top.y()) > abs(item_b->kline_posdata.top.y())) )  // y is negative
+                if( !(abs(item_a->kline_posdata(wall_index_).top.y()) > abs(item_b->kline_posdata(wall_index_).top.y())) )  // y is negative
                     continue;
-                point_a = item_a->kline_posdata.top;
-                point_b = item_b->kline_posdata.bottom; 
-                point_c = item_c ? item_c->kline_posdata.top : QPointF(0.0, 0.0);
+                point_a = item_a->kline_posdata(wall_index_).top;
+                point_b = item_b->kline_posdata(wall_index_).bottom; 
+                point_c = item_c ? item_c->kline_posdata(wall_index_).top : QPointF(0.0, 0.0);
                 price_a = item_a->stk_item.high_price;
                 price_b = item_b->stk_item.low_price;
                 price_c = item_c ? item_c->stk_item.high_price : 0.0;
             }else
             {
-                if( !(abs(item_a->kline_posdata.bottom.y()) < abs(item_b->kline_posdata.bottom.y())) )  // y is negative
+                if( !(abs(item_a->kline_posdata(wall_index_).bottom.y()) < abs(item_b->kline_posdata(wall_index_).bottom.y())) )  // y is negative
                     continue;
-                point_a = item_a->kline_posdata.bottom;
-                point_b = item_b->kline_posdata.top; 
-                point_c = item_c ? item_c->kline_posdata.bottom : QPointF(0.0, 0.0);
+                point_a = item_a->kline_posdata(wall_index_).bottom;
+                point_b = item_b->kline_posdata(wall_index_).top; 
+                point_c = item_c ? item_c->kline_posdata(wall_index_).bottom : QPointF(0.0, 0.0);
                 price_a = item_a->stk_item.low_price;
                 price_b = item_b->stk_item.high_price;
                 price_c = item_c ? item_c->stk_item.low_price : 0.0;
@@ -350,7 +350,7 @@ void KLineWall::UpdatePosDatas()
     // clear position data
     std::for_each( std::begin(*p_hisdata_container_), std::end(*p_hisdata_container_), [this](T_HisDataItemContainer::reference entry)
     {
-        entry->kline_posdata.Clear();
+        entry->kline_posdata(wall_index_).Clear();
     });
 
 #ifdef DRAW_FROM_LEFT
@@ -390,7 +390,7 @@ void KLineWall::UpdatePosDatas()
         iter != p_hisdata_container_->rend() && j > 0; 
         ++iter, --j)
     { 
-        T_KlinePosData &pos_data = iter->get()->kline_posdata; 
+        T_KlinePosData &pos_data = iter->get()->kline_posdata(wall_index_); 
         pos_data.date = iter->get()->stk_item.date;
         pos_data.hhmm = iter->get()->stk_item.hhmmss;
         auto openPrice = (*iter)->stk_item.open_price;
@@ -546,7 +546,7 @@ void KLineWall::mousePressEvent(QMouseEvent * event )
                 return ResetDrawState(draw_action_);  
             if( item_a->stk_item.high_price > item_b->stk_item.high_price )
             {
-                drawing_line_B_ = item_b->kline_posdata.bottom;
+                drawing_line_B_ = item_b->kline_posdata(wall_index_).bottom;
                 append_3pforcast_data(true, *item_a, *item_b);
                 return;
             }else
@@ -561,7 +561,7 @@ void KLineWall::mousePressEvent(QMouseEvent * event )
 
             if( item_a->stk_item.high_price < item_b->stk_item.high_price )
             { 
-                drawing_line_B_ = item_b->kline_posdata.top; 
+                drawing_line_B_ = item_b->kline_posdata(wall_index_).top; 
                 append_3pforcast_data(false, *item_a, *item_b);
                 return;
             }else
@@ -787,7 +787,7 @@ void KLineWall::paintEvent(QPaintEvent*)
             ++iter, --j)
         { 
 #endif
-        T_KlinePosData &pos_data = iter->get()->kline_posdata;
+        T_KlinePosData &pos_data = iter->get()->kline_posdata(wall_index_);
          
         // fengxin relate -------------------
         auto rac_type = MaxFractalType((*iter)->type);
@@ -1072,7 +1072,7 @@ bool KLineWall::ResetStock(const QString& stock, TypePeriod type_period, bool is
         return tp_array[num-1];
     };
 
-    T_HisDataItemContainer & items_in_container = stock_data_man_.GetHisDataContainer(ToPeriodType(k_type_), stock.toLocal8Bit().data());
+    T_HisDataItemContainer & items_in_container = app_->stock_data_man().GetHisDataContainer(ToPeriodType(k_type_), stock.toLocal8Bit().data());
 
     if( k_type_ == type_period && stock_code_ ==  stock.toLocal8Bit().data() && !items_in_container.empty() )
         return true;
@@ -1136,14 +1136,14 @@ bool KLineWall::ResetStock(const QString& stock, TypePeriod type_period, bool is
     }
     start_date = QDate::currentDate().addDays(span_day).toString("yyyyMMdd").toInt();
       
-    p_hisdata_container_ = stock_data_man_.FindStockData(ToPeriodType(k_type_), stock_code_, start_date, cur_date, hhmm, is_index);
+    p_hisdata_container_ = app_->stock_data_man().FindStockData(ToPeriodType(k_type_), stock_code_, start_date, cur_date, hhmm, is_index);
     if( !p_hisdata_container_ )
     {
-        //p_hisdata_container_ = stock_data_man_.AppendStockData(stock_code_, 20171216, 20180108); 
-        p_hisdata_container_ = stock_data_man_.AppendStockData(ToPeriodType(k_type_), stock_code_, start_date, cur_date, is_index);
+        //p_hisdata_container_ = app_->stock_data_man().AppendStockData(stock_code_, 20171216, 20180108); 
+        p_hisdata_container_ = app_->stock_data_man().AppendStockData(ToPeriodType(k_type_), stock_code_, start_date, cur_date, is_index);
     }else
     {
-        stock_data_man_.UpdateLatestItemStockData(ToPeriodType(k_type_), stock_code_, is_index);
+        app_->stock_data_man().UpdateLatestItemStockData(ToPeriodType(k_type_), stock_code_, is_index);
     }
 	
     if( !p_hisdata_container_ )
@@ -1200,7 +1200,7 @@ void KLineWall::AppendData()
     default: break;
     }
     /*auto p_container = */
-    stock_data_man_.AppendStockData(ToPeriodType(k_type_), stock_code_, start_date, oldest_day, is_index_);
+    app_->stock_data_man().AppendStockData(ToPeriodType(k_type_), stock_code_, start_date, oldest_day, is_index_);
 }
 
 T_KlineDataItem * KLineWall::GetKLineDataItemByXpos(int x)
@@ -1218,7 +1218,7 @@ T_KlineDataItem * KLineWall::GetKLineDataItemByXpos(int x)
         ++iter, --j)
     { 
 #endif
-        T_KlinePosData &pos_data = iter->get()->kline_posdata;
+        T_KlinePosData &pos_data = iter->get()->kline_posdata(wall_index_);
         if( pos_data.x_left == CST_MAGIC_POINT.x() )
             continue;
         if( (double)x > pos_data.x_left - 0.0001 && (double)x <= pos_data.x_right + 0.0001 )
@@ -1231,7 +1231,7 @@ QPointF KLineWall::GetPointFromKLineDataItems(int x, bool is_get_top)
 {
     //ps: dont't need untranslate cause x hadn't been translated : painter.translate(0, ...); //  
     auto p_item = GetKLineDataItemByXpos(x);
-    if( p_item ) return is_get_top ? p_item->kline_posdata.top : p_item->kline_posdata.bottom;
+    if( p_item ) return is_get_top ? p_item->kline_posdata(wall_index_).top : p_item->kline_posdata(wall_index_).bottom;
     return CST_MAGIC_POINT;
 }
 
@@ -1253,15 +1253,15 @@ T_KlinePosData * KLineWall::GetKLinePosDataByDate(int date, int hhmm)
         iter != p_hisdata_container_->rend(); 
         ++iter )
     {   
-        if( iter->get()->kline_posdata.date == date && iter->get()->kline_posdata.hhmm == hhmm )
-            return std::addressof(iter->get()->kline_posdata);
+        if( iter->get()->kline_posdata(wall_index_).date == date && iter->get()->kline_posdata(wall_index_).hhmm == hhmm )
+            return std::addressof(iter->get()->kline_posdata(wall_index_));
     }
     return nullptr;
 }
 
 bool KLineWall::GetContainerMaxMinPrice(PeriodType period_type, const std::string& code, int k_num, std::tuple<float, float>& ret)
 {
-    T_HisDataItemContainer &container = stock_data_man_.GetHisDataContainer(period_type, code);
+    T_HisDataItemContainer &container = app_->stock_data_man().GetHisDataContainer(period_type, code);
     if( container.empty() )
         return false;
     assert( container.size() > k_rend_index_ );
@@ -1374,8 +1374,7 @@ void KLineWall::ResetDrawState(DrawAction action)
 }
 
 void KLineWall::ClearForcastData()
-{
-    //data_2pforcast_downs_.clear();
+{ 
    auto iter = forcast_man_.Find2pDownForcastVector(stock_code_, k_type_);
    if( iter )
        iter->clear();
@@ -1428,7 +1427,7 @@ double KLineWall::GetCurWinKLargetstVol()
 {
     double largest_vol = 0.0;
     int k = k_num_;
-    for( auto iter = p_hisdata_container_->rbegin();
+    for( auto iter = p_hisdata_container_->rbegin() + k_rend_index_;
         iter != p_hisdata_container_->rend() && k > 0; 
         ++iter, --k)
     if( (*iter)->stk_item.vol > largest_vol ) 
@@ -1449,7 +1448,7 @@ bool KLineWall::FindTopFractalItem_TowardLeft(T_HisDataItemContainer &his_data, 
     }
     if( left_tgt_iter != his_data.rend() && cp_j > 0 )
     {
-        left_pos_data = std::addressof(left_tgt_iter->get()->kline_posdata);
+        left_pos_data = std::addressof(left_tgt_iter->get()->kline_posdata(wall_index_));
         return true;
     }else
         return false;
@@ -1470,7 +1469,7 @@ bool KLineWall::FindBtmFractalItem_TowardLeft(T_HisDataItemContainer &his_data, 
 
     if( left_tgt_iter != his_data.rend() && cp_j >= 0 )
     {
-        left_pos_data = std::addressof(left_tgt_iter->get()->kline_posdata);
+        left_pos_data = std::addressof(left_tgt_iter->get()->kline_posdata(wall_index_));
         return true;
     }else
         return false;

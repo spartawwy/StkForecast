@@ -8,23 +8,21 @@
 #include "exchange_calendar.h"
 #include "database.h"
 #include "stock_man.h"
-
+ 
 #include "mainwindow.h"
-#include "kline_wall.h"
 
 StkForecastApp::StkForecastApp(int argc, char* argv[])
     : QApplication(argc, argv)
-    , ServerClientAppBase("client", "stk_forecast", "0.1")
+    , ServerClientAppBase("client", "stk_forecast", "1.0")
     , data_base_(nullptr)
     , stock_man_(nullptr)
+    , stock_data_man_(nullptr)
     , main_window_(nullptr)
 {
-
 }
 
 StkForecastApp::~StkForecastApp()
 {
-
 }
 
 bool StkForecastApp::Init()
@@ -40,6 +38,7 @@ bool StkForecastApp::Init()
     data_base_ = std::make_shared<DataBase>(this);
     if( !data_base_->Initialize() )
     {
+        QMessageBox::information(nullptr, QString::fromLocal8Bit("警告"), QString::fromLocal8Bit("数据库初始化失败!"));
         return false;
     }
     stock_man_ = std::make_shared<StockMan>();
@@ -48,8 +47,15 @@ bool StkForecastApp::Init()
     exchange_calendar_ = std::make_shared<ExchangeCalendar>();
     data_base_->LoadTradeDate(exchange_calendar_.get());
 
+    stock_data_man_ = std::make_shared<StockDataMan>(exchange_calendar_.get());
+    if( !stock_data_man_->Init() )
+    {
+        QMessageBox::information(nullptr, QString::fromLocal8Bit("警告"), QString::fromLocal8Bit("stock_data_man构件初始化失败!"));
+        return false;
+    }
     if( !stock_man_->Initialize() )
     {
+        QMessageBox::information(nullptr, QString::fromLocal8Bit("警告"), QString::fromLocal8Bit("stock_man构件初始化失败!"));
         return false;
     }
     //---------------

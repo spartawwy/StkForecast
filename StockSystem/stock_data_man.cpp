@@ -13,8 +13,9 @@
 #include <QtWidgets/QMessageBox>
 #include <QDebug>
 
- 
+#ifdef USE_PYTHON_QUOTE
 #include "py_data_man.h"
+#endif
 
 #include "tdx_hq_wrapper.h"
 #include "zhibiao.h"
@@ -76,8 +77,11 @@ StockDataMan::~StockDataMan()
 
 bool StockDataMan::Init()
 {
+    bool ret = true;
+#ifdef USE_PYTHON_QUOTE
     py_data_man_ = std::make_shared<PyDataMan>();
-    bool ret = py_data_man_->Initiate();
+    ret = py_data_man_->Initiate();
+#endif
 
 #ifdef USE_STK_QUOTER
     HMODULE moudle_handl = LoadLibrary("StkQuoter.dll");
@@ -129,7 +133,7 @@ bool StockDataMan::Init()
     }
 #elif defined(USE_TDXHQ)
 
-    tdx_hq_wrapper_.Init();
+    return tdx_hq_wrapper_.Init();
 
 #endif
 
@@ -257,8 +261,7 @@ T_HisDataItemContainer* StockDataMan::AppendStockData(PeriodType period_type, co
     
     // save data to day_stock_his_items_ and sort it ---------------------------
    
-    // only can insert to back or front 
-    //std::deque<std::shared_ptr<T_KlineDataItem> > &items_in_container = iter_already->second; 
+    // only can insert to back or front  
     if( !items_in_container.empty() )
     {
 #if  defined(USE_STK_QUOTER)
@@ -339,10 +342,7 @@ T_HisDataItemContainer* StockDataMan::AppendStockData(PeriodType period_type, co
 
     CaculateZhibiao(items_in_container);
 
-#if defined(USE_WINNER_API) 
-     delete p_stk_hisdata_item_vector_;
-     p_stk_hisdata_item_vector_ = nullptr;
-#elif defined(USE_TDXHQ)
+#if defined(USE_WINNER_API) || defined(USE_TDXHQ) 
     delete p_stk_hisdata_item_vector;
     p_stk_hisdata_item_vector = nullptr;
 #else
@@ -392,12 +392,6 @@ void StockDataMan::CaculateZhibiao(T_HisDataItemContainer &data_items_in_contain
     }
 }
 
-//// < 0 : meaning no related data
-//int StockDataMan::FindRelateIndex(PeriodType period_type, const std::string& code)
-//{
-//
-//}
-
 T_HisDataItemContainer & StockDataMan::GetHisDataContainer(PeriodType period_type, const std::string& code)
 {
     T_CodeMapHisDataItemContainer *p_code_map_container = nullptr;
@@ -423,7 +417,7 @@ float StockDataMan::GetHisDataLowestMinPrice(PeriodType period_type, const std::
 { 
 	float lowestMinPrice = MAX_PRICE; 
     assert(start_date <= end_date);
-    auto index_tuple = GetDateIndxFromContainer(period_type, code, start_date, end_date);
+    auto index_tuple = GetDateIndexFromContainer(period_type, code, start_date, end_date);
     if( index_tuple == std::make_tuple(-1, -1) )
         return lowestMinPrice;
     T_HisDataItemContainer & container = GetHisDataContainer(period_type, code);
@@ -443,7 +437,7 @@ float StockDataMan::GetHisDataHighestMaxPrice(PeriodType period_type, const std:
 {
     float higestMaxPrice = MIN_PRICE; 
     assert(start_date <= end_date);
-    auto index_tuple = GetDateIndxFromContainer(period_type, code, start_date, end_date);
+    auto index_tuple = GetDateIndexFromContainer(period_type, code, start_date, end_date);
     if( index_tuple == std::make_tuple(-1, -1) )
         return higestMaxPrice;
 
@@ -460,7 +454,7 @@ float StockDataMan::GetHisDataHighestMaxPrice(PeriodType period_type, const std:
 }
 
 // <-1, -1>: fail
-std::tuple<int, int> StockDataMan::GetDateIndxFromContainer(PeriodType period_type, const std::string& stock, int start_date, int end_date)
+std::tuple<int, int> StockDataMan::GetDateIndexFromContainer(PeriodType period_type, const std::string& stock, int start_date, int end_date)
 {
     assert(start_date <= end_date);
     //std::tuple<int, int> result = std::make_tuple(-1, -1);

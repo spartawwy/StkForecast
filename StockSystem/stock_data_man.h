@@ -1,8 +1,8 @@
 ﻿#ifndef STOCK_DATA_MAN_H
 #define STOCK_DATA_MAN_H
 
-#include <list>
-#include <iostream>
+//#include <list>
+//#include <iostream>
 #include <memory>
 #include <unordered_map>
 #include <vector>
@@ -10,13 +10,13 @@
 #include "stkfo_common.h"
 
 #include "stockdayinfo.h"
+
 #include "stk_quoter_api.h"
+ 
 #include "winner_hq_api.h"
-
+  
 #include "tdx_hq_wrapper.h"
-
-//typedef std::list<T_StockHisDataItem>  T_HisDataItemList;
-//typedef std::vector<std::shared_ptr<T_KlineDataItem> >  T_HisDataItemContainer;
+ 
 
 TypePeriod ToTypePeriod(PeriodType src);
 
@@ -32,9 +32,6 @@ public:
     //std::vector<std::shared_ptr<T_KlineDataItem> > &day_kline_data_container() { return day_kline_data_container_; }
     ExchangeCalendar * exchange_calendar() { return p_exchange_calendar_;}
 public:
-    //list容器，数据类型为一只股票一天的消息，是StockDataMan的数据成员
-    //std::list<StockDayInfo> stockAllDaysInfoList;
-    
 
     //从fileName指定的磁盘路径中将数据一行一行读取出来，每一行初始化一个StockDayInfo对象
     //void LoadDataFromFile(std::string &fileName);
@@ -49,9 +46,8 @@ public:
 	float GetHisDataLowestMinPrice(PeriodType period_type, const std::string& code, int start_date, int end_date);
 	float GetHisDataHighestMaxPrice(PeriodType period_type, const std::string& code, int start_date, int end_date);
 
-public:
-    //// < 0 : meaning no related data
-    //int FindRelateIndex(PeriodType period_type, const std::string& code, int date);
+public: 
+
     T_HisDataItemContainer &GetHisDataContainer(PeriodType period_type, const std::string& code);
     // (stock , data)  date is from small to big
     T_CodeMapHisDataItemContainer m5_stock_his_items_;
@@ -64,13 +60,10 @@ public:
 #ifndef USE_STK_QUOTER
     std::vector<T_StockHisDataItem> *p_stk_hisdata_item_vector_;
     bool is_fetched_stk_hisdata_;
-    //bool is_index_; // such as szzs
-#else
-
 #endif 
 private:
-    //std::vector<std::shared_ptr<T_KlineDataItem> > GetDataItemFromContainer(PeriodType period_type, const std::string& code, int start_date, int end_date);
-    std::tuple<int, int> GetDateIndxFromContainer(PeriodType period_type, const std::string& stock, int start_date, int end_date);
+
+    std::tuple<int, int> GetDateIndexFromContainer(PeriodType period_type, const std::string& stock, int start_date, int end_date);
     void CaculateZhibiao(T_HisDataItemContainer &data_items_in_container);
 
 private:
@@ -86,9 +79,11 @@ private:
 #elif defined(USE_TDXHQ)
     TdxHqWrapper  tdx_hq_wrapper_;
 #endif
-    std::shared_ptr<PyDataMan> py_data_man_;
      
-    //std::vector<std::shared_ptr<T_KlineDataItem> > day_kline_data_container_;
+#ifdef USE_PYTHON_QUOTE
+    std::shared_ptr<PyDataMan> py_data_man_;
+#endif
+  
    std::vector<ZhibiaoType> zhibiao_types_;
    ExchangeCalendar *p_exchange_calendar_;
 };

@@ -27,8 +27,8 @@
 //#define TOP_AXIS_T_9     0x00000100
 //#define TOP_AXIS_T_11    0x00000200
 
-//#define USE_STK_QUOTER
-//#define USE_WINNER_API
+//#define USE_STK_QUOTER  // get k line info from stk quoter
+//#define USE_WINNER_API  // get k line info from winnersystem 
 #define USE_TDXHQ
 
 enum class FractalType : int
@@ -138,10 +138,10 @@ class T_KlineDataItem //_t_kline_dataitem
 {
 public:
     T_StockHisDataItem  stk_item;
-    T_KlinePosData  kline_posdata;
+    
     int  type;
     std::vector<std::shared_ptr<ZhiBiaoAtom> > zhibiao_atoms;
-    T_KlineDataItem() : type(int(FractalType::UNKNOW_FRACTAL)), kline_posdata()
+    T_KlineDataItem() : type(int(FractalType::UNKNOW_FRACTAL)), kline_posdata_1(), kline_posdata_0()
     {
         memset(&stk_item, 0, sizeof(stk_item));
     }
@@ -151,7 +151,7 @@ public:
             return;
         CreateHelper(lh);
     }
-    explicit T_KlineDataItem(T_KlineDataItem && lh): stk_item(std::move(lh.stk_item)), kline_posdata(std::move(lh.kline_posdata))
+    explicit T_KlineDataItem(T_KlineDataItem && lh): stk_item(std::move(lh.stk_item)), kline_posdata_1(std::move(lh.kline_posdata_1)), kline_posdata_0(std::move(lh.kline_posdata_0))
         , zhibiao_atoms(std::move(lh.zhibiao_atoms))
     {  
     }
@@ -162,17 +162,26 @@ public:
         CreateHelper(lh);
         return *this;
     }
-    explicit T_KlineDataItem(const T_StockHisDataItem & stock_his_data_item): type(int(FractalType::UNKNOW_FRACTAL)), kline_posdata()
+    explicit T_KlineDataItem(const T_StockHisDataItem & stock_his_data_item): type(int(FractalType::UNKNOW_FRACTAL)), kline_posdata_0(), kline_posdata_1()
     {
         memcpy(&stk_item, &stock_his_data_item, sizeof(stock_his_data_item)); 
     }
+    T_KlinePosData & kline_posdata(int index = 0)
+    {
+        if( index == 0 ) return kline_posdata_0;
+        else return kline_posdata_1;
+    }
+
 private:
     void CreateHelper(const T_KlineDataItem & lh)
     {
-        memcpy(&stk_item, &lh.stk_item, sizeof(lh.stk_item)); 
-        this->kline_posdata = lh.kline_posdata;
+        memcpy(&stk_item, &lh.stk_item, sizeof(lh.stk_item));
+        this->kline_posdata_0 = lh.kline_posdata_0;
+        this->kline_posdata_1 = lh.kline_posdata_1;
         this->zhibiao_atoms = lh.zhibiao_atoms;
     }
+    T_KlinePosData  kline_posdata_0;
+    T_KlinePosData  kline_posdata_1;
 };
 
 class T_StockBaseInfoItem

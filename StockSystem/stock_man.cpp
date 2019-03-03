@@ -3,10 +3,10 @@
 #include <qt_windows.h>
 #include <cassert>
 
+#ifdef USE_PYTHON_QUOTE
 #include "py_data_man.h"
-//#include "database.h"
-
-//StockMan::StockMan(std::shared_ptr<Database>& db) : data_base_(db)
+#endif
+ 
 StockMan::StockMan()  
  : code_stock_baseinfo_item_map_(4*1024)
  , pinyin_stock_baseinfo_item_map_(4*1024)
@@ -33,8 +33,4 @@ void StockMan::GetStockData(TypePeriod kline_type, const std::string &stk_code, 
 
     }
 }
-
-//bool StockMan::LoadAllStockBaseInfo()
-//{
-//
-//}
+ 
