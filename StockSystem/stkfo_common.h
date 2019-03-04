@@ -189,6 +189,7 @@ class T_StockBaseInfoItem
 public:
     T_StockBaseInfoItem() : time_to_market(0){}
     std::string code;
+    int type;  // 0--normal stock 1--index code
     std::string pinyin;
     std::string name;
     int  time_to_market;

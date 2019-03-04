@@ -49,7 +49,7 @@ void StockInputDlg::FlushFromStationListWidget(QString str)
      
     std::for_each( std::begin(stockCodeNames), std::end(stockCodeNames), [this](T_StockCodeName& entry)
     {  
-        this->m_list_hint_->addItem( QString("%1/%2").arg(entry.code.c_str()).arg(QString::fromLocal8Bit(entry.name.c_str())) );
+        this->m_list_hint_->addItem( QString("%1/%2/%3").arg(entry.code.c_str()).arg(QString::fromLocal8Bit(entry.name.c_str())).arg(entry.type) );
     });
     if( m_list_hint_->count() > 0 )
     {

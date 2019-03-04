@@ -13,8 +13,9 @@ struct T_StockCodeName
 {
     std::string code;
     std::string name;
-    T_StockCodeName(const std::string &cd, const std::string &nm) : code(cd), name(nm){}
-    T_StockCodeName(const T_StockCodeName &lh) : code(lh.code), name(lh.name){}
+    int type;  // 0 --normal stock ; 1--index 
+    T_StockCodeName(const std::string &cd, const std::string &nm, int tp) : code(cd), name(nm), type(tp){}
+    T_StockCodeName(const T_StockCodeName &lh) : code(lh.code), name(lh.name), type(lh.type){}
 };
 namespace SQLite
 {

@@ -95,13 +95,48 @@ class STOCKBASIC:
         #if count < len(stock_info.index):
             #self.cur.execute("DELETE FROM stock")
             #self.g_db_conn.commit()
+        type = 0; # 0--stock 1--index 
         num = 0
         for i in stock_info.index:
             py_str = ''.join(self.getpinyinhead(stock_info.ix[i]['name'])) 
-            sql = "INSERT OR REPLACE INTO stock VALUES(?, ?, ?, ?, ?, ?, '')"
-            self.cur.execute(sql, (i, stock_info.ix[i]['name'], py_str, str(stock_info.ix[i]['timeToMarket']), stock_info.ix[i]['industry'], stock_info.ix[i]['area']))
+            sql = "INSERT OR REPLACE INTO stock VALUES(?, ?, ?, ?, ?, ?, ?, '')"
+            self.cur.execute(sql, (i, type, stock_info.ix[i]['name'], py_str, str(stock_info.ix[i]['timeToMarket']), stock_info.ix[i]['industry'], stock_info.ix[i]['area']))
             #print("{}, {}, {}, {}, {}, {}, ''".format(i, stock_info.ix[i]['name'], py_str, str(stock_info.ix[i]['timeToMarket']), stock_info.ix[i]['industry'], stock_info.ix[i]['area']))
             num += 1
+         
+        type = 1; # 0--stock 1--index 
+        index_array = [('999999', '上证指数', 'SZZS')
+                       , ('399001', '深圳成指', 'SZCZ')
+                       , ('399006', '创业板指', 'CYBZ')
+                       , ('399101', '中小板综', 'ZXBZ')
+                       , ('000016', '上证50', 'SZ50')
+                       , ('IF300', '沪深300', 'HS300')
+                       , ('IF300', '上证500', 'IC500')
+                       , ('880529', '次新股指', 'CXGZ')
+                       , ('880471', '银行指数', 'YHZS')
+                       , ('880472', '证券指数', 'ZQZS')
+                       , ('880473', '保险指数', 'BXZS')
+                       , ('880301', '煤炭指数', 'MTZS')
+                       , ('880310', '石油指数', 'SYZS')
+                       , ('880318', '钢铁指数', 'GTZS')
+                       , ('880310', '石油指数', 'SYZS')
+                       , ('880324', '有色指数', 'YSZS')
+                       , ('880400', '医药指数', 'YYZS')
+                       , ('880380', '酒类指数', 'JLZS')
+                       , ('880507', '军工指数', 'JGZS')
+                       , ('880482', '房产指数', 'FCZS')
+                       , ('880490', '通信设备', 'TXSB')
+                       , ('880948', '人工智能', 'RGZN')
+                       , ('880534', '锂电池', 'LDC')
+                       , ('880492', '元器件', 'YQJ')
+                       , ('880456', '环境保护', 'HJBH')
+                       ]
+        for i in range(0, len(index_array)):
+            sql = "INSERT OR REPLACE INTO stock VALUES(?, ?, ?, ?, 0, '', '', '')"
+            self.cur.execute(sql, (index_array[i][0], type, index_array[i][1], index_array[i][2]))
+            print("insert {} {} {} {}".format(index_array[i][0], type, index_array[i][1], index_array[i][2]))
+            num += 1
+            
         self.g_db_conn.commit()
         print("has insert or replace {} records".format(num))
         return "ok"

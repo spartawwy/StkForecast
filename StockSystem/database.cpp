@@ -58,17 +58,18 @@ void DataBase::LoadAllStockBaseInfo(std::shared_ptr<StockMan> &stock_man)
         , "DataBase::LoadAllStockBaseInfo"
         , "can't find table stock: ");
 
-    std::string sql = utility::FormatStr("SELECT code, name, pinyin, timeToMarket, industry, area, remark FROM stock ORDER BY code");
+    std::string sql = utility::FormatStr("SELECT code, type, name, pinyin, timeToMarket, industry, area, remark FROM stock ORDER BY code");
     db_conn_->ExecuteSQL(sql.c_str(), [this, &stock_man](int /*num_cols*/, char** vals, char** /*names*/)->int
     {
         auto item = std::make_shared<T_StockBaseInfoItem>();
         item->code = *vals;
-        item->name = *(vals + 1);
-        item->pinyin = *(vals + 2);
-        item->time_to_market = boost::lexical_cast<int>(*(vals + 3));
-        item->industry = *(vals + 4);
-        item->area = *(vals + 5);
-        item->remark = *(vals + 6);
+        item->type = boost::lexical_cast<int>(*(vals + 1));
+        item->name = *(vals + 2);
+        item->pinyin = *(vals + 3);
+        item->time_to_market = boost::lexical_cast<int>(*(vals + 4));
+        item->industry = *(vals + 5);
+        item->area = *(vals + 6);
+        item->remark = *(vals + 7);
         stock_man->pinyin_stock_baseinfo_item_map_.insert( std::make_pair(item->pinyin, item) );
         stock_man->code_stock_baseinfo_item_map_.insert( std::make_pair(item->code, std::move(item)) );
         return 0;
@@ -123,13 +124,13 @@ void DataBase::GetStockCode(const std::string &code, std::vector<T_StockCodeName
     std::string sql;
     if( IsStrAlpha(code) )
     {
-        sql = utility::FormatStr("SELECT code, name from stock WHERE pinyin like '%s%%' ORDER BY code LIMIT 5", code.c_str());
+        sql = utility::FormatStr("SELECT code, name, type from stock WHERE pinyin like '%s%%' ORDER BY code LIMIT 5", code.c_str());
     }else if( IsStrNum(code) )
     {
-        sql = utility::FormatStr("SELECT code, name from stock WHERE code like '%s%%' ORDER BY code LIMIT 5", code.c_str());
+        sql = utility::FormatStr("SELECT code, name, type from stock WHERE code like '%s%%' ORDER BY code LIMIT 5", code.c_str());
     }else
     {
-        sql = utility::FormatStr("SELECT code, name from stock WHERE name like '%s%%' ORDER BY code LIMIT 5", code.c_str());
+        sql = utility::FormatStr("SELECT code, name, type from stock WHERE name like '%s%%' ORDER BY code LIMIT 5", code.c_str());
     }
 
     if( !utility::ExistTable("stock", *db_conn_) )
@@ -141,8 +142,9 @@ void DataBase::GetStockCode(const std::string &code, std::vector<T_StockCodeName
       code_name.code = *vals;
       code_name.name = *(vals + 1);*/
         std::string name = *(vals + 1);
+        int type = boost::lexical_cast<int>(*(vals + 2));
         utf8ToGbk(name);
-        ret.emplace_back(*vals, std::move(name));
+        ret.emplace_back(*vals, std::move(name), type);
         return 0;
     });
     return;
