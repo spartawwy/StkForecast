@@ -14,9 +14,10 @@ namespace Ui
     class MainWindow;
 }
 class StkForecastApp;
-class KLineWall;
 class TitleBar;
 class ToolBar;
+class KLineWall;
+class CodeListWall;
 class MainWindow : public QMainWindow 
 {
     Q_OBJECT
@@ -57,6 +58,7 @@ private:
     ToolBar        *tool_bar_;
     TitleBar       *title_;
     KLineWall      *kline_wall_;
+    CodeListWall   *code_list_wall_;
     //DayKLineDialog *dayKLineDialog;
 
 private slots:

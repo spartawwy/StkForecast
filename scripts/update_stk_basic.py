@@ -130,6 +130,9 @@ class STOCKBASIC:
                        , ('880534', '锂电池', 'LDC')
                        , ('880492', '元器件', 'YQJ')
                        , ('880456', '环境保护', 'HJBH')
+                       , ('880506', '5G概念', '5GGN')
+                       , ('880945', 'OLED概念', 'OLEDGN')
+                       , ('880540', '创投概念', 'CTGN')
                        ]
         for i in range(0, len(index_array)):
             sql = "INSERT OR REPLACE INTO stock VALUES(?, ?, ?, ?, 0, '', '', '')"

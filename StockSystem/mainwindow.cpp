@@ -20,6 +20,7 @@
 #include "kline_wall.h"
 #include "title_bar.h"
 #include "tool_bar.h"
+#include "code_list_wall.h"
 
 using namespace std;
 
@@ -30,6 +31,7 @@ MainWindow::MainWindow(StkForecastApp *app, QWidget *parent) :
     , tool_bar_(nullptr)
     , title_(nullptr)
     , kline_wall_(nullptr)
+    , code_list_wall_(nullptr)
 {
     ui->setupUi(this);
      
@@ -69,9 +71,15 @@ bool MainWindow::Initialize()
     bool ret = connect(tool_bar_->cycle_comb(), SIGNAL(currentIndexChanged(int)), this, SLOT(onCycleChange(int)));
     ret = ret;
      
+    code_list_wall_ = new CodeListWall(app_, this);
+    code_list_wall_->Init();
+
     layout_all->addWidget(tool_bar_);  
     layout_all->addWidget(kline_wall_);  
-      
+    layout_all->addWidget(code_list_wall_);  
+
+    kline_wall_->hide();
+
     wd->setLayout(layout_all);  
     this->setCentralWidget(wd);  
     kline_wall_->setFocusPolicy(Qt::StrongFocus);
@@ -158,6 +166,21 @@ bool MainWindow::eventFilter(QObject *o, QEvent *e)
 
 void MainWindow::keyPressEvent(QKeyEvent *e)
 {
+    switch(e->key())
+    {
+        case Qt::Key_F5:
+        {
+            kline_wall_->show();
+            code_list_wall_->hide();
+        } break;
+        case Qt::Key_F6:
+        {
+            kline_wall_->hide();
+            code_list_wall_->show();
+        } break;
+        default:
+            break;
+    }
     e->ignore();
 }
 

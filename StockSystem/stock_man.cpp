@@ -26,7 +26,7 @@ bool StockMan::Initialize()
     return true;
 }
 
-void StockMan::GetStockData(TypePeriod kline_type, const std::string &stk_code, int /*start_date*/, int /*end_date*/)
+void StockMan::GetStockData(TypePeriod /*kline_type*/, const std::string &/*stk_code*/, int /*start_date*/, int /*end_date*/)
 { 
 #ifdef USE_PYTHON_QUOTE
     assert(stk_code.length() == 6 );

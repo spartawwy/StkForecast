@@ -149,6 +149,9 @@
     <ClCompile Include="Release\moc_stockinput_dlg.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
+    <ClCompile Include="code_list_wall.cpp">
+      <Filter>win</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="klinewall.ui">
@@ -171,6 +174,9 @@
     </CustomBuild>
     <CustomBuild Include="stockinput_dlg.h">
       <Filter>win</Filter>
+    </CustomBuild>
+    <CustomBuild Include="codelistwall.ui">
+      <Filter>Form Files</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
@@ -264,6 +270,12 @@
     </ClInclude>
     <ClInclude Include="zhibiao.h">
       <Filter>moudle</Filter>
+    </ClInclude>
+    <ClInclude Include="code_list_wall.h">
+      <Filter>win</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_codelistwall.h">
+      <Filter>Generated Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
