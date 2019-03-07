@@ -742,8 +742,8 @@ void KLineWall::paintEvent(QPaintEvent*)
     font.setPointSize(HeadHeight() * 0.9); 
     painter.setFont(font);
 
-    QString code_name = QString::fromLocal8Bit((stock_code_ + stock_name_).c_str());
-    painter.drawText(mm_w - right_w_ - 70 - 70, -1 * (h_axis_trans_in_paint_k_ - font.pointSize()), code_name);
+    QString code_name = QString::fromLocal8Bit((stock_code_ + stock_name_).c_str()); 
+    painter.drawText(mm_w - right_w_ - code_name.size() * font.pointSize(), -1 * (h_axis_trans_in_paint_k_ - font.pointSize()*1.2), code_name);
      
     painter.setFont(old_font); 
     

@@ -78,7 +78,7 @@ bool MainWindow::Initialize()
     layout_all->addWidget(kline_wall_);  
     layout_all->addWidget(code_list_wall_);  
 
-    kline_wall_->hide();
+    code_list_wall_->hide();
 
     wd->setLayout(layout_all);  
     this->setCentralWidget(wd);  
