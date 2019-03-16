@@ -46,6 +46,8 @@ void TraverseSetUpwardFractal( std::deque<std::shared_ptr<T_KlineDataItem> > &kl
 // 上分形遍历
 void TraverseSetDownwardFractal( std::deque<std::shared_ptr<T_KlineDataItem> > &kline_data_items);
 
+void TraverseAjustFractal( std::deque<std::shared_ptr<T_KlineDataItem> > &kline_data_items);
+
 StockDataMan::StockDataMan(ExchangeCalendar *p_exchange_calendar)
     : m5_stock_his_items_(1024)
     , m15_stock_his_items_(1024)
@@ -353,6 +355,8 @@ T_HisDataItemContainer* StockDataMan::AppendStockData(PeriodType period_type, co
 
     TraverseSetDownwardFractal(items_in_container);
     
+    TraverseAjustFractal(items_in_container);
+
 	return std::addressof(items_in_container);
 
 }
@@ -492,6 +496,8 @@ std::tuple<int, int> StockDataMan::GetDateIndexFromContainer(PeriodType period_t
     return std::make_tuple(start_index, end_index);
 }
 
+// \/ 
+// kline_data_items[0] is smallest time
 void TraverseSetUpwardFractal( std::deque<std::shared_ptr<T_KlineDataItem> > &kline_data_items)
 {
     if( kline_data_items.size() < 1 )
@@ -519,35 +525,39 @@ void TraverseSetUpwardFractal( std::deque<std::shared_ptr<T_KlineDataItem> > &kl
                     index_to_check = k;
                 } 
                 --k;
-            }else
-            { 
+            }else if( kline_data_items[k]->stk_item.low_price < kline_data_items[index_to_check]->stk_item.low_price )
                 break;
-            }
-            
+            else
+                --k;
         }
          
         if( n_fractal_ahead > 0 )
         {   // search fractal follow  --------  
             index_to_check = index;
+            bool is_transfer_k = false;
             for( unsigned int k = index + 1; k < kline_data_items.size(); )
             {
                 if( kline_data_items[k]->stk_item.low_price > kline_data_items[index_to_check]->stk_item.low_price )
                 {
-                    if( kline_data_items[k]->stk_item.low_price > kline_data_items[index_to_check]->stk_item.high_price )
+                    if( !is_transfer_k && kline_data_items[k]->stk_item.low_price > kline_data_items[index_to_check]->stk_item.high_price )
                     {
                         // it's transfer k line 
+                        is_transfer_k = true;
                     }else if( kline_data_items[k]->stk_item.high_price > kline_data_items[index_to_check]->stk_item.high_price )
                     {
                         //kline_data_items[k]->type |= UPWARD_FRACTAL;
                         ++n_fractal_follow;
                         index_to_check = k; 
+                        is_transfer_k = false;
                     } /* {else
                        kline_data_items[k]->type |= INSUFFIC_FRACTAL; 
                        }*/
                     ++k;
                      
-                }else
+                }else if( kline_data_items[k]->stk_item.low_price < kline_data_items[index_to_check]->stk_item.low_price )
                     break;
+                else
+                    ++k;
             }
         }
 
@@ -575,6 +585,7 @@ void TraverseSetUpwardFractal( std::deque<std::shared_ptr<T_KlineDataItem> > &kl
     }//while
 }
 
+// /\ 
 void TraverseSetDownwardFractal( std::deque<std::shared_ptr<T_KlineDataItem> > &kline_data_items)
 {
     if( kline_data_items.size() < 1 )
@@ -602,35 +613,39 @@ void TraverseSetDownwardFractal( std::deque<std::shared_ptr<T_KlineDataItem> > &
                     index_to_check = k;
                 } 
                 --k;
-            }else
-            { 
+            }else if( kline_data_items[k]->stk_item.high_price > kline_data_items[index_to_check]->stk_item.high_price )
                 break;
-            }
-            
+            else
+                --k;
         }
          
         if( n_fractal_ahead > 0 )
         {   // search fractal follow  --------  
             index_to_check = index;
+            bool is_transfer_k = false;
             for( unsigned int k = index + 1; k < kline_data_items.size(); )
             {
                 if( kline_data_items[k]->stk_item.high_price < kline_data_items[index_to_check]->stk_item.high_price )
                 {
-                    if( kline_data_items[k]->stk_item.high_price < kline_data_items[index_to_check]->stk_item.low_price )
+                    if( !is_transfer_k && kline_data_items[k]->stk_item.high_price < kline_data_items[index_to_check]->stk_item.low_price )
                     {
                         // it's transfer k line 
+                        is_transfer_k = true;
                     }else if( kline_data_items[k]->stk_item.low_price < kline_data_items[index_to_check]->stk_item.low_price )
                     {
                         //kline_data_items[k]->type |= UPWARD_FRACTAL;
                         ++n_fractal_follow;
                         index_to_check = k; 
+                        is_transfer_k = false;
                     } /* {else
                        kline_data_items[k]->type |= INSUFFIC_FRACTAL; 
                        }*/
                     ++k;
                      
-                }else
+                }else if( kline_data_items[k]->stk_item.high_price > kline_data_items[index_to_check]->stk_item.high_price )
                     break;
+                else
+                    ++k;
             }
         }
 
@@ -658,6 +673,52 @@ void TraverseSetDownwardFractal( std::deque<std::shared_ptr<T_KlineDataItem> > &
     }//while
 }
 
+void TraverseAjustFractal( std::deque<std::shared_ptr<T_KlineDataItem> > &kline_data_items)
+{
+    static auto find_left_btm_frac = [](std::deque<std::shared_ptr<T_KlineDataItem> > &kline_data_items, int index)->int
+    {
+        int i = index;
+        while( --i >= 0 )
+        {
+            if( BtmestFractalType(kline_data_items[i]->type) != FractalType::UNKNOW_FRACTAL )
+                return i;
+        }
+        return -1;
+    };
+    static auto find_left_top_frac = [](std::deque<std::shared_ptr<T_KlineDataItem> > &kline_data_items, int index)->int
+    {
+        int i = index;
+        while( --i >= 0 )
+        {
+            if( MaxFractalType(kline_data_items[i]->type) >= FractalType::TOP_AXIS_T_3 )
+                return i;
+        }
+        return -1;
+    };
+
+    if( kline_data_items.size() < 1 )
+        return;
+    unsigned int index = kline_data_items.size();
+    while( --index > 0 )
+    {
+        if( kline_data_items[index]->type == (int)FractalType::UNKNOW_FRACTAL )
+            continue;
+        if( BtmestFractalType(kline_data_items[index]->type) != FractalType::UNKNOW_FRACTAL ) // btm frac
+        {
+            int i = find_left_btm_frac(kline_data_items, index);
+            int j = find_left_top_frac(kline_data_items, index);
+            if( i > j )
+                kline_data_items[index]->type = (int)FractalType::UNKNOW_FRACTAL;
+        }
+        else if( MaxFractalType(kline_data_items[index]->type) >= FractalType::TOP_AXIS_T_3 ) // top frac
+        {
+            int i = find_left_btm_frac(kline_data_items, index);
+            int j = find_left_top_frac(kline_data_items, index);
+            if( i < j )
+                kline_data_items[index]->type = (int)FractalType::UNKNOW_FRACTAL;
+        }
+    }
+}
 
 TypePeriod ToTypePeriod(PeriodType src)
 {

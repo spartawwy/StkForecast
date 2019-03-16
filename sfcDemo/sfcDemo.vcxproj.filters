@@ -44,5 +44,8 @@
     <ClCompile Include="little_test.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="test_json.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

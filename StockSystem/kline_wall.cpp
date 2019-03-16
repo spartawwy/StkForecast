@@ -805,8 +805,10 @@ void KLineWall::paintEvent(QPaintEvent*)
             T_KlinePosData *left_pos_data = nullptr;
             if( rac_type <= FractalType::BTM_AXIS_T_11 ) // bottom fractal 
             {   //painter.drawText(pos_data.bottom.x(), pos_data.bottom.y(), "BTM");
-                if( FindTopFractalItem_TowardLeft(*p_hisdata_container_, iter, j, left_pos_data) )
+                if( FindTopFractalItem_TowardLeft(*p_hisdata_container_, iter, j, left_pos_data) > 0 )
+                {
                     painter.drawLine(pos_data.bottom.x(), pos_data.bottom.y(), left_pos_data->top.x(), left_pos_data->top.y());
+                }
             }else // top fractal 
             {   //painter.drawText(pos_data.top.x(), pos_data.top.y(), "TOP");
                 if( FindBtmFractalItem_TowardLeft(*p_hisdata_container_, iter, j, left_pos_data) )
@@ -1482,7 +1484,7 @@ double KLineWall::GetCurWinKLargetstVol()
     return largest_vol;
 }
 
-bool KLineWall::FindTopFractalItem_TowardLeft(T_HisDataItemContainer &his_data, T_HisDataItemContainer::reverse_iterator iter, int k_index, T_KlinePosData *&left_pos_data)
+int KLineWall::FindTopFractalItem_TowardLeft(T_HisDataItemContainer &his_data, T_HisDataItemContainer::reverse_iterator iter, int k_index, T_KlinePosData *&left_pos_data)
 {
     auto left_tgt_iter = iter + 1;
     int cp_j = k_index - 1;
@@ -1496,13 +1498,13 @@ bool KLineWall::FindTopFractalItem_TowardLeft(T_HisDataItemContainer &his_data, 
     if( left_tgt_iter != his_data.rend() && cp_j > 0 )
     {
         left_pos_data = std::addressof(left_tgt_iter->get()->kline_posdata(wall_index_));
-        return true;
+        return cp_j;
     }else
-        return false;
+        return 0;
 }
 
 
-bool KLineWall::FindBtmFractalItem_TowardLeft(T_HisDataItemContainer &his_data, T_HisDataItemContainer::reverse_iterator iter, int k_index, T_KlinePosData *&left_pos_data)
+int KLineWall::FindBtmFractalItem_TowardLeft(T_HisDataItemContainer &his_data, T_HisDataItemContainer::reverse_iterator iter, int k_index, T_KlinePosData *&left_pos_data)
 {
     auto left_tgt_iter = iter + 1;
     int cp_j = k_index - 1;
@@ -1514,12 +1516,12 @@ bool KLineWall::FindBtmFractalItem_TowardLeft(T_HisDataItemContainer &his_data, 
             break;
     }
 
-    if( left_tgt_iter != his_data.rend() && cp_j >= 0 )
+    if( left_tgt_iter != his_data.rend() && cp_j > 0 )
     {
         left_pos_data = std::addressof(left_tgt_iter->get()->kline_posdata(wall_index_));
-        return true;
+        return cp_j;
     }else
-        return false;
+        return 0;
 }
 
 int KLineWall::Calculate_k_mm_h()

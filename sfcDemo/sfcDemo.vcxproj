@@ -53,7 +53,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(PYTHONPATH)\include;.\;..\TlsHqApi;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(PYTHONPATH)\include;.\;..\TlsHqApi;z:\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -91,6 +91,7 @@
     <ClCompile Include="python_get_data.cpp" />
     <ClCompile Include="sfcDemo.cpp" />
     <ClCompile Include="little_test.cpp" />
+    <ClCompile Include="test_json.cpp" />
     <ClCompile Include="test_tsl_hqapi.cpp" />
     <ClCompile Include="try_get_stock_data.cpp" />
     <ClCompile Include="stdafx.cpp" />
