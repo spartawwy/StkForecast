@@ -1020,8 +1020,24 @@ void KLineWall::keyPressEvent(QKeyEvent *e)
     assert(p_hisdata_container_);
     assert(p_hisdata_container_->size() >  k_rend_index_ );
     auto key_val = e->key();
+    if( (e->modifiers() & Qt::ControlModifier) )
+    {
+        if( key_val == Qt::Key_Z )
+        {
+            // : add to code list
+            main_win_->AddCode2CodeList(stock_code_.c_str(), QString::fromLocal8Bit(stock_name_.c_str()), is_index_);
+            e->ignore();
+            return;
+        }
+    }
+
     switch( key_val )
     {
+    case Qt::Key_F3:
+        {
+            ResetStock("999999", QString::fromLocal8Bit("上证指数"), true);
+            break;
+        }
     case Qt::Key_Up:  //zoom out 
         {
             if( p_hisdata_container_->empty() )

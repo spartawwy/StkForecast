@@ -54,6 +54,18 @@
     <Filter Include="include\tdxhq">
       <UniqueIdentifier>{e37f4162-6998-4ded-b6de-bd48b215bc69}</UniqueIdentifier>
     </Filter>
+    <Filter Include="moudle\ui_moudle">
+      <UniqueIdentifier>{8cf90e0a-ee2d-4bdc-89bb-bbbbed548746}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="moudle\tdx">
+      <UniqueIdentifier>{7b0db0fd-5ae5-4d91-b72f-3c7a904ae28f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="moudle\python">
+      <UniqueIdentifier>{33da4693-c0ff-4697-97bc-2c9a215e4a81}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="moudle\zhibiao">
+      <UniqueIdentifier>{2ffda6bd-1fbc-4b90-b981-569a800a26d9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -80,9 +92,6 @@
     <ClCompile Include="stkfo_common.cpp">
       <Filter>include</Filter>
     </ClCompile>
-    <ClCompile Include="title_bar.cpp">
-      <Filter>moudle</Filter>
-    </ClCompile>
     <ClCompile Include="Debug\moc_title_bar.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
@@ -94,12 +103,6 @@
     </ClCompile>
     <ClCompile Include="Release\moc_tool_bar.cpp">
       <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="tool_bar.cpp">
-      <Filter>moudle</Filter>
-    </ClCompile>
-    <ClCompile Include="py_data_man.cpp">
-      <Filter>moudle</Filter>
     </ClCompile>
     <ClCompile Include="stockdayinfo.cpp">
       <Filter>deprecate</Filter>
@@ -122,17 +125,8 @@
     <ClCompile Include="stock_data_man.cpp">
       <Filter>moudle</Filter>
     </ClCompile>
-    <ClCompile Include="tdx_hq_wrapper.cpp">
-      <Filter>moudle</Filter>
-    </ClCompile>
-    <ClCompile Include="qrc_res.cpp">
-      <Filter>moudle</Filter>
-    </ClCompile>
     <ClCompile Include="zhibiao_window.cpp">
       <Filter>win</Filter>
-    </ClCompile>
-    <ClCompile Include="zhibiao.cpp">
-      <Filter>moudle</Filter>
     </ClCompile>
     <ClCompile Include="HintList.cpp">
       <Filter>win</Filter>
@@ -152,6 +146,31 @@
     <ClCompile Include="code_list_wall.cpp">
       <Filter>win</Filter>
     </ClCompile>
+    <ClCompile Include="Debug\moc_code_list_wall.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Release\moc_code_list_wall.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="tool_bar.cpp">
+      <Filter>moudle\ui_moudle</Filter>
+    </ClCompile>
+    <ClCompile Include="title_bar.cpp">
+      <Filter>moudle\ui_moudle</Filter>
+    </ClCompile>
+    <ClCompile Include="tdx_hq_wrapper.cpp">
+      <Filter>moudle\tdx</Filter>
+    </ClCompile>
+    <ClCompile Include="py_data_man.cpp">
+      <Filter>moudle\python</Filter>
+    </ClCompile>
+    <ClCompile Include="zhibiao.cpp">
+      <Filter>moudle\zhibiao</Filter>
+    </ClCompile>
+    <ClCompile Include="qrc_res.cpp" />
+    <ClCompile Include="favorite_codes_serial.cpp">
+      <Filter>moudle</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="klinewall.ui">
@@ -159,12 +178,6 @@
     </CustomBuild>
     <CustomBuild Include="stockinputdlg.ui">
       <Filter>Form Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="title_bar.h">
-      <Filter>moudle</Filter>
-    </CustomBuild>
-    <CustomBuild Include="tool_bar.h">
-      <Filter>moudle</Filter>
     </CustomBuild>
     <CustomBuild Include="stk_forecast_app.h">
       <Filter>src</Filter>
@@ -177,6 +190,15 @@
     </CustomBuild>
     <CustomBuild Include="codelistwall.ui">
       <Filter>Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="code_list_wall.h">
+      <Filter>win</Filter>
+    </CustomBuild>
+    <CustomBuild Include="tool_bar.h">
+      <Filter>moudle\ui_moudle</Filter>
+    </CustomBuild>
+    <CustomBuild Include="title_bar.h">
+      <Filter>moudle\ui_moudle</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
@@ -226,9 +248,6 @@
     <ClInclude Include="kline_wall.h">
       <Filter>win</Filter>
     </ClInclude>
-    <ClInclude Include="py_data_man.h">
-      <Filter>moudle</Filter>
-    </ClInclude>
     <ClInclude Include="stockdayinfo.h">
       <Filter>deprecate</Filter>
     </ClInclude>
@@ -250,9 +269,6 @@
     <ClInclude Include="stock_data_man.h">
       <Filter>moudle</Filter>
     </ClInclude>
-    <ClInclude Include="tdx_hq_wrapper.h">
-      <Filter>moudle</Filter>
-    </ClInclude>
     <ClInclude Include="tdxhq\ExHqApi.h">
       <Filter>include\tdxhq</Filter>
     </ClInclude>
@@ -268,14 +284,20 @@
     <ClInclude Include="zhibiao_window.h">
       <Filter>win</Filter>
     </ClInclude>
-    <ClInclude Include="zhibiao.h">
-      <Filter>moudle</Filter>
-    </ClInclude>
-    <ClInclude Include="code_list_wall.h">
-      <Filter>win</Filter>
-    </ClInclude>
     <ClInclude Include="GeneratedFiles\ui_codelistwall.h">
       <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tdx_hq_wrapper.h">
+      <Filter>moudle\tdx</Filter>
+    </ClInclude>
+    <ClInclude Include="py_data_man.h">
+      <Filter>moudle\python</Filter>
+    </ClInclude>
+    <ClInclude Include="zhibiao.h">
+      <Filter>moudle\zhibiao</Filter>
+    </ClInclude>
+    <ClInclude Include="favorite_codes_serial.h">
+      <Filter>moudle</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

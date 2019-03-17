@@ -33,6 +33,8 @@ public:
 
     StockDataMan & stock_data_man() { return *stock_data_man_; }
 
+    MainWindow * main_window() { return main_window_.get(); }
+
 protected:
 
     virtual void HandleNodeHandShake(TSystem::communication::Connection* , const TSystem::Message& ) override {};

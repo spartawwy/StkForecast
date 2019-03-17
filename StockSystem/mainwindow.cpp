@@ -98,6 +98,28 @@ bool MainWindow::Initialize()
 #endif
     return true;
 }
+
+void MainWindow::SetMainView(WallType wall_type)
+{
+    kline_wall_->hide();
+    switch(wall_type)
+    {    
+    case WallType::KLINE: 
+        code_list_wall_->hide();
+        kline_wall_->show(); 
+        break;
+    case WallType::CODE_LIST: 
+        kline_wall_->hide();
+        code_list_wall_->show(); 
+        break;
+    default:break;
+    }
+}
+
+void MainWindow::ResetKLineWallCode(const QString &code, const QString &cn_name, bool is_index)
+{
+    kline_wall_->ResetStock(code, cn_name, is_index);
+}
  
 void MainWindow::closeEvent(QCloseEvent * event)
 {
@@ -133,6 +155,11 @@ void MainWindow::UncheckBtnABCUpPen()
         tool_bar_->UncheckBtnABCUpPen(); 
 }
 
+void MainWindow::AddCode2CodeList(const QString &code, const QString &cn_name, bool is_index)
+{
+    code_list_wall_->AddCode(code , cn_name, is_index);
+}
+
 void MainWindow::changeEvent(QEvent *e)
 {
     QMainWindow::changeEvent(e);
@@ -166,6 +193,7 @@ bool MainWindow::eventFilter(QObject *o, QEvent *e)
 
 void MainWindow::keyPressEvent(QKeyEvent *e)
 {
+    
     switch(e->key())
     {
         case Qt::Key_F5:

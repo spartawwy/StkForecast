@@ -11,6 +11,8 @@
 */
 #include "stdafx.h"
 
+#if 0
+
 #ifdef GET_DATA_DIRECT_USE_TUSHARE
 
 #include <string>
@@ -303,4 +305,5 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
+#endif
 #endif

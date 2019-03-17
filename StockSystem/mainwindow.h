@@ -13,6 +13,11 @@ namespace Ui
 {
     class MainWindow;
 }
+enum class WallType : unsigned char
+{
+    KLINE,
+    CODE_LIST,
+};
 class StkForecastApp;
 class TitleBar;
 class ToolBar;
@@ -30,10 +35,15 @@ public:
     bool Initialize();
     KLineWall * kline_wall() { return kline_wall_; }
 
+    void SetMainView(WallType wall_type);
+    void ResetKLineWallCode(const QString &code, const QString &cn_name, bool is_index);
+
     void UncheckBtnABDownPen();
     void UncheckBtnABUpPen();
     void UncheckBtnABCDownPen();
     void UncheckBtnABCUpPen();
+
+    void AddCode2CodeList(const QString &code, const QString &cn_name, bool is_index);
 
 protected:
 

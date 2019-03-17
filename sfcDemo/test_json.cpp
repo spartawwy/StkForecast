@@ -1,9 +1,22 @@
+#include "stdafx.h"
+
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <xstring>
+
+#include <Windows.h>
+
 #include "rapidjson/document.h"
 #include "rapidjson/writer.h"
 #include "rapidjson/stringbuffer.h"
-#include <iostream>
-#include <fstream>
+ 
 
+#ifdef JASON_TEST
+//#include <wchar.h>
+std::wstring UTF8ToUnicode( const std::string & s);
+
+//#define  RAPIDJSON_HAS_STDSTRING
 /* {
 "MsgSendFlag": 1,
 "MsgErrorReason": "IDorpassworderror",
@@ -33,10 +46,19 @@
               , { "code" : "600196", "name":"复兴医药"}]
  }
 */
+
+/*const*/ std::string cst_code_tag = "code";
+/*const*/ std::string cst_name_tag = "name";
+/*const*/ std::string cst_is_index_tag = "is_index";
+
+void AppendRecord(const std::string &code, const std::string &name, bool is_index);
+
 using namespace rapidjson;
 using namespace std;
 int main() 
 {
+    AppendRecord("600196", "复兴医药", false);
+    return 0;
     // 1. Parse a JSON string into DOM.
     const char* json ="{\"Info\":[{\"lots\":10,\"order_algorithm\":\"01\",\"buy_close\":9000,\
                       \"spread_shift\":0,\"position_b_sell\":0,\"position_a_buy_today\":0,\
@@ -70,14 +92,11 @@ int main()
             instrument_object.SetString("cu1701");
             instrument_array.PushBack(instrument_object, allocator);
         }
-
         info_object.AddMember("list_instrument_id", instrument_array, allocator);
-        info_array.PushBack(info_object, allocator);
 
+        info_array.PushBack(info_object, allocator); 
     }
-
     doc.AddMember("Info", info_array, allocator);
-
 
     // 3. Stringify the DOM
     StringBuffer buffer;
@@ -87,6 +106,38 @@ int main()
 
     getchar();
     return 0;
+}
+
+void AppendRecord(const std::string &code, const std::string &name, bool is_index)
+{
+    Document doc;
+    doc.SetObject();
+    rapidjson::Document::AllocatorType& allocator = doc.GetAllocator();
+
+    rapidjson::Value code_array(rapidjson::kArrayType);
+
+    rapidjson::Value code_object(rapidjson::kObjectType);
+    code_object.SetObject(); 
+    rapidjson::Value val;
+    rapidjson::Value val0;
+    code_object.AddMember(val.SetString(cst_code_tag.c_str(), allocator), val0.SetString(code.c_str(), allocator), allocator);
+    code_object.AddMember(val.SetString(cst_name_tag.c_str(), allocator), val0.SetString(name.c_str(), allocator), allocator);
+    code_object.AddMember(val.SetString(cst_is_index_tag.c_str(), allocator), is_index, allocator);
+    code_array.PushBack(code_object, allocator);
+
+    doc.AddMember("FavCodes", code_array, allocator);
+
+    StringBuffer buffer;
+    Writer<StringBuffer> writer(buffer);
+    doc.Accept(writer);
+
+    fstream fstr_obj;
+    fstr_obj.open("c:/fav.json", ios::out | ios::trunc);
+    if( fstr_obj.is_open() )
+    {
+        fstr_obj << buffer.GetString();
+        fstr_obj.close();
+    }
 }
 
 bool parse()
@@ -112,7 +163,7 @@ bool parse()
             cout<<'\t'<<node2[i].GetInt()<<endl;  
     }  
 
-    return;
+    return true;
 }
 
 void filewrite_sample()
@@ -128,3 +179,40 @@ void filewrite_sample()
     getchar();
 
 }
+
+
+std::wstring UTF8ToUnicode( const std::string & s)
+{
+    wstring result;
+
+    int n = MultiByteToWideChar( CP_UTF8, 0, s.c_str(), -1, NULL, 0 );
+    wchar_t * buffer = new wchar_t[n];
+
+    ::MultiByteToWideChar( CP_UTF8, 0, s.c_str(), -1, buffer, n );
+
+    result = buffer;
+    delete[] buffer;
+
+    return result;
+}
+
+std::string WChar2Ansi(LPCWSTR pwszSrc)
+{
+    int nLen = 0;
+    nLen = WideCharToMultiByte(CP_ACP, 0, pwszSrc, -1, NULL, 0, NULL, NULL);
+    if (nLen<= 0) 
+        return std::string("");
+
+    char* pszDst = new char[nLen];
+    if (NULL == pszDst)
+        return std::string("");
+
+    WideCharToMultiByte(CP_ACP, 0, pwszSrc, -1, pszDst, nLen, NULL, NULL);
+    pszDst[nLen -1] = 0;
+    std::string strTemp(pszDst);
+    delete [] pszDst;
+
+    return strTemp;
+}
+
+#endif

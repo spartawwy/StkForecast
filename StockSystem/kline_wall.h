@@ -48,6 +48,12 @@ public:
     int HeadHeight() { return int(height() * head_h_percent_); }
     int BottomHeight() { return int(height() * bottom_h_percent_); }
 
+    void ResetStock(const QString& stock, const QString& name, bool is_index) 
+    { 
+       if( ResetStock(stock, k_type_, is_index) )
+           stock_name_ = name.toLocal8Bit().data();
+    }
+     
 protected:
 
     void paintEvent(QPaintEvent*) override;
@@ -62,7 +68,7 @@ protected:
     void leaveEvent(QEvent *e) override;
  
 private: 
-    
+      
     bool ResetStock(const QString& stock, TypePeriod type_period, bool is_index=false);
     void AppendData();
 

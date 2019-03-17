@@ -496,8 +496,8 @@ std::tuple<int, int> StockDataMan::GetDateIndexFromContainer(PeriodType period_t
     return std::make_tuple(start_index, end_index);
 }
 
-// \/ 
-// kline_data_items[0] is smallest time
+/*   \/ 
+    kline_data_items[0] is smallest time  */
 void TraverseSetUpwardFractal( std::deque<std::shared_ptr<T_KlineDataItem> > &kline_data_items)
 {
     if( kline_data_items.size() < 1 )
@@ -553,7 +553,6 @@ void TraverseSetUpwardFractal( std::deque<std::shared_ptr<T_KlineDataItem> > &kl
                        kline_data_items[k]->type |= INSUFFIC_FRACTAL; 
                        }*/
                     ++k;
-                     
                 }else if( kline_data_items[k]->stk_item.low_price < kline_data_items[index_to_check]->stk_item.low_price )
                     break;
                 else
@@ -574,9 +573,7 @@ void TraverseSetUpwardFractal( std::deque<std::shared_ptr<T_KlineDataItem> > &kl
                     {
                         kline_data_items[index]->type |= int(FractalType::BTM_AXIS_T_9);
                         if( n_fractal_ahead > 4 && n_fractal_follow > 4 )
-                        {
                             kline_data_items[index]->type |= int(FractalType::BTM_AXIS_T_11);
-                        }
                     }
                 }
             }
@@ -585,7 +582,8 @@ void TraverseSetUpwardFractal( std::deque<std::shared_ptr<T_KlineDataItem> > &kl
     }//while
 }
 
-// /\ 
+/*   /\ 
+    kline_data_items[0] is smallest time  */
 void TraverseSetDownwardFractal( std::deque<std::shared_ptr<T_KlineDataItem> > &kline_data_items)
 {
     if( kline_data_items.size() < 1 )
