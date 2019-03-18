@@ -63,6 +63,7 @@ KLineWall::KLineWall(StkForecastApp *app, QWidget *parent, int index)
     , draw_action_(DrawAction::NO_ACTION)
     , mm_move_flag_(false)
     , move_start_point_(0, 0)
+    , area_select_flag_(false)
     , forcast_man_(index)
 {
     ui.setupUi(this);
@@ -475,9 +476,16 @@ void KLineWall::mousePressEvent(QMouseEvent * event )
 
     if( draw_action_ == DrawAction::NO_ACTION )
     {
-        mm_move_flag_ = true;
-        move_start_point_ = event->pos();
-        pre_k_rend_index_ = k_rend_index_;
+        if( event->buttons() & Qt::LeftButton )
+        {
+            mm_move_flag_ = true;
+            move_start_point_ = event->pos();
+            pre_k_rend_index_ = k_rend_index_;
+        }else if( event->buttons() & Qt::RightButton )
+        {
+            area_select_flag_ = true;
+            move_start_point_ = event->pos();
+        }
         return;
     }
     if( drawing_line_A_ == CST_MAGIC_POINT )
@@ -643,8 +651,12 @@ void KLineWall::mouseReleaseEvent(QMouseEvent * e)
     if( mm_move_flag_ )
     {
         pre_k_rend_index_ = k_rend_index_;
+        mm_move_flag_ = false;
+    }else if( area_select_flag_ )
+    {
+        //
+        area_select_flag_ = false;
     }
-    mm_move_flag_ = false;
 }
 
 void KLineWall::paintEvent(QPaintEvent*)
@@ -918,7 +930,11 @@ void KLineWall::paintEvent(QPaintEvent*)
         painter.drawLine(pos_from_global.x(), HeadHeight(), pos_from_global.x(), this->height()); 
         painter.drawText( mm_w-right_w_, pos_from_global.y(), QString("%1").arg(lowestMinPrice_ + price_per_len * (h_axis_trans_in_paint_k_ - pos_from_global.y()) ) );
     }
-
+    if( area_select_flag_ )
+    {
+        QRect rect(move_start_point_, pos_from_global);
+        painter.fillRect(rect, QBrush(QColor(128, 128, 255, 128))); 
+    }
     // draw date
     painter.drawText(pos_from_global.x(), this->height()-1, k_date_time_str_.c_str());
    
@@ -951,9 +967,9 @@ void KLineWall::mouseMoveEvent(QMouseEvent *e)
     {
         //qDebug() << " mouseMoveEvent DRAWING_FOR_2PDOWN_C " << "\n";
         cur_mouse_point_ = e->pos();
-    }else
+    }else if( mm_move_flag_ )
     {
-        if( mm_move_flag_ && k_num_ > 0 )
+        if( k_num_ > 0 )
         {
             const int atom_k_width = this->width() / k_num_;
             const int distance = e->pos().x() - move_start_point_.x();
@@ -992,6 +1008,10 @@ void KLineWall::mouseMoveEvent(QMouseEvent *e)
                 k_move_temp_index_ = k_rend_index_;
             }
         }
+    } // if( mm_move_flag_ )
+    else if( area_select_flag_ )
+    {
+
     }
     update();
 }

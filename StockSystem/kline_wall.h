@@ -159,6 +159,8 @@ private:
     bool mm_move_flag_;
     QPoint move_start_point_;
      
+    bool area_select_flag_;
+
     ForcastMan  forcast_man_;
 
     std::vector<std::shared_ptr<ZhibiaoWindow> > zb_windows_;
