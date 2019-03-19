@@ -27,12 +27,16 @@ public:
     QLabel *label;
     QLabel *label_2;
     QLineEdit *le_scale_increase;
-    QLineEdit *leLowestPrice;
-    QLineEdit *leHighesttPrice;
+    QLineEdit *le_LowestPrice;
+    QLineEdit *le_HighesttPrice;
     QLabel *label_3;
     QLabel *label_4;
     QLabel *lab_knum;
     QPushButton *pbt_close;
+    QLineEdit *le_scale_shake;
+    QLabel *label_5;
+    QLabel *label_6;
+    QLabel *label_7;
 
     void setupUi(QWidget *Form)
     {
@@ -44,28 +48,40 @@ public:
         label->setGeometry(QRect(40, 42, 51, 31));
         label_2 = new QLabel(Form);
         label_2->setObjectName(QStringLiteral("label_2"));
-        label_2->setGeometry(QRect(40, 80, 51, 21));
+        label_2->setGeometry(QRect(40, 110, 51, 21));
         le_scale_increase = new QLineEdit(Form);
         le_scale_increase->setObjectName(QStringLiteral("le_scale_increase"));
         le_scale_increase->setGeometry(QRect(100, 50, 113, 20));
-        leLowestPrice = new QLineEdit(Form);
-        leLowestPrice->setObjectName(QStringLiteral("leLowestPrice"));
-        leLowestPrice->setGeometry(QRect(100, 80, 113, 20));
-        leHighesttPrice = new QLineEdit(Form);
-        leHighesttPrice->setObjectName(QStringLiteral("leHighesttPrice"));
-        leHighesttPrice->setGeometry(QRect(100, 110, 113, 20));
+        le_LowestPrice = new QLineEdit(Form);
+        le_LowestPrice->setObjectName(QStringLiteral("le_LowestPrice"));
+        le_LowestPrice->setGeometry(QRect(100, 110, 113, 20));
+        le_HighesttPrice = new QLineEdit(Form);
+        le_HighesttPrice->setObjectName(QStringLiteral("le_HighesttPrice"));
+        le_HighesttPrice->setGeometry(QRect(100, 140, 113, 20));
         label_3 = new QLabel(Form);
         label_3->setObjectName(QStringLiteral("label_3"));
-        label_3->setGeometry(QRect(40, 110, 51, 21));
+        label_3->setGeometry(QRect(40, 140, 51, 21));
         label_4 = new QLabel(Form);
         label_4->setObjectName(QStringLiteral("label_4"));
-        label_4->setGeometry(QRect(240, 40, 51, 31));
+        label_4->setGeometry(QRect(40, 10, 51, 31));
         lab_knum = new QLabel(Form);
         lab_knum->setObjectName(QStringLiteral("lab_knum"));
-        lab_knum->setGeometry(QRect(280, 40, 91, 31));
+        lab_knum->setGeometry(QRect(100, 10, 91, 31));
         pbt_close = new QPushButton(Form);
         pbt_close->setObjectName(QStringLiteral("pbt_close"));
-        pbt_close->setGeometry(QRect(240, 200, 75, 23));
+        pbt_close->setGeometry(QRect(280, 240, 75, 23));
+        le_scale_shake = new QLineEdit(Form);
+        le_scale_shake->setObjectName(QStringLiteral("le_scale_shake"));
+        le_scale_shake->setGeometry(QRect(100, 78, 113, 20));
+        label_5 = new QLabel(Form);
+        label_5->setObjectName(QStringLiteral("label_5"));
+        label_5->setGeometry(QRect(40, 70, 51, 31));
+        label_6 = new QLabel(Form);
+        label_6->setObjectName(QStringLiteral("label_6"));
+        label_6->setGeometry(QRect(220, 50, 21, 16));
+        label_7 = new QLabel(Form);
+        label_7->setObjectName(QStringLiteral("label_7"));
+        label_7->setGeometry(QRect(220, 80, 21, 16));
 
         retranslateUi(Form);
 
@@ -81,6 +97,9 @@ public:
         label_4->setText(QApplication::translate("Form", "\345\221\250\346\234\237\346\225\260", 0));
         lab_knum->setText(QApplication::translate("Form", "TextLabel", 0));
         pbt_close->setText(QApplication::translate("Form", "\345\205\263\351\227\255", 0));
+        label_5->setText(QApplication::translate("Form", "\345\214\272\351\227\264\346\214\257\345\271\205", 0));
+        label_6->setText(QApplication::translate("Form", "%", 0));
+        label_7->setText(QApplication::translate("Form", "%", 0));
     } // retranslateUi
 
 };

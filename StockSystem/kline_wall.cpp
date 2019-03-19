@@ -9,6 +9,8 @@
 #include <qdebug.h>
 #include <qdatetime.h>
 #include <QtWidgets/QMessageBox>
+#include <QMenu>
+#include <QAction>
 
 #include <TLib/core/tsystem_utility_functions.h>
 
@@ -85,11 +87,22 @@ bool KLineWall::Init()
     k_cycle_tag_ = DEFAULT_CYCLE_TAG;
     k_cycle_year_ = cst_default_year;
       
+    k_wall_menu_ = new QMenu(this);
+
+    auto action_pop_statistic_dlg = new QAction(this);
+    action_pop_statistic_dlg->setText(QStringLiteral("Í³¼Æ"));
+    bool ret = QObject::connect(action_pop_statistic_dlg, SIGNAL(triggered(bool)), this, SLOT(slotOpenStatisticDlg(bool)));
+    k_wall_menu_->addAction(action_pop_statistic_dlg);
+
+    
+    //bool ret_of_con = connect(this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(slotTbvTasksContextMenu(QPoint))); 
+
     //auto ret = app_->stock_data_man().Init();
     //if( ret )
     {
        return ResetStock("600196", k_type_, false);
     }
+
 }
 
 void KLineWall::Draw2pDownForcast(QPainter &painter, const int mm_h, double item_w)
@@ -654,7 +667,12 @@ void KLineWall::mouseReleaseEvent(QMouseEvent * e)
         mm_move_flag_ = false;
     }else if( area_select_flag_ )
     {
-        //
+        if( move_start_point_ != e->pos() )
+        {  
+            area_sel_mouse_release_point_ = e->pos();
+            k_wall_menu_->popup(QCursor::pos());
+             
+        }
         area_select_flag_ = false;
     }
 }
@@ -1118,6 +1136,72 @@ void KLineWall::leaveEvent(QEvent *)
 {
     qDebug() << __FUNCTION__ << "\n";
 }
+
+// 
+void KLineWall::slotOpenStatisticDlg(bool)
+{
+    double left_x = std::min((double)move_start_point_.x(),  area_sel_mouse_release_point_.x());
+    double right_x = std::max((double)move_start_point_.x(),  area_sel_mouse_release_point_.x());
+
+    assert( p_hisdata_container_->size() > k_rend_index_ );
+     
+    int k_num_in_area = 0;
+    double min_price = MAX_PRICE;
+    double max_price = MIN_PRICE;
+    double end_price = 0.0;
+    double begin_price = 0.0;
+    int j = 0;
+    for( auto iter = p_hisdata_container_->rbegin();
+        iter != p_hisdata_container_->rend() && j < k_num_; 
+        ++iter, ++j)
+    {  
+        T_KlinePosData &pos_data = iter->get()->kline_posdata(wall_index_);
+        if( pos_data.x_left == CST_MAGIC_POINT.x() )
+            continue;
+        if( pos_data.x_right >= left_x &&  pos_data.x_left <= right_x )
+        {
+            ++k_num_in_area;
+            if( k_num_in_area == 1 )
+                end_price = iter->get()->stk_item.close_price;
+            if( iter->get()->stk_item.high_price > max_price ) 
+            {
+                max_price = iter->get()->stk_item.high_price; 
+            }
+            if( iter->get()->stk_item.low_price < min_price ) 
+            {
+                min_price = iter->get()->stk_item.low_price; 
+            }
+            begin_price = iter->get()->stk_item.open_price;
+        }
+        if( pos_data.x_right < left_x )
+            break;
+    }
+
+    statistic_dlg_.ui.lab_knum->setText(QString("%1").arg(k_num_in_area));
+    char buf[32] = {0};
+    
+    if( k_num_in_area > 0 && min_price > 0.0 && begin_price > 0.0 )
+    {
+        double shake_scale = (max_price - min_price)* 100 / min_price;
+        sprintf_s(buf, sizeof(buf), "%.2f\0", shake_scale);
+        statistic_dlg_.ui.le_scale_shake->setText(buf);
+
+        double scale = (end_price - begin_price) * 100 / begin_price;
+        sprintf_s(buf, sizeof(buf), "%.2f\0", scale);
+        statistic_dlg_.ui.le_scale_increase->setText(buf);
+    }
+    sprintf_s(buf, sizeof(buf), "%.2f\0", max_price);
+    statistic_dlg_.ui.le_HighesttPrice->setText(buf);
+    sprintf_s(buf, sizeof(buf), "%.2f\0", min_price);
+    statistic_dlg_.ui.le_LowestPrice->setText(buf);
+
+    statistic_dlg_.show();
+}
+
+//void KLineWall::slotTbvTasksContextMenu(QPoint pos)
+//{
+//    //
+//}
 
 bool KLineWall::ResetStock(const QString& stock, TypePeriod type_period, bool is_index)
 {  

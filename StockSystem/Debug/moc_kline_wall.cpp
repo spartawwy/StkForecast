@@ -1,16 +1,16 @@
 /****************************************************************************
-** Meta object code from reading C++ file 'statistic_dlg.h'
+** Meta object code from reading C++ file 'kline_wall.h'
 **
 ** Created by: The Qt Meta Object Compiler version 67 (Qt 5.2.1)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
 
-#include "../statistic_dlg.h"
+#include "../kline_wall.h"
 #include <QtCore/qbytearray.h>
 #include <QtCore/qmetatype.h>
 #if !defined(Q_MOC_OUTPUT_REVISION)
-#error "The header file 'statistic_dlg.h' doesn't include <QObject>."
+#error "The header file 'kline_wall.h' doesn't include <QObject>."
 #elif Q_MOC_OUTPUT_REVISION != 67
 #error "This file was generated using the moc from 5.2.1. It"
 #error "cannot be used with the include files from this version of Qt."
@@ -18,26 +18,26 @@
 #endif
 
 QT_BEGIN_MOC_NAMESPACE
-struct qt_meta_stringdata_StatisticDlg_t {
+struct qt_meta_stringdata_KLineWall_t {
     QByteArrayData data[3];
-    char stringdata[37];
+    char stringdata[33];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
-    offsetof(qt_meta_stringdata_StatisticDlg_t, stringdata) + ofs \
+    offsetof(qt_meta_stringdata_KLineWall_t, stringdata) + ofs \
         - idx * sizeof(QByteArrayData) \
     )
-static const qt_meta_stringdata_StatisticDlg_t qt_meta_stringdata_StatisticDlg = {
+static const qt_meta_stringdata_KLineWall_t qt_meta_stringdata_KLineWall = {
     {
-QT_MOC_LITERAL(0, 0, 12),
-QT_MOC_LITERAL(1, 13, 21),
-QT_MOC_LITERAL(2, 35, 0)
+QT_MOC_LITERAL(0, 0, 9),
+QT_MOC_LITERAL(1, 10, 20),
+QT_MOC_LITERAL(2, 31, 0)
     },
-    "StatisticDlg\0slotDoBtnCloseClicked\0\0"
+    "KLineWall\0slotOpenStatisticDlg\0\0"
 };
 #undef QT_MOC_LITERAL
 
-static const uint qt_meta_data_StatisticDlg[] = {
+static const uint qt_meta_data_KLineWall[] = {
 
  // content:
        7,       // revision
@@ -51,46 +51,45 @@ static const uint qt_meta_data_StatisticDlg[] = {
        0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags
-       1,    0,   19,    2, 0x08,
+       1,    1,   19,    2, 0x08,
 
  // slots: parameters
-    QMetaType::Void,
+    QMetaType::Void, QMetaType::Bool,    2,
 
        0        // eod
 };
 
-void StatisticDlg::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
+void KLineWall::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
 {
     if (_c == QMetaObject::InvokeMetaMethod) {
-        StatisticDlg *_t = static_cast<StatisticDlg *>(_o);
+        KLineWall *_t = static_cast<KLineWall *>(_o);
         switch (_id) {
-        case 0: _t->slotDoBtnCloseClicked(); break;
+        case 0: _t->slotOpenStatisticDlg((*reinterpret_cast< bool(*)>(_a[1]))); break;
         default: ;
         }
     }
-    Q_UNUSED(_a);
 }
 
-const QMetaObject StatisticDlg::staticMetaObject = {
-    { &QWidget::staticMetaObject, qt_meta_stringdata_StatisticDlg.data,
-      qt_meta_data_StatisticDlg,  qt_static_metacall, 0, 0}
+const QMetaObject KLineWall::staticMetaObject = {
+    { &QWidget::staticMetaObject, qt_meta_stringdata_KLineWall.data,
+      qt_meta_data_KLineWall,  qt_static_metacall, 0, 0}
 };
 
 
-const QMetaObject *StatisticDlg::metaObject() const
+const QMetaObject *KLineWall::metaObject() const
 {
     return QObject::d_ptr->metaObject ? QObject::d_ptr->dynamicMetaObject() : &staticMetaObject;
 }
 
-void *StatisticDlg::qt_metacast(const char *_clname)
+void *KLineWall::qt_metacast(const char *_clname)
 {
     if (!_clname) return 0;
-    if (!strcmp(_clname, qt_meta_stringdata_StatisticDlg.stringdata))
-        return static_cast<void*>(const_cast< StatisticDlg*>(this));
+    if (!strcmp(_clname, qt_meta_stringdata_KLineWall.stringdata))
+        return static_cast<void*>(const_cast< KLineWall*>(this));
     return QWidget::qt_metacast(_clname);
 }
 
-int StatisticDlg::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
+int KLineWall::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
 {
     _id = QWidget::qt_metacall(_c, _id, _a);
     if (_id < 0)

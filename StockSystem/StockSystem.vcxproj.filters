@@ -180,6 +180,12 @@
     <ClCompile Include="Release\moc_statistic_dlg.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
+    <ClCompile Include="Debug\moc_kline_wall.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Release\moc_kline_wall.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="klinewall.ui">
@@ -213,6 +219,9 @@
       <Filter>Form Files</Filter>
     </CustomBuild>
     <CustomBuild Include="statistic_dlg.h">
+      <Filter>win</Filter>
+    </CustomBuild>
+    <CustomBuild Include="kline_wall.h">
       <Filter>win</Filter>
     </CustomBuild>
   </ItemGroup>
@@ -259,9 +268,6 @@
     </ClInclude>
     <ClInclude Include="stkfo_common.h">
       <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="kline_wall.h">
-      <Filter>win</Filter>
     </ClInclude>
     <ClInclude Include="stockdayinfo.h">
       <Filter>deprecate</Filter>

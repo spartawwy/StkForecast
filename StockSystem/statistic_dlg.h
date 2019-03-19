@@ -14,8 +14,16 @@ class StatisticDlg : public QWidget
     Q_OBJECT
 
 public:
-    StatisticDlg(){}
+    StatisticDlg();
+
+private slots:
+
+    void slotDoBtnCloseClicked();
+
+private:
 
     Ui_Form ui;
+
+    friend class KLineWall;
 };
 #endif

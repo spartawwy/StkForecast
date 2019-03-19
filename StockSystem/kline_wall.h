@@ -7,7 +7,8 @@
 
 #include "stock_data_man.h"
 #include "stockinput_dlg.h"
- 
+#include "statistic_dlg.h"
+
 #include "forcast_man.h"
 
 #include "zhibiao_window.h"
@@ -24,6 +25,8 @@ class DataBase;
 class StockMan;
 class KLineWall : public QWidget
 {
+    Q_OBJECT
+
 public:
      
     KLineWall(StkForecastApp *app, QWidget *parent, int index);
@@ -66,7 +69,12 @@ protected:
 
     void enterEvent(QEvent *e) override;
     void leaveEvent(QEvent *e) override;
- 
+
+private slots:
+
+    void slotOpenStatisticDlg(bool);
+    //void slotTbvTasksContextMenu(QPoint);
+
 private: 
       
     bool ResetStock(const QString& stock, TypePeriod type_period, bool is_index=false);
@@ -120,10 +128,11 @@ private:
     int h_axis_trans_in_paint_k_;
 
 	StockInputDlg  stock_input_dlg_;
-     
     std::string    stock_code_;
     std::string    stock_name_;
     bool           is_index_;
+
+    StatisticDlg  statistic_dlg_;
    
 	T_HisDataItemContainer *p_hisdata_container_; //point to stock_data_man_'s a stock's data
     
@@ -160,9 +169,11 @@ private:
     QPoint move_start_point_;
      
     bool area_select_flag_;
+    QPointF area_sel_mouse_release_point_;
 
+    QMenu * k_wall_menu_;
     ForcastMan  forcast_man_;
-
+     
     std::vector<std::shared_ptr<ZhibiaoWindow> > zb_windows_;
 
     friend class ZhibiaoWindow;
