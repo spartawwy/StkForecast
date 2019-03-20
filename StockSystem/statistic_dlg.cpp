@@ -13,3 +13,9 @@ void StatisticDlg::slotDoBtnCloseClicked()
 {
     hide();
 }
+
+// ps : keys which parent has procedured will not enter this function
+void StatisticDlg::keyPressEvent(QKeyEvent *e)
+{
+	hide();
+}

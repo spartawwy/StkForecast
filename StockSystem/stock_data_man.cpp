@@ -706,14 +706,24 @@ void TraverseAjustFractal( std::deque<std::shared_ptr<T_KlineDataItem> > &kline_
             int i = find_left_btm_frac(kline_data_items, index);
             int j = find_left_top_frac(kline_data_items, index);
             if( i > j )
-                kline_data_items[index]->type = (int)FractalType::UNKNOW_FRACTAL;
+            {
+                if( kline_data_items[index]->stk_item.low_price < kline_data_items[i]->stk_item.low_price )
+                    kline_data_items[i]->type = (int)FractalType::UNKNOW_FRACTAL;
+                else
+                    kline_data_items[index]->type = (int)FractalType::UNKNOW_FRACTAL;
+            }
         }
         else if( MaxFractalType(kline_data_items[index]->type) >= FractalType::TOP_AXIS_T_3 ) // top frac
         {
             int i = find_left_btm_frac(kline_data_items, index);
             int j = find_left_top_frac(kline_data_items, index);
             if( i < j )
-                kline_data_items[index]->type = (int)FractalType::UNKNOW_FRACTAL;
+            {
+                if( kline_data_items[index]->stk_item.high_price > kline_data_items[j]->stk_item.high_price )
+                    kline_data_items[j]->type = (int)FractalType::UNKNOW_FRACTAL;
+                else 
+                    kline_data_items[index]->type = (int)FractalType::UNKNOW_FRACTAL;
+            }
         }
     }
 }

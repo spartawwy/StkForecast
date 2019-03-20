@@ -21,6 +21,7 @@ private slots:
     void slotDoBtnCloseClicked();
 
 private:
+    virtual void keyPressEvent(QKeyEvent *e) override ;
 
     Ui_Form ui;
 

@@ -17,7 +17,7 @@
    <property name="geometry">
     <rect>
      <x>40</x>
-     <y>42</y>
+     <y>102</y>
      <width>51</width>
      <height>31</height>
     </rect>
@@ -30,7 +30,7 @@
    <property name="geometry">
     <rect>
      <x>40</x>
-     <y>110</y>
+     <y>170</y>
      <width>51</width>
      <height>21</height>
     </rect>
@@ -43,7 +43,7 @@
    <property name="geometry">
     <rect>
      <x>100</x>
-     <y>50</y>
+     <y>110</y>
      <width>113</width>
      <height>20</height>
     </rect>
@@ -53,7 +53,7 @@
    <property name="geometry">
     <rect>
      <x>100</x>
-     <y>110</y>
+     <y>170</y>
      <width>113</width>
      <height>20</height>
     </rect>
@@ -63,7 +63,7 @@
    <property name="geometry">
     <rect>
      <x>100</x>
-     <y>140</y>
+     <y>200</y>
      <width>113</width>
      <height>20</height>
     </rect>
@@ -73,7 +73,7 @@
    <property name="geometry">
     <rect>
      <x>40</x>
-     <y>140</y>
+     <y>200</y>
      <width>51</width>
      <height>21</height>
     </rect>
@@ -86,7 +86,7 @@
    <property name="geometry">
     <rect>
      <x>40</x>
-     <y>10</y>
+     <y>70</y>
      <width>51</width>
      <height>31</height>
     </rect>
@@ -99,7 +99,7 @@
    <property name="geometry">
     <rect>
      <x>100</x>
-     <y>10</y>
+     <y>70</y>
      <width>91</width>
      <height>31</height>
     </rect>
@@ -125,7 +125,7 @@
    <property name="geometry">
     <rect>
      <x>100</x>
-     <y>78</y>
+     <y>138</y>
      <width>113</width>
      <height>20</height>
     </rect>
@@ -135,7 +135,7 @@
    <property name="geometry">
     <rect>
      <x>40</x>
-     <y>70</y>
+     <y>130</y>
      <width>51</width>
      <height>31</height>
     </rect>
@@ -148,7 +148,7 @@
    <property name="geometry">
     <rect>
      <x>220</x>
-     <y>50</y>
+     <y>110</y>
      <width>21</width>
      <height>16</height>
     </rect>
@@ -161,13 +161,59 @@
    <property name="geometry">
     <rect>
      <x>220</x>
-     <y>80</y>
+     <y>140</y>
      <width>21</width>
      <height>16</height>
     </rect>
    </property>
    <property name="text">
     <string>%</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="le_end_date">
+   <property name="geometry">
+    <rect>
+     <x>100</x>
+     <y>48</y>
+     <width>113</width>
+     <height>20</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_8">
+   <property name="geometry">
+    <rect>
+     <x>40</x>
+     <y>40</y>
+     <width>51</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>结束时间</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_9">
+   <property name="geometry">
+    <rect>
+     <x>40</x>
+     <y>10</y>
+     <width>51</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>开始时间</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="le_start_date">
+   <property name="geometry">
+    <rect>
+     <x>100</x>
+     <y>18</y>
+     <width>113</width>
+     <height>20</height>
+    </rect>
    </property>
   </widget>
  </widget>

@@ -90,7 +90,7 @@ bool KLineWall::Init()
     k_wall_menu_ = new QMenu(this);
 
     auto action_pop_statistic_dlg = new QAction(this);
-    action_pop_statistic_dlg->setText(QStringLiteral("统计"));
+    action_pop_statistic_dlg->setText(QStringLiteral("区间统计"));
     bool ret = QObject::connect(action_pop_statistic_dlg, SIGNAL(triggered(bool)), this, SLOT(slotOpenStatisticDlg(bool)));
     k_wall_menu_->addAction(action_pop_statistic_dlg);
 
@@ -1146,6 +1146,8 @@ void KLineWall::slotOpenStatisticDlg(bool)
     assert( p_hisdata_container_->size() > k_rend_index_ );
      
     int k_num_in_area = 0;
+    int start_date = 0;
+    int end_date = 0;
     double min_price = MAX_PRICE;
     double max_price = MIN_PRICE;
     double end_price = 0.0;
@@ -1162,7 +1164,10 @@ void KLineWall::slotOpenStatisticDlg(bool)
         {
             ++k_num_in_area;
             if( k_num_in_area == 1 )
+            {
                 end_price = iter->get()->stk_item.close_price;
+                end_date = iter->get()->stk_item.date;
+            }
             if( iter->get()->stk_item.high_price > max_price ) 
             {
                 max_price = iter->get()->stk_item.high_price; 
@@ -1172,6 +1177,7 @@ void KLineWall::slotOpenStatisticDlg(bool)
                 min_price = iter->get()->stk_item.low_price; 
             }
             begin_price = iter->get()->stk_item.open_price;
+            start_date = iter->get()->stk_item.date;
         }
         if( pos_data.x_right < left_x )
             break;
@@ -1179,7 +1185,12 @@ void KLineWall::slotOpenStatisticDlg(bool)
 
     statistic_dlg_.ui.lab_knum->setText(QString("%1").arg(k_num_in_area));
     char buf[32] = {0};
-    
+
+    sprintf_s(buf, sizeof(buf), "%d\0", end_date);
+    statistic_dlg_.ui.le_end_date->setText(buf);
+    sprintf_s(buf, sizeof(buf), "%d\0", start_date);
+    statistic_dlg_.ui.le_start_date->setText(buf);
+
     if( k_num_in_area > 0 && min_price > 0.0 && begin_price > 0.0 )
     {
         double shake_scale = (max_price - min_price)* 100 / min_price;
