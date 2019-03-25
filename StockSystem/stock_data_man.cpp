@@ -47,6 +47,7 @@ void TraverseSetUpwardFractal( std::deque<std::shared_ptr<T_KlineDataItem> > &kl
 void TraverseSetDownwardFractal( std::deque<std::shared_ptr<T_KlineDataItem> > &kline_data_items);
 
 void TraverseAjustFractal( std::deque<std::shared_ptr<T_KlineDataItem> > &kline_data_items);
+ 
 
 StockDataMan::StockDataMan(ExchangeCalendar *p_exchange_calendar)
     : m5_stock_his_items_(1024)
@@ -56,6 +57,13 @@ StockDataMan::StockDataMan(ExchangeCalendar *p_exchange_calendar)
     , day_stock_his_items_(1024)
     , week_stock_his_items_(1024)
     , mon_stock_his_items_(1024)
+    , m5_stock_bi_items_(64)
+    , m15_stock_bi_items_(64)
+    , m30_stock_bi_items_(64)
+    , hour_stock_bi_items_(64)
+    , day_stock_bi_items_(64)
+    , week_stock_bi_items_(64)
+    , mon_stock_bi_items_(64)
 #ifdef USE_WINNER_API
     , WinnerHisHq_GetKData_(nullptr)
     , WinnerHisHq_Connect_(nullptr)
@@ -357,6 +365,8 @@ T_HisDataItemContainer* StockDataMan::AppendStockData(PeriodType period_type, co
     
     TraverseAjustFractal(items_in_container);
 
+    TraverseGetBi(period_type, code, items_in_container);
+
 	return std::addressof(items_in_container);
 
 }
@@ -416,6 +426,26 @@ T_HisDataItemContainer & StockDataMan::GetHisDataContainer(PeriodType period_typ
     return container_iter->second;
 }
  
+T_BiContainer & StockDataMan::GetBiContainer(PeriodType period_type, const std::string& code)
+{
+    T_CodeMapBiContainer *p_code_map_container = nullptr;
+    switch(period_type)
+    {
+    case PeriodType::PERIOD_5M:   p_code_map_container = &m5_stock_bi_items_; break;
+    case PeriodType::PERIOD_15M:  p_code_map_container = &m15_stock_bi_items_; break;
+    case PeriodType::PERIOD_30M:  p_code_map_container = &m30_stock_bi_items_; break;
+    case PeriodType::PERIOD_HOUR: p_code_map_container = &hour_stock_bi_items_; break;
+    case PeriodType::PERIOD_DAY:  p_code_map_container = &day_stock_bi_items_; break; 
+    case PeriodType::PERIOD_WEEK: p_code_map_container = &week_stock_bi_items_; break;
+    case PeriodType::PERIOD_MON:  p_code_map_container = &mon_stock_bi_items_; break;
+    default: assert(false);
+    }
+    auto container_iter = p_code_map_container->find(code);
+    if( container_iter == p_code_map_container->end() )
+        container_iter = p_code_map_container->insert(std::make_pair(code, T_BiContainer())).first;
+    return container_iter->second;
+}
+
 // ok: ret <  MAX_PRICE
 float StockDataMan::GetHisDataLowestMinPrice(PeriodType period_type, const std::string& code, int start_date, int end_date)
 { 
@@ -495,7 +525,7 @@ std::tuple<int, int> StockDataMan::GetDateIndexFromContainer(PeriodType period_t
         end_index = container.size() - 1;
     return std::make_tuple(start_index, end_index);
 }
-
+ 
 /*   \/ 
     kline_data_items[0] is smallest time  */
 void TraverseSetUpwardFractal( std::deque<std::shared_ptr<T_KlineDataItem> > &kline_data_items)
@@ -723,6 +753,91 @@ void TraverseAjustFractal( std::deque<std::shared_ptr<T_KlineDataItem> > &kline_
                     kline_data_items[j]->type = (int)FractalType::UNKNOW_FRACTAL;
                 else 
                     kline_data_items[index]->type = (int)FractalType::UNKNOW_FRACTAL;
+            }
+        }
+    }
+}
+
+// ps: called after TraverseAjustFractal
+void StockDataMan::TraverseGetBi(PeriodType period_type, const std::string &code, std::deque<std::shared_ptr<T_KlineDataItem> > &kline_data_items)
+{
+    static auto create_start_end_point =[](std::deque<std::shared_ptr<T_KlineDataItem> > &kline_data_items, int i, int index)->std::tuple<T_BiPoint, T_BiPoint>
+    {
+        T_BiPoint  start;
+        start.date = kline_data_items[i]->stk_item.date;
+        start.hhmm = kline_data_items[i]->stk_item.hhmmss;
+        start.index = i;
+        start.frac_type = FractalType(kline_data_items[i]->type);
+        T_BiPoint  end;
+        end.date = kline_data_items[index]->stk_item.date;
+        end.hhmm = kline_data_items[index]->stk_item.hhmmss;
+        end.index = index;
+        end.frac_type = FractalType(kline_data_items[index]->type);
+        end.date = kline_data_items[index]->stk_item.date;
+        return std::make_tuple(start, end);
+    };
+    
+    if( kline_data_items.size() < 1 )
+        return;
+    T_BiContainer &container = GetBiContainer(period_type, code); 
+    container.clear();
+    unsigned int index = kline_data_items.size();
+    while( --index > 0 )
+    {
+        if( IsTopFractal(kline_data_items[index]->type) )
+        {
+            int ck_index_date = kline_data_items[index]->stk_item.date;
+            int i = index;
+            int max_count = 30;
+            double low_price = MAX_PRICE;
+            int btm_index = -1;
+            int target_index = -1;
+            while( --i >= 0 && max_count-- > 0 )
+            {
+                int ck_i_date = kline_data_items[i]->stk_item.date;
+                if( kline_data_items[i]->stk_item.high_price > kline_data_items[index]->stk_item.high_price )
+                    break;
+                else if( IsBtmFractal(kline_data_items[i]->type) && kline_data_items[i]->stk_item.low_price < low_price)
+                { 
+                    btm_index = i;
+                    low_price = kline_data_items[i]->stk_item.low_price;
+                    if( index - i > 5 )
+                        target_index = i;
+                }else if( IsTopFractal(kline_data_items[i]->type) && btm_index > -1 && btm_index - i > 5 )
+                    break;
+            }
+            if( target_index > -1 )
+            {
+                auto start_end = create_start_end_point(kline_data_items, target_index, index);
+                container.push_front( std::make_shared<T_Bi>(BiType::UP, std::get<0>(start_end), std::get<1>(start_end)) );
+                index = target_index + 1;
+            }
+
+        }else if( IsBtmFractal(kline_data_items[index]->type) )
+        {
+            int i = index;
+            int max_count = 30;
+            double high_price = MIN_PRICE;
+            int high_index = -1;
+            int target_index = -1;
+            while( --i >= 0 && max_count-- > 0 )
+            {
+                if( kline_data_items[i]->stk_item.low_price < kline_data_items[index]->stk_item.low_price)
+                    break;
+                if( IsTopFractal(kline_data_items[i]->type) && kline_data_items[i]->stk_item.high_price > high_price)
+                {
+                    high_index = i;
+                    high_price = kline_data_items[i]->stk_item.high_price;
+                    if( index - i > 5 )
+                        target_index = i;
+                }else if( IsBtmFractal(kline_data_items[i]->type) && high_index > -1 && high_index - i > 5 )
+                    break;
+            }
+            if( target_index > -1 )
+            {
+                auto start_end = create_start_end_point(kline_data_items, target_index, index);
+                container.push_front( std::make_shared<T_Bi>(BiType::DOWN, std::get<0>(start_end), std::get<1>(start_end)) );
+                index = target_index + 1;
             }
         }
     }

@@ -40,6 +40,7 @@ public:
     T_HisDataItemContainer* AppendStockData(PeriodType period_type, const std::string &stk_code, int start_date, int end_date, bool is_index=false);
 	     
     bool UpdateLatestItemStockData(PeriodType period_type, const std::string &stk_code, bool is_index=false);
+    void TraverseGetBi(PeriodType period_type, const std::string &code, std::deque<std::shared_ptr<T_KlineDataItem> > &kline_data_items);
 
 public:
       
@@ -49,6 +50,7 @@ public:
 public: 
 
     T_HisDataItemContainer &GetHisDataContainer(PeriodType period_type, const std::string& code);
+    T_BiContainer &GetBiContainer(PeriodType period_type, const std::string& code);
     // (stock , data)  date is from small to big
     T_CodeMapHisDataItemContainer m5_stock_his_items_;
     T_CodeMapHisDataItemContainer m15_stock_his_items_;
@@ -57,6 +59,15 @@ public:
     T_CodeMapHisDataItemContainer day_stock_his_items_;
     T_CodeMapHisDataItemContainer week_stock_his_items_;
     T_CodeMapHisDataItemContainer mon_stock_his_items_;
+
+    T_CodeMapBiContainer m5_stock_bi_items_;
+    T_CodeMapBiContainer m15_stock_bi_items_;
+    T_CodeMapBiContainer m30_stock_bi_items_;
+    T_CodeMapBiContainer hour_stock_bi_items_;
+    T_CodeMapBiContainer day_stock_bi_items_;
+    T_CodeMapBiContainer week_stock_bi_items_;
+    T_CodeMapBiContainer mon_stock_bi_items_;
+
 #ifndef USE_STK_QUOTER
     std::vector<T_StockHisDataItem> *p_stk_hisdata_item_vector_;
     bool is_fetched_stk_hisdata_;

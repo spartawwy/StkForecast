@@ -87,6 +87,8 @@ private:
     void Draw3pUpForcast(QPainter &, const int mm_h, double item_w);
     void _Draw3pForcast(QPainter &, const int mm_h, double item_w, bool is_down_forward);
 
+    void DrawBi(QPainter &, const int mm_h);
+
     void UpdatePosDatas();
     void UpdateKwallMinMaxPrice();
 
@@ -176,6 +178,7 @@ private:
      
     std::vector<std::shared_ptr<ZhibiaoWindow> > zb_windows_;
 
+    bool is_draw_bi_;
     friend class ZhibiaoWindow;
     friend class VolZhibiaoWin;
     friend class MomentumZhibiaoWin;

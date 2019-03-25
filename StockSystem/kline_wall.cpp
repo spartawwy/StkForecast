@@ -67,6 +67,7 @@ KLineWall::KLineWall(StkForecastApp *app, QWidget *parent, int index)
     , move_start_point_(0, 0)
     , area_select_flag_(false)
     , forcast_man_(index)
+    , is_draw_bi_(false)
 {
     ui.setupUi(this);
     ResetDrawState(DrawAction::NO_ACTION); 
@@ -100,7 +101,7 @@ bool KLineWall::Init()
     //auto ret = app_->stock_data_man().Init();
     //if( ret )
     {
-       return ResetStock("600196", k_type_, false);
+       return ResetStock("000301", k_type_, false); // 600196
     }
 
 }
@@ -340,6 +341,31 @@ void KLineWall::_Draw3pForcast(QPainter &painter, const int mm_h, double item_w,
         painter.drawText(std::get<0>(in), std::get<1>(in).c_str());
     });
     
+}
+
+void KLineWall::DrawBi(QPainter &painter, const int mm_h)
+{
+    T_BiContainer &container = app_->stock_data_man().GetBiContainer(PeriodType(k_type_), stock_code_);
+    if( container.empty() )
+        return;
+
+    QPen pen;  
+    //pen.setStyle(Qt::DotLine);
+    pen.setColor(Qt::yellow);
+    pen.setWidth(2);
+    for( unsigned int i = 0; i < container.size(); ++i )
+    { 
+        auto item_start = GetKLineDataItemByDate(container[i]->start.date, container[i]->start.hhmm);
+        auto item_end = GetKLineDataItemByDate(container[i]->end.date, container[i]->end.hhmm);
+        if( item_start && item_start->kline_posdata(wall_index_).date != 0 
+            && item_end && item_end->kline_posdata(wall_index_).date != 0 )
+        {
+            if( container[i]->type == BiType::UP )
+                painter.drawLine(item_start->kline_posdata(wall_index_).bottom, item_end->kline_posdata(wall_index_).top);
+            else
+                painter.drawLine(item_start->kline_posdata(wall_index_).top, item_end->kline_posdata(wall_index_).bottom);
+        }
+    }
 }
 
 void KLineWall::UpdatePosDatas()
@@ -897,6 +923,8 @@ void KLineWall::paintEvent(QPaintEvent*)
 
         Draw3pDownForcast(painter, k_mm_h, item_w);
         Draw3pUpForcast(painter, k_mm_h, item_w);
+        if( is_draw_bi_ )
+            DrawBi(painter, k_mm_h);
     } //if( p_hisdata_container_ )
    
     //k line view bottom border horizontal line (----------)

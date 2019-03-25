@@ -152,6 +152,18 @@ FractalType  BtmestFractalType(int val)
         return FractalType::UNKNOW_FRACTAL;
 }
 
+bool IsTopFractal(int type)
+{
+    if( MaxFractalType(type) >= FractalType::TOP_AXIS_T_3 )
+        return true;
+    else
+        return false;
+}
+
+bool IsBtmFractal(int type)
+{
+    return BtmestFractalType(type) != FractalType::UNKNOW_FRACTAL;
+}
 
 bool IsStrAlpha(const std::string& str)
 {

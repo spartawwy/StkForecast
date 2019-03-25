@@ -216,6 +216,38 @@ std::string TransIndex2TusharedCode(const std::string &code);
 FractalType  MaxFractalType(int val);
 FractalType  BtmestFractalType(int val);
 
+bool IsTopFractal(int type);
+bool IsBtmFractal(int type);
+
+ 
+class T_BiPoint
+{
+public:
+    int index;
+    int date;
+    int hhmm;
+    FractalType frac_type;
+    T_BiPoint():index(-1), date(0), hhmm(0), frac_type(FractalType::UNKNOW_FRACTAL){}
+    T_BiPoint(const T_BiPoint & lh) : index(lh.index), date(lh.date), hhmm(lh.hhmm), frac_type(lh.frac_type){}
+    T_BiPoint & operator = (const T_BiPoint &lh)
+    { 
+        if(this == &lh){return *this;} 
+        index = lh.index; date = lh.date; hhmm = lh.hhmm; frac_type = lh.frac_type;
+    }
+};
+
+enum class BiType : unsigned char { UP = 0, DOWN};
+class T_Bi 
+{
+public:
+    BiType  type;
+    T_BiPoint start;
+    T_BiPoint end;
+    T_Bi(BiType para_t, const T_BiPoint &para_start, const T_BiPoint &para_end) { type = para_t; start = para_start; end = para_end; }
+    T_Bi(const T_Bi& bi) : type(bi.type), start(bi.start), end(bi.end){}
+    T_Bi & operator = (const T_Bi& bi) {if( this == &bi){ return *this;} type = bi.type; start = bi.start; end = bi.end; }
+};
+
 #ifndef T_K_Data
 typedef struct _t_k_data
 {
@@ -233,6 +265,8 @@ typedef struct _t_k_data
 typedef std::deque<std::shared_ptr<T_KlineDataItem> >  T_HisDataItemContainer;
 typedef std::unordered_map<std::string, T_HisDataItemContainer>  T_CodeMapHisDataItemContainer;
 
+typedef std::deque<std::shared_ptr<T_Bi> >  T_BiContainer;
+typedef std::unordered_map<std::string, T_BiContainer> T_CodeMapBiContainer;
 
 bool IsStrAlpha(const std::string& str);
 bool IsStrNum(const std::string& str);
