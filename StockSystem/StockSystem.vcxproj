@@ -173,6 +173,7 @@
     </ClCompile>
     <ClCompile Include="HintList.cpp" />
     <ClCompile Include="kline_wall.cpp" />
+    <ClCompile Include="kline_wall_paint.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mainwindow.cpp" />
     <ClCompile Include="py_data_man.cpp" />

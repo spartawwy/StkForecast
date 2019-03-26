@@ -80,9 +80,6 @@
     <ClCompile Include="GeneratedFiles\qrc_res.cpp">
       <Filter>Generated Files</Filter>
     </ClCompile>
-    <ClCompile Include="kline_wall.cpp">
-      <Filter>win</Filter>
-    </ClCompile>
     <ClCompile Include="stockinput_dlg.cpp">
       <Filter>win</Filter>
     </ClCompile>
@@ -185,6 +182,12 @@
     </ClCompile>
     <ClCompile Include="Release\moc_kline_wall.cpp">
       <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="kline_wall_paint.cpp">
+      <Filter>win</Filter>
+    </ClCompile>
+    <ClCompile Include="kline_wall.cpp">
+      <Filter>win</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

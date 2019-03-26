@@ -18,6 +18,10 @@
 #define DRAW_FROM_RIGHT
 #endif
 
+#define  WOKRPLACE_DEFUALT_K_NUM  (4*20 + 100)
+#define  DEFAULT_CYCLE_TAG  "»’œﬂ"
+
+typedef std::tuple<QPointF, std::string> T_TuplePointStr;
 
 class StkForecastApp;
 class MainWindow;
@@ -110,7 +114,9 @@ private:
     bool GetContainerMaxMinPrice(PeriodType period_type, const std::string& code, int k_num, std::tuple<float, float>& ret, std::tuple<int, int, int, int> &date_times);
 
     int FindTopFractalItem_TowardLeft(T_HisDataItemContainer &his_data, T_HisDataItemContainer::reverse_iterator iter, int k_index, T_KlinePosData *&left_pos_data);
+    int FindTopFakeItem_TowardLeft(T_HisDataItemContainer &his_data, T_HisDataItemContainer::reverse_iterator iter, int k_index, T_KlinePosData *&left_pos_data);
     int FindBtmFractalItem_TowardLeft(T_HisDataItemContainer &his_data, T_HisDataItemContainer::reverse_iterator iter, int k_index, T_KlinePosData *&left_pos_data);
+    int FindBtmFakeItem_TowardLeft(T_HisDataItemContainer &his_data, T_HisDataItemContainer::reverse_iterator iter, int k_index, T_KlinePosData *&left_pos_data);
 
     int Calculate_k_mm_h();
 

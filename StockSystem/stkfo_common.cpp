@@ -152,6 +152,16 @@ FractalType  BtmestFractalType(int val)
         return FractalType::UNKNOW_FRACTAL;
 }
 
+bool IsTopFake(int val)
+{
+    return  (val & int(FractalType::TOP_FAKE));
+}
+
+bool IsBtmFake(int val)
+{
+    return  (val & int(FractalType::BTM_FAKE));
+}
+
 bool IsTopFractal(int type)
 {
     if( MaxFractalType(type) >= FractalType::TOP_AXIS_T_3 )

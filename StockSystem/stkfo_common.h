@@ -33,6 +33,8 @@
 
 enum class FractalType : int
 {
+ BTM_FAKE        = 0x10000001,
+ TOP_FAKE        = 0x10000002,
  UNKNOW_FRACTAL  = 0,
  BTM_AXIS_T_3    = 0x00000001,
  BTM_AXIS_T_5    = 0x00000002,
@@ -215,6 +217,9 @@ std::string TransIndex2TusharedCode(const std::string &code);
 
 FractalType  MaxFractalType(int val);
 FractalType  BtmestFractalType(int val);
+
+bool IsTopFake(int val);
+bool IsBtmFake(int val);
 
 bool IsTopFractal(int type);
 bool IsBtmFractal(int type);
