@@ -144,9 +144,9 @@ class T_KlineDataItem //_t_kline_dataitem
 {
 public:
     T_StockHisDataItem  stk_item;
-    
     int  type;
     std::vector<std::shared_ptr<ZhiBiaoAtom> > zhibiao_atoms;
+
     T_KlineDataItem() : type(int(FractalType::UNKNOW_FRACTAL)), kline_posdata_1(), kline_posdata_0()
     {
         memset(&stk_item, 0, sizeof(stk_item));
@@ -182,9 +182,10 @@ private:
     void CreateHelper(const T_KlineDataItem & lh)
     {
         memcpy(&stk_item, &lh.stk_item, sizeof(lh.stk_item));
+        this->type = lh.type;
+        this->zhibiao_atoms = lh.zhibiao_atoms;
         this->kline_posdata_0 = lh.kline_posdata_0;
         this->kline_posdata_1 = lh.kline_posdata_1;
-        this->zhibiao_atoms = lh.zhibiao_atoms;
     }
     T_KlinePosData  kline_posdata_0;
     T_KlinePosData  kline_posdata_1;

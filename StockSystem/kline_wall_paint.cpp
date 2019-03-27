@@ -1658,10 +1658,10 @@ int KLineWall::FindTopFractalItem_TowardLeft(T_HisDataItemContainer &his_data, T
         return 0;
 }
 
-
+// ps : contain iter
 int KLineWall::FindTopFakeItem_TowardLeft(T_HisDataItemContainer &his_data, T_HisDataItemContainer::reverse_iterator iter, int k_index, T_KlinePosData *&left_pos_data)
 {
-    auto left_tgt_iter = iter + 1;
+    auto left_tgt_iter = iter;
     int cp_j = k_index - 1;
     for( ; left_tgt_iter != his_data.rend() && cp_j > 0; 
         ++left_tgt_iter, --cp_j)
@@ -1697,10 +1697,10 @@ int KLineWall::FindBtmFractalItem_TowardLeft(T_HisDataItemContainer &his_data, T
         return 0;
 }
 
-
+// ps : contain iter
 int KLineWall::FindBtmFakeItem_TowardLeft(T_HisDataItemContainer &his_data, T_HisDataItemContainer::reverse_iterator iter, int k_index, T_KlinePosData *&left_pos_data)
 {
-    auto left_tgt_iter = iter + 1;
+    auto left_tgt_iter = iter;
     int cp_j = k_index - 1;
     for( ; left_tgt_iter != his_data.rend() && cp_j > 0; 
         ++left_tgt_iter, --cp_j) // find left btm_axis_iter 

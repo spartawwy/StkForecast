@@ -195,7 +195,8 @@ bool IsStrAlpha(const std::string& str)
 
 void ClearTopFractal(int &val)
 {
-    int vals[] = {(int)FractalType::TOP_AXIS_T_3, (int)FractalType::TOP_AXIS_T_5, (int)FractalType::TOP_AXIS_T_7, (int)FractalType::TOP_AXIS_T_9, (int)FractalType::TOP_AXIS_T_11};
+    int vals[] = {(int)FractalType::TOP_AXIS_T_3, (int)FractalType::TOP_AXIS_T_5, (int)FractalType::TOP_AXIS_T_7
+        , (int)FractalType::TOP_AXIS_T_9, (int)FractalType::TOP_AXIS_T_11, (int)FractalType::TOP_FAKE};
     for( int i = 0; i < sizeof(vals) / sizeof(vals[0]); ++i )
     {
         int tmp_val = int(vals[i]);
@@ -206,7 +207,8 @@ void ClearTopFractal(int &val)
 
 void ClearBtmFractal(int &val)
 {
-    int vals[] = {(int)FractalType::BTM_AXIS_T_3, (int)FractalType::BTM_AXIS_T_5, (int)FractalType::BTM_AXIS_T_7, (int)FractalType::BTM_AXIS_T_9, (int)FractalType::BTM_AXIS_T_11};
+    int vals[] = {(int)FractalType::BTM_AXIS_T_3, (int)FractalType::BTM_AXIS_T_5, (int)FractalType::BTM_AXIS_T_7
+        , (int)FractalType::BTM_AXIS_T_9, (int)FractalType::BTM_AXIS_T_11, (int)FractalType::BTM_FAKE};
     for( int i = 0; i < sizeof(vals) / sizeof(vals[0]); ++i )
     {
         int tmp_val = int(vals[i]);
