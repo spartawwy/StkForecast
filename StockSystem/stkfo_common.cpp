@@ -193,6 +193,28 @@ bool IsStrAlpha(const std::string& str)
 
 }
 
+void ClearTopFractal(int &val)
+{
+    int vals[] = {(int)FractalType::TOP_AXIS_T_3, (int)FractalType::TOP_AXIS_T_5, (int)FractalType::TOP_AXIS_T_7, (int)FractalType::TOP_AXIS_T_9, (int)FractalType::TOP_AXIS_T_11};
+    for( int i = 0; i < sizeof(vals) / sizeof(vals[0]); ++i )
+    {
+        int tmp_val = int(vals[i]);
+        tmp_val ^= 0xffffffff;
+        val &= tmp_val;
+    }
+}
+
+void ClearBtmFractal(int &val)
+{
+    int vals[] = {(int)FractalType::BTM_AXIS_T_3, (int)FractalType::BTM_AXIS_T_5, (int)FractalType::BTM_AXIS_T_7, (int)FractalType::BTM_AXIS_T_9, (int)FractalType::BTM_AXIS_T_11};
+    for( int i = 0; i < sizeof(vals) / sizeof(vals[0]); ++i )
+    {
+        int tmp_val = int(vals[i]);
+        tmp_val ^= 0xffffffff;
+        val &= tmp_val;
+    }
+}
+
 bool IsStrNum(const std::string& str)
 {
     try

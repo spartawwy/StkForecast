@@ -49,6 +49,10 @@ enum class FractalType : int
  TOP_AXIS_T_11   = 0x00000200,
 };
 
+void ClearTopFractal(int &val);
+
+void ClearBtmFractal(int &val);
+
 #define UPWARD_FRACTAL   0x10000000
 #define DOWNWARD_FRACTAL 0x20000000
 #define INSUFFIC_FRACTAL 0x40000000  
