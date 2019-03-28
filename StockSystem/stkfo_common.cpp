@@ -110,7 +110,9 @@ std::string TransIndex2TusharedCode(const std::string &code)
 
 FractalType  MaxFractalType(int val)
 {
-    if( (val & int(FractalType::TOP_AXIS_T_11)) == int(FractalType::TOP_AXIS_T_11) )
+    if( (val & int(FractalType::TOP_FAKE)) == int(FractalType::TOP_FAKE) )
+        return FractalType::TOP_FAKE;
+    else if( (val & int(FractalType::TOP_AXIS_T_11)) == int(FractalType::TOP_AXIS_T_11) )
         return FractalType::TOP_AXIS_T_11;
     else if( (val & int(FractalType::TOP_AXIS_T_9)) == int(FractalType::TOP_AXIS_T_9) )
         return FractalType::TOP_AXIS_T_9;
@@ -131,6 +133,8 @@ FractalType  MaxFractalType(int val)
         return FractalType::BTM_AXIS_T_5;
     else if( (val & int(FractalType::BTM_AXIS_T_3)) == int(FractalType::BTM_AXIS_T_3) )
         return FractalType::BTM_AXIS_T_3;
+    else if( (val & int(FractalType::BTM_FAKE)) == int(FractalType::BTM_FAKE) )
+        return FractalType::BTM_FAKE;
     else
         return FractalType::UNKNOW_FRACTAL;
 }
@@ -148,18 +152,20 @@ FractalType  BtmestFractalType(int val)
         return FractalType::BTM_AXIS_T_5;
     else if( (val & int(FractalType::BTM_AXIS_T_3)) == int(FractalType::BTM_AXIS_T_3) )
         return FractalType::BTM_AXIS_T_3;
+    else if( (val & int(FractalType::BTM_FAKE)) == int(FractalType::BTM_FAKE) )
+        return FractalType::BTM_FAKE;
     else
         return FractalType::UNKNOW_FRACTAL;
 }
 
 bool IsTopFake(int val)
 {
-    return  (val & int(FractalType::TOP_FAKE));
+    return  (val & int(FractalType::TOP_FAKE)) == int(FractalType::TOP_FAKE);
 }
 
 bool IsBtmFake(int val)
 {
-    return  (val & int(FractalType::BTM_FAKE));
+    return  (val & int(FractalType::BTM_FAKE)) == int(FractalType::BTM_FAKE);
 }
 
 bool IsTopFractal(int type)

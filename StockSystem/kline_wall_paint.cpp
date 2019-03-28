@@ -845,41 +845,6 @@ void KLineWall::paintEvent(QPaintEvent*)
 #endif
         T_KlinePosData &pos_data = iter->get()->kline_posdata(wall_index_);
          
-        if( pos_data.date != iter->get()->stk_item.date )
-            printf("error");
-        // fengxin relate -------------------
-        auto rac_type = MaxFractalType((*iter)->type);
-        if( rac_type != FractalType::UNKNOW_FRACTAL || IsBtmFake((*iter)->type) || IsTopFake((*iter)->type) )
-        {
-            QPen fractal_pen;
-            fractal_pen.setStyle(Qt::SolidLine);
-            fractal_pen.setColor(QColor(0,0,255));
-            painter.setPen(fractal_pen);
-
-            T_KlinePosData *left_pos_data = nullptr;
-            if( rac_type <= FractalType::BTM_AXIS_T_11 ) // bottom fractal 
-            {   //painter.drawText(pos_data.bottom.x(), pos_data.bottom.y(), "BTM");
-                if( FindTopFractalItem_TowardLeft(*p_hisdata_container_, iter, j, left_pos_data) > 0 
-                    || FindTopFakeItem_TowardLeft(*p_hisdata_container_, iter, j, left_pos_data) > 0 )
-                {
-                    painter.drawLine(pos_data.bottom.x(), pos_data.bottom.y(), left_pos_data->top.x(), left_pos_data->top.y());
-                } 
-            }else if( IsBtmFake((*iter)->type) )
-            {
-                if( FindTopFractalItem_TowardLeft(*p_hisdata_container_, iter, j, left_pos_data) > 0 )
-                    painter.drawLine(pos_data.bottom.x(), pos_data.bottom.y(), left_pos_data->top.x(), left_pos_data->top.y());
-            }else if( IsTopFake((*iter)->type) )
-            {
-                if( FindBtmFractalItem_TowardLeft(*p_hisdata_container_, iter, j, left_pos_data) )
-                    painter.drawLine(pos_data.top.x(), pos_data.top.y(), left_pos_data->bottom.x(), left_pos_data->bottom.y());
-            }else // top fractal 
-            {   //painter.drawText(pos_data.top.x(), pos_data.top.y(), "TOP");
-                if( FindBtmFractalItem_TowardLeft(*p_hisdata_container_, iter, j, left_pos_data) > 0
-                    || FindBtmFakeItem_TowardLeft(*p_hisdata_container_, iter, j, left_pos_data) > 0 )
-                    painter.drawLine(pos_data.top.x(), pos_data.top.y(), left_pos_data->bottom.x(), left_pos_data->bottom.y());
-            }
-        }
-
         //draw every k bar---------------
         QBrush brush(QColor(255,0,0));  
         pen.setStyle(Qt::SolidLine);
@@ -921,6 +886,39 @@ void KLineWall::paintEvent(QPaintEvent*)
             sprintf_s(temp_str, sizeof(temp_str), "%s ¿ª:%.2f ¸ß:%.2f µÍ:%.2f ÊÕ:%.2f  \0", stock_code_.c_str(), (*iter)->stk_item.open_price
                                                   , (*iter)->stk_item.high_price, (*iter)->stk_item.low_price, (*iter)->stk_item.close_price);
             k_detail_str = QString::fromLocal8Bit(temp_str);
+        }
+        // debug -----------
+        /*int cckk_date = iter->get()->stk_item.date;
+        if( pos_data.date != iter->get()->stk_item.date )
+        printf("error");*/
+        // end -----------
+        // fengxin relate ------------------- 
+        if( (*iter)->type != (int)FractalType::UNKNOW_FRACTAL )
+        {
+            QPen fractal_pen;
+            fractal_pen.setStyle(Qt::SolidLine);
+            fractal_pen.setColor(QColor(0,0,255));
+            painter.setPen(fractal_pen);
+
+            T_KlinePosData *left_pos_data = nullptr;
+            if( IsBtmFractal((*iter)->type) ) // bottom fractal 
+            {   //painter.drawText(pos_data.bottom.x(), pos_data.bottom.y(), "BTM");
+                int top_item_index = FindTopItem_TowardLeft(*p_hisdata_container_, iter, j, left_pos_data);
+                if( top_item_index > 0 )
+                {
+                    if( top_item_index == j )
+                    {
+                        painter.drawLine(pos_data.bottom.x(), pos_data.bottom.y(), left_pos_data->top.x(), left_pos_data->top.y());
+                        if( FindBtmItem_TowardLeft(*p_hisdata_container_, iter, j, left_pos_data) )
+                            painter.drawLine(pos_data.top.x(), pos_data.top.y(), left_pos_data->bottom.x(), left_pos_data->bottom.y());
+                    }else
+                        painter.drawLine(pos_data.bottom.x(), pos_data.bottom.y(), left_pos_data->top.x(), left_pos_data->top.y());
+                }
+            }else // top fractal 
+            {   //painter.drawText(pos_data.top.x(), pos_data.top.y(), "TOP");
+                if( FindBtmItem_TowardLeft(*p_hisdata_container_, iter, j, left_pos_data) > 0 )
+                    painter.drawLine(pos_data.top.x(), pos_data.top.y(), left_pos_data->bottom.x(), left_pos_data->bottom.y());
+            }
         }
 
       }  // for all k bar 
@@ -1140,7 +1138,7 @@ void KLineWall::keyPressEvent(QKeyEvent *e)
     case Qt::Key_U: case Qt::Key_V: case Qt::Key_W: case Qt::Key_X: case Qt::Key_Y:
     case Qt::Key_Z:
 		{
-			qDebug() << __FUNCDNAME__ << "\n"; 
+			//qDebug() << __FUNCDNAME__ << "\n"; 
             stock_input_dlg_.ui.stock_input->clear();
             char tmpbuf[8] = {0};
             if( key_val >= Qt::Key_0 && key_val <= Qt::Key_9 )
@@ -1160,12 +1158,12 @@ void KLineWall::keyPressEvent(QKeyEvent *e)
 
 void KLineWall::enterEvent(QEvent *)
 {
-    qDebug() << __FUNCTION__ << "\n";
+    //qDebug() << __FUNCTION__ << "\n";
 }
 
 void KLineWall::leaveEvent(QEvent *)
 {
-    qDebug() << __FUNCTION__ << "\n";
+    //qDebug() << __FUNCTION__ << "\n";
 }
 
 // 
@@ -1641,16 +1639,17 @@ double KLineWall::GetCurWinKLargetstVol()
     return largest_vol;
 }
 
-int KLineWall::FindTopFractalItem_TowardLeft(T_HisDataItemContainer &his_data, T_HisDataItemContainer::reverse_iterator iter, int k_index, T_KlinePosData *&left_pos_data)
+// ps : contain iter
+int KLineWall::FindTopItem_TowardLeft(T_HisDataItemContainer &his_data, T_HisDataItemContainer::reverse_iterator iter, int k_index, T_KlinePosData *&left_pos_data)
 {
-    auto left_tgt_iter = iter + 1;
-    int cp_j = k_index - 1;
+    auto left_tgt_iter = iter;
+    int cp_j = k_index;
     for( ; left_tgt_iter != his_data.rend() && cp_j > 0; 
         ++left_tgt_iter, --cp_j)
     {
         int type = (*left_tgt_iter)->type;
         auto left_frac_type = MaxFractalType(type);
-        if( left_frac_type > FractalType::BTM_AXIS_T_11 )
+        if( left_frac_type >= FractalType::TOP_AXIS_T_3 )
             break;
     }
     if( left_tgt_iter != his_data.rend() && cp_j > 0 )
@@ -1680,7 +1679,8 @@ int KLineWall::FindTopFakeItem_TowardLeft(T_HisDataItemContainer &his_data, T_Hi
         return 0;
 }
 
-int KLineWall::FindBtmFractalItem_TowardLeft(T_HisDataItemContainer &his_data, T_HisDataItemContainer::reverse_iterator iter, int k_index, T_KlinePosData *&left_pos_data)
+// ps : not contain iter
+int KLineWall::FindBtmItem_TowardLeft(T_HisDataItemContainer &his_data, T_HisDataItemContainer::reverse_iterator iter, int k_index, T_KlinePosData *&left_pos_data)
 {
     auto left_tgt_iter = iter + 1;
     int cp_j = k_index - 1;
@@ -1688,7 +1688,7 @@ int KLineWall::FindBtmFractalItem_TowardLeft(T_HisDataItemContainer &his_data, T
         ++left_tgt_iter, --cp_j) // find left btm_axis_iter 
     {
         auto left_frac_type = BtmestFractalType((*left_tgt_iter)->type);
-        if( left_frac_type > FractalType::UNKNOW_FRACTAL )
+        if( left_frac_type != FractalType::UNKNOW_FRACTAL )
             break;
     }
 

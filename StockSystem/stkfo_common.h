@@ -14,18 +14,6 @@
 #define  OUT
 #define  IN
 #define  INOUT
-//#define UNKNOW_FRACTAL   0
-//#define BTM_AXIS_T_3     0x00000001
-//#define BTM_AXIS_T_5     0x00000002
-//#define BTM_AXIS_T_7     0x00000004
-//#define BTM_AXIS_T_9     0x00000008
-//#define BTM_AXIS_T_11    0x00000010
-//
-//#define TOP_AXIS_T_3     0x00000020
-//#define TOP_AXIS_T_5     0x00000040
-//#define TOP_AXIS_T_7     0x00000080
-//#define TOP_AXIS_T_9     0x00000100
-//#define TOP_AXIS_T_11    0x00000200
 
 //#define USE_STK_QUOTER  // get k line info from stk quoter
 //#define USE_WINNER_API  // get k line info from winnersystem 
@@ -33,20 +21,20 @@
 
 enum class FractalType : int
 {
- BTM_FAKE        = 0x10000001,
- TOP_FAKE        = 0x10000002,
  UNKNOW_FRACTAL  = 0,
  BTM_AXIS_T_3    = 0x00000001,
  BTM_AXIS_T_5    = 0x00000002,
  BTM_AXIS_T_7    = 0x00000004,
  BTM_AXIS_T_9    = 0x00000008,
  BTM_AXIS_T_11   = 0x00000010,
+ BTM_FAKE        = 0x00000020,
 
- TOP_AXIS_T_3    = 0x00000020,
- TOP_AXIS_T_5    = 0x00000040,
- TOP_AXIS_T_7    = 0x00000080,
- TOP_AXIS_T_9    = 0x00000100,
- TOP_AXIS_T_11   = 0x00000200,
+ TOP_AXIS_T_3    = 0x00010000,
+ TOP_AXIS_T_5    = 0x00020000,
+ TOP_AXIS_T_7    = 0x00040000,
+ TOP_AXIS_T_9    = 0x00080000,
+ TOP_AXIS_T_11   = 0x00100000,
+ TOP_FAKE        = 0x40000000,
 };
 
 void ClearTopFractal(int &val);
@@ -56,20 +44,13 @@ void ClearBtmFractal(int &val);
 #define UPWARD_FRACTAL   0x10000000
 #define DOWNWARD_FRACTAL 0x20000000
 #define INSUFFIC_FRACTAL 0x40000000  
-
-//#define CST_MAGIC_POINT QPoint(-1, -1)
+ 
 #define CST_MAGIC_POINT QPointF(-1, -1)
 #define MAX_PRICE 100000000.0f
 #define MIN_PRICE 0.0f
 
 #define MARKET_TYPE_SH  1
 #define MARKET_TYPE_SZ  0
-//enum class KLineType : unsigned char
-//{
-//    KLINE_DAY = 0,
-//    KLINE_60MIN,
-//    KLINE_30MIN, 
-//};
 
 enum class TypePeriod : unsigned char
 {
@@ -284,6 +265,6 @@ void gbkToUtf8(std::string& strGbk);
 
 #define  MOMENTUM_POS 0
 
-#define  DEFAULT_TYPE_PERIOD  TypePeriod::PERIOD_WEEK
+#define  DEFAULT_TYPE_PERIOD  TypePeriod::PERIOD_DAY
 
 #endif // STKFO_COMMON_SDF3DSF_H_
