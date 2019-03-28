@@ -64,10 +64,10 @@ bool MainWindow::Initialize()
     if( !kline_wall_->Init() )
         return false;
     kline_wall_->setMouseTracking(true);
-    kline_wall_->RestTypePeriod(TypePeriod::PERIOD_DAY);
+    kline_wall_->RestTypePeriod(DEFAULT_TYPE_PERIOD);
 
     tool_bar_ = new ToolBar(this);
-    tool_bar_->SetCurCycleType(TypePeriod::PERIOD_DAY);
+    tool_bar_->SetCurCycleType(DEFAULT_TYPE_PERIOD);
     bool ret = connect(tool_bar_->cycle_comb(), SIGNAL(currentIndexChanged(int)), this, SLOT(onCycleChange(int)));
     ret = ret;
      

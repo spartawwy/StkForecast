@@ -83,7 +83,6 @@ enum class TypePeriod : unsigned char
     PERIOD_YEAR,
 };
 
-
 class PyDataMan;
 class T_KlinePosData
 {
@@ -284,5 +283,7 @@ void utf8ToGbk(std::string& strUtf8);
 void gbkToUtf8(std::string& strGbk);
 
 #define  MOMENTUM_POS 0
+
+#define  DEFAULT_TYPE_PERIOD  TypePeriod::PERIOD_WEEK
 
 #endif // STKFO_COMMON_SDF3DSF_H_

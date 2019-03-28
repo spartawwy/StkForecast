@@ -52,7 +52,7 @@ KLineWall::KLineWall(StkForecastApp *app, QWidget *parent, int index)
     , k_num_(WOKRPLACE_DEFUALT_K_NUM)
     , k_rend_index_(0)  
     , pre_k_rend_index_(0)
-    , k_type_(TypePeriod::PERIOD_WEEK)
+    , k_type_(DEFAULT_TYPE_PERIOD)
     , k_cycle_tag_()
     , k_cycle_year_(0)
     , date_(0)
@@ -845,6 +845,8 @@ void KLineWall::paintEvent(QPaintEvent*)
 #endif
         T_KlinePosData &pos_data = iter->get()->kline_posdata(wall_index_);
          
+        if( pos_data.date != iter->get()->stk_item.date )
+            printf("error");
         // fengxin relate -------------------
         auto rac_type = MaxFractalType((*iter)->type);
         if( rac_type != FractalType::UNKNOW_FRACTAL || IsBtmFake((*iter)->type) || IsTopFake((*iter)->type) )
@@ -975,7 +977,7 @@ void KLineWall::paintEvent(QPaintEvent*)
     // draw cross line --------------------
     if( show_cross_line_ )
     {
-        qDebug() << " show_cross_line_ pos y " << (float)pos_from_global.y() << "\n";
+        //qDebug() << " show_cross_line_ pos y " << (float)pos_from_global.y() << "\n";
         // horizontal line 
         painter.drawLine(0, pos_from_global.y(), mm_w-right_w_, pos_from_global.y());
         // vertical line 
@@ -1008,7 +1010,7 @@ void KLineWall::mouseDoubleClickEvent(QMouseEvent*)
 void KLineWall::mouseMoveEvent(QMouseEvent *e)
 { 
     auto pos = e->pos();
-    qDebug() << " mouseMoveEvent " << "\n";
+    //qDebug() << " mouseMoveEvent " << "\n";
  
     if( draw_action_ != DrawAction::NO_ACTION )
     {
@@ -1646,7 +1648,8 @@ int KLineWall::FindTopFractalItem_TowardLeft(T_HisDataItemContainer &his_data, T
     for( ; left_tgt_iter != his_data.rend() && cp_j > 0; 
         ++left_tgt_iter, --cp_j)
     {
-        auto left_frac_type = MaxFractalType((*left_tgt_iter)->type);
+        int type = (*left_tgt_iter)->type;
+        auto left_frac_type = MaxFractalType(type);
         if( left_frac_type > FractalType::BTM_AXIS_T_11 )
             break;
     }
