@@ -97,7 +97,7 @@ bool KLineWall::Init()
     //auto ret = app_->stock_data_man().Init();
     //if( ret )
     {
-       return ResetStock("000301", k_type_, false); // 600196
+       return ResetStock("000973", k_type_, false); // 600196  000301
     }
 
 }
