@@ -778,7 +778,7 @@ void TraverseAjustFractal( std::deque<std::shared_ptr<T_KlineDataItem> > &kline_
         }
         return target_i;
     };
-    // from index to j (contain index)
+    // from index to j (contain index and j)
     static auto find_left_top = [](std::deque<std::shared_ptr<T_KlineDataItem> > &kline_data_items, int index, int j)->int
     {
         double tmp_price = MIN_PRICE;
@@ -810,6 +810,7 @@ void TraverseAjustFractal( std::deque<std::shared_ptr<T_KlineDataItem> > &kline_
         }
         return target_i;
     };
+    // ps : uncontain index and nearby_index
     static auto get_min_max = [](std::deque<std::shared_ptr<T_KlineDataItem> > &kline_data_items, int index, int nearby_index)->std::tuple<double, int, double, int>
     { 
         double tmp_max_price = MIN_PRICE;
@@ -846,7 +847,7 @@ void TraverseAjustFractal( std::deque<std::shared_ptr<T_KlineDataItem> > &kline_
             int top_index = find_left_top_frac(kline_data_items, index);
             if( btm_index > top_index ) // btm is nearby
             {
-                if( index - btm_index == 1 )
+                if( index - btm_index == 1 && !IsTopFractal(kline_data_items[index]->type) )
                 {
                     if( kline_data_items[index]->stk_item.low_price < kline_data_items[btm_index]->stk_item.low_price )
                         ClearBtmFractal(kline_data_items[btm_index]->type);
@@ -855,13 +856,27 @@ void TraverseAjustFractal( std::deque<std::shared_ptr<T_KlineDataItem> > &kline_
                     continue;
                 }
                 // find left k which pirce is higest
-                int left_top_index = find_left_top_uncontain(kline_data_items, index, btm_index);
+                auto min_max_tuple = get_min_max(kline_data_items, index, btm_index);
+                double left_min_price = std::get<0>(min_max_tuple);
+                int left_min_index = std::get<1>(min_max_tuple);
+                double left_top_price = std::get<2>(min_max_tuple);
+                int left_top_index = std::get<3>(min_max_tuple);
+                //int left_top_index = find_left_top_uncontain(kline_data_items, index, btm_index);
                 if( left_top_index > 0 
-                    && kline_data_items[left_top_index]->stk_item.high_price > kline_data_items[btm_index]->stk_item.high_price 
-                    && kline_data_items[left_top_index]->stk_item.high_price > kline_data_items[index]->stk_item.high_price)
+                    && left_top_price > kline_data_items[btm_index]->stk_item.high_price 
+                    && left_top_price > kline_data_items[index]->stk_item.high_price)
                 { 
                     kline_data_items[left_top_index]->type |= (int)FractalType::TOP_FAKE;
-                    qDebug() << __LINE__ << " set top fake flag date " <<  kline_data_items[left_top_index]->stk_item.date;
+                    qDebug() << __LINE__ << " set top fake flag date " <<  kline_data_items[left_top_index]->stk_item.date << " " <<  kline_data_items[left_top_index]->stk_item.hhmmss;
+                    if( left_min_price < kline_data_items[index]->stk_item.low_price 
+                        && left_min_index >= left_top_index )
+                    {
+                        qDebug() << __LINE__ << "index " << index << " left_min_index " << left_min_index << " left_top_index " << left_top_index;
+                        kline_data_items[left_min_index]->type |= (int)FractalType::BTM_FAKE;
+                        qDebug() << __LINE__ << " set btm fake flag date " <<  kline_data_items[left_min_index]->stk_item.date<< " " <<  kline_data_items[left_min_index]->stk_item.hhmmss;
+                        ClearBtmFractal(kline_data_items[index]->type);
+                        qDebug() << __LINE__ << " clear btm fake date " <<  kline_data_items[index]->stk_item.date << " " <<  kline_data_items[index]->stk_item.hhmmss;
+                    }
                 }else if( !IsTopFractal(kline_data_items[index]->type) )
                 {
                     if( kline_data_items[btm_index]->stk_item.low_price > kline_data_items[index]->stk_item.low_price )
@@ -914,7 +929,7 @@ void TraverseAjustFractal( std::deque<std::shared_ptr<T_KlineDataItem> > &kline_
             int btm_index = find_left_btm_frac(kline_data_items, index);
             if( top_index > btm_index ) // left top fram is nearby
             {
-                if( index - top_index == 1 )
+                if( index - top_index == 1 && !IsBtmFractal(kline_data_items[index]->type) )
                 {
                     if( kline_data_items[index]->stk_item.high_price > kline_data_items[top_index]->stk_item.high_price )
                         ClearTopFractal(kline_data_items[top_index]->type);

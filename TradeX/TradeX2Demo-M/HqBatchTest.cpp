@@ -16,7 +16,7 @@ using namespace std;
 #define F6  1 // TdxHq_GetIndexBars
 //#define F7  1 // TdxHq_GetTransactionData
 //#define F8  1 // TdxHq_GetHistoryTransactionData
-//#define F9  1 // TdxHq_GetSecurityQuotes
+#define F9  1 // TdxHq_GetSecurityQuotes
 //#define F10 1 // TdxHq_GetCompanyInfoCategory
 //#define F11 1 // TdxHq_GetCompanyInfoContent
 //#define F12 1 // TdxHq_GetXDXRInfo
