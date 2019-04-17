@@ -42,6 +42,8 @@ public:
     bool UpdateLatestItemStockData(PeriodType period_type, const std::string &stk_code, bool is_index=false);
     void TraverseGetBi(PeriodType period_type, const std::string &code, std::deque<std::shared_ptr<T_KlineDataItem> > &kline_data_items);
 
+    void TraverseGetStuctLines(PeriodType period_type, const std::string &code, std::deque<std::shared_ptr<T_KlineDataItem> > &kline_data_items);
+
 public:
       
 	float GetHisDataLowestMinPrice(PeriodType period_type, const std::string& code, int start_date, int end_date);
@@ -51,6 +53,8 @@ public:
 
     T_HisDataItemContainer &GetHisDataContainer(PeriodType period_type, const std::string& code);
     T_BiContainer &GetBiContainer(PeriodType period_type, const std::string& code);
+    T_StructLineContainer &GetStructLineContainer(PeriodType period_type, const std::string& code);
+
     // (stock , data)  date is from small to big
     T_CodeMapHisDataItemContainer m5_stock_his_items_;
     T_CodeMapHisDataItemContainer m15_stock_his_items_;
@@ -67,6 +71,14 @@ public:
     T_CodeMapBiContainer day_stock_bi_items_;
     T_CodeMapBiContainer week_stock_bi_items_;
     T_CodeMapBiContainer mon_stock_bi_items_;
+
+    T_CodeMapStructLineContainer m5_stock_struct_lines_;
+    T_CodeMapStructLineContainer m15_stock_struct_lines_;
+    T_CodeMapStructLineContainer m30_stock_struct_lines_;
+    T_CodeMapStructLineContainer hour_stock_struct_lines_;
+    T_CodeMapStructLineContainer day_stock_struct_lines_;
+    T_CodeMapStructLineContainer week_stock_struct_lines_;
+    T_CodeMapStructLineContainer mon_stock_struct_lines_;
 
 #ifndef USE_STK_QUOTER
     std::vector<T_StockHisDataItem> *p_stk_hisdata_item_vector_;

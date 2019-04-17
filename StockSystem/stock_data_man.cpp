@@ -66,6 +66,13 @@ StockDataMan::StockDataMan(ExchangeCalendar *p_exchange_calendar)
     , day_stock_bi_items_(64)
     , week_stock_bi_items_(64)
     , mon_stock_bi_items_(64)
+    , m5_stock_struct_lines_(64)
+    , m15_stock_struct_lines_(64)
+    , m30_stock_struct_lines_(64)
+    , hour_stock_struct_lines_(64)
+    , day_stock_struct_lines_(64)
+    , week_stock_struct_lines_(64)
+    , mon_stock_struct_lines_(64)
 #ifdef USE_WINNER_API
     , WinnerHisHq_GetKData_(nullptr)
     , WinnerHisHq_Connect_(nullptr)
@@ -446,6 +453,26 @@ T_BiContainer & StockDataMan::GetBiContainer(PeriodType period_type, const std::
     auto container_iter = p_code_map_container->find(code);
     if( container_iter == p_code_map_container->end() )
         container_iter = p_code_map_container->insert(std::make_pair(code, T_BiContainer())).first;
+    return container_iter->second;
+}
+
+T_StructLineContainer &StockDataMan::GetStructLineContainer(PeriodType period_type, const std::string& code)
+{
+    T_CodeMapStructLineContainer *p_code_map_container = nullptr;
+    switch(period_type)
+    {
+    case PeriodType::PERIOD_5M:   p_code_map_container = &m5_stock_struct_lines_; break;
+    case PeriodType::PERIOD_15M:  p_code_map_container = &m15_stock_struct_lines_; break;
+    case PeriodType::PERIOD_30M:  p_code_map_container = &m30_stock_struct_lines_; break;
+    case PeriodType::PERIOD_HOUR: p_code_map_container = &hour_stock_struct_lines_; break;
+    case PeriodType::PERIOD_DAY:  p_code_map_container = &day_stock_struct_lines_; break; 
+    case PeriodType::PERIOD_WEEK: p_code_map_container = &week_stock_struct_lines_; break;
+    case PeriodType::PERIOD_MON:  p_code_map_container = &mon_stock_struct_lines_; break;
+    default: assert(false);
+    }
+    auto container_iter = p_code_map_container->find(code);
+    if( container_iter == p_code_map_container->end() )
+        container_iter = p_code_map_container->insert(std::make_pair(code, T_StructLineContainer())).first;
     return container_iter->second;
 }
 
@@ -1073,6 +1100,76 @@ void StockDataMan::TraverseGetBi(PeriodType period_type, const std::string &code
                 index = target_index + 1;
             }
         }
+    }
+}
+
+void StockDataMan::TraverseGetStuctLines(PeriodType period_type, const std::string &code, std::deque<std::shared_ptr<T_KlineDataItem> > &kline_data_items)
+{
+    // ps : towards left
+    static auto find_next_fractal  = [](std::deque<std::shared_ptr<T_KlineDataItem> > &kline_data_items, int from_index)->int
+    {
+        int local_index = from_index;
+        while( local_index >= 0 )
+        {
+            if( kline_data_items[local_index]->type != (int)FractalType::UNKNOW_FRACTAL )
+                return local_index;
+            --local_index;
+        }
+        return -1;
+    };
+
+    if( kline_data_items.size() < 1 )
+        return;
+    T_StructLineContainer &container = GetStructLineContainer(period_type, code); 
+    container.clear();
+    unsigned int index = kline_data_items.size();
+    while( --index > 0 )
+    {
+        
+        if( IsTopFractal(kline_data_items[index]->type) )
+        {
+            // find_down_toward_end(std::deque<std::shared_ptr<T_KlineDataItem> > &kline_data_items, int start, int &end)
+            if( start == 0 )
+            {
+                end = start;
+                return;
+            }
+            int ck_index_date = kline_data_items[start]->stk_item.date;
+            
+            double price_a = kline_data_items[start]->stk_item.low_price;
+            // 1.find next btm fractal B
+            int btm_index_b = find_next_fractal(kline_data_items, start - 1);
+            if( start == 0 )
+            {
+                end = start;
+                return;
+            }
+            assert( IsBtmFractal(kline_data_items[btm_index_b]->type) ); 
+            double price_b = kline_data_items[btm_index_b]->stk_item.low_price;
+            assert( price_b < price_a );
+            // find next top fractal C
+            int top_index_c = find_next_fractal(kline_data_items, btm_index_b - 1);
+            assert( IsTopFractal(kline_data_items[top_index_c]->type) ); 
+            double price_c = kline_data_items[top_index_c]->stk_item.high_price;
+            assert( price_c > price_b );
+            
+            if( price_c < price_a )// judge if C is lower than A
+            {
+                find_down_toward_end(kline_data_items, top_index_c, end);
+
+            }else // higher: set B as end point
+            {
+                end = btm_index_b;
+                auto line = std::make_shared<T_StructLine>();
+                container.emplace_back(LineType::DOWN, index, btm_index_b);
+                index = btm_index_b;
+                continue;
+            }
+            //      other: find next btm D 
+
+
+        }
+
     }
 }
 

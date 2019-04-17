@@ -252,12 +252,26 @@ typedef struct _t_k_data
 #define T_K_Data  T_K_Data
 #endif
 
+enum class LineType : unsigned char { UP = 0, DOWN};
+//typedef struct _t_struct_line
+class T_StructLine
+{
+public:
+    T_StructLine() : type(LineType::UP), beg_index(-1), end_index(-1) {}
+    T_StructLine(LineType para_type, int beg, int end) : type(para_type), beg_index(beg), end_index(end){}
+    LineType  type;
+    int beg_index;
+    int end_index;
+};
+
 typedef std::deque<std::shared_ptr<T_KlineDataItem> >  T_HisDataItemContainer;
 typedef std::unordered_map<std::string, T_HisDataItemContainer>  T_CodeMapHisDataItemContainer;
 
 typedef std::deque<std::shared_ptr<T_Bi> >  T_BiContainer;
 typedef std::unordered_map<std::string, T_BiContainer> T_CodeMapBiContainer;
 
+typedef std::deque<std::shared_ptr<T_StructLine> >  T_StructLineContainer;
+typedef std::unordered_map<std::string, T_StructLineContainer> T_CodeMapStructLineContainer;
 bool IsStrAlpha(const std::string& str);
 bool IsStrNum(const std::string& str);
 void utf8ToGbk(std::string& strUtf8);
