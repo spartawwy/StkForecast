@@ -1,3 +1,5 @@
+#ifdef USE_PYTHON_QUOTE
+
 #include "py_data_man.h"
 
 #include <string>
@@ -99,3 +101,4 @@ bool PyDataMan::Initiate()
     return true;
 }
 
+#endif // #ifdef USE_PYTHON_QUOTE

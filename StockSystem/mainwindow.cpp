@@ -20,6 +20,7 @@
 #include "kline_wall.h"
 #include "title_bar.h"
 #include "tool_bar.h"
+#include "code_list_wall.h"
 
 using namespace std;
 
@@ -30,6 +31,7 @@ MainWindow::MainWindow(StkForecastApp *app, QWidget *parent) :
     , tool_bar_(nullptr)
     , title_(nullptr)
     , kline_wall_(nullptr)
+    , code_list_wall_(nullptr)
 {
     ui->setupUi(this);
      
@@ -58,20 +60,26 @@ bool MainWindow::Initialize()
     title_ = new TitleBar(this);
     layout_all->addWidget(title_);  
 
-    kline_wall_ = new KLineWall(app_, this);
+    kline_wall_ = new KLineWall(app_, this, 0);
     if( !kline_wall_->Init() )
         return false;
     kline_wall_->setMouseTracking(true);
-    kline_wall_->RestTypePeriod(TypePeriod::PERIOD_DAY);
+    kline_wall_->RestTypePeriod(DEFAULT_TYPE_PERIOD);
 
     tool_bar_ = new ToolBar(this);
-    tool_bar_->SetCurCycleType(TypePeriod::PERIOD_DAY);
+    tool_bar_->SetCurCycleType(DEFAULT_TYPE_PERIOD);
     bool ret = connect(tool_bar_->cycle_comb(), SIGNAL(currentIndexChanged(int)), this, SLOT(onCycleChange(int)));
     ret = ret;
      
+    code_list_wall_ = new CodeListWall(app_, this);
+    code_list_wall_->Init();
+
     layout_all->addWidget(tool_bar_);  
     layout_all->addWidget(kline_wall_);  
-      
+    layout_all->addWidget(code_list_wall_);  
+
+    code_list_wall_->hide();
+
     wd->setLayout(layout_all);  
     this->setCentralWidget(wd);  
     kline_wall_->setFocusPolicy(Qt::StrongFocus);
@@ -89,6 +97,28 @@ bool MainWindow::Initialize()
     ui->statusBar->addPermanentWidget(ui->labelCurrentTime);
 #endif
     return true;
+}
+
+void MainWindow::SetMainView(WallType wall_type)
+{
+    kline_wall_->hide();
+    switch(wall_type)
+    {    
+    case WallType::KLINE: 
+        code_list_wall_->hide();
+        kline_wall_->show(); 
+        break;
+    case WallType::CODE_LIST: 
+        kline_wall_->hide();
+        code_list_wall_->show(); 
+        break;
+    default:break;
+    }
+}
+
+void MainWindow::ResetKLineWallCode(const QString &code, const QString &cn_name, bool is_index)
+{
+    kline_wall_->ResetStock(code, cn_name, is_index);
 }
  
 void MainWindow::closeEvent(QCloseEvent * event)
@@ -125,6 +155,11 @@ void MainWindow::UncheckBtnABCUpPen()
         tool_bar_->UncheckBtnABCUpPen(); 
 }
 
+void MainWindow::AddCode2CodeList(const QString &code, const QString &cn_name, bool is_index)
+{
+    code_list_wall_->AddCode(code , cn_name, is_index);
+}
+
 void MainWindow::changeEvent(QEvent *e)
 {
     QMainWindow::changeEvent(e);
@@ -158,6 +193,22 @@ bool MainWindow::eventFilter(QObject *o, QEvent *e)
 
 void MainWindow::keyPressEvent(QKeyEvent *e)
 {
+    
+    switch(e->key())
+    {
+        case Qt::Key_F5:
+        {
+            kline_wall_->show();
+            code_list_wall_->hide();
+        } break;
+        case Qt::Key_F6:
+        {
+            kline_wall_->hide();
+            code_list_wall_->show();
+        } break;
+        default:
+            break;
+    }
     e->ignore();
 }
 
@@ -177,6 +228,7 @@ void MainWindow::updateDateTime()
 void MainWindow::onCycleChange(int /*index*/)
 {
     assert(kline_wall_);
+    tool_bar_->cycle_comb()->clearFocus();
     kline_wall_->RestTypePeriod( TypePeriod(tool_bar_->cycle_comb()->currentData().toInt()) );
      
 }

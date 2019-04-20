@@ -1,21 +1,26 @@
 #include "forcast_man.h"
 
-ForcastMan::ForcastMan()
-    : stock_2pdown_forcast_30m_(1024)
+ForcastMan::ForcastMan(int wall_index)
+    : wall_index_(wall_index)
+    , stock_2pdown_forcast_15m_(1024)
+    , stock_2pdown_forcast_30m_(1024)
     , stock_2pdown_forcast_h_(1024)
     , stock_2pdown_forcast_d_(1024)
     , stock_2pdown_forcast_w_(1024)
     , stock_2pdown_forcast_mon_(1024)
+    , stock_2pup_forcast_15m_(1024)
     , stock_2pup_forcast_30m_(1024)
     , stock_2pup_forcast_h_(1024)
     , stock_2pup_forcast_d_(1024)
     , stock_2pup_forcast_w_(1024)
     , stock_2pup_forcast_mon_(1024)
+    , stock_3pdown_forcast_15m_(1024)
     , stock_3pdown_forcast_30m_(1024)
     , stock_3pdown_forcast_h_(1024)
     , stock_3pdown_forcast_d_(1024)
     , stock_3pdown_forcast_w_(1024)
     , stock_3pdown_forcast_mon_(1024)
+    , stock_3pup_forcast_15m_(1024)
     , stock_3pup_forcast_30m_(1024)
     , stock_3pup_forcast_h_(1024)
     , stock_3pup_forcast_d_(1024)
@@ -62,13 +67,14 @@ std::vector<T_Data2pUpForcast> * ForcastMan::Find2pUpForcastVector(const std::st
 
 bool ForcastMan::HasIn2pDownwardForcast(const std::string &code, TypePeriod type_period, T_KlineDataItem &item_a, T_KlineDataItem &item_b)
 {
-    static auto has_in2pforcasts = [this](std::vector<T_Data2pDownForcast>& data_vector, int date_a, int date_b)->bool
+    static auto has_in2pforcasts = [this](std::vector<T_Data2pDownForcast>& data_vector, int date_a, int hhmm_a, int date_b, int hhmm_b)->bool
     { 
         if( data_vector.empty() ) return false;
         unsigned int i = 0;
         for( ; i < data_vector.size(); ++i )
         {
-            if( data_vector.at(i).date_a == date_a && data_vector.at(i).date_b == date_b )
+            if( data_vector.at(i).date_a == date_a && data_vector.at(i).date_b == date_b
+                && data_vector.at(i).hhmm_a == hhmm_a && data_vector.at(i).hhmm_b == hhmm_b)
                 break;
         }
         return i != data_vector.size();
@@ -77,20 +83,21 @@ bool ForcastMan::HasIn2pDownwardForcast(const std::string &code, TypePeriod type
     Code2pDownForcastType & code_2pdown_fcst = Get2pDownDataHolder(type_period);
     auto vector_iter = code_2pdown_fcst.find(code);
     if( vector_iter != code_2pdown_fcst.end() )
-        return has_in2pforcasts(vector_iter->second, item_a.kline_posdata.date, item_b.kline_posdata.date);
+        return has_in2pforcasts(vector_iter->second, item_a.kline_posdata(wall_index_).date, item_a.stk_item.hhmmss, item_b.kline_posdata(wall_index_).date, item_b.stk_item.hhmmss);
     else 
         return false;
 }
 
 bool ForcastMan::HasIn2pUpForcast(const std::string &code, TypePeriod type_period, T_KlineDataItem &item_a, T_KlineDataItem &item_b)
 {
-    static auto has_in2pforcasts = [this](std::vector<T_Data2pUpForcast>& data_vector, int date_a, int date_b)->bool
+    static auto has_in2pforcasts = [this](std::vector<T_Data2pUpForcast>& data_vector, int date_a, int hhmm_a, int date_b, int hhmm_b)->bool
     { 
         if( data_vector.empty() ) return false;
         unsigned int i = 0;
         for( ; i < data_vector.size(); ++i )
         {
-            if( data_vector.at(i).date_a == date_a && data_vector.at(i).date_b == date_b )
+             if( data_vector.at(i).date_a == date_a && data_vector.at(i).date_b == date_b
+                && data_vector.at(i).hhmm_a == hhmm_a && data_vector.at(i).hhmm_b == hhmm_b)
                 break;
         }
         return i != data_vector.size();
@@ -98,7 +105,7 @@ bool ForcastMan::HasIn2pUpForcast(const std::string &code, TypePeriod type_perio
     Code2pUpForcastType &code_2pup_fcst = Get2pUpDataHolder(type_period);
     auto vector_iter = code_2pup_fcst.find(code);
     if( vector_iter != code_2pup_fcst.end() )
-        return has_in2pforcasts(vector_iter->second, item_a.kline_posdata.date, item_b.kline_posdata.date);
+        return has_in2pforcasts(vector_iter->second, item_a.kline_posdata(wall_index_).date, item_a.stk_item.hhmmss, item_b.kline_posdata(wall_index_).date, item_b.stk_item.hhmmss);
     else 
         return false;
 }
@@ -107,6 +114,8 @@ Code2pUpForcastType & ForcastMan::Get2pUpDataHolder(TypePeriod type_period)
 {
     switch (type_period)
     {
+    case TypePeriod::PERIOD_5M: return stock_2pup_forcast_5m_;
+    case TypePeriod::PERIOD_15M: return stock_2pup_forcast_15m_;
     case TypePeriod::PERIOD_30M: return stock_2pup_forcast_30m_;
     case TypePeriod::PERIOD_HOUR: return stock_2pup_forcast_h_;
     case TypePeriod::PERIOD_DAY: return stock_2pup_forcast_d_;
@@ -121,6 +130,8 @@ Code2pDownForcastType & ForcastMan::Get2pDownDataHolder(TypePeriod type_period)
 {
     switch (type_period)
     {
+    case TypePeriod::PERIOD_5M:  return stock_2pdown_forcast_5m_;
+    case TypePeriod::PERIOD_15M: return stock_2pdown_forcast_15m_;
     case TypePeriod::PERIOD_30M: return stock_2pdown_forcast_30m_;
     case TypePeriod::PERIOD_HOUR: return stock_2pdown_forcast_h_;
     case TypePeriod::PERIOD_DAY: return stock_2pdown_forcast_d_;
@@ -135,6 +146,8 @@ Code3pForcastType & ForcastMan::Get3pDataHolder(TypePeriod type_period, bool is_
 {
     switch (type_period)
     {
+    case TypePeriod::PERIOD_5M:  return  is_down ? stock_3pdown_forcast_5m_ : stock_3pup_forcast_5m_;
+    case TypePeriod::PERIOD_15M:  return is_down ? stock_3pdown_forcast_15m_ : stock_3pup_forcast_15m_;
     case TypePeriod::PERIOD_30M:  return is_down ? stock_3pdown_forcast_30m_ : stock_3pup_forcast_30m_;
     case TypePeriod::PERIOD_HOUR: return is_down ? stock_3pdown_forcast_h_ : stock_3pup_forcast_h_;
     case TypePeriod::PERIOD_DAY:  return is_down ? stock_3pdown_forcast_d_ : stock_3pup_forcast_d_;
@@ -147,17 +160,6 @@ Code3pForcastType & ForcastMan::Get3pDataHolder(TypePeriod type_period, bool is_
 
 T_Data3pForcast * ForcastMan::Find3pForcast(const std::string &code, TypePeriod type_period, bool is_down_forward, T_KlineDataItem &item_a, T_KlineDataItem &item_b)
 {
-    /* static auto has_in3pforcasts = [this](std::vector<T_Data3pForcast>& data_vector, int date_a, int date_b)->bool
-    { 
-    if( data_vector.empty() ) return false;
-    unsigned int i = 0;
-    for( ; i < data_vector.size(); ++i )
-    {
-    if( data_vector.at(i).date_a == date_a && data_vector.at(i).date_b == date_b )
-    break;
-    }
-    return i != data_vector.size();
-    };*/
     Code3pForcastType &code_3p_fcst = Get3pDataHolder(type_period, is_down_forward);
     auto vector_iter = code_3p_fcst.find(code);
     if( vector_iter == code_3p_fcst.end() )
@@ -167,8 +169,8 @@ T_Data3pForcast * ForcastMan::Find3pForcast(const std::string &code, TypePeriod 
     unsigned int i = 0;
     for( ; i < vector_iter->second.size(); ++i )
     {
-        if( vector_iter->second.at(i).date_a == item_a.stk_item.date 
-            && vector_iter->second.at(i).date_b == item_b.stk_item.date )
+        if( vector_iter->second.at(i).date_a == item_a.stk_item.date && vector_iter->second.at(i).hhmm_a == item_a.stk_item.hhmmss 
+            && vector_iter->second.at(i).date_b == item_b.stk_item.date && vector_iter->second.at(i).hhmm_b == item_b.stk_item.hhmmss  )
             break;
     }
     if( i != vector_iter->second.size() )
@@ -184,6 +186,46 @@ std::vector<T_Data3pForcast> * ForcastMan::Find3pForcastVector(const std::string
     if( vector_iter == code_3p_fcst.end() )
         return nullptr;
     return std::addressof(vector_iter->second);
+}
+
+double ForcastMan::FindMaxForcastPrice(const std::string &code, TypePeriod type_period, int start_date, int end_date)
+{
+    assert(start_date <= end_date);
+    Code3pForcastType &code_3p_down_fcst = Get3pDataHolder(type_period, false);
+    auto vector_iter = code_3p_down_fcst.find(code);
+    if( vector_iter == code_3p_down_fcst.end() )
+        return 0.0;
+    std::vector<T_Data3pForcast> & forcasts = vector_iter->second;
+    double max_price = MIN_PRICE;
+    for(int i = 0; i < forcasts.size(); ++i )
+    {
+        if( forcasts.at(i).date_c >= start_date && forcasts.at(i).date_c <= end_date )
+        {
+            if( forcasts.at(i).d3 > max_price )
+                max_price = forcasts.at(i).d3;
+        }
+    }
+    return max_price;
+}
+
+double ForcastMan::FindMinForcastPrice(const std::string &code, TypePeriod type_period, int start_date, int end_date)
+{
+    assert(start_date <= end_date);
+    Code3pForcastType &code_3p_down_fcst = Get3pDataHolder(type_period, true);
+    auto vector_iter = code_3p_down_fcst.find(code);
+    if( vector_iter == code_3p_down_fcst.end() )
+        return MAX_PRICE;
+    std::vector<T_Data3pForcast> & forcasts = vector_iter->second;
+    double min_price = MAX_PRICE;
+    for(int i = 0; i < forcasts.size(); ++i )
+    {
+        if( forcasts.at(i).date_c >= start_date && forcasts.at(i).date_c <= end_date )
+        {
+            if( forcasts.at(i).d3 < min_price )
+                min_price = forcasts.at(i).d3;
+        }
+    }
+    return min_price;
 }
 
 void ForcastMan::Append(TypePeriod type_period, const std::string &code, bool is_down_forward, T_Data3pForcast &data_3p )

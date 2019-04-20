@@ -73,7 +73,7 @@ public:
 
     void retranslateUi(QMainWindow *MainWindow)
     {
-        MainWindow->setWindowTitle(QApplication::translate("MainWindow", "MainWindow", 0));
+        MainWindow->setWindowTitle(QApplication::translate("MainWindow", "StockForcast", 0));
         action->setText(QApplication::translate("MainWindow", "?", 0));
         actionExit->setText(QApplication::translate("MainWindow", "\351\200\200\345\207\272(&x)", 0));
         actionExit->setShortcut(QApplication::translate("MainWindow", "Ctrl+Q", 0));

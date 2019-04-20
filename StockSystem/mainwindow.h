@@ -13,10 +13,16 @@ namespace Ui
 {
     class MainWindow;
 }
+enum class WallType : unsigned char
+{
+    KLINE,
+    CODE_LIST,
+};
 class StkForecastApp;
-class KLineWall;
 class TitleBar;
 class ToolBar;
+class KLineWall;
+class CodeListWall;
 class MainWindow : public QMainWindow 
 {
     Q_OBJECT
@@ -29,10 +35,15 @@ public:
     bool Initialize();
     KLineWall * kline_wall() { return kline_wall_; }
 
+    void SetMainView(WallType wall_type);
+    void ResetKLineWallCode(const QString &code, const QString &cn_name, bool is_index);
+
     void UncheckBtnABDownPen();
     void UncheckBtnABUpPen();
     void UncheckBtnABCDownPen();
     void UncheckBtnABCUpPen();
+
+    void AddCode2CodeList(const QString &code, const QString &cn_name, bool is_index);
 
 protected:
 
@@ -57,6 +68,7 @@ private:
     ToolBar        *tool_bar_;
     TitleBar       *title_;
     KLineWall      *kline_wall_;
+    CodeListWall   *code_list_wall_;
     //DayKLineDialog *dayKLineDialog;
 
 private slots:

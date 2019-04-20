@@ -1,17 +1,21 @@
 #ifndef STOCK_INPUT_DLG_SDF3SDFS_
 #define STOCK_INPUT_DLG_SDF3SDFS_
 
+#include <memory>
 #include <QtWidgets/QWidget>
 
 #include "ui_stockinputdlg.h"
  
 class KLineWall;
-
+class HintList;
+class DataBase;
 class StockInputDlg : public QWidget
 {
+    Q_OBJECT
+
 public:
 
-    StockInputDlg(KLineWall *parent);
+    StockInputDlg(KLineWall *parent, std::shared_ptr<DataBase> &db);
 
     Ui_StockInputDlgForm  ui;
 
@@ -24,17 +28,16 @@ protected:
 
 private slots:
 
-	//void ResetStock(const QString& stock);
-
-	/*float HisDateItem_GetMinPrice();
-    float HisDateItem_GetMaxPrice();
-    float HisDateItem_GetOpenPrice();
-    float HisDateItem_GetClosePrice();*/
+    void FlushFromStationListWidget(QString str);
+    void OnClickedListWidget(QModelIndex index);
+	void ChangeFromStationText(QString text);
 
 private:
 	  
 	KLineWall *parent_;
+    std::shared_ptr<DataBase> &db_;
 	//std::string cur_stock_code_;
+    HintList *m_list_hint_;
 };
 
 
