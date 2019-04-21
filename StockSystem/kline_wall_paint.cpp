@@ -407,6 +407,8 @@ void KLineWall::DrawStructLine(QPainter &painter, const int mm_h)
 void KLineWall::UpdatePosDatas()
 {
     assert(p_hisdata_container_);
+    if( p_hisdata_container_->empty() )
+        return;
     if( k_num_ <= 0 )
         return;
     // before update get pre item which drawing point in -------
@@ -1131,7 +1133,7 @@ void KLineWall::UpdateKwallMinMaxPrice()
 void KLineWall::keyPressEvent(QKeyEvent *e)
 {
     assert(p_hisdata_container_);
-    assert(p_hisdata_container_->size() >  k_rend_index_ );
+    //assert(p_hisdata_container_->size() >  k_rend_index_ );
     auto key_val = e->key();
     if( (e->modifiers() & Qt::ControlModifier) )
     {

@@ -66,13 +66,13 @@ StockDataMan::StockDataMan(ExchangeCalendar *p_exchange_calendar)
     , day_stock_bi_items_(64)
     , week_stock_bi_items_(64)
     , mon_stock_bi_items_(64)
-    , m5_stock_struct_lines_(64)
-    , m15_stock_struct_lines_(64)
-    , m30_stock_struct_lines_(64)
-    , hour_stock_struct_lines_(64)
-    , day_stock_struct_lines_(64)
-    , week_stock_struct_lines_(64)
-    , mon_stock_struct_lines_(64)
+    , m5_stock_struct_datas_(64)
+    , m15_stock_struct_datas_(64)
+    , m30_stock_struct_datas_(64)
+    , hour_stock_struct_datas_(64)
+    , day_stock_struct_datas_(64)
+    , week_stock_struct_datas_(64)
+    , mon_stock_struct_datas_(64)
 #ifdef USE_WINNER_API
     , WinnerHisHq_GetKData_(nullptr)
     , WinnerHisHq_Connect_(nullptr)
@@ -458,24 +458,44 @@ T_BiContainer & StockDataMan::GetBiContainer(PeriodType period_type, const std::
     return container_iter->second;
 }
 
-T_StructLineContainer &StockDataMan::GetStructLineContainer(PeriodType period_type, const std::string& code)
+T_StructLineContainer & StockDataMan::GetStructLineContainer(PeriodType period_type, const std::string& code)
 {
-    T_CodeMapStructLineContainer *p_code_map_container = nullptr;
+    T_CodeMapStructDataContainer *p_code_map_container = nullptr;
     switch(period_type)
     {
-    case PeriodType::PERIOD_5M:   p_code_map_container = &m5_stock_struct_lines_; break;
-    case PeriodType::PERIOD_15M:  p_code_map_container = &m15_stock_struct_lines_; break;
-    case PeriodType::PERIOD_30M:  p_code_map_container = &m30_stock_struct_lines_; break;
-    case PeriodType::PERIOD_HOUR: p_code_map_container = &hour_stock_struct_lines_; break;
-    case PeriodType::PERIOD_DAY:  p_code_map_container = &day_stock_struct_lines_; break; 
-    case PeriodType::PERIOD_WEEK: p_code_map_container = &week_stock_struct_lines_; break;
-    case PeriodType::PERIOD_MON:  p_code_map_container = &mon_stock_struct_lines_; break;
+    case PeriodType::PERIOD_5M:   p_code_map_container = &m5_stock_struct_datas_; break;
+    case PeriodType::PERIOD_15M:  p_code_map_container = &m15_stock_struct_datas_; break;
+    case PeriodType::PERIOD_30M:  p_code_map_container = &m30_stock_struct_datas_; break;
+    case PeriodType::PERIOD_HOUR: p_code_map_container = &hour_stock_struct_datas_; break;
+    case PeriodType::PERIOD_DAY:  p_code_map_container = &day_stock_struct_datas_; break; 
+    case PeriodType::PERIOD_WEEK: p_code_map_container = &week_stock_struct_datas_; break;
+    case PeriodType::PERIOD_MON:  p_code_map_container = &mon_stock_struct_datas_; break;
     default: assert(false);
     }
     auto container_iter = p_code_map_container->find(code);
     if( container_iter == p_code_map_container->end() )
-        container_iter = p_code_map_container->insert(std::make_pair(code, T_StructLineContainer())).first;
-    return container_iter->second;
+        container_iter = p_code_map_container->insert(std::make_pair(code, T_StructData())).first;
+    return container_iter->second.struct_line_container;
+}
+
+T_SectionContainer & StockDataMan::GetStructSectionContainer(PeriodType period_type, const std::string& code)
+{
+    T_CodeMapStructDataContainer *p_code_map_container = nullptr;
+    switch(period_type)
+    {
+    case PeriodType::PERIOD_5M:   p_code_map_container = &m5_stock_struct_datas_; break;
+    case PeriodType::PERIOD_15M:  p_code_map_container = &m15_stock_struct_datas_; break;
+    case PeriodType::PERIOD_30M:  p_code_map_container = &m30_stock_struct_datas_; break;
+    case PeriodType::PERIOD_HOUR: p_code_map_container = &hour_stock_struct_datas_; break;
+    case PeriodType::PERIOD_DAY:  p_code_map_container = &day_stock_struct_datas_; break; 
+    case PeriodType::PERIOD_WEEK: p_code_map_container = &week_stock_struct_datas_; break;
+    case PeriodType::PERIOD_MON:  p_code_map_container = &mon_stock_struct_datas_; break;
+    default: assert(false);
+    }
+    auto container_iter = p_code_map_container->find(code);
+    if( container_iter == p_code_map_container->end() )
+        container_iter = p_code_map_container->insert(std::make_pair(code, T_StructData())).first;
+    return container_iter->second.section_container;
 }
 
 // ok: ret <  MAX_PRICE
@@ -1239,6 +1259,7 @@ void find_up_towardleft_end(std::deque<std::shared_ptr<T_KlineDataItem> > &kline
     }
 } 
 
+// ps : towards left 
 void StockDataMan::TraverseGetStuctLines(PeriodType period_type, const std::string &code, std::deque<std::shared_ptr<T_KlineDataItem> > &kline_data_items)
 {
     auto find_next_up_struct_line_end_hight_p = [](std::deque<std::shared_ptr<T_KlineDataItem> > &kline_data_items, int index, double pre_btm_price)->double
@@ -1304,8 +1325,7 @@ void StockDataMan::TraverseGetStuctLines(PeriodType period_type, const std::stri
         } // while( --temp_index > 0 )
         return -1 * MAX_PRICE;
     };
-
-    // ps : towards left 
+     
     if( kline_data_items.size() < 1 )
         return;
     T_StructLineContainer &container = GetStructLineContainer(period_type, code); 
@@ -1315,6 +1335,7 @@ void StockDataMan::TraverseGetStuctLines(PeriodType period_type, const std::stri
     double pre_top_price = MIN_PRICE;
     bool is_pre_add_up_line = false;
     bool is_pre_add_down_line = false;
+    // towards left 
     while( --index > 0 )
     { 
         int ck_index_date = kline_data_items[index]->stk_item.date;
@@ -1399,6 +1420,30 @@ void StockDataMan::TraverseGetStuctLines(PeriodType period_type, const std::stri
         }
 
     } // while 
+}
+
+void StockDataMan::TraversGetSections(PeriodType period_type, const std::string &code, std::deque<std::shared_ptr<T_KlineDataItem> > &kline_data_items)
+{
+    if( kline_data_items.size() < 1 )
+        return;
+    T_SectionContainer &container = GetStructSectionContainer(period_type, code); 
+    container.clear();
+    unsigned int index = kline_data_items.size();
+    // toward left 
+    // todo:---------- 
+    //  set line_count = 0;
+    // 1: find up struct line a
+    // 2: judge if down struct line b begin point is lower than end point of a (endp_a)
+    //    true: todo : 2.1: line_count++; find next down struct line d 
+    //                 2.2: if begin point of d is higher than begin point of a (begp_a)
+    //                      ture : goto 2.1
+    //                      false: if line_count > 1 :
+    //                                2.2.1: true : 2.2.1.1: set struct up line after line d as start line 0 of section 
+    //                                              2.2.1.2. set end point of line 0 as top left of setion
+    //                                              2.2.1.3  add section
+    //                                       false: goto 1
+    //   
+    //     
 }
 
 TypePeriod ToTypePeriod(PeriodType src)
