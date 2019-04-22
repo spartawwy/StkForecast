@@ -270,8 +270,23 @@ typedef std::unordered_map<std::string, T_HisDataItemContainer>  T_CodeMapHisDat
 typedef std::deque<std::shared_ptr<T_Bi> >  T_BiContainer;
 typedef std::unordered_map<std::string, T_BiContainer> T_CodeMapBiContainer;
 
-typedef std::deque<std::shared_ptr<T_StructLine> >  T_StructLineContainer;
-typedef std::unordered_map<std::string, T_StructLineContainer> T_CodeMapStructLineContainer;
+typedef std::deque<std::shared_ptr<T_StructLine> >  T_StructLineContainer; 
+typedef struct _t_section_
+{
+    int  top_left_index;
+    int  btm_right_index;
+    _t_section_() : top_left_index(-1), btm_right_index(-1){}
+}T_Section;
+typedef std::vector<T_Section> T_SectionContainer;
+
+typedef struct _struct_data_
+{
+    T_StructLineContainer  struct_line_container;
+    T_SectionContainer     section_container;
+}T_StructData;
+
+typedef std::unordered_map<std::string, T_StructData> T_CodeMapStructDataContainer;
+
 bool IsStrAlpha(const std::string& str);
 bool IsStrNum(const std::string& str);
 void utf8ToGbk(std::string& strUtf8);

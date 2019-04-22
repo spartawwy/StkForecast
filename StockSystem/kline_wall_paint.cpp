@@ -64,6 +64,7 @@ KLineWall::KLineWall(StkForecastApp *app, QWidget *parent, int index)
     , area_select_flag_(false)
     , forcast_man_(index)
     , is_draw_bi_(false)
+    , is_draw_struct_line_(true)
 {
     ui.setupUi(this);
     ResetDrawState(DrawAction::NO_ACTION); 
@@ -364,10 +365,51 @@ void KLineWall::DrawBi(QPainter &painter, const int mm_h)
     }
 }
 
+
+void KLineWall::DrawStructLine(QPainter &painter, const int mm_h)
+{
+    T_StructLineContainer &container = app_->stock_data_man().GetStructLineContainer(PeriodType(k_type_), stock_code_);
+    if( container.empty() )
+        return;
+    QPen old_pen = painter.pen();
+    QPen pen;  
+    //pen.setStyle(Qt::DotLine);
+    pen.setColor(Qt::darkCyan);
+    pen.setWidth(2);
+    painter.setPen(pen);
+
+    /*int j = k_num_;
+    for( auto iter = p_hisdata_container_->rbegin() + k_rend_index_;
+        iter != p_hisdata_container_->rend() && j > 0; 
+        ++iter, --j)*/
+
+    
+    T_HisDataItemContainer & his_data = *p_hisdata_container_;
+    const int start_index = his_data.size() - k_rend_index_ - 1 - k_num_;
+    const int end_index = his_data.size() - k_rend_index_ - 1;
+    if( start_index < 0 || end_index < 0 )
+        return;
+    for( unsigned int i = 0; i < container.size(); ++i )
+    { 
+        if( container[i]->beg_index < start_index || container[i]->end_index > end_index )
+            continue;
+        if( container[i]->type == LineType::UP )
+        {
+            painter.drawLine(his_data[container[i]->beg_index]->kline_posdata(wall_index_).bottom
+                            , his_data[container[i]->end_index]->kline_posdata(wall_index_).top);
+        }else
+        {
+            painter.drawLine(his_data[container[i]->beg_index]->kline_posdata(wall_index_).top
+                , his_data[container[i]->end_index]->kline_posdata(wall_index_).bottom);
+        }
+    }
+    painter.setPen(old_pen);
+}
+
 void KLineWall::UpdatePosDatas()
 {
     assert(p_hisdata_container_);
-    if( k_num_ <= 0 )
+    if( p_hisdata_container_->empty() || k_num_ <= 0 )
         return;
     // before update get pre item which drawing point in -------
     T_KlineDataItem *item_a = nullptr;
@@ -931,6 +973,9 @@ void KLineWall::paintEvent(QPaintEvent*)
         Draw3pUpForcast(painter, k_mm_h, item_w);
         if( is_draw_bi_ )
             DrawBi(painter, k_mm_h);
+        if( is_draw_struct_line_ )
+            DrawStructLine(painter, k_mm_h);
+
     } //if( p_hisdata_container_ )
    
     //k line view bottom border horizontal line (----------)
@@ -1085,6 +1130,7 @@ void KLineWall::UpdateKwallMinMaxPrice()
 void KLineWall::keyPressEvent(QKeyEvent *e)
 {
     assert(p_hisdata_container_);
+    assert(!p_hisdata_container_->empty());
     assert(p_hisdata_container_->size() >  k_rend_index_ );
     auto key_val = e->key();
     if( (e->modifiers() & Qt::ControlModifier) )
