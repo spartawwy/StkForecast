@@ -379,6 +379,8 @@ T_HisDataItemContainer* StockDataMan::AppendStockData(PeriodType period_type, co
 
     TraverseGetStuctLines(period_type, code, items_in_container);
 
+    TraversGetSections(period_type, code, items_in_container);
+
 	return std::addressof(items_in_container);
 
 }
@@ -1424,18 +1426,25 @@ void StockDataMan::TraverseGetStuctLines(PeriodType period_type, const std::stri
     } // while 
 }
 
+// ps:  TraverseGetStuctLines have to be called before 
 void StockDataMan::TraversGetSections(PeriodType period_type, const std::string &code, std::deque<std::shared_ptr<T_KlineDataItem> > &kline_data_items)
 {
-    if( kline_data_items.size() < 1 )
+    const int cst_least_line_num = 4; // have to >= 4
+    if( kline_data_items.size() < cst_least_line_num )
         return;
+    
+    T_StructLineContainer &struct_line_container = GetStructLineContainer(period_type, code); 
+    if( struct_line_container.empty() )
+        return;
+
     T_SectionContainer &container = GetStructSectionContainer(period_type, code); 
     container.clear();
     unsigned int index = kline_data_items.size();
     // toward left 
     // todo:---------- 
     //  set line_count = 0;
-    // 1: find up struct line a
-    // 2: judge if down struct line b begin point is lower than end point of a (endp_a)
+    // 1: find up struct line a, and pre down struct line b
+    // 2: judge if down struct line c begin point is lower than end point of a (endp_a)
     //    true: todo : 2.1: line_count++; find next down struct line d 
     //                 2.2: if begin point of d is higher than begin point of a (begp_a)
     //                      ture : goto 2.1
@@ -1445,7 +1454,39 @@ void StockDataMan::TraversGetSections(PeriodType period_type, const std::string 
     //                                              2.2.1.3  add section
     //                                       false: goto 1
     //   
-    //     
+    int i = 0;
+    for( ; i < struct_line_container.size(); ++i ){ struct_line_container[i]->type == LineType::UP; break; }
+    if( i > struct_line_container.size() - cst_least_line_num )
+        return;
+    int line_count = 1;
+    int line_0_end_index = struct_line_container[i]->end_index;
+    int line_0_beg_index = struct_line_container[i]->beg_index;
+    const double line_0_end_price = kline_data_items[line_0_end_index]->stk_item.high_price;
+    while( false )
+    {
+        assert( struct_line_container[i + 1]->type == LineType::DOWN );
+        assert( struct_line_container[i + 2]->type == LineType::UP ); // line c
+        if( kline_data_items[struct_line_container[i + 2]->beg_index]->stk_item.low_price > line_0_end_price ) 
+            break;
+        line_count += 2;
+        if( i + 2 + 1 < struct_line_container.size() ) // line d is last line it's down line
+        {
+            // get min price in ( beg_d, end_c, end_a) as top left
+            // get max price in ( end_d, beg_a) as btm ; set (beg_a + end_a)/2 as right
+
+            /*if( kline_data_items[struct_line_container[i + 2 + 1]->beg_index]->stk_item.high_price < line_0_end_price )
+            {
+                
+            }*/
+        }
+
+        i += 3;
+        if( i + 1 > struct_line_container.size() )
+            break;
+        //assert( struct_line_container[i + 2 + 2]->type == LineType::UP ); // line c'
+
+    }
+   
 }
 
 TypePeriod ToTypePeriod(PeriodType src)

@@ -377,15 +377,9 @@ void KLineWall::DrawStructLine(QPainter &painter, const int mm_h)
     pen.setColor(Qt::darkCyan);
     pen.setWidth(2);
     painter.setPen(pen);
-
-    /*int j = k_num_;
-    for( auto iter = p_hisdata_container_->rbegin() + k_rend_index_;
-        iter != p_hisdata_container_->rend() && j > 0; 
-        ++iter, --j)*/
-
     
     T_HisDataItemContainer & his_data = *p_hisdata_container_;
-    const int start_index = his_data.size() - k_rend_index_ - 1 - k_num_;
+    const int start_index = his_data.size() - k_rend_index_  - k_num_;
     const int end_index = his_data.size() - k_rend_index_ - 1;
     if( start_index < 0 || end_index < 0 )
         return;
@@ -1130,8 +1124,7 @@ void KLineWall::UpdateKwallMinMaxPrice()
 void KLineWall::keyPressEvent(QKeyEvent *e)
 {
     assert(p_hisdata_container_);
-    assert(!p_hisdata_container_->empty());
-    assert(p_hisdata_container_->size() >  k_rend_index_ );
+    //assert(p_hisdata_container_->size() >  k_rend_index_ );
     auto key_val = e->key();
     if( (e->modifiers() & Qt::ControlModifier) )
     {
@@ -1166,6 +1159,8 @@ void KLineWall::keyPressEvent(QKeyEvent *e)
         }
     case Qt::Key_Down: //zoom in 
         {  
+            if( p_hisdata_container_->empty() )
+                return;
             k_num_ ++;
             if( k_num_ + 20 > p_hisdata_container_->size() - k_rend_index_ )
                 AppendData();
