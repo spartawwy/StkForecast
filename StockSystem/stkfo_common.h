@@ -273,9 +273,9 @@ typedef std::unordered_map<std::string, T_BiContainer> T_CodeMapBiContainer;
 typedef std::deque<std::shared_ptr<T_StructLine> >  T_StructLineContainer; 
 typedef struct _t_section_
 {
-    int  top_left_index;
-    int  btm_right_index;
-    _t_section_() : top_left_index(-1), btm_right_index(-1){}
+    QPoint  top_left;
+    QPoint  btm_right;
+    _t_section_() : top_left(0, 0), btm_right(0, 0){}
 }T_Section;
 typedef std::vector<T_Section> T_SectionContainer;
 

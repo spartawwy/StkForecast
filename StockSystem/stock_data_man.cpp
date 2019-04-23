@@ -1429,6 +1429,28 @@ void StockDataMan::TraverseGetStuctLines(PeriodType period_type, const std::stri
 // ps:  TraverseGetStuctLines have to be called before 
 void StockDataMan::TraversGetSections(PeriodType period_type, const std::string &code, std::deque<std::shared_ptr<T_KlineDataItem> > &kline_data_items)
 {
+    static auto if_fit_section_right_start = [](std::deque<std::shared_ptr<T_KlineDataItem> > &kline_data_items, T_StructLineContainer &struct_line_container
+        , int index)->bool
+    {
+        /*if( index + 3 >= struct_line_container.size() ) 
+            return false;*/
+        if( struct_line_container[index]->type != LineType::UP )
+            return false;
+        int line_0_beg_index = struct_line_container[index]->beg_index;
+        int line_0_end_index = struct_line_container[index]->end_index;
+        const double line_0_beg_price = kline_data_items[line_0_beg_index]->stk_item.low_price;
+        const double line_0_end_price = kline_data_items[line_0_end_index]->stk_item.high_price;
+        if( kline_data_items[struct_line_container[index + 1]->beg_index]->stk_item.high_price > line_0_end_price ) 
+            return false;
+        //assert( struct_line_container[i + 1]->type == LineType::DOWN );
+        //assert( struct_line_container[i + 2]->type == LineType::UP ); // line c
+        if( kline_data_items[struct_line_container[index + 2]->beg_index]->stk_item.low_price > line_0_end_price ) 
+            return false;
+        if( kline_data_items[struct_line_container[index + 3]->beg_index]->stk_item.high_price < line_0_beg_price + 0.0001 )
+            return false;
+        return true;
+    };
+
     const int cst_least_line_num = 4; // have to >= 4
     if( kline_data_items.size() < cst_least_line_num )
         return;
@@ -1458,34 +1480,47 @@ void StockDataMan::TraversGetSections(PeriodType period_type, const std::string 
     for( ; i < struct_line_container.size(); ++i ){ struct_line_container[i]->type == LineType::UP; break; }
     if( i > struct_line_container.size() - cst_least_line_num )
         return;
-    int line_count = 1;
-    int line_0_end_index = struct_line_container[i]->end_index;
-    int line_0_beg_index = struct_line_container[i]->beg_index;
-    const double line_0_end_price = kline_data_items[line_0_end_index]->stk_item.high_price;
-    while( false )
+    
+    //int line_count = 0;
+    while( i + 3 < struct_line_container.size() )
     {
-        assert( struct_line_container[i + 1]->type == LineType::DOWN );
-        assert( struct_line_container[i + 2]->type == LineType::UP ); // line c
-        if( kline_data_items[struct_line_container[i + 2]->beg_index]->stk_item.low_price > line_0_end_price ) 
-            break;
-        line_count += 2;
-        if( i + 2 + 1 < struct_line_container.size() ) // line d is last line it's down line
+        if( if_fit_section_right_start(kline_data_items, struct_line_container, i) )
         {
-            // get min price in ( beg_d, end_c, end_a) as top left
-            // get max price in ( end_d, beg_a) as btm ; set (beg_a + end_a)/2 as right
+            int line_0_beg_index = struct_line_container[i]->beg_index;
+            int line_0_end_index = struct_line_container[i]->end_index;
+            const double line_0_beg_price = kline_data_items[line_0_beg_index]->stk_item.low_price;
+            const double line_0_end_price = kline_data_items[line_0_end_index]->stk_item.high_price;
+            int j = i + 3;
 
-            /*if( kline_data_items[struct_line_container[i + 2 + 1]->beg_index]->stk_item.high_price < line_0_end_price )
+            while( true )
             {
-                
-            }*/
-        }
+                ++j;
+                assert( struct_line_container[j]->type == LineType::UP );
+                if( kline_data_items[struct_line_container[j]->beg_index]->stk_item.low_price 
+                   > kline_data_items[struct_line_container[i + 1]->beg_index]->stk_item.high_price
+                   || j == struct_line_container.size() - 1 )
+                {
+                   // set beg point x of line j as top_lef x ; set line 1 beg point as top_lef y
+                   // set set line 1 end point btm x y as btm_right x y
+                   i = j;
+                   break;
+                }  
 
-        i += 3;
-        if( i + 1 > struct_line_container.size() )
-            break;
-        //assert( struct_line_container[i + 2 + 2]->type == LineType::UP ); // line c'
-
-    }
+                ++j;
+                assert( struct_line_container[j]->type == LineType::DOWN );
+                if( kline_data_items[struct_line_container[j]->beg_index]->stk_item.high_price 
+                   < kline_data_items[struct_line_container[i + 1]->end_index]->stk_item.low_price
+                   || j == struct_line_container.size() - 1 )
+                {
+                    // set beg index of line j as top_lef x ; set line 1 beg point as top_lef y
+                    // set set line 1 end point btm x y as btm_right x y
+                    i = j + 1;
+                    break;
+                }
+            }// while 
+        }else
+            ++i;
+    } // while 
    
 }
 
