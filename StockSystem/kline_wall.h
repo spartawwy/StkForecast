@@ -93,6 +93,7 @@ private:
 
     void DrawBi(QPainter &, const int mm_h);
     void DrawStructLine(QPainter &painter, const int mm_h);
+    void DrawSection(QPainter &painter, const int mm_h);
 
     void UpdatePosDatas();
     void UpdateKwallMinMaxPrice();
@@ -102,10 +103,15 @@ private:
     T_KlineDataItem * GetKLineDataItemByDate(int date, int hhmm);
     T_KlinePosData * GetKLinePosDataByDate(int date, int hhmm);
 
-    double get_pointc_y(double c_val, int mm_h)
+    double get_price_y(double price, int mm_h)
     {  
-        return -1 * (c_val - lowestMinPrice_)/(highestMaxPrice_ - lowestMinPrice_) * mm_h;
+        return -1 * (price - lowestMinPrice_)/(highestMaxPrice_ - lowestMinPrice_) * mm_h;
     }
+
+//    double CalcPosY(double price, int k_mm_h)
+//{
+//    double pos_y = -1 * (price - lowestMinPrice_)/(highestMaxPrice_ - lowestMinPrice_) * k_mm_h;
+//}
 
     void SetLowestMinPrice(float val) { lowestMinPrice_ = val;}
     double GetLowestMinPrice() { return lowestMinPrice_; }
@@ -187,6 +193,7 @@ private:
 
     bool is_draw_bi_;
     bool is_draw_struct_line_;
+    bool is_draw_section_;
     friend class ZhibiaoWindow;
     friend class VolZhibiaoWin;
     friend class MomentumZhibiaoWin;

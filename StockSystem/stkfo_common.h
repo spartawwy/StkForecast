@@ -271,19 +271,27 @@ typedef std::deque<std::shared_ptr<T_Bi> >  T_BiContainer;
 typedef std::unordered_map<std::string, T_BiContainer> T_CodeMapBiContainer;
 
 typedef std::deque<std::shared_ptr<T_StructLine> >  T_StructLineContainer; 
-typedef struct _t_section_
+
+class T_Section
 {
-    QPoint  top_left;
-    QPoint  btm_right;
-    _t_section_() : top_left(0, 0), btm_right(0, 0){}
-}T_Section;
+public:
+    int  top_left_index;
+    double top_left_price;
+    int  btm_right_index;
+    double btm_right_price;
+    QPointF top_left;
+    QPointF btm_right;
+    T_Section() : top_left_index(-1), top_left_price(0.0), btm_right_index(-1), btm_right_price(0.0), top_left(0.0, 0.0), btm_right(0.0, 0.0) {}
+};
 typedef std::vector<T_Section> T_SectionContainer;
 
-typedef struct _struct_data_
+class T_StructData
 {
+public:
     T_StructLineContainer  struct_line_container;
     T_SectionContainer     section_container;
-}T_StructData;
+    
+};
 
 typedef std::unordered_map<std::string, T_StructData> T_CodeMapStructDataContainer;
 

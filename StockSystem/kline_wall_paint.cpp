@@ -65,6 +65,7 @@ KLineWall::KLineWall(StkForecastApp *app, QWidget *parent, int index)
     , forcast_man_(index)
     , is_draw_bi_(false)
     , is_draw_struct_line_(true)
+    , is_draw_section_(true)
 {
     ui.setupUi(this);
     ResetDrawState(DrawAction::NO_ACTION); 
@@ -131,9 +132,9 @@ void KLineWall::Draw2pDownForcast(QPainter &painter, const int mm_h, double item
                     painter.drawLine(item_a->kline_posdata(wall_index_).top, item_b->kline_posdata(wall_index_).bottom);
 fronts_to_draw.push_back(std::make_tuple(QPointF(item_a->kline_posdata(wall_index_).top.x()-item_w/2, item_a->kline_posdata(wall_index_).top.y()), "A"));
 fronts_to_draw.push_back(std::make_tuple(QPointF(item_b->kline_posdata(wall_index_).bottom.x()-item_w/2, item_b->kline_posdata(wall_index_).bottom.y() + painter.font().pointSizeF()), "B"));
-                    double y1 = get_pointc_y(data_2pforcastdown.c1, mm_h);
-                    double y2 = get_pointc_y(data_2pforcastdown.c2, mm_h);
-                    double y3 = get_pointc_y(data_2pforcastdown.c3, mm_h);
+                    double y1 = get_price_y(data_2pforcastdown.c1, mm_h);
+                    double y2 = get_price_y(data_2pforcastdown.c2, mm_h);
+                    double y3 = get_price_y(data_2pforcastdown.c3, mm_h);
                     double x_b = item_b->kline_posdata(wall_index_).bottom.x();
                     pen.setStyle(Qt::DotLine); 
                     painter.setPen(pen);  
@@ -159,7 +160,7 @@ fronts_to_draw.push_back(std::make_tuple(QPointF(h_line_left - font_size*6, y3),
             }
         }  
 
-        pen.setColor(Qt::white);
+        pen.setColor(Qt::darkGray);
         pen.setStyle(Qt::SolidLine); 
         painter.setPen(pen);
         //char buf[32] = {0};
@@ -200,9 +201,9 @@ void KLineWall::Draw2pUpForcast(QPainter &painter, const int mm_h, double item_w
                 painter.drawLine(item_a->kline_posdata(wall_index_).bottom, item_b->kline_posdata(wall_index_).top);
  fronts_to_draw.push_back(std::make_tuple(QPointF(item_a->kline_posdata(wall_index_).bottom.x()-item_w/2, item_a->kline_posdata(wall_index_).bottom.y()), "A"));
  fronts_to_draw.push_back(std::make_tuple(QPointF(item_b->kline_posdata(wall_index_).top.x()-item_w/2, item_b->kline_posdata(wall_index_).top.y() + painter.font().pointSizeF()), "B"));
-                double y1 = get_pointc_y(data_2pforcast.c1, mm_h);
-                double y2 = get_pointc_y(data_2pforcast.c2, mm_h);
-                double y3 = get_pointc_y(data_2pforcast.c3, mm_h);
+                double y1 = get_price_y(data_2pforcast.c1, mm_h);
+                double y2 = get_price_y(data_2pforcast.c2, mm_h);
+                double y3 = get_price_y(data_2pforcast.c3, mm_h);
                 double x_b = item_b->kline_posdata(wall_index_).bottom.x();
                 pen.setStyle(Qt::DotLine); 
                 painter.setPen(pen);  
@@ -302,9 +303,9 @@ void KLineWall::_Draw3pForcast(QPainter &painter, const int mm_h, double item_w,
                 painter.drawLine(point_b, point_c);
                 fronts_to_draw.push_back(std::make_tuple(QPointF(point_b.x()-item_w/2, point_b.y()), "B"));
                 fronts_to_draw.push_back(std::make_tuple(QPointF(point_c.x()-item_w/2, point_c.y()), "C"));
-                double y1 = get_pointc_y(data_3p_forcast.d1, mm_h);
-                double y2 = get_pointc_y(data_3p_forcast.d2, mm_h);
-                double y3 = get_pointc_y(data_3p_forcast.d3, mm_h);
+                double y1 = get_price_y(data_3p_forcast.d1, mm_h);
+                double y2 = get_price_y(data_3p_forcast.d2, mm_h);
+                double y3 = get_price_y(data_3p_forcast.d3, mm_h);
                 double x_c = point_c.x();
                 pen.setStyle(Qt::DotLine);
                 painter.setPen(pen); 
@@ -400,6 +401,39 @@ void KLineWall::DrawStructLine(QPainter &painter, const int mm_h)
     painter.setPen(old_pen);
 }
 
+void KLineWall::DrawSection(QPainter &painter, const int mm_h)
+{
+    T_HisDataItemContainer & his_data = *p_hisdata_container_;
+    const int start_index = his_data.size() - k_rend_index_  - k_num_;
+    const int end_index = his_data.size() - k_rend_index_ - 1;
+    if( start_index < 0 || end_index < 0 )
+        return;
+
+    T_SectionContainer &container = app_->stock_data_man().GetStructSectionContainer(PeriodType(k_type_), stock_code_);
+    if( container.empty() )
+        return;
+    QPen old_pen = painter.pen();
+    QBrush old_brush = painter.brush();
+    QPen pen;  
+    
+    pen.setStyle(Qt::DotLine);
+    pen.setColor(Qt::white);
+    pen.setWidth(1);
+    painter.setPen(pen);
+    QBrush brush(Qt::transparent);  
+    painter.setBrush(brush);
+
+    for( int i = 0; i < container.size(); ++i )
+    {
+        if( container[i].top_left_index < start_index || container[i].btm_right_index > end_index )
+            return;
+        painter.drawRect(container[i].top_left.x(), container[i].top_left.y(), container[i].btm_right.x() - container[i].top_left.x()
+            , container[i].btm_right.y() - container[i].top_left.y());
+    };
+    painter.setPen(old_pen);
+    painter.setBrush(old_brush);
+}
+
 void KLineWall::UpdatePosDatas()
 {
     assert(p_hisdata_container_);
@@ -447,7 +481,8 @@ void KLineWall::UpdatePosDatas()
         pos_data.x_left = j * item_w + 1;
         pos_data.x_right = pos_data.x_left + k_bar_w;
 
-        auto pos_y = -1 * k_mm_h * (openPrice - lowestMinPrice_)/(highestMaxPrice_ - lowestMinPrice_);
+        //auto pos_y = -1 * k_mm_h * (openPrice - lowestMinPrice_)/(highestMaxPrice_ - lowestMinPrice_);
+        auto pos_y = get_price_y(openPrice, k_mm_h);
         pos_data.height = -1 * k_mm_h *(closePrice - openPrice)/(highestMaxPrice_ - lowestMinPrice_);
         pos_data.columnar_top_left = QPoint(j * item_w + 1, pos_y);
          
@@ -477,12 +512,13 @@ void KLineWall::UpdatePosDatas()
         //pos_data.x_left = j * item_w + 1;
         pos_data.x_right = right_end - item_w * (k_num_ - j);
         pos_data.x_left = pos_data.x_right - k_bar_w;
-        auto pos_y = -1 * (openPrice - lowestMinPrice_)/(highestMaxPrice_ - lowestMinPrice_) * k_mm_h;
+        //auto pos_y = -1 * (openPrice - lowestMinPrice_)/(highestMaxPrice_ - lowestMinPrice_) * k_mm_h;
+        auto pos_y = get_price_y(openPrice, k_mm_h);
         pos_data.height = -1 * (closePrice - openPrice)/(highestMaxPrice_ - lowestMinPrice_) * k_mm_h;
         pos_data.columnar_top_left = QPointF(pos_data.x_left, pos_y);
 
-        pos_data.top = QPointF(pos_data.x_left + k_bar_w / 2, -1 * (maxPrice-lowestMinPrice_)/(highestMaxPrice_ - lowestMinPrice_) * k_mm_h);
-        pos_data.bottom = QPointF(pos_data.x_left + k_bar_w / 2, -1 * (minPrice-lowestMinPrice_)/(highestMaxPrice_ - lowestMinPrice_) * k_mm_h);
+        pos_data.top = QPointF(pos_data.x_left + k_bar_w / 2, get_price_y(maxPrice, k_mm_h));
+        pos_data.bottom = QPointF(pos_data.x_left + k_bar_w / 2, get_price_y(minPrice, k_mm_h));
 
         // update drawing line point ---------------------
         if( item_a && item_a->stk_item.date == iter->get()->stk_item.date && item_a->stk_item.hhmmss == iter->get()->stk_item.hhmmss)
@@ -523,7 +559,25 @@ void KLineWall::UpdatePosDatas()
                 break;
             }
         } 
-    }
+    } // for 
+
+    T_HisDataItemContainer &his_data_items = *p_hisdata_container_;
+    const int start_index = his_data_items.size() - k_rend_index_  - k_num_;
+    const int end_index = his_data_items.size() - k_rend_index_ - 1;
+    if( start_index < 0 || end_index < 0 )
+        return;
+    T_SectionContainer &container = app_->stock_data_man().GetStructSectionContainer(ToPeriodType(k_type_), stock_code_); 
+    std::for_each(std::begin(container), std::end(container), [&, this](T_SectionContainer::reference entry)
+    {
+        if( entry.top_left_index < start_index || entry.btm_right_index > end_index )
+            return;
+         
+        entry.top_left.setX(his_data_items[entry.top_left_index]->kline_posdata(wall_index_).x_left); 
+        entry.top_left.setY(this->get_price_y(entry.top_left_price, k_mm_h));
+
+        entry.btm_right.setX(his_data_items[entry.btm_right_index]->kline_posdata(wall_index_).x_right);
+        entry.btm_right.setY(this->get_price_y(entry.btm_right_price, k_mm_h));
+    });
 #endif
 }
 
@@ -969,6 +1023,8 @@ void KLineWall::paintEvent(QPaintEvent*)
             DrawBi(painter, k_mm_h);
         if( is_draw_struct_line_ )
             DrawStructLine(painter, k_mm_h);
+        if( is_draw_section_ )
+            DrawSection(painter, k_mm_h);
 
     } //if( p_hisdata_container_ )
    

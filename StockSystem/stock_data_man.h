@@ -55,7 +55,7 @@ public:
     T_HisDataItemContainer &GetHisDataContainer(PeriodType period_type, const std::string& code);
     T_BiContainer &GetBiContainer(PeriodType period_type, const std::string& code);
     T_StructLineContainer &GetStructLineContainer(PeriodType period_type, const std::string& code);
-    T_SectionContainer &GetStructSectionContainer(PeriodType period_type, const std::string& code);
+    T_SectionContainer &GetStructSectionContainer(PeriodType period_type, const std::string& code/*, int wall_index*/);
 
     // (stock , data)  date is from small to big
     T_CodeMapHisDataItemContainer m5_stock_his_items_;
