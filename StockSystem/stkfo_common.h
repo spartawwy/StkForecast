@@ -14,7 +14,8 @@
 #define  OUT
 #define  IN
 #define  INOUT
-
+#define  MAX_VAL(a,b) ((a)>(b) ? (a) : (b))
+#define  MIN_VAL(a,b) ((a)>(b) ? (b) : (a))
 //#define USE_STK_QUOTER  // get k line info from stk quoter
 //#define USE_WINNER_API  // get k line info from winnersystem 
 #define USE_TDXHQ

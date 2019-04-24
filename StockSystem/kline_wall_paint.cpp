@@ -416,9 +416,9 @@ void KLineWall::DrawSection(QPainter &painter, const int mm_h)
     QBrush old_brush = painter.brush();
     QPen pen;  
     
-    pen.setStyle(Qt::DotLine);
+    pen.setStyle(Qt::DashLine);
     pen.setColor(Qt::white);
-    pen.setWidth(1);
+    pen.setWidth(2);
     painter.setPen(pen);
     QBrush brush(Qt::transparent);  
     painter.setBrush(brush);
@@ -426,7 +426,7 @@ void KLineWall::DrawSection(QPainter &painter, const int mm_h)
     for( int i = 0; i < container.size(); ++i )
     {
         if( container[i].top_left_index < start_index || container[i].btm_right_index > end_index )
-            return;
+            continue;
         painter.drawRect(container[i].top_left.x(), container[i].top_left.y(), container[i].btm_right.x() - container[i].top_left.x()
             , container[i].btm_right.y() - container[i].top_left.y());
     };
