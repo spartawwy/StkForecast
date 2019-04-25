@@ -1340,6 +1340,7 @@ void StockDataMan::TraverseGetStuctLines(PeriodType period_type, const std::stri
     bool is_pre_add_up_line = false;
     bool is_pre_add_down_line = false;
     // towards left 
+    bool is_index_both_btm_top = false;
     while( --index > 0 )
     { 
         int ck_index_date = kline_data_items[index]->stk_item.date;
@@ -1349,15 +1350,20 @@ void StockDataMan::TraverseGetStuctLines(PeriodType period_type, const std::stri
 
              int end = index; 
              double b_price = MAX_PRICE;
-             int b_index = find_next_btm_fractal(kline_data_items, index);
+             int b_index = -1;
+             if( is_index_both_btm_top )
+                 b_index = find_next_btm_fractal(kline_data_items, index - 1);
+             else
+                 b_index = find_next_btm_fractal(kline_data_items, index);
+             
              if( b_index != -1 )
              {
                  b_price = kline_data_items[b_index]->stk_item.low_price;
                  end = b_index;
              }
              
-             find_down_towardleft_end(kline_data_items, false, b_price, index, end);
-             
+             find_down_towardleft_end(kline_data_items, is_index_both_btm_top, b_price, index, end);
+             is_index_both_btm_top = false;
              if( index != end )
              {
                  bool is_to_add_line = false;
@@ -1381,7 +1387,10 @@ void StockDataMan::TraverseGetStuctLines(PeriodType period_type, const std::stri
                      }*/
                      auto line = std::make_shared<T_StructLine>(LineType::UP, end, index);
                      container.push_back(std::move(line));
-                     
+                     if( IsTopFractal(kline_data_items[end]->type) )
+                         is_index_both_btm_top = true;
+                     else
+                         is_index_both_btm_top = false;
                  }
 
                  index = end + 1;
@@ -1393,14 +1402,18 @@ void StockDataMan::TraverseGetStuctLines(PeriodType period_type, const std::stri
 
              int end = index; 
              double b_price = MIN_PRICE;
-             int b_index = find_next_top_fractal(kline_data_items, index);
+             int b_index = -1;
+             if( is_index_both_btm_top )
+                 b_index = find_next_top_fractal(kline_data_items, index - 1);
+             else
+                 b_index = find_next_top_fractal(kline_data_items, index);
              if( b_index != -1 )
              {
                  b_price = kline_data_items[b_index]->stk_item.high_price;
                  end = b_index;
              } 
-             find_up_towardleft_end(kline_data_items, false, b_price, index, end);
-             
+             find_up_towardleft_end(kline_data_items, is_index_both_btm_top, b_price, index, end);
+             is_index_both_btm_top = false;
              if( index != end )
              {
                  bool is_to_add_down_line = false;
@@ -1418,6 +1431,10 @@ void StockDataMan::TraverseGetStuctLines(PeriodType period_type, const std::stri
                      pre_top_price = kline_data_items[end]->stk_item.high_price;
                      auto line = std::make_shared<T_StructLine>(LineType::DOWN, end, index);
                      container.push_back(std::move(line));
+                     if( IsBtmFractal(kline_data_items[end]->type) )
+                         is_index_both_btm_top = true;
+                     else
+                         is_index_both_btm_top = false;
                  }
                  index = end + 1;
              } 
