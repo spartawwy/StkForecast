@@ -62,7 +62,11 @@ private:
     QPushButton *abc_down_for_d_pen_;
     QPushButton *abc_up_for_d_pen_;
     QPushButton *clear_pen_;
-    QPushButton *pre_btn_;
+
+    QPushButton *show_structline_btn_;
+    QPushButton *show_section_btn_;
+
+    QPushButton *pre_btn_; // for temp save pointer
     QComboBox   *cycle_comb_;
     DrawAction   pre_action_;
     //QPushButton *m_pMaximizeButton;

@@ -27,6 +27,8 @@ ToolBar::ToolBar(QWidget *parent)
     , ab_down_for_c_pen_(nullptr)
     , ab_up_for_c_pen_(nullptr)
     , clear_pen_(nullptr)
+    , show_structline_btn_(nullptr)
+    , show_section_btn_(nullptr)
     , pre_btn_(nullptr)
     , cycle_comb_(nullptr)
     , pre_action_(DrawAction::NO_ACTION)
@@ -35,7 +37,15 @@ ToolBar::ToolBar(QWidget *parent)
     assert( qobject_cast<MainWindow*>(parent)->kline_wall() );
     setFixedHeight(30);
 
-    ab_down_for_c_pen_ = new QPushButton("");
+    show_structline_btn_ = new QPushButton(QString::fromLocal8Bit("结构"));
+    show_structline_btn_->setFixedSize(54, 22);
+    show_structline_btn_->setCheckable(true);
+
+    show_section_btn_ = new QPushButton(QString::fromLocal8Bit("中枢"));
+    show_section_btn_->setFixedSize(54, 22);
+    show_section_btn_->setCheckable(true);
+
+    ab_down_for_c_pen_ = new QPushButton();
     QPixmap icon1(tr("img/ab_down_c.png"));
     ab_down_for_c_pen_->setIcon(icon1);
     ab_down_for_c_pen_->setFixedSize(22, 22);
@@ -64,6 +74,7 @@ ToolBar::ToolBar(QWidget *parent)
     clear_pen_ = new QPushButton("C");
     clear_pen_->setFixedSize(27, 22);
     clear_pen_->setObjectName(STR_CLRPEN);
+
     cycle_comb_ = new QComboBox();
     cycle_comb_->addItem(QString::fromLocal8Bit("5分"), QVariant(int(TypePeriod::PERIOD_5M))); // index 0
     cycle_comb_->addItem(QString::fromLocal8Bit("15分"), QVariant(int(TypePeriod::PERIOD_15M)));
@@ -75,10 +86,17 @@ ToolBar::ToolBar(QWidget *parent)
     cycle_comb_->setFixedSize(50, 22);
 
     ConnectAllDrawNormalBtn();
-    bool ret = connect(clear_pen_, SIGNAL(clicked(bool)), this, SLOT(onClicked()));
+    bool ret = connect(show_structline_btn_, SIGNAL(clicked(bool)), this, SLOT(onClicked()));
+    ret = connect(show_section_btn_, SIGNAL(clicked(bool)), this, SLOT(onClicked()));
+    ret = connect(clear_pen_, SIGNAL(clicked(bool)), this, SLOT(onClicked()));
+
     ret = ret;
     QHBoxLayout *pLayout = new QHBoxLayout(this);
     //pLayout->setSpacing(50);
+    pLayout->addWidget(show_structline_btn_);
+    pLayout->addSpacing(1);
+    pLayout->addWidget(show_section_btn_);
+    pLayout->addSpacing(5);
     pLayout->addWidget(ab_down_for_c_pen_);
     pLayout->addSpacing(1);
     pLayout->addWidget(ab_up_for_c_pen_);
@@ -152,6 +170,18 @@ bool ToolBar::eventFilter(QObject *obj, QEvent *event)
 void ToolBar::onClicked()
 {
     auto p_btn = qobject_cast<QPushButton*>(sender());
+
+    if( p_btn == show_structline_btn_ )
+    {
+        kline_wall_.SetShowStructLine(p_btn->isChecked());
+        return;
+    }
+    if( p_btn == show_section_btn_ )
+    {
+        kline_wall_.SetShowSection(p_btn->isChecked());
+        return;
+    }
+
     if( pre_btn_ && p_btn != pre_btn_ )
     {
         kline_wall_.setCursor(kline_wall_cursor_); 

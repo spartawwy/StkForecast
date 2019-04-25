@@ -45,6 +45,8 @@ public:
 
     void ResetDrawState(DrawAction draw_action);
     void ClearForcastData();
+    void SetShowStructLine(bool val);
+    void SetShowSection(bool val);
 
     void RestTypePeriod(TypePeriod  type);
 

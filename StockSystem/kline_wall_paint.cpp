@@ -64,8 +64,8 @@ KLineWall::KLineWall(StkForecastApp *app, QWidget *parent, int index)
     , area_select_flag_(false)
     , forcast_man_(index)
     , is_draw_bi_(false)
-    , is_draw_struct_line_(true)
-    , is_draw_section_(true)
+    , is_draw_struct_line_(false)
+    , is_draw_section_(false)
 {
     ui.setupUi(this);
     ResetDrawState(DrawAction::NO_ACTION); 
@@ -1688,6 +1688,18 @@ void KLineWall::ClearForcastData()
    auto iter_3pup_vector = forcast_man_.Find3pForcastVector(stock_code_, k_type_, false);
    if( iter_3pup_vector )
        iter_3pup_vector->clear();
+}
+
+void KLineWall::SetShowStructLine(bool val)
+{
+    is_draw_struct_line_ = val;
+    update();
+}
+
+void KLineWall::SetShowSection(bool val)
+{
+    is_draw_section_ = val;
+    update();
 }
 
 void KLineWall::RestTypePeriod(TypePeriod  type)

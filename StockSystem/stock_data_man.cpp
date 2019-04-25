@@ -1429,7 +1429,8 @@ void StockDataMan::TraverseGetStuctLines(PeriodType period_type, const std::stri
 // ps:  TraverseGetStuctLines have to be called before 
 void StockDataMan::TraversGetSections(PeriodType period_type, const std::string &code, std::deque<std::shared_ptr<T_KlineDataItem> > &kline_data_items)
 {
-    static auto if_fit_section_right_start = [](std::deque<std::shared_ptr<T_KlineDataItem> > &kline_data_items, T_StructLineContainer &struct_line_container
+    // from right toward left, struct line 0 is '/'
+    static auto if_fit_down_section_right_start = [](std::deque<std::shared_ptr<T_KlineDataItem> > &kline_data_items, T_StructLineContainer &struct_line_container
         , int index)->bool
     {
         /*if( index + 3 >= struct_line_container.size() ) 
@@ -1447,6 +1448,24 @@ void StockDataMan::TraversGetSections(PeriodType period_type, const std::string 
         if( kline_data_items[struct_line_container[index + 2]->beg_index]->stk_item.low_price > line_0_end_price ) 
             return false;
         if( kline_data_items[struct_line_container[index + 3]->beg_index]->stk_item.high_price < line_0_beg_price + 0.0001 )
+            return false;
+        return true;
+    };
+
+    // from right toward left, struct line 0 is '\'
+    static auto if_fit_up_section_right_start = [](std::deque<std::shared_ptr<T_KlineDataItem> > &kline_data_items, T_StructLineContainer &struct_line_container
+        , int index)->bool
+    {
+        if( struct_line_container[index]->type != LineType::DOWN )
+            return false;
+        int line_0_beg_index = struct_line_container[index]->beg_index;
+        int line_0_end_index = struct_line_container[index]->end_index;
+        const double line_0_beg_price = kline_data_items[line_0_beg_index]->stk_item.high_price;
+        const double line_0_end_price = kline_data_items[line_0_end_index]->stk_item.low_price;
+        if( kline_data_items[struct_line_container[index + 1]->beg_index]->stk_item.low_price < line_0_end_price ) 
+            return false;
+         
+        if( kline_data_items[struct_line_container[index + 3]->beg_index]->stk_item.low_price > line_0_beg_price )
             return false;
         return true;
     };
@@ -1484,12 +1503,8 @@ void StockDataMan::TraversGetSections(PeriodType period_type, const std::string 
     //int line_count = 0;
     while( i + 3 < struct_line_container.size() )
     {
-        if( if_fit_section_right_start(kline_data_items, struct_line_container, i) )
-        {
-            int line_0_beg_index = struct_line_container[i]->beg_index;
-            int line_0_end_index = struct_line_container[i]->end_index;
-            const double line_0_beg_price = kline_data_items[line_0_beg_index]->stk_item.low_price;
-            const double line_0_end_price = kline_data_items[line_0_end_index]->stk_item.high_price;
+        if( if_fit_down_section_right_start(kline_data_items, struct_line_container, i) )
+        { 
             int j = i + 3;
 
             while( true )
@@ -1511,7 +1526,6 @@ void StockDataMan::TraversGetSections(PeriodType period_type, const std::string 
 
                     section.btm_right_index = (struct_line_container[i]->beg_index + struct_line_container[i]->end_index) / 2;
                     section.btm_right_price = kline_data_items[struct_line_container[i]->beg_index]->stk_item.low_price;
-                     
                     container.push_back(std::move(section));
 
                     i = j;
@@ -1528,24 +1542,77 @@ void StockDataMan::TraversGetSections(PeriodType period_type, const std::string 
                 { 
                     T_Section  section;
                     section.top_left_index = (struct_line_container[j]->end_index + struct_line_container[j - 1]->end_index) / 2;
-
                     double top_l_price = MIN_VAL(kline_data_items[struct_line_container[j - 1]->end_index]->stk_item.high_price
                                             ,  kline_data_items[struct_line_container[i + 1]->beg_index]->stk_item.high_price);
                     section.top_left_price = top_l_price;
 
                     section.btm_right_index = (struct_line_container[i]->beg_index + struct_line_container[i]->end_index) / 2;
-
                     double btm_r_price = MAX_VAL(kline_data_items[struct_line_container[j - 2]->end_index]->stk_item.low_price 
                                             , kline_data_items[struct_line_container[i]->beg_index]->stk_item.low_price);
                     section.btm_right_price = btm_r_price;
-                     
                     container.push_back(std::move(section));
 
                     i = j - 1;
                     break;
                 }
             }// while 
-        }else
+
+        }else if( if_fit_up_section_right_start(kline_data_items, struct_line_container, i) )
+        {
+            int j = i + 3;
+            while( true )
+            {
+                ++j;
+                if( j > struct_line_container.size() - 1 )
+                {
+                    ++i;
+                    break;
+                }
+                // j is down line 
+                if( kline_data_items[struct_line_container[j]->beg_index]->stk_item.high_price 
+                    < kline_data_items[struct_line_container[i + 1]->beg_index]->stk_item.low_price
+                   || j == struct_line_container.size() - 1 )
+                { 
+                    T_Section  section;
+                    section.top_left_index = (struct_line_container[j]->end_index + struct_line_container[j - 1]->end_index) / 2;
+                    double top_l_price = MIN_VAL(kline_data_items[struct_line_container[j - 1]->end_index]->stk_item.high_price
+                                            ,  kline_data_items[struct_line_container[i]->beg_index]->stk_item.high_price);
+                    section.top_left_price = top_l_price;
+
+                    section.btm_right_index = (struct_line_container[i]->beg_index + struct_line_container[i]->end_index) / 2;
+                    double btm_r_price = MAX_VAL(kline_data_items[struct_line_container[j - 2]->end_index]->stk_item.low_price 
+                                            , kline_data_items[struct_line_container[i + 1]->beg_index]->stk_item.low_price);
+                    section.btm_right_price = btm_r_price;
+                    container.push_back(std::move(section));
+
+                    i = j;
+                    break;
+                }
+
+                ++j;
+                // j is up line 
+                if( kline_data_items[struct_line_container[j]->beg_index]->stk_item.low_price 
+                   > kline_data_items[struct_line_container[i]->beg_index]->stk_item.high_price
+                   || j == struct_line_container.size() - 1 )
+                { 
+                    T_Section  section;
+                    section.top_left_index = (struct_line_container[j]->end_index + struct_line_container[j - 1]->end_index) / 2;
+                    double top_l_price = MIN_VAL(kline_data_items[struct_line_container[j - 2]->end_index]->stk_item.high_price
+                                            ,  kline_data_items[struct_line_container[i]->beg_index]->stk_item.high_price);
+                    section.top_left_price = top_l_price;
+
+                    section.btm_right_index = (struct_line_container[i]->beg_index + struct_line_container[i]->end_index) / 2;
+                    double btm_r_price = MAX_VAL(kline_data_items[struct_line_container[j - 1]->end_index]->stk_item.low_price 
+                                            , kline_data_items[struct_line_container[i + 1]->beg_index]->stk_item.low_price);
+                    section.btm_right_price = btm_r_price;
+                    container.push_back(std::move(section));
+
+                    i = j - 1;
+                    break;
+                }
+            }// while
+
+        }else // not fit 
             ++i;
     } // while 
    
