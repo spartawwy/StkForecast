@@ -92,7 +92,6 @@ bool KLineWall::Init()
     action_pop_statistic_dlg->setText(QStringLiteral("区间统计"));
     bool ret = QObject::connect(action_pop_statistic_dlg, SIGNAL(triggered(bool)), this, SLOT(slotOpenStatisticDlg(bool)));
     k_wall_menu_->addAction(action_pop_statistic_dlg);
-
     
     //bool ret_of_con = connect(this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(slotTbvTasksContextMenu(QPoint))); 
 
@@ -773,6 +772,7 @@ void KLineWall::mousePressEvent(QMouseEvent * event )
 
 void KLineWall::mouseReleaseEvent(QMouseEvent * e) 
 {
+    main_win_->SetCurKlineWallIndex((WallIndex)wall_index_);
     if( mm_move_flag_ )
     {
         pre_k_rend_index_ = k_rend_index_;

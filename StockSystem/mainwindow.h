@@ -7,7 +7,13 @@
  
 
 //#define  USE_TITLE_VCM
-//#define  USE_STATUS_BAR
+//#define  USE_STATUS_BAR 
+
+enum class WallIndex : unsigned char
+{
+    MAIN,
+    SUB,
+};
 
 namespace Ui 
 {
@@ -33,7 +39,10 @@ public:
     ~MainWindow();
 
     bool Initialize();
-    KLineWall * kline_wall() { return kline_wall_; }
+    void SetCurKlineWallIndex(WallIndex index);
+    KLineWall * CurKlineWall() { if( cur_kline_index_ == WallIndex::MAIN ) return kline_wall_main; else return kline_wall_sub; }
+    //void DoCurKlineWallIndexChange();
+    //KLineWall * kline_wall(WallIndex index) { if( index == WallIndex::MAIN ) return kline_wall_main; else return kline_wall_sub; }
 
     void SetMainView(WallType wall_type);
     void ResetKLineWallCode(const QString &code, const QString &cn_name, bool is_index);
@@ -67,9 +76,11 @@ private:
     // cutomer qt controler --------
     ToolBar        *tool_bar_;
     TitleBar       *title_;
-    KLineWall      *kline_wall_;
+    KLineWall      *kline_wall_main;
+    KLineWall      *kline_wall_sub;
     CodeListWall   *code_list_wall_;
     //DayKLineDialog *dayKLineDialog;
+    WallIndex cur_kline_index_;
 
 private slots:
 

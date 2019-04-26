@@ -30,8 +30,10 @@ MainWindow::MainWindow(StkForecastApp *app, QWidget *parent) :
     , app_(app)
     , tool_bar_(nullptr)
     , title_(nullptr)
-    , kline_wall_(nullptr)
+    , kline_wall_main(nullptr)
+    , kline_wall_sub(nullptr)
     , code_list_wall_(nullptr)
+    , cur_kline_index_(WallIndex::MAIN)
 {
     ui->setupUi(this);
      
@@ -59,13 +61,29 @@ bool MainWindow::Initialize()
  
     title_ = new TitleBar(this);
     layout_all->addWidget(title_);  
+    // view area ----------
+    QHBoxLayout * view_layout = new QHBoxLayout;
+    view_layout->setContentsMargins(0,0,0,0);  
+    view_layout->setSpacing(1);  
 
-    kline_wall_ = new KLineWall(app_, this, 0);
-    if( !kline_wall_->Init() )
+    kline_wall_main = new KLineWall(app_, this, (int)WallIndex::MAIN);
+    if( !kline_wall_main->Init() )
         return false;
-    kline_wall_->setMouseTracking(true);
-    kline_wall_->RestTypePeriod(DEFAULT_TYPE_PERIOD);
+    kline_wall_main->setMouseTracking(true);
+    kline_wall_main->RestTypePeriod(DEFAULT_TYPE_PERIOD);
+    kline_wall_main->setFocusPolicy(Qt::StrongFocus);
+    view_layout->addWidget(kline_wall_main);
 
+    kline_wall_sub = new KLineWall(app_, this, (int)WallIndex::SUB);
+    if( !kline_wall_sub->Init() )
+        return false;
+    kline_wall_sub->setMouseTracking(true);
+    kline_wall_sub->RestTypePeriod(DEFAULT_TYPE_PERIOD);
+    kline_wall_sub->setFocusPolicy(Qt::StrongFocus);
+    view_layout->addWidget(kline_wall_sub);
+
+    kline_wall_sub->setVisible(false);
+    // end of view area-------
     tool_bar_ = new ToolBar(this);
     tool_bar_->SetCurCycleType(DEFAULT_TYPE_PERIOD);
     bool ret = connect(tool_bar_->cycle_comb(), SIGNAL(currentIndexChanged(int)), this, SLOT(onCycleChange(int)));
@@ -75,14 +93,13 @@ bool MainWindow::Initialize()
     code_list_wall_->Init();
 
     layout_all->addWidget(tool_bar_);  
-    layout_all->addWidget(kline_wall_);  
+    layout_all->addLayout(view_layout);  
     layout_all->addWidget(code_list_wall_);  
 
     code_list_wall_->hide();
 
     wd->setLayout(layout_all);  
     this->setCentralWidget(wd);  
-    kline_wall_->setFocusPolicy(Qt::StrongFocus);
 #endif 
        
 #ifdef USE_STATUS_BAR
@@ -99,17 +116,27 @@ bool MainWindow::Initialize()
     return true;
 }
 
+void MainWindow::SetCurKlineWallIndex(WallIndex index)
+{
+    if( cur_kline_index_ != index )
+    { 
+        CurKlineWall()->ResetDrawState(DrawAction::NO_ACTION);
+    } 
+    
+    cur_kline_index_ = index; 
+}
+
 void MainWindow::SetMainView(WallType wall_type)
 {
-    kline_wall_->hide();
+    kline_wall_main->hide();
     switch(wall_type)
     {    
     case WallType::KLINE: 
         code_list_wall_->hide();
-        kline_wall_->show(); 
+        kline_wall_main->show(); 
         break;
     case WallType::CODE_LIST: 
-        kline_wall_->hide();
+        kline_wall_main->hide();
         code_list_wall_->show(); 
         break;
     default:break;
@@ -118,7 +145,7 @@ void MainWindow::SetMainView(WallType wall_type)
 
 void MainWindow::ResetKLineWallCode(const QString &code, const QString &cn_name, bool is_index)
 {
-    kline_wall_->ResetStock(code, cn_name, is_index);
+    kline_wall_main->ResetStock(code, cn_name, is_index);
 }
  
 void MainWindow::closeEvent(QCloseEvent * event)
@@ -175,7 +202,7 @@ void MainWindow::changeEvent(QEvent *e)
  
 bool MainWindow::eventFilter(QObject *o, QEvent *e)
 { 
-    if( o == kline_wall_ )
+    if( o == kline_wall_main )
     {
         switch ( e->type() )
         {
@@ -198,12 +225,12 @@ void MainWindow::keyPressEvent(QKeyEvent *e)
     {
         case Qt::Key_F5:
         {
-            kline_wall_->show();
+            kline_wall_main->show();
             code_list_wall_->hide();
         } break;
         case Qt::Key_F6:
         {
-            kline_wall_->hide();
+            kline_wall_main->hide();
             code_list_wall_->show();
         } break;
         default:
@@ -227,9 +254,9 @@ void MainWindow::updateDateTime()
   
 void MainWindow::onCycleChange(int /*index*/)
 {
-    assert(kline_wall_);
+    assert(kline_wall_main);
     tool_bar_->cycle_comb()->clearFocus();
-    kline_wall_->RestTypePeriod( TypePeriod(tool_bar_->cycle_comb()->currentData().toInt()) );
+    kline_wall_main->RestTypePeriod( TypePeriod(tool_bar_->cycle_comb()->currentData().toInt()) );
      
 }
 

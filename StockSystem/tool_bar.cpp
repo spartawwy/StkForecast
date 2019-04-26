@@ -23,7 +23,7 @@
 ToolBar::ToolBar(QWidget *parent)
     : QWidget(parent)
     , m_main_window(qobject_cast<MainWindow*>(parent))
-    , kline_wall_( *(qobject_cast<MainWindow*>(parent)->kline_wall()) )
+    //, kline_wall_( *(qobject_cast<MainWindow*>(parent)->kline_wall(0)) )
     , ab_down_for_c_pen_(nullptr)
     , ab_up_for_c_pen_(nullptr)
     , clear_pen_(nullptr)
@@ -34,7 +34,7 @@ ToolBar::ToolBar(QWidget *parent)
     , pre_action_(DrawAction::NO_ACTION)
     , kline_wall_cursor_(Qt::ArrowCursor)
 {
-    assert( qobject_cast<MainWindow*>(parent)->kline_wall() );
+    //assert( qobject_cast<MainWindow*>(parent)->kline_wall(0) );
     setFixedHeight(30);
 
     show_structline_btn_ = new QPushButton(QString::fromLocal8Bit("结构"));
@@ -173,20 +173,20 @@ void ToolBar::onClicked()
 
     if( p_btn == show_structline_btn_ )
     {
-        kline_wall_.SetShowStructLine(p_btn->isChecked());
+        m_main_window->CurKlineWall()->SetShowStructLine(p_btn->isChecked());
         return;
     }
     if( p_btn == show_section_btn_ )
     {
-        kline_wall_.SetShowSection(p_btn->isChecked());
+        m_main_window->CurKlineWall()->SetShowSection(p_btn->isChecked());
         return;
     }
 
     if( pre_btn_ && p_btn != pre_btn_ )
     {
-        kline_wall_.setCursor(kline_wall_cursor_); 
+        m_main_window->CurKlineWall()->setCursor(kline_wall_cursor_); 
         DisConnectAllDrawNormalBtn();
-        kline_wall_.ResetDrawState(pre_action_); 
+        m_main_window->CurKlineWall()->ResetDrawState(pre_action_); 
         pre_btn_->setChecked(false);
         ConnectAllDrawNormalBtn();
     }
@@ -200,8 +200,8 @@ void ToolBar::onClicked()
             auto ret = QMessageBox::information(nullptr, QString::fromLocal8Bit("提示"), QString::fromLocal8Bit("是否删除所有手动预测画线?"), QMessageBox::Yes, QMessageBox::No); 
             if( QMessageBox::Yes == ret )
             {
-                kline_wall_.ResetDrawState(DrawAction::NO_ACTION); 
-                kline_wall_.ClearForcastData();
+                m_main_window->CurKlineWall()->ResetDrawState(DrawAction::NO_ACTION); 
+                m_main_window->CurKlineWall()->ClearForcastData();
             }
             return;
         }
@@ -221,13 +221,13 @@ void ToolBar::onClicked()
         pre_action_ = action;
         if( action == DrawAction::NO_ACTION )
         { 
-            kline_wall_.setCursor(kline_wall_cursor_); 
-            kline_wall_.ResetDrawState(DrawAction::NO_ACTION); 
+            m_main_window->CurKlineWall()->setCursor(kline_wall_cursor_); 
+            m_main_window->CurKlineWall()->ResetDrawState(DrawAction::NO_ACTION); 
         }else{ 
-            kline_wall_cursor_ = kline_wall_.cursor();
+            kline_wall_cursor_ = m_main_window->CurKlineWall()->cursor();
 
-            kline_wall_.setCursor(Qt::CrossCursor);
-            kline_wall_.draw_action(action);
+            m_main_window->CurKlineWall()->setCursor(Qt::CrossCursor);
+            m_main_window->CurKlineWall()->draw_action(action);
         }  
     }
 }

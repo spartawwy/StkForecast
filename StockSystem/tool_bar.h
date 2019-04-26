@@ -52,7 +52,7 @@ private:
 private:
 
     MainWindow *m_main_window;
-    KLineWall &kline_wall_;
+    //KLineWall *kline_wall_;
 
     //QLabel *m_pIconLabel;
     //QLabel *m_pTitleLabel;
