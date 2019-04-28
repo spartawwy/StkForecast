@@ -27,23 +27,39 @@ ToolBar::ToolBar(QWidget *parent)
     , ab_down_for_c_pen_(nullptr)
     , ab_up_for_c_pen_(nullptr)
     , clear_pen_(nullptr)
-    , show_structline_btn_(nullptr)
-    , show_section_btn_(nullptr)
+    , main_show_structline_btn_(nullptr)
+    , sub_show_structline_btn_(nullptr)
+    , main_show_section_btn_(nullptr)
+    , sub_show_section_btn_(nullptr)
+    , show_sub_kwall_btn_(nullptr)
     , pre_btn_(nullptr)
-    , cycle_comb_(nullptr)
+    , main_cycle_comb_(nullptr)
+    , sub_cycle_comb_(nullptr)
     , pre_action_(DrawAction::NO_ACTION)
     , kline_wall_cursor_(Qt::ArrowCursor)
 {
     //assert( qobject_cast<MainWindow*>(parent)->kline_wall(0) );
     setFixedHeight(30);
 
-    show_structline_btn_ = new QPushButton(QString::fromLocal8Bit("结构"));
-    show_structline_btn_->setFixedSize(54, 22);
-    show_structline_btn_->setCheckable(true);
+    main_show_structline_btn_ = new QPushButton(QString::fromLocal8Bit("结构_主"));
+    main_show_structline_btn_->setFixedSize(54, 22);
+    main_show_structline_btn_->setCheckable(true);
 
-    show_section_btn_ = new QPushButton(QString::fromLocal8Bit("中枢"));
-    show_section_btn_->setFixedSize(54, 22);
-    show_section_btn_->setCheckable(true);
+    sub_show_structline_btn_ = new QPushButton(QString::fromLocal8Bit("结构_子"));
+    sub_show_structline_btn_->setFixedSize(54, 22);
+    sub_show_structline_btn_->setCheckable(true);
+
+    main_show_section_btn_ = new QPushButton(QString::fromLocal8Bit("中枢_主"));
+    main_show_section_btn_->setFixedSize(54, 22);
+    main_show_section_btn_->setCheckable(true);
+
+    sub_show_section_btn_ = new QPushButton(QString::fromLocal8Bit("中枢_子"));
+    sub_show_section_btn_->setFixedSize(54, 22);
+    sub_show_section_btn_->setCheckable(true);
+
+    show_sub_kwall_btn_ = new QPushButton(QString::fromLocal8Bit("联动子窗"));
+    show_sub_kwall_btn_->setFixedSize(54, 22);
+    show_sub_kwall_btn_->setCheckable(true);
 
     ab_down_for_c_pen_ = new QPushButton();
     QPixmap icon1(tr("img/ab_down_c.png"));
@@ -75,28 +91,43 @@ ToolBar::ToolBar(QWidget *parent)
     clear_pen_->setFixedSize(27, 22);
     clear_pen_->setObjectName(STR_CLRPEN);
 
-    cycle_comb_ = new QComboBox();
-    cycle_comb_->addItem(QString::fromLocal8Bit("5分"), QVariant(int(TypePeriod::PERIOD_5M))); // index 0
-    cycle_comb_->addItem(QString::fromLocal8Bit("15分"), QVariant(int(TypePeriod::PERIOD_15M)));
-    cycle_comb_->addItem(QString::fromLocal8Bit("30分"), QVariant(int(TypePeriod::PERIOD_30M)));
-    cycle_comb_->addItem(QString::fromLocal8Bit("时"), QVariant(int(TypePeriod::PERIOD_HOUR)));
-    cycle_comb_->addItem(QString::fromLocal8Bit("日"), QVariant(int(TypePeriod::PERIOD_DAY)));
-    cycle_comb_->addItem(QString::fromLocal8Bit("周"), QVariant(int(TypePeriod::PERIOD_WEEK)));
-    cycle_comb_->addItem(QString::fromLocal8Bit("月"), QVariant(int(TypePeriod::PERIOD_MON)));
-    cycle_comb_->setFixedSize(50, 22);
+    main_cycle_comb_ = new QComboBox();
+    main_cycle_comb_->addItem(QString::fromLocal8Bit("5分"), QVariant(int(TypePeriod::PERIOD_5M))); // index 0
+    main_cycle_comb_->addItem(QString::fromLocal8Bit("15分"), QVariant(int(TypePeriod::PERIOD_15M)));
+    main_cycle_comb_->addItem(QString::fromLocal8Bit("30分"), QVariant(int(TypePeriod::PERIOD_30M)));
+    main_cycle_comb_->addItem(QString::fromLocal8Bit("时"), QVariant(int(TypePeriod::PERIOD_HOUR)));
+    main_cycle_comb_->addItem(QString::fromLocal8Bit("日"), QVariant(int(TypePeriod::PERIOD_DAY)));
+    main_cycle_comb_->addItem(QString::fromLocal8Bit("周"), QVariant(int(TypePeriod::PERIOD_WEEK)));
+    main_cycle_comb_->addItem(QString::fromLocal8Bit("月"), QVariant(int(TypePeriod::PERIOD_MON)));
+    main_cycle_comb_->setFixedSize(50, 22);
+
+    sub_cycle_comb_ = new QComboBox();
+    sub_cycle_comb_->addItem(QString::fromLocal8Bit("5分"), QVariant(int(TypePeriod::PERIOD_5M))); // index 0
+    sub_cycle_comb_->addItem(QString::fromLocal8Bit("15分"), QVariant(int(TypePeriod::PERIOD_15M)));
+    sub_cycle_comb_->addItem(QString::fromLocal8Bit("30分"), QVariant(int(TypePeriod::PERIOD_30M)));
+    sub_cycle_comb_->addItem(QString::fromLocal8Bit("时"), QVariant(int(TypePeriod::PERIOD_HOUR)));
+    sub_cycle_comb_->addItem(QString::fromLocal8Bit("日"), QVariant(int(TypePeriod::PERIOD_DAY)));
+    sub_cycle_comb_->addItem(QString::fromLocal8Bit("周"), QVariant(int(TypePeriod::PERIOD_WEEK)));
+    sub_cycle_comb_->addItem(QString::fromLocal8Bit("月"), QVariant(int(TypePeriod::PERIOD_MON)));
+    sub_cycle_comb_->setFixedSize(50, 22);
 
     ConnectAllDrawNormalBtn();
-    bool ret = connect(show_structline_btn_, SIGNAL(clicked(bool)), this, SLOT(onClicked()));
-    ret = connect(show_section_btn_, SIGNAL(clicked(bool)), this, SLOT(onClicked()));
-    ret = connect(clear_pen_, SIGNAL(clicked(bool)), this, SLOT(onClicked()));
-
+    bool ret = connect(main_show_structline_btn_, SIGNAL(clicked(bool)), this, SLOT(onClickedStructBtn()));
+    ret = connect(sub_show_structline_btn_, SIGNAL(clicked(bool)), this, SLOT(onClickedStructBtn()));
+    ret = connect(main_show_section_btn_, SIGNAL(clicked(bool)), this, SLOT(onClickedStructBtn()));
+    ret = connect(sub_show_section_btn_, SIGNAL(clicked(bool)), this, SLOT(onClickedStructBtn()));
+    ret = connect(show_sub_kwall_btn_, SIGNAL(clicked(bool)), this, SLOT(onClickedShowSubKwallBtn()));
     ret = ret;
+
     QHBoxLayout *pLayout = new QHBoxLayout(this);
-    //pLayout->setSpacing(50);
-    pLayout->addWidget(show_structline_btn_);
+     
+    pLayout->addWidget(main_show_structline_btn_);
     pLayout->addSpacing(1);
-    pLayout->addWidget(show_section_btn_);
+    pLayout->addWidget(main_show_section_btn_);
     pLayout->addSpacing(5);
+    pLayout->addWidget(main_cycle_comb_);
+
+    pLayout->addSpacing(20);
     pLayout->addWidget(ab_down_for_c_pen_);
     pLayout->addSpacing(1);
     pLayout->addWidget(ab_up_for_c_pen_);
@@ -107,8 +138,16 @@ ToolBar::ToolBar(QWidget *parent)
     pLayout->addSpacing(5);
     pLayout->addWidget(clear_pen_);
     pLayout->addSpacing(20);
-    pLayout->addWidget(cycle_comb_);
-    pLayout->setSpacing(0);
+   
+    pLayout->addWidget(show_sub_kwall_btn_);
+    pLayout->addSpacing(1);
+
+    pLayout->addWidget(sub_show_structline_btn_);
+    pLayout->addSpacing(1);
+    pLayout->addWidget(sub_show_section_btn_);
+    pLayout->addSpacing(5);
+    pLayout->addWidget(sub_cycle_comb_);
+
     pLayout->setContentsMargins(5, 0, 5, 0);
      
     setLayout(pLayout);
@@ -138,9 +177,14 @@ void ToolBar::UncheckBtnABCUpPen()
         abc_up_for_d_pen_->setChecked(false);
 }
 
-void ToolBar::SetCurCycleType(TypePeriod type_period)
+void ToolBar::SetMainKwallCurCycleType(TypePeriod type_period)
 {
-    cycle_comb_->setCurrentIndex(int(type_period) - 1);
+    main_cycle_comb_->setCurrentIndex(int(type_period) - 1);
+}
+
+void ToolBar::SetSubKwallCurCycleType(TypePeriod type_period)
+{
+    sub_cycle_comb_->setCurrentIndex(int(type_period) - 1);
 }
 
 void ToolBar::mouseDoubleClickEvent(QMouseEvent *)
@@ -170,18 +214,7 @@ bool ToolBar::eventFilter(QObject *obj, QEvent *event)
 void ToolBar::onClicked()
 {
     auto p_btn = qobject_cast<QPushButton*>(sender());
-
-    if( p_btn == show_structline_btn_ )
-    {
-        m_main_window->CurKlineWall()->SetShowStructLine(p_btn->isChecked());
-        return;
-    }
-    if( p_btn == show_section_btn_ )
-    {
-        m_main_window->CurKlineWall()->SetShowSection(p_btn->isChecked());
-        return;
-    }
-
+     
     if( pre_btn_ && p_btn != pre_btn_ )
     {
         m_main_window->CurKlineWall()->setCursor(kline_wall_cursor_); 
@@ -229,6 +262,41 @@ void ToolBar::onClicked()
             m_main_window->CurKlineWall()->setCursor(Qt::CrossCursor);
             m_main_window->CurKlineWall()->draw_action(action);
         }  
+    }
+}
+
+void ToolBar::onClickedStructBtn()
+{
+    auto p_btn = qobject_cast<QPushButton*>(sender());
+
+    if( p_btn == main_show_structline_btn_ )
+    {
+        m_main_window->MainKlineWall()->SetShowStructLine(p_btn->isChecked());
+        return;
+    }else if( p_btn == sub_show_structline_btn_ )
+    {
+        m_main_window->SubKlineWall()->SetShowStructLine(p_btn->isChecked());
+        return;
+    }else if( p_btn == main_show_section_btn_ )
+    {
+        m_main_window->MainKlineWall()->SetShowSection(p_btn->isChecked());
+        return;
+    }else if( p_btn == sub_show_section_btn_ )
+    {
+        m_main_window->SubKlineWall()->SetShowSection(p_btn->isChecked());
+        return;
+    }
+}
+
+void ToolBar::onClickedShowSubKwallBtn()
+{
+    auto p_btn = qobject_cast<QPushButton*>(sender());
+    if( p_btn == show_sub_kwall_btn_ )
+    {
+        m_main_window->SubKlineWall()->setVisible(p_btn->isChecked());
+        sub_show_structline_btn_->setVisible(p_btn->isChecked());
+        sub_show_section_btn_->setVisible(p_btn->isChecked());
+        sub_cycle_comb_->setVisible(p_btn->isChecked());
     }
 }
 

@@ -6,7 +6,9 @@
 #include "ui_klinewall.h"
 
 #include "stock_data_man.h"
+#ifdef STK_INPUT_KWALL
 #include "stockinput_dlg.h"
+#endif
 #include "statistic_dlg.h"
 
 #include "forcast_man.h"
@@ -33,7 +35,7 @@ class KLineWall : public QWidget
 
 public:
      
-    KLineWall(StkForecastApp *app, QWidget *parent, int index);
+    KLineWall(StkForecastApp *app, QWidget *parent, int index, TypePeriod k_type);
 	~KLineWall() { }
 	 
     bool Init();
@@ -63,6 +65,9 @@ public:
            stock_name_ = name.toLocal8Bit().data();
     }
      
+    //void stock_name(const std::string &name) { stock_name_ = name; }
+    //TypePeriod k_type() { return k_type_; }
+
 protected:
 
     void paintEvent(QPaintEvent*) override;
@@ -143,8 +148,9 @@ private:
     int pre_mm_w_;
     int pre_mm_h_;
     int h_axis_trans_in_paint_k_;
-
+#ifdef STK_INPUT_KWALL
 	StockInputDlg  stock_input_dlg_;
+#endif
     std::string    stock_code_;
     std::string    stock_name_;
     bool           is_index_;

@@ -27,7 +27,7 @@ static const int cst_default_year = 2017;
 static const double cst_k_mm_enlarge_times = 1.02; 
 static const double cst_k_mm_narrow_times = 0.98; 
 
-KLineWall::KLineWall(StkForecastApp *app, QWidget *parent, int index) 
+KLineWall::KLineWall(StkForecastApp *app, QWidget *parent, int index, TypePeriod k_type) 
     : QWidget(parent) 
     , app_(app)
     , main_win_((MainWindow*)parent)
@@ -52,12 +52,12 @@ KLineWall::KLineWall(StkForecastApp *app, QWidget *parent, int index)
     , k_num_(WOKRPLACE_DEFUALT_K_NUM)
     , k_rend_index_(0)  
     , pre_k_rend_index_(0)
-    , k_type_(DEFAULT_TYPE_PERIOD)
+    , k_type_(k_type)
     , k_cycle_tag_()
     , k_cycle_year_(0)
     , date_(0)
     , k_date_time_str_() 
-	, stock_input_dlg_(this, app->data_base())
+	//, stock_input_dlg_(this, app->data_base())
     , draw_action_(DrawAction::NO_ACTION)
     , mm_move_flag_(false)
     , move_start_point_(0, 0)
@@ -92,14 +92,8 @@ bool KLineWall::Init()
     action_pop_statistic_dlg->setText(QStringLiteral("区间统计"));
     bool ret = QObject::connect(action_pop_statistic_dlg, SIGNAL(triggered(bool)), this, SLOT(slotOpenStatisticDlg(bool)));
     k_wall_menu_->addAction(action_pop_statistic_dlg);
-    
-    //bool ret_of_con = connect(this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(slotTbvTasksContextMenu(QPoint))); 
-
-    //auto ret = app_->stock_data_man().Init();
-    //if( ret )
-    {
-       return ResetStock("000973", k_type_, false); // 600196  000301
-    }
+     
+    return ResetStock(DEFAULT_CODE, k_type_, false); // 600196  000301
 
 }
 
@@ -159,7 +153,7 @@ fronts_to_draw.push_back(std::make_tuple(QPointF(h_line_left - font_size*6, y3),
             }
         }  
 
-        pen.setColor(Qt::darkGray);
+        pen.setColor(Qt::white);
         pen.setStyle(Qt::SolidLine); 
         painter.setPen(pen);
         //char buf[32] = {0};
@@ -594,10 +588,10 @@ void KLineWall::mousePressEvent(QMouseEvent * event )
         this->forcast_man_.Append(k_type_, stock_code_, is_down, data_3p);
     };
     //qDebug() << "paintEvent QCursor::pos  x:" << QCursor::pos().x() << " y: "<< QCursor::pos().y() << "\n"; 
-     
+#ifdef STK_INPUT_KWALL
 	if( stock_input_dlg_.isVisible() )
 		stock_input_dlg_.hide();
-
+#endif
     if( draw_action_ == DrawAction::NO_ACTION )
     {
         if( event->buttons() & Qt::LeftButton )
@@ -1195,11 +1189,6 @@ void KLineWall::keyPressEvent(QKeyEvent *e)
 
     switch( key_val )
     {
-    case Qt::Key_F3:
-        {
-            ResetStock("999999", QString::fromLocal8Bit("上证指数"), true);
-            break;
-        }
     case Qt::Key_Up:  //zoom out 
         {
             if( p_hisdata_container_->empty() )
@@ -1226,6 +1215,12 @@ void KLineWall::keyPressEvent(QKeyEvent *e)
             update();
             break;
         } 
+#ifdef STK_INPUT_KWALL
+    case Qt::Key_F3:
+    {
+        ResetStock("999999", QString::fromLocal8Bit("上证指数"), true);
+        break;
+    }
     case Qt::Key_0: case Qt::Key_1: case Qt::Key_2: case Qt::Key_3: case Qt::Key_4:  
     case Qt::Key_5: case Qt::Key_6: case Qt::Key_7: case Qt::Key_8: case Qt::Key_9: 
     case Qt::Key_A: case Qt::Key_B: case Qt::Key_C: case Qt::Key_D: case Qt::Key_E:
@@ -1244,8 +1239,10 @@ void KLineWall::keyPressEvent(QKeyEvent *e)
                 sprintf_s(tmpbuf, sizeof(tmpbuf), "%c", char(key_val+32));
             stock_input_dlg_.ui.stock_input->setText(tmpbuf);
 			stock_input_dlg_.show();
+
 		}
 		break;
+#endif
     default:
         break;
     }
@@ -1586,6 +1583,7 @@ bool KLineWall::GetContainerMaxMinPrice(PeriodType period_type, const std::strin
 
 void KLineWall::StockInputDlgRet()
 {
+#ifdef STK_INPUT_KWALL
     bool is_index = false;
 
     QString::SectionFlag flag = QString::SectionSkipEmpty;
@@ -1640,6 +1638,7 @@ void KLineWall::StockInputDlgRet()
 	}
 	 
 	ResetStock(stock_code_changed, k_type_, is_index);
+#endif
 }
  
 void KLineWall::ResetDrawState(DrawAction action)

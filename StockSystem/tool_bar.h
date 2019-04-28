@@ -26,8 +26,10 @@ public:
     void UncheckBtnABCDownPen();
     void UncheckBtnABCUpPen();
 
-    QComboBox * cycle_comb(){ return cycle_comb_;}
-    void SetCurCycleType(TypePeriod type_period);
+    QComboBox * main_cycle_comb(){ return main_cycle_comb_;}
+    QComboBox * sub_cycle_comb(){ return sub_cycle_comb_;}
+    void SetMainKwallCurCycleType(TypePeriod type_period);
+    void SetSubKwallCurCycleType(TypePeriod type_period);
 
 protected:
 
@@ -43,6 +45,8 @@ protected:
 private slots:
      
     void onClicked();
+    void onClickedStructBtn();
+    void onClickedShowSubKwallBtn();
 
 private:
      
@@ -62,12 +66,18 @@ private:
     QPushButton *abc_down_for_d_pen_;
     QPushButton *abc_up_for_d_pen_;
     QPushButton *clear_pen_;
-
-    QPushButton *show_structline_btn_;
-    QPushButton *show_section_btn_;
-
     QPushButton *pre_btn_; // for temp save pointer
-    QComboBox   *cycle_comb_;
+
+    QPushButton *main_show_structline_btn_;
+    QPushButton *sub_show_structline_btn_;
+    QPushButton *main_show_section_btn_;
+    QPushButton *sub_show_section_btn_;
+
+    QPushButton *show_sub_kwall_btn_;
+
+    QComboBox   *main_cycle_comb_;
+    QComboBox   *sub_cycle_comb_;
+
     DrawAction   pre_action_;
     //QPushButton *m_pMaximizeButton;
     //QPushButton *m_pCloseButton;

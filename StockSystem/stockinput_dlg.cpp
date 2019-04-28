@@ -1,12 +1,16 @@
 #include "stockinput_dlg.h"
 
 #include <QDebug>
-#include "kline_wall.h"
+//#include "kline_wall.h"
+#include "mainwindow.h"
 #include "HintList.h"
 
 #include "database.h"
-
-StockInputDlg::StockInputDlg(KLineWall *parent, std::shared_ptr<DataBase> &db)
+//
+//StockInputDlg::StockInputDlg(KLineWall *parent, std::shared_ptr<DataBase> &db)
+//	: parent_(parent)
+//    , db_(db)
+StockInputDlg::StockInputDlg(MainWindow *parent, std::shared_ptr<DataBase> &db)
 	: parent_(parent)
     , db_(db)
 {
@@ -20,10 +24,7 @@ StockInputDlg::StockInputDlg(KLineWall *parent, std::shared_ptr<DataBase> &db)
 
 // ps : keys which parent has procedured will not enter this function
 void StockInputDlg::keyPressEvent(QKeyEvent *e)
-{
-	/*char buf[1024] = {"\0"};
-	sprintf_s(buf, "%0x\n", e->key() );
-	qDebug() << "buf: " << buf << "\n";*/
+{ 
 	if( e->key() == Qt::Key_Escape )
 	{
         if( m_list_hint_->hasFocus() )

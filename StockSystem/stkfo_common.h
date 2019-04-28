@@ -303,6 +303,9 @@ void gbkToUtf8(std::string& strGbk);
 
 #define  MOMENTUM_POS 0
 
-#define  DEFAULT_TYPE_PERIOD  TypePeriod::PERIOD_DAY
+#define  DEFAULT_MAINKWALL_TYPE_PERIOD  TypePeriod::PERIOD_DAY
+#define  DEFAULT_SUBKWALL_TYPE_PERIOD  TypePeriod::PERIOD_15M
+
+#define DEFAULT_CODE  "000973"
 
 #endif // STKFO_COMMON_SDF3DSF_H_

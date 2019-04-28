@@ -7,6 +7,7 @@
 #include "ui_stockinputdlg.h"
  
 class KLineWall;
+class MainWindow;
 class HintList;
 class DataBase;
 class StockInputDlg : public QWidget
@@ -15,7 +16,8 @@ class StockInputDlg : public QWidget
 
 public:
 
-    StockInputDlg(KLineWall *parent, std::shared_ptr<DataBase> &db);
+    //StockInputDlg(KLineWall *parent, std::shared_ptr<DataBase> &db);
+    StockInputDlg(MainWindow *parent, std::shared_ptr<DataBase> &db);
 
     Ui_StockInputDlgForm  ui;
 
@@ -34,7 +36,9 @@ private slots:
 
 private:
 	  
-	KLineWall *parent_;
+	//KLineWall *parent_;
+	MainWindow *parent_;
+    
     std::shared_ptr<DataBase> &db_;
 	//std::string cur_stock_code_;
     HintList *m_list_hint_;

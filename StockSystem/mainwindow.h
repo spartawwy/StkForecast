@@ -5,6 +5,7 @@
 #include <QTimer>
 #include <QtWidgets/QTableWidgetItem>
  
+#include "stockinput_dlg.h"
 
 //#define  USE_TITLE_VCM
 //#define  USE_STATUS_BAR 
@@ -40,6 +41,8 @@ public:
 
     bool Initialize();
     void SetCurKlineWallIndex(WallIndex index);
+    KLineWall * MainKlineWall() { return kline_wall_main; }
+    KLineWall * SubKlineWall() { return kline_wall_sub; }
     KLineWall * CurKlineWall() { if( cur_kline_index_ == WallIndex::MAIN ) return kline_wall_main; else return kline_wall_sub; }
     //void DoCurKlineWallIndexChange();
     //KLineWall * kline_wall(WallIndex index) { if( index == WallIndex::MAIN ) return kline_wall_main; else return kline_wall_sub; }
@@ -53,6 +56,8 @@ public:
     void UncheckBtnABCUpPen();
 
     void AddCode2CodeList(const QString &code, const QString &cn_name, bool is_index);
+
+    void StockInputDlgRet();
 
 protected:
 
@@ -82,13 +87,16 @@ private:
     //DayKLineDialog *dayKLineDialog;
     WallIndex cur_kline_index_;
 
+    StockInputDlg  stock_input_dlg_;
+
 private slots:
 
     //void on_tableWidget_itemDoubleClicked(QTableWidgetItem* item);
     void on_actionExit_triggered();
     void updateDateTime();
 
-    void onCycleChange(int /*index*/);
+    void onMainKwallCycleChange(int /*index*/);
+    void onSubKwallCycleChange(int /*index*/);
 };
 
 #endif // MAINWINDOW_H
