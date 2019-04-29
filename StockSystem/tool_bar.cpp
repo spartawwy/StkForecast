@@ -112,7 +112,8 @@ ToolBar::ToolBar(QWidget *parent)
     sub_cycle_comb_->setFixedSize(50, 22);
 
     ConnectAllDrawNormalBtn();
-    bool ret = connect(main_show_structline_btn_, SIGNAL(clicked(bool)), this, SLOT(onClickedStructBtn()));
+    bool ret = connect(clear_pen_, SIGNAL(clicked(bool)), this, SLOT(onClickedClearBtn()));
+    ret = connect(main_show_structline_btn_, SIGNAL(clicked(bool)), this, SLOT(onClickedStructBtn()));
     ret = connect(sub_show_structline_btn_, SIGNAL(clicked(bool)), this, SLOT(onClickedStructBtn()));
     ret = connect(main_show_section_btn_, SIGNAL(clicked(bool)), this, SLOT(onClickedStructBtn()));
     ret = connect(sub_show_section_btn_, SIGNAL(clicked(bool)), this, SLOT(onClickedStructBtn()));
@@ -151,6 +152,12 @@ ToolBar::ToolBar(QWidget *parent)
     pLayout->setContentsMargins(5, 0, 5, 0);
      
     setLayout(pLayout);
+
+    bool is_show_subwall_related_btn  = show_sub_kwall_btn_->isChecked();
+    //m_main_window->SubKlineWall()->setVisible(is_show_subwall_related_btn);
+    sub_show_structline_btn_->setVisible(is_show_subwall_related_btn);
+    sub_show_section_btn_->setVisible(is_show_subwall_related_btn);
+    sub_cycle_comb_->setVisible(is_show_subwall_related_btn);
 }
 
 void ToolBar::UncheckBtnABDownPen()
@@ -185,6 +192,14 @@ void ToolBar::SetMainKwallCurCycleType(TypePeriod type_period)
 void ToolBar::SetSubKwallCurCycleType(TypePeriod type_period)
 {
     sub_cycle_comb_->setCurrentIndex(int(type_period) - 1);
+}
+
+void ToolBar::SetShowSubKwallBtn(bool checked)
+{ 
+    show_sub_kwall_btn_->setChecked(checked);
+    sub_show_structline_btn_->setVisible(checked);
+    sub_show_section_btn_->setVisible(checked);
+    sub_cycle_comb_->setVisible(checked);
 }
 
 void ToolBar::mouseDoubleClickEvent(QMouseEvent *)
@@ -228,17 +243,6 @@ void ToolBar::onClicked()
     auto p_window = this->window();
     if( p_window->isTopLevel() )
     {
-        if( p_btn == clear_pen_ )
-        {
-            auto ret = QMessageBox::information(nullptr, QString::fromLocal8Bit("提示"), QString::fromLocal8Bit("是否删除所有手动预测画线?"), QMessageBox::Yes, QMessageBox::No); 
-            if( QMessageBox::Yes == ret )
-            {
-                m_main_window->CurKlineWall()->ResetDrawState(DrawAction::NO_ACTION); 
-                m_main_window->CurKlineWall()->ClearForcastData();
-            }
-            return;
-        }
-
         DrawAction action = DrawAction::NO_ACTION;
         if( p_btn->isChecked() )
         {
@@ -263,6 +267,17 @@ void ToolBar::onClicked()
             m_main_window->CurKlineWall()->draw_action(action);
         }  
     }
+}
+
+void ToolBar::onClickedClearBtn()
+{
+    auto ret = QMessageBox::information(nullptr, QString::fromLocal8Bit("提示"), QString::fromLocal8Bit("是否删除所有手动预测画线?"), QMessageBox::Yes, QMessageBox::No); 
+    if( QMessageBox::Yes == ret )
+    {
+        m_main_window->CurKlineWall()->ClearForcastData();
+        m_main_window->CurKlineWall()->ResetDrawState(DrawAction::NO_ACTION); 
+    }
+    return;
 }
 
 void ToolBar::onClickedStructBtn()
@@ -306,6 +321,7 @@ void ToolBar::ConnectAllDrawNormalBtn()
     ret = connect(ab_up_for_c_pen_, SIGNAL(clicked(bool)), this, SLOT(onClicked()));
     ret = connect(abc_down_for_d_pen_, SIGNAL(clicked(bool)), this, SLOT(onClicked()));
     ret = connect(abc_up_for_d_pen_, SIGNAL(clicked(bool)), this, SLOT(onClicked()));
+    
 }
 void ToolBar::DisConnectAllDrawNormalBtn()
 {

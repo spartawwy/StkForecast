@@ -40,6 +40,8 @@ public:
     ~MainWindow();
 
     bool Initialize();
+    ToolBar* tool_bar() { return tool_bar_; }
+
     void SetCurKlineWallIndex(WallIndex index);
     KLineWall * MainKlineWall() { return kline_wall_main; }
     KLineWall * SubKlineWall() { return kline_wall_sub; }

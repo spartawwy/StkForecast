@@ -7,6 +7,7 @@
 
 #include "stk_forecast_app.h"
 #include "mainwindow.h"
+#include "tool_bar.h"
 #include "favorite_codes_serial.h"
 
 static const int cst_code_index = 0;
@@ -108,6 +109,7 @@ void CodeListWall::slotRowDoubleClicked(const QModelIndex &)
         auto is_index = model->item(index.row(), cst_is_index_index)->data().toBool();
         app_->main_window()->ResetKLineWallCode(code, name, is_index);
         app_->main_window()->SetMainView(WallType::KLINE);
+        app_->main_window()->tool_bar()->SetShowSubKwallBtn(false);
         /*QStandardItem* aItem = model->itemFromIndex(index);
         if( aItem )
         {

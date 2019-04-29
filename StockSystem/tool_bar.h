@@ -31,6 +31,8 @@ public:
     void SetMainKwallCurCycleType(TypePeriod type_period);
     void SetSubKwallCurCycleType(TypePeriod type_period);
 
+    void SetShowSubKwallBtn(bool checked);
+
 protected:
 
     // 双击标题栏进行界面的最大化/还原
@@ -45,6 +47,7 @@ protected:
 private slots:
      
     void onClicked();
+    void onClickedClearBtn();
     void onClickedStructBtn();
     void onClickedShowSubKwallBtn();
 

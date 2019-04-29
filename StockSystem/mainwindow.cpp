@@ -141,6 +141,7 @@ void MainWindow::SetMainView(WallType wall_type)
     {    
     case WallType::KLINE: 
         code_list_wall_->hide();
+        kline_wall_sub->hide();
         kline_wall_main->show(); 
         break;
     case WallType::CODE_LIST: 
@@ -291,7 +292,9 @@ void MainWindow::keyPressEvent(QKeyEvent *e)
         case Qt::Key_U: case Qt::Key_V: case Qt::Key_W: case Qt::Key_X: case Qt::Key_Y:
         case Qt::Key_Z:
 		{
-            qDebug() << "MainWindow::keyPressEvent " << e->key() << "\n";
+            if( (e->modifiers() & Qt::ControlModifier) )
+                break;
+            //qDebug() << "MainWindow::keyPressEvent " << e->key() << "\n";
             stock_input_dlg_.ui.stock_input->clear();
             char tmpbuf[8] = {0};
             if( e->key() >= Qt::Key_0 && e->key() <= Qt::Key_9 )
