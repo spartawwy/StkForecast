@@ -64,9 +64,8 @@ public:
        if( ResetStock(stock, k_type_, is_index) )
            stock_name_ = name.toLocal8Bit().data();
     }
-     
-    //void stock_name(const std::string &name) { stock_name_ = name; }
-    //TypePeriod k_type() { return k_type_; }
+      
+    void ShowDurationKlines(int date);
 
 protected:
 
@@ -85,11 +84,14 @@ private slots:
 
     void slotOpenStatisticDlg(bool);
     //void slotTbvTasksContextMenu(QPoint);
+    void slotOpenRelatedSubKwall(bool);
 
 private: 
       
     bool ResetStock(const QString& stock, TypePeriod type_period, bool is_index=false);
     void AppendData();
+    void AppendPreData(int date);
+    
 
     void Draw2pDownForcast(QPainter &, const int mm_h, double item_w);
     void Draw2pUpForcast(QPainter &, const int mm_h, double item_w);
@@ -114,11 +116,6 @@ private:
     {  
         return -1 * (price - lowestMinPrice_)/(highestMaxPrice_ - lowestMinPrice_) * mm_h;
     }
-
-//    double CalcPosY(double price, int k_mm_h)
-//{
-//    double pos_y = -1 * (price - lowestMinPrice_)/(highestMaxPrice_ - lowestMinPrice_) * k_mm_h;
-//}
 
     void SetLowestMinPrice(float val) { lowestMinPrice_ = val;}
     double GetLowestMinPrice() { return lowestMinPrice_; }
@@ -195,6 +192,7 @@ private:
     QPointF area_sel_mouse_release_point_;
 
     QMenu * k_wall_menu_;
+    QMenu * k_wall_menu_sub_;
     ForcastMan  forcast_man_;
      
     std::vector<std::shared_ptr<ZhibiaoWindow> > zb_windows_;
@@ -202,6 +200,9 @@ private:
     bool is_draw_bi_;
     bool is_draw_struct_line_;
     bool is_draw_section_;
+
+    int  right_clicked_k_date_;
+
     friend class ZhibiaoWindow;
     friend class VolZhibiaoWin;
     friend class MomentumZhibiaoWin;

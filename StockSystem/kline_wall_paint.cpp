@@ -15,6 +15,7 @@
 #include <TLib/core/tsystem_utility_functions.h>
 
 #include "mainwindow.h"
+#include "tool_bar.h"
 #include "stkfo_common.h"
 #include "stk_forecast_app.h"
 #include "exchange_calendar.h"
@@ -66,6 +67,7 @@ KLineWall::KLineWall(StkForecastApp *app, QWidget *parent, int index, TypePeriod
     , is_draw_bi_(false)
     , is_draw_struct_line_(false)
     , is_draw_section_(false)
+    , right_clicked_k_date_(0)
 {
     ui.setupUi(this);
     ResetDrawState(DrawAction::NO_ACTION); 
@@ -93,6 +95,12 @@ bool KLineWall::Init()
     bool ret = QObject::connect(action_pop_statistic_dlg, SIGNAL(triggered(bool)), this, SLOT(slotOpenStatisticDlg(bool)));
     k_wall_menu_->addAction(action_pop_statistic_dlg);
      
+    k_wall_menu_sub_ = new QMenu(this);
+    auto action_pop_related_kwall = new QAction(this);
+    action_pop_related_kwall->setText(QStringLiteral("Áª¶¯Ê±¶Î"));
+    ret = QObject::connect(action_pop_related_kwall, SIGNAL(triggered(bool)), this, SLOT(slotOpenRelatedSubKwall(bool)));
+    k_wall_menu_sub_->addAction(action_pop_related_kwall);
+
     return ResetStock(DEFAULT_CODE, k_type_, false); // 600196  000301
 
 }
@@ -505,6 +513,7 @@ void KLineWall::UpdatePosDatas()
         //pos_data.x_left = j * item_w + 1;
         pos_data.x_right = right_end - item_w * (k_num_ - j);
         pos_data.x_left = pos_data.x_right - k_bar_w;
+        assert(pos_data.x_right - iter->get()->kline_posdata(wall_index_).x_right < 0.0001 );
         //auto pos_y = -1 * (openPrice - lowestMinPrice_)/(highestMaxPrice_ - lowestMinPrice_) * k_mm_h;
         auto pos_y = get_price_y(openPrice, k_mm_h);
         pos_data.height = -1 * (closePrice - openPrice)/(highestMaxPrice_ - lowestMinPrice_) * k_mm_h;
@@ -773,13 +782,36 @@ void KLineWall::mouseReleaseEvent(QMouseEvent * e)
         mm_move_flag_ = false;
     }else if( area_select_flag_ )
     {
+        area_select_flag_ = false;
         if( move_start_point_ != e->pos() )
         {  
             area_sel_mouse_release_point_ = e->pos();
             k_wall_menu_->popup(QCursor::pos());
              
+        }else if( wall_index_ == (int)WallIndex::MAIN )
+        {  
+            const double x_pos = e->localPos().x();
+            right_clicked_k_date_ = 0;
+            int j = 0;
+            for( auto iter = p_hisdata_container_->rbegin() + k_rend_index_;
+                iter != p_hisdata_container_->rend() && j < k_num_; 
+                ++iter, ++j)
+            {  
+                T_KlinePosData &pos_data = iter->get()->kline_posdata(wall_index_);
+                if( pos_data.x_left == CST_MAGIC_POINT.x() )
+                    continue;
+                //if( pos_data.x_left > 0.0 )
+                //    qDebug() << " " << pos_data.x_left << " " << x_pos << " " << pos_data.x_right << "\n";
+                if( pos_data.x_left <= x_pos && x_pos <= pos_data.x_right )
+                {
+                    right_clicked_k_date_ = iter->get()->stk_item.date;
+                    break;
+                } 
+            }
+            if( right_clicked_k_date_ != 0 )
+                k_wall_menu_sub_->popup(QCursor::pos());
         }
-        area_select_flag_ = false;
+        
     }
 }
 
@@ -1277,7 +1309,7 @@ void KLineWall::slotOpenStatisticDlg(bool)
     double end_price = 0.0;
     double begin_price = 0.0;
     int j = 0;
-    for( auto iter = p_hisdata_container_->rbegin();
+    for( auto iter = p_hisdata_container_->rbegin() + k_rend_index_;
         iter != p_hisdata_container_->rend() && j < k_num_; 
         ++iter, ++j)
     {  
@@ -1331,6 +1363,13 @@ void KLineWall::slotOpenStatisticDlg(bool)
     statistic_dlg_.ui.le_LowestPrice->setText(buf);
 
     statistic_dlg_.show();
+}
+
+void KLineWall::slotOpenRelatedSubKwall(bool)
+{
+    main_win_->SubKlineWall()->ShowDurationKlines(right_clicked_k_date_);
+    main_win_->SubKlineWall()->setVisible(true);
+    main_win_->tool_bar()->SetShowSubKwallBtn(true);
 }
 
 bool KLineWall::ResetStock(const QString& stock, TypePeriod type_period, bool is_index)
@@ -1482,6 +1521,74 @@ void KLineWall::AppendData()
     app_->stock_data_man().AppendStockData(ToPeriodType(k_type_), stock_code_, start_date, oldest_day, is_index_);
 }
 
+void KLineWall::AppendPreData(int date)
+{
+    assert( date > 19800000 && date < 20500000 );
+
+    int oldest_day = QDateTime::currentDateTime().toString("yyyyMMdd").toInt();
+    if( !p_hisdata_container_->empty() )
+        oldest_day = p_hisdata_container_->front()->stk_item.date;
+
+    if( date > oldest_day )
+        return; 
+    app_->stock_data_man().AppendStockData(ToPeriodType(k_type_), stock_code_, date, oldest_day, is_index_);
+}
+
+// ps: for sub kline wall
+void KLineWall::ShowDurationKlines(int date)
+{
+    if( p_hisdata_container_->empty() )
+        return;
+     
+    static auto find_k_rend_index = [](T_HisDataItemContainer *p_hisdata_container, int date_val)->int
+    {
+        bool is_find = false;
+        int j = 0;
+        for( auto iter = p_hisdata_container->rbegin();
+            iter != p_hisdata_container->rend(); 
+            ++iter, ++j )
+        { 
+            if( iter->get()->stk_item.date == date_val )
+            {
+                is_find = true;
+                break;
+            }
+        }
+        if( is_find )
+            return j;
+        else
+            return -1;
+    };
+
+    if( date < p_hisdata_container_->begin()->get()->stk_item.date )
+    {
+        int beg_date = date;
+        int pre_span = 5;
+        switch(k_type_)
+        {
+        case TypePeriod::PERIOD_HOUR: pre_span = 100 / 4 + 4;break;
+        case TypePeriod::PERIOD_30M: pre_span = 100 / 8 + 3;break;
+        case TypePeriod::PERIOD_15M: pre_span = 100 / 16 + 2;break;
+        case TypePeriod::PERIOD_5M: pre_span = 100 / 48 + 1;break;
+        default:break;
+        }
+        beg_date = app_->exchange_calendar()->PreTradeDate(date, pre_span);
+        AppendPreData(beg_date); 
+    }
+    k_rend_index_ = 0;
+    int index = find_k_rend_index(p_hisdata_container_, date);
+    if( index > -1 )
+    { 
+        k_rend_index_ = index;
+        k_num_ = 60;
+    }else
+        k_num_ = 0;
+
+    UpdateKwallMinMaxPrice();
+    UpdatePosDatas();
+    update();
+}
+
 T_KlineDataItem * KLineWall::GetKLineDataItemByXpos(int x)
 {
 #ifdef DRAW_FROM_LEFT
@@ -1547,7 +1654,11 @@ bool KLineWall::GetContainerMaxMinPrice(PeriodType period_type, const std::strin
     assert( container.size() > k_rend_index_ );
 
     unsigned int start_index = container.size() - k_rend_index_ > k_num ? (container.size() - k_rend_index_ - k_num) : 0; 
+    if( start_index == container.size() )
+        start_index = container.size() - 1;
     unsigned int end_index = container.size() - 1 > 0 ? container.size() - 1 - k_rend_index_ : 0;
+    if( end_index < 0 )
+        end_index = 0;
     float highest_price = MIN_PRICE;
     float lowest_price = MAX_PRICE;
     int highest_price_date = 0;
@@ -1701,145 +1812,6 @@ void KLineWall::SetShowSection(bool val)
     is_draw_section_ = val;
     update();
 }
-
-void KLineWall::RestTypePeriod(TypePeriod  type)
-{ 
-    if( k_type_ == type )
-        return;
-    switch( type )
-    {
-    case TypePeriod::PERIOD_5M:
-    case TypePeriod::PERIOD_15M:
-    case TypePeriod::PERIOD_30M:
-    case TypePeriod::PERIOD_HOUR:
-    case TypePeriod::PERIOD_DAY:
-    case TypePeriod::PERIOD_WEEK:
-    case TypePeriod::PERIOD_MON:
-        ResetStock(stock_code_.c_str(), type, is_index_);
-        break;
-    }
-}
-
-PeriodType KLineWall::ToPeriodType(TypePeriod src)
-{
-    switch(src)
-    {
-    case TypePeriod::PERIOD_5M: return PeriodType::PERIOD_5M;
-    case TypePeriod::PERIOD_15M: return PeriodType::PERIOD_15M;
-    case TypePeriod::PERIOD_30M: return PeriodType::PERIOD_30M;
-    case TypePeriod::PERIOD_HOUR: return PeriodType::PERIOD_HOUR;
-    case TypePeriod::PERIOD_DAY: return PeriodType::PERIOD_DAY;
-    case TypePeriod::PERIOD_WEEK: return PeriodType::PERIOD_WEEK;
-    case TypePeriod::PERIOD_MON: return PeriodType::PERIOD_MON;
-    assert(false); 
-    }
-    return PeriodType::PERIOD_DAY;
-}
-
-double KLineWall::GetCurWinKLargetstVol()
-{
-    double largest_vol = 0.0;
-    int k = k_num_;
-    for( auto iter = p_hisdata_container_->rbegin() + k_rend_index_;
-        iter != p_hisdata_container_->rend() && k > 0; 
-        ++iter, --k)
-    if( (*iter)->stk_item.vol > largest_vol ) 
-        largest_vol = (*iter)->stk_item.vol;
-    return largest_vol;
-}
-
-// ps : contain iter
-int KLineWall::FindTopItem_TowardLeft(T_HisDataItemContainer &his_data, T_HisDataItemContainer::reverse_iterator iter, int k_index, T_KlinePosData *&left_pos_data)
-{
-    auto left_tgt_iter = iter;
-    int cp_j = k_index;
-    for( ; left_tgt_iter != his_data.rend() && cp_j > 0; 
-        ++left_tgt_iter, --cp_j)
-    {
-        int type = (*left_tgt_iter)->type;
-        auto left_frac_type = MaxFractalType(type);
-        if( left_frac_type >= FractalType::TOP_AXIS_T_3 )
-            break;
-    }
-    if( left_tgt_iter != his_data.rend() && cp_j > 0 )
-    {
-        left_pos_data = std::addressof(left_tgt_iter->get()->kline_posdata(wall_index_));
-        return cp_j;
-    }else
-        return 0;
-}
-
-// ps : contain iter
-int KLineWall::FindTopFakeItem_TowardLeft(T_HisDataItemContainer &his_data, T_HisDataItemContainer::reverse_iterator iter, int k_index, T_KlinePosData *&left_pos_data)
-{
-    auto left_tgt_iter = iter;
-    int cp_j = k_index - 1;
-    for( ; left_tgt_iter != his_data.rend() && cp_j > 0; 
-        ++left_tgt_iter, --cp_j)
-    { 
-        if( (*left_tgt_iter)->type == (int)FractalType::TOP_FAKE )
-            break;
-    }
-    if( left_tgt_iter != his_data.rend() && cp_j > 0 )
-    {
-        left_pos_data = std::addressof(left_tgt_iter->get()->kline_posdata(wall_index_));
-        return cp_j;
-    }else
-        return 0;
-}
-
-// ps : not contain iter
-int KLineWall::FindBtmItem_TowardLeft(T_HisDataItemContainer &his_data, T_HisDataItemContainer::reverse_iterator iter, int k_index, T_KlinePosData *&left_pos_data)
-{
-    auto left_tgt_iter = iter + 1;
-    int cp_j = k_index - 1;
-    for( ; left_tgt_iter != his_data.rend() && cp_j > 0; 
-        ++left_tgt_iter, --cp_j) // find left btm_axis_iter 
-    {
-        auto left_frac_type = BtmestFractalType((*left_tgt_iter)->type);
-        if( left_frac_type != FractalType::UNKNOW_FRACTAL )
-            break;
-    }
-
-    if( left_tgt_iter != his_data.rend() && cp_j > 0 )
-    {
-        left_pos_data = std::addressof(left_tgt_iter->get()->kline_posdata(wall_index_));
-        return cp_j;
-    }else
-        return 0;
-}
-
-// ps : contain iter
-int KLineWall::FindBtmFakeItem_TowardLeft(T_HisDataItemContainer &his_data, T_HisDataItemContainer::reverse_iterator iter, int k_index, T_KlinePosData *&left_pos_data)
-{
-    auto left_tgt_iter = iter;
-    int cp_j = k_index - 1;
-    for( ; left_tgt_iter != his_data.rend() && cp_j > 0; 
-        ++left_tgt_iter, --cp_j) // find left btm_axis_iter 
-    {
-        if( (*left_tgt_iter)->type == (int)FractalType::BTM_FAKE )
-            break;
-    }
-
-    if( left_tgt_iter != his_data.rend() && cp_j > 0 )
-    {
-        left_pos_data = std::addressof(left_tgt_iter->get()->kline_posdata(wall_index_));
-        return cp_j;
-    }else
-        return 0;
-}
-
-int KLineWall::Calculate_k_mm_h()
-{
-    int mm_h = this->height() - HeadHeight() - BottomHeight();
-    for( unsigned int i = 0 ; i < zb_windows_.size(); ++i )
-    {
-        if( zb_windows_[i] )
-            mm_h -= zb_windows_[i]->Height();
-    }
-    return mm_h;
-}
- 
 
 //void KLineWall::SetCursorShape(Qt::CursorShape& cursor_shapre)
 //{
