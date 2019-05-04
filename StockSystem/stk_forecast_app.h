@@ -11,6 +11,7 @@
 
 #include "stock_data_man.h"
 
+//class QTimer;
 class ExchangeCalendar;
 class DataBase;
 class StockMan;
@@ -50,5 +51,6 @@ private:
     std::shared_ptr<StockMan>  stock_man_;
 
     std::shared_ptr<StockDataMan>  stock_data_man_;
+
 };
 #endif // STK_FORECAST_APP_SDF8533_H_

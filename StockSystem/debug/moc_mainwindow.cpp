@@ -20,7 +20,7 @@
 QT_BEGIN_MOC_NAMESPACE
 struct qt_meta_stringdata_MainWindow_t {
     QByteArrayData data[6];
-    char stringdata[97];
+    char stringdata[90];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -30,15 +30,14 @@ struct qt_meta_stringdata_MainWindow_t {
 static const qt_meta_stringdata_MainWindow_t qt_meta_stringdata_MainWindow = {
     {
 QT_MOC_LITERAL(0, 0, 10),
-QT_MOC_LITERAL(1, 11, 23),
-QT_MOC_LITERAL(2, 35, 0),
-QT_MOC_LITERAL(3, 36, 14),
-QT_MOC_LITERAL(4, 51, 22),
-QT_MOC_LITERAL(5, 74, 21)
+QT_MOC_LITERAL(1, 11, 7),
+QT_MOC_LITERAL(2, 19, 0),
+QT_MOC_LITERAL(3, 20, 23),
+QT_MOC_LITERAL(4, 44, 22),
+QT_MOC_LITERAL(5, 67, 21)
     },
-    "MainWindow\0on_actionExit_triggered\0\0"
-    "updateDateTime\0onMainKwallCycleChange\0"
-    "onSubKwallCycleChange\0"
+    "MainWindow\0onTimer\0\0on_actionExit_triggered\0"
+    "onMainKwallCycleChange\0onSubKwallCycleChange\0"
 };
 #undef QT_MOC_LITERAL
 
@@ -75,8 +74,8 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
     if (_c == QMetaObject::InvokeMetaMethod) {
         MainWindow *_t = static_cast<MainWindow *>(_o);
         switch (_id) {
-        case 0: _t->on_actionExit_triggered(); break;
-        case 1: _t->updateDateTime(); break;
+        case 0: _t->onTimer(); break;
+        case 1: _t->on_actionExit_triggered(); break;
         case 2: _t->onMainKwallCycleChange((*reinterpret_cast< int(*)>(_a[1]))); break;
         case 3: _t->onSubKwallCycleChange((*reinterpret_cast< int(*)>(_a[1]))); break;
         default: ;

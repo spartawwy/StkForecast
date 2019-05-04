@@ -264,7 +264,7 @@ public:
     int beg_index;
     int end_index;
 };
-
+// time is from oldest to recent
 typedef std::deque<std::shared_ptr<T_KlineDataItem> >  T_HisDataItemContainer;
 typedef std::unordered_map<std::string, T_HisDataItemContainer>  T_CodeMapHisDataItemContainer;
 

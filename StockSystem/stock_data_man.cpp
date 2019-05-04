@@ -193,6 +193,8 @@ T_HisDataItemContainer* StockDataMan::FindStockData(PeriodType period_type, cons
     T_HisDataItemContainer & items_in_container = GetHisDataContainer(period_type, stk_code);
     int real_start_date = exchange_calendar()->CeilingTradeDate(start_date);
     int real_end_date = exchange_calendar()->FloorTradeDate(end_date);
+    if( real_start_date == 0 || real_end_date == 0 )
+        return nullptr;
     int start_hhmm = 0;
     switch(period_type)
     {
@@ -1749,7 +1751,7 @@ TypePeriod ToTypePeriod(PeriodType src)
 // < 0 : meaning no related data
 int FindDataIndex(T_HisDataItemContainer &data_items_in_container, int date, int cur_hhmm)
 {
-    for( unsigned int i = 0; i < data_items_in_container.size(); ++i )
+    for( int i = data_items_in_container.size() - 1; i >= 0;  --i )
     {
         if( data_items_in_container.at(i)->stk_item.date == date && data_items_in_container.at(i)->stk_item.hhmmss == cur_hhmm)
             return i;

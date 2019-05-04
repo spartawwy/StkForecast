@@ -21,13 +21,12 @@
 #include "exchange_calendar.h"
 
  
-using namespace TSystem;
-
-//static const QPoint CST_MAGIC_POINT(-1, -1);
 static const int cst_default_year = 2017;
-static const double cst_k_mm_enlarge_times = 1.02; 
-static const double cst_k_mm_narrow_times = 0.98; 
 
+const double KLineWall::cst_k_mm_enlarge_times = 1.02; 
+const double KLineWall::cst_k_mm_narrow_times = 0.98; 
+
+using namespace TSystem;
 KLineWall::KLineWall(StkForecastApp *app, QWidget *parent, int index, TypePeriod k_type) 
     : QWidget(parent) 
     , app_(app)
@@ -58,7 +57,6 @@ KLineWall::KLineWall(StkForecastApp *app, QWidget *parent, int index, TypePeriod
     , k_cycle_year_(0)
     , date_(0)
     , k_date_time_str_() 
-	//, stock_input_dlg_(this, app->data_base())
     , draw_action_(DrawAction::NO_ACTION)
     , mm_move_flag_(false)
     , move_start_point_(0, 0)
@@ -239,7 +237,6 @@ fronts_to_draw.push_back(std::make_tuple(QPointF(h_line_left - font_size*6, y3),
 void KLineWall::Draw3pDownForcast(QPainter &painter, const int mm_h, double item_w)
 {
     _Draw3pForcast(painter, mm_h, item_w, true);
-
 }
 
 void KLineWall::Draw3pUpForcast(QPainter &painter, const int mm_h, double item_w)
@@ -339,7 +336,6 @@ void KLineWall::_Draw3pForcast(QPainter &painter, const int mm_h, double item_w,
     { 
         painter.drawText(std::get<0>(in), std::get<1>(in).c_str());
     });
-    
 }
 
 void KLineWall::DrawBi(QPainter &painter, const int mm_h)
@@ -366,7 +362,6 @@ void KLineWall::DrawBi(QPainter &painter, const int mm_h)
         }
     }
 }
-
 
 void KLineWall::DrawStructLine(QPainter &painter, const int mm_h)
 {
@@ -1185,25 +1180,6 @@ void KLineWall::mouseMoveEvent(QMouseEvent *e)
     update();
 }
 
-void KLineWall::UpdateKwallMinMaxPrice()
-{
-    std::tuple<float, float> price_tuple;
-    std::tuple<int, int, int, int> date_times_tuple;
-    if( GetContainerMaxMinPrice(ToPeriodType(k_type_), stock_code_, k_num_, price_tuple, date_times_tuple) )
-    {
-        double try_new_high = std::get<0>(price_tuple) * cst_k_mm_enlarge_times;
-        if( try_new_high < this->highestMaxPrice_ || try_new_high > this->highestMaxPrice_)
-            SetHighestMaxPrice(try_new_high);
-        double try_new_low = std::get<1>(price_tuple) * cst_k_mm_narrow_times;
-        if( try_new_low < this->lowestMinPrice_ || try_new_low > this->lowestMinPrice_)
-            SetLowestMinPrice(try_new_low);
-        highest_price_date_ = std::get<0>(date_times_tuple);
-        highest_price_hhmm_ = std::get<1>(date_times_tuple);
-        lowest_price_date_ = std::get<2>(date_times_tuple);
-        lowest_price_hhmm_ = std::get<3>(date_times_tuple);
-    }
-}
-
 void KLineWall::keyPressEvent(QKeyEvent *e)
 {
     assert(p_hisdata_container_);
@@ -1372,19 +1348,9 @@ void KLineWall::slotOpenRelatedSubKwall(bool)
     main_win_->tool_bar()->SetShowSubKwallBtn(true);
 }
 
+// ps : it may update k data's current data   
 bool KLineWall::ResetStock(const QString& stock, TypePeriod type_period, bool is_index)
-{  
-    static auto get_hhmm = [](int hhmm_para, int *tp_array, int num)->int
-    {
-        assert(num > 0);
-        for( int i = 0; i < num; ++i )
-        {
-            if( hhmm_para <= tp_array[i] ) 
-                return tp_array[i];
-        }
-        return tp_array[num-1];
-    };
-
+{   
     T_HisDataItemContainer & items_in_container = app_->stock_data_man().GetHisDataContainer(ToPeriodType(k_type_), stock.toLocal8Bit().data());
 
     if( k_type_ == type_period && stock_code_ ==  stock.toLocal8Bit().data() && !items_in_container.empty() )
@@ -1395,8 +1361,9 @@ bool KLineWall::ResetStock(const QString& stock, TypePeriod type_period, bool is
 
     stock_code_ = stock.toLocal8Bit().data(); 
     k_type_ = type_period;
-
+    
     auto cur_date = QDate::currentDate().year() * 10000 + QDate::currentDate().month() * 100 + QDate::currentDate().day();
+#if 0
     // 20 k line per 30 days
     int start_date = 0;
     int span_day = 0;
@@ -1404,7 +1371,6 @@ bool KLineWall::ResetStock(const QString& stock, TypePeriod type_period, bool is
     int tmp_hhmm = QTime::currentTime().hour() * 100 + QTime::currentTime().minute();
     
     //std::array<int, 4> hour_array = {1030, 1300, 1400, 1500};
-
     switch( type_period )
     {
     case TypePeriod::PERIOD_YEAR: 
@@ -1448,7 +1414,11 @@ bool KLineWall::ResetStock(const QString& stock, TypePeriod type_period, bool is
         }
     }
     start_date = QDate::currentDate().addDays(span_day).toString("yyyyMMdd").toInt();
-      
+#endif
+    auto date_time = GetKDataTargetDateTime(type_period, QDate::currentDate(), QTime::currentTime());
+    int start_date = std::get<0>(date_time);
+    int hhmm = std::get<1>(date_time);
+    // find his k data which till cur hhmm --------------
     p_hisdata_container_ = app_->stock_data_man().FindStockData(ToPeriodType(k_type_), stock_code_, start_date, cur_date, hhmm, is_index);
     if( !p_hisdata_container_ )
     {
@@ -1495,43 +1465,6 @@ bool KLineWall::ResetStock(const QString& stock, TypePeriod type_period, bool is
     
     UpdatePosDatas();
  	return true;
-}
-
-void KLineWall::AppendData()
-{ 
-    int oldest_day = QDateTime::currentDateTime().toString("yyyyMMdd").toInt();
-    if( !p_hisdata_container_->empty() )
-        oldest_day = p_hisdata_container_->front()->stk_item.date;
-
-    QDate qdate_obj(oldest_day/10000, (oldest_day%10000)/100, oldest_day%100);
-    int start_date = qdate_obj.addDays( -1 * (4 * 30) ).toString("yyyyMMdd").toInt(); 
-    switch(k_type_)
-    {
-    case TypePeriod::PERIOD_YEAR: start_date = qdate_obj.addDays( -1 * (5 * 12 * 30) ).toString("yyyyMMdd").toInt(); break;
-    case TypePeriod::PERIOD_MON:
-    case TypePeriod::PERIOD_WEEK: start_date = qdate_obj.addDays( -1 * (2 * 12 * 30) ).toString("yyyyMMdd").toInt(); break;
-    case TypePeriod::PERIOD_DAY: start_date = qdate_obj.addDays( -1 * (1 * 12 * 30) ).toString("yyyyMMdd").toInt(); break;
-    case TypePeriod::PERIOD_HOUR:start_date = qdate_obj.addDays( -1 * (6 * 30) ).toString("yyyyMMdd").toInt(); break;
-    case TypePeriod::PERIOD_30M: start_date = qdate_obj.addDays( -1 * (3 * 30) ).toString("yyyyMMdd").toInt(); break;
-    case TypePeriod::PERIOD_15M: start_date = qdate_obj.addDays( -1 * (1 * 30) ).toString("yyyyMMdd").toInt(); break;
-    case TypePeriod::PERIOD_5M: start_date = qdate_obj.addDays( -1 * (1 * 15) ).toString("yyyyMMdd").toInt(); break;
-    default: break;
-    }
-    /*auto p_container = */
-    app_->stock_data_man().AppendStockData(ToPeriodType(k_type_), stock_code_, start_date, oldest_day, is_index_);
-}
-
-void KLineWall::AppendPreData(int date)
-{
-    assert( date > 19800000 && date < 20500000 );
-
-    int oldest_day = QDateTime::currentDateTime().toString("yyyyMMdd").toInt();
-    if( !p_hisdata_container_->empty() )
-        oldest_day = p_hisdata_container_->front()->stk_item.date;
-
-    if( date > oldest_day )
-        return; 
-    app_->stock_data_man().AppendStockData(ToPeriodType(k_type_), stock_code_, date, oldest_day, is_index_);
 }
 
 // ps: for sub kline wall
@@ -1589,6 +1522,54 @@ void KLineWall::ShowDurationKlines(int date)
     update();
 }
 
+void KLineWall::UpdateIfNecessary()
+{ 
+    if( draw_action_ != DrawAction::NO_ACTION )
+        return;
+    bool is_need_updated = false;
+
+    int cur_date = QDate::currentDate().year() * 10000 + QDate::currentDate().month() * 100 + QDate::currentDate().day();
+    int cur_hhmm = QTime::currentTime().hour() * 100 + QTime::currentTime().minute();
+#if 1
+    if( !app_->exchange_calendar()->IsTradeDate(cur_date) || !app_->exchange_calendar()->IsTradeTime(cur_hhmm) )
+        return;
+#endif
+    auto date_time = GetKDataTargetDateTime(k_type_, QDate::currentDate(), QTime::currentTime());
+    //int start_date = std::get<0>(date_time);
+    int hhmm = std::get<1>(date_time);
+    
+    
+    // find if pre his k data  exists --------------
+    int pre_start_date = QDate::currentDate().addDays(-10).toString("yyyyMMdd").toInt();
+    int pre_end_date = QDate::currentDate().addDays(-7).toString("yyyyMMdd").toInt();
+    auto p_pre_data_container = app_->stock_data_man().FindStockData(ToPeriodType(k_type_), stock_code_, pre_start_date, pre_end_date, hhmm);
+
+    if( p_pre_data_container )
+    {
+        auto p_contain = app_->stock_data_man().FindStockData(ToPeriodType(k_type_), stock_code_, cur_date, cur_date, hhmm/*, bool is_index*/);
+        if( p_contain ) // current time k data exists
+        {
+            is_need_updated = app_->stock_data_man().UpdateLatestItemStockData(ToPeriodType(k_type_), stock_code_, is_index_);
+            
+        }else
+        {
+            auto p_cur_time_contain = app_->stock_data_man().AppendStockData(ToPeriodType(k_type_), stock_code_, pre_end_date, cur_date, is_index_);
+            if( p_cur_time_contain )
+            {
+                p_hisdata_container_ = p_cur_time_contain;
+                is_need_updated = true;
+            }
+        }
+
+        if( is_need_updated )
+        {
+            UpdateKwallMinMaxPrice();
+            UpdatePosDatas();
+            update();
+        }
+    }
+}
+
 T_KlineDataItem * KLineWall::GetKLineDataItemByXpos(int x)
 {
 #ifdef DRAW_FROM_LEFT
@@ -1621,18 +1602,6 @@ QPointF KLineWall::GetPointFromKLineDataItems(int x, bool is_get_top)
     return CST_MAGIC_POINT;
 }
 
-T_KlineDataItem * KLineWall::GetKLineDataItemByDate(int date, int hhmm)
-{ 
-    for( auto iter = p_hisdata_container_->rbegin();
-        iter != p_hisdata_container_->rend(); 
-        ++iter )
-    {   
-        if( iter->get()->stk_item.date == date && iter->get()->stk_item.hhmmss == hhmm )
-            return iter->get(); 
-    }
-    return nullptr;
-}
-
 T_KlinePosData * KLineWall::GetKLinePosDataByDate(int date, int hhmm)
 {
     for( auto iter = p_hisdata_container_->rbegin();
@@ -1645,114 +1614,6 @@ T_KlinePosData * KLineWall::GetKLinePosDataByDate(int date, int hhmm)
     return nullptr;
 }
 
-// dates : tuple<highest related date, highest related hhmm, lowest related date, lowest related hhmm>
-bool KLineWall::GetContainerMaxMinPrice(PeriodType period_type, const std::string& code, int k_num, std::tuple<float, float>& ret, std::tuple<int, int, int, int> &date_times)
-{
-    T_HisDataItemContainer &container = app_->stock_data_man().GetHisDataContainer(period_type, code);
-    if( container.empty() )
-        return false;
-    assert( container.size() > k_rend_index_ );
-
-    unsigned int start_index = container.size() - k_rend_index_ > k_num ? (container.size() - k_rend_index_ - k_num) : 0; 
-    if( start_index == container.size() )
-        start_index = container.size() - 1;
-    unsigned int end_index = container.size() - 1 > 0 ? container.size() - 1 - k_rend_index_ : 0;
-    if( end_index < 0 )
-        end_index = 0;
-    float highest_price = MIN_PRICE;
-    float lowest_price = MAX_PRICE;
-    int highest_price_date = 0;
-    int highest_price_hhmm = 0;
-    int lowest_price_date = 0;
-    int lowest_price_hhmm = 0;
-    for( unsigned int i = start_index; i <= end_index; ++ i )
-    {
-        if( container.at(i)->stk_item.high_price > highest_price )
-        {
-            highest_price = container.at(i)->stk_item.high_price; 
-            highest_price_date = container.at(i)->stk_item.date;
-            highest_price_hhmm = container.at(i)->stk_item.hhmmss;
-        }
-        if( container.at(i)->stk_item.low_price < lowest_price )
-        {
-            lowest_price = container.at(i)->stk_item.low_price;
-            lowest_price_date = container.at(i)->stk_item.date;
-            lowest_price_hhmm = container.at(i)->stk_item.hhmmss;
-        }
-    } 
-
-    double tmp_price = forcast_man_.FindMaxForcastPrice(code, ToTypePeriod(period_type), container.at(start_index)->stk_item.date, container.at(end_index)->stk_item.date);
-    if( tmp_price > highest_price )
-        highest_price = tmp_price;
-    tmp_price = forcast_man_.FindMinForcastPrice(code, ToTypePeriod(period_type), container.at(start_index)->stk_item.date, container.at(end_index)->stk_item.date);
-    if( tmp_price < lowest_price )
-        lowest_price = tmp_price;
-
-    ret = std::make_tuple(highest_price, lowest_price);
-    date_times = std::make_tuple(highest_price_date, highest_price_hhmm, lowest_price_date, lowest_price_hhmm);
-    return true;
-}
-
-void KLineWall::StockInputDlgRet()
-{
-#ifdef STK_INPUT_KWALL
-    bool is_index = false;
-
-    QString::SectionFlag flag = QString::SectionSkipEmpty;
-    QString tgt_tag = stock_input_dlg_.ui.stock_input->text().section('/', 0, 0, flag);
-    QString stock_code = tgt_tag.toLocal8Bit().data();
-    /*if( !IsStrNum(stock_code) || stock_code.size() != 6 )
-    return;*/
-    QString stock_name = stock_input_dlg_.ui.stock_input->text().section('/', 1, 1, flag);
-
-    QString type = stock_input_dlg_.ui.stock_input->text().section('/', 2, 2, flag);
-    is_index = type == "1";
-    QString stock_code_changed;
-	stock_input_dlg_.ui.stock_input->text().clear();
-#if 0 
-    std::string tmp_cn_name;
-	if( stock_code.toUpper() == "SZZS" || stock_code.toUpper() == "999999" )
-	{
-		stock_code_changed = "999999";
-        stock_name_ = "上证指数";
-        is_index = true;
-    }else if( stock_code.toUpper() == "SZCZ" 
-        || stock_code.toUpper() == "SZCZ"
-        || stock_code.toUpper() == "CYBZ" 
-        || stock_code.toUpper() == "ZXBZ"
-        || stock_code.toUpper() == "SZ50"
-        || stock_code.toUpper() == "HS300" )
-    {
-        std::string code;
-        if( TransIndexPinYin2CodeName(stock_code.toUpper().toLocal8Bit().data(), code, tmp_cn_name) )
-        {
-            stock_code_changed = code.c_str();
-            stock_name_ = tmp_cn_name;
-            is_index = true;
-        }else
-            return;
-        
-    }else if( TransIndexCode2Name(stock_code.toLocal8Bit().data(), tmp_cn_name) )
-    {
-        stock_code_changed = stock_code.toLocal8Bit().data();
-        stock_name_ = tmp_cn_name;
-        is_index = true;
-	}else
-#endif
-	{
-		auto first_code = stock_code.toLocal8Bit().data();
-		if( *first_code != '\0' && *first_code != '\2' && *first_code == '\3' && *first_code == '\6' )
-			return;
-		if( stock_code.length() != 6 || !IsNumber(stock_code.toLocal8Bit().data()) )
-			return;
-        stock_code_changed = stock_code.toLocal8Bit().data();
-        stock_name_ = stock_name.toLocal8Bit().data();
-	}
-	 
-	ResetStock(stock_code_changed, k_type_, is_index);
-#endif
-}
- 
 void KLineWall::ResetDrawState(DrawAction action)
 { 
     draw_action_ = DrawAction::NO_ACTION;  
@@ -1783,22 +1644,6 @@ void KLineWall::ResetDrawState(DrawAction action)
     default: assert(false);
     } 
     
-}
-
-void KLineWall::ClearForcastData()
-{ 
-   auto iter = forcast_man_.Find2pDownForcastVector(stock_code_, k_type_);
-   if( iter )
-       iter->clear();
-   auto iter0 = forcast_man_.Find2pUpForcastVector(stock_code_, k_type_);
-   if( iter0 )
-       iter0->clear();
-   auto iter_3pdown_vector = forcast_man_.Find3pForcastVector(stock_code_, k_type_, true);
-   if( iter_3pdown_vector )
-       iter_3pdown_vector->clear();
-   auto iter_3pup_vector = forcast_man_.Find3pForcastVector(stock_code_, k_type_, false);
-   if( iter_3pup_vector )
-       iter_3pup_vector->clear();
 }
 
 void KLineWall::SetShowStructLine(bool val)

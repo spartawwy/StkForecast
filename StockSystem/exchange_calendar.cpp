@@ -18,7 +18,12 @@ bool ExchangeCalendar::IsTradeDate(int date)
      return iter != date_map_opend.end() && iter->second;
 }
 
-// ceiling trade date may be bigger then param date
+bool ExchangeCalendar::IsTradeTime(int hhmm)
+{
+    return hhmm >= 915 &&  hhmm <= 1500;
+}
+
+// ps: ceiling trade date may be bigger then param date. if fail return 0
 int ExchangeCalendar::CeilingTradeDate(int date)
 {
     assert(trade_dates_->size() > 0); 
@@ -36,7 +41,7 @@ int ExchangeCalendar::CeilingTradeDate(int date)
     return 0;
 }
 
-// ceiling trade date may be smaller then param date
+// ps: ceiling trade date may be smaller then param date. if fail return 0
 int ExchangeCalendar::FloorTradeDate(int date)
 {
     assert(trade_dates_->size() > 0); 

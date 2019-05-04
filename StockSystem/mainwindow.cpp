@@ -9,12 +9,14 @@
 #include <iostream>
 #include <string.h>
 
+#include <QString>
 #include <QDateTime>
 #include <QtWidgets/QCheckBox>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QComboBox>
-#include <QString>
 #include <QMessageBox>
+#include <QTimer>
+
 #include <qdebug.h>
 
 #include "stk_forecast_app.h"
@@ -22,6 +24,8 @@
 #include "title_bar.h"
 #include "tool_bar.h"
 #include "code_list_wall.h"
+
+static const int cst_update_kwall_inter = 10;
 
 using namespace std;
 
@@ -36,23 +40,22 @@ MainWindow::MainWindow(StkForecastApp *app, QWidget *parent) :
     , code_list_wall_(nullptr)
     , cur_kline_index_(WallIndex::MAIN)
     , stock_input_dlg_(this, app->data_base())
+    , timer_update_kwall_inter_(0)
 {
-    ui->setupUi(this);
-     
+    ui->setupUi(this); 
 }
 
 MainWindow::~MainWindow()
 {
-#ifdef USE_STATUS_BAR
-    delete timer;
-#endif
-    delete ui;
+//#ifdef USE_STATUS_BAR
+//    delete timer;
+//#endif
+//    delete ui;
 }
 
 
 bool MainWindow::Initialize()
 {  
-#if 1
     // https://blog.csdn.net/qq_28093585/article/details/78517358
     this->setWindowFlags(Qt::FramelessWindowHint);  
 
@@ -108,16 +111,17 @@ bool MainWindow::Initialize()
 
     wd->setLayout(layout_all);  
     this->setCentralWidget(wd);  
-#endif 
-       
-#ifdef USE_STATUS_BAR
+
     timer = new QTimer(this);
     timer->setInterval(1000);
+    connect(timer, SIGNAL(timeout()), this, SLOT(onTimer()));
     timer->start();
+       
+#ifdef USE_STATUS_BAR
+    
     ui->labelCurrentTime->setText(
             QDateTime::currentDateTime().toString("yyyy-MM-dd HH:MM:ss"));
-    connect(timer,SIGNAL(timeout()),this,SLOT(updateDateTime()));
- 
+     
     ui->statusBar->showMessage("hello",2000); 
     ui->statusBar->addPermanentWidget(ui->labelCurrentTime);
 #endif
@@ -258,7 +262,6 @@ bool MainWindow::eventFilter(QObject *o, QEvent *e)
 
 void MainWindow::keyPressEvent(QKeyEvent *e)
 {
-    
     switch(e->key())
     {
         case Qt::Key_F3:
@@ -309,6 +312,16 @@ void MainWindow::keyPressEvent(QKeyEvent *e)
             break;
     }
     e->ignore();
+}
+
+void MainWindow::onTimer()
+{
+    // updateDateTime();
+    if( ++timer_update_kwall_inter_ % cst_update_kwall_inter == 0 )
+    {
+        kline_wall_main->UpdateIfNecessary();
+        kline_wall_sub->UpdateIfNecessary();
+    }
 }
 
 void MainWindow::on_actionExit_triggered()

@@ -63,6 +63,7 @@ bool StkForecastApp::Init()
     if( !main_window_->Initialize() )
         return false;
     main_window_->show();
+     
     return true;
 }
 

@@ -72,6 +72,7 @@ protected:
     virtual void keyPressEvent(QKeyEvent *e) override;
     virtual void changeEvent(QEvent *e) override;
     
+    void updateDateTime();
 
 private:
       
@@ -79,6 +80,7 @@ private:
     StkForecastApp *app_;
    
     QTimer *timer;
+    int timer_update_kwall_inter_;
 
     // cutomer qt controler --------
     ToolBar        *tool_bar_;
@@ -93,12 +95,13 @@ private:
 
 private slots:
 
-    //void on_tableWidget_itemDoubleClicked(QTableWidgetItem* item);
-    void on_actionExit_triggered();
-    void updateDateTime();
+    void onTimer();
 
+    //void on_tableWidget_itemDoubleClicked(QTableWidgetItem* item);
+    void on_actionExit_triggered(); 
     void onMainKwallCycleChange(int /*index*/);
     void onSubKwallCycleChange(int /*index*/);
+    
 };
 
 #endif // MAINWINDOW_H

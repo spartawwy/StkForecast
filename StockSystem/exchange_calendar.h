@@ -22,7 +22,8 @@ public:
 
     ExchangeCalendar();
 
-    bool IsTradeDate(int date);
+    bool IsTradeDate(int date); // yyyymmdd
+    bool IsTradeTime(int hhmm); // HHMM
     int CeilingTradeDate(int date);
     int FloorTradeDate(int date);
     int PreTradeDate(int date, unsigned int n);

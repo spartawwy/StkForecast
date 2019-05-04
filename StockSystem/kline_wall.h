@@ -35,11 +35,13 @@ class KLineWall : public QWidget
 
 public:
      
+    static const double cst_k_mm_enlarge_times; 
+    static const double cst_k_mm_narrow_times; 
+
     KLineWall(StkForecastApp *app, QWidget *parent, int index, TypePeriod k_type);
 	~KLineWall() { }
 	 
-    bool Init();
-	void StockInputDlgRet();
+    bool Init(); 
 
     //void SetCursorShape(Qt::CursorShape& cursor_shapre);
     void draw_action(DrawAction action) {  draw_action_ = action; }
@@ -66,6 +68,8 @@ public:
     }
       
     void ShowDurationKlines(int date);
+
+    void UpdateIfNecessary();
 
 protected:
 
@@ -208,4 +212,6 @@ private:
     friend class MomentumZhibiaoWin;
 };
 
+// ret: <date, hhmm>
+std::tuple<int, int> GetKDataTargetDateTime(TypePeriod type_period, QDate date, QTime time);
 #endif // K_LINE_WALL_SDF32DSF_
