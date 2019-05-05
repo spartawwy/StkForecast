@@ -319,7 +319,8 @@ T_HisDataItemContainer* StockDataMan::AppendStockData(PeriodType period_type, co
         }
     }
 #elif defined(USE_WINNER_API) || defined(USE_TDXHQ)
-        if( p_data_items[p_data_items.size()-1].date < items_in_container.back()->stk_item.date )
+        if( p_data_items[p_data_items.size()-1].date < items_in_container.back()->stk_item.date 
+            || p_data_items[0].date < items_in_container.back()->stk_item.date )
         { 
             for( int k = count; k > 0; --k )
             {

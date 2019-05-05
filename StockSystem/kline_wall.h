@@ -87,9 +87,11 @@ protected:
 private slots:
 
     void slotOpenStatisticDlg(bool);
+    void slotZoominSelect(bool);
+
     //void slotTbvTasksContextMenu(QPoint);
     void slotOpenRelatedSubKwall(bool);
-
+     
 private: 
       
     bool ResetStock(const QString& stock, TypePeriod type_period, bool is_index=false);

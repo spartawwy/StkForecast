@@ -92,7 +92,12 @@ bool KLineWall::Init()
     action_pop_statistic_dlg->setText(QStringLiteral("区间统计"));
     bool ret = QObject::connect(action_pop_statistic_dlg, SIGNAL(triggered(bool)), this, SLOT(slotOpenStatisticDlg(bool)));
     k_wall_menu_->addAction(action_pop_statistic_dlg);
-     
+    
+    auto action_zoomin_select = new QAction(this);
+    action_zoomin_select->setText(QStringLiteral("区域放大"));
+    ret = QObject::connect(action_zoomin_select, SIGNAL(triggered(bool)), this, SLOT(slotZoominSelect(bool)));
+    k_wall_menu_->addAction(action_zoomin_select);
+
     k_wall_menu_sub_ = new QMenu(this);
     auto action_pop_related_kwall = new QAction(this);
     action_pop_related_kwall->setText(QStringLiteral("联动时段"));
@@ -1339,6 +1344,38 @@ void KLineWall::slotOpenStatisticDlg(bool)
     statistic_dlg_.ui.le_LowestPrice->setText(buf);
 
     statistic_dlg_.show();
+}
+
+void KLineWall::slotZoominSelect(bool)
+{
+    double left_x = std::min((double)move_start_point_.x(),  area_sel_mouse_release_point_.x());
+    double right_x = std::max((double)move_start_point_.x(),  area_sel_mouse_release_point_.x());
+
+    assert( p_hisdata_container_->size() > k_rend_index_ );
+     
+    int k_num_in_area = 0;
+    
+    int j = 0;
+    for( auto iter = p_hisdata_container_->rbegin() + k_rend_index_;
+        iter != p_hisdata_container_->rend() && j < k_num_; 
+        ++iter, ++j)
+    {  
+        T_KlinePosData &pos_data = iter->get()->kline_posdata(wall_index_);
+        if( pos_data.x_left == CST_MAGIC_POINT.x() )
+            continue;
+        if( pos_data.x_right >= left_x &&  pos_data.x_left <= right_x )
+        {
+            ++k_num_in_area;
+            if( k_num_in_area == 1 )
+                k_rend_index_ += j;
+        }
+        if( pos_data.x_right < left_x )
+            break;
+    }
+    k_num_ = k_num_in_area;
+    UpdateKwallMinMaxPrice();
+    UpdatePosDatas(); 
+    update();
 }
 
 void KLineWall::slotOpenRelatedSubKwall(bool)
