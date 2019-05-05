@@ -24,6 +24,7 @@
 #include "title_bar.h"
 #include "tool_bar.h"
 #include "code_list_wall.h"
+#include "train_dlg.h"
 
 static const int cst_update_kwall_inter = 10;
 
@@ -41,6 +42,8 @@ MainWindow::MainWindow(StkForecastApp *app, QWidget *parent) :
     , cur_kline_index_(WallIndex::MAIN)
     , stock_input_dlg_(this, app->data_base())
     , timer_update_kwall_inter_(0)
+    , train_dlg_(nullptr)
+    , is_train_mode_(false)
 {
     ui->setupUi(this); 
 }
@@ -112,6 +115,12 @@ bool MainWindow::Initialize()
     wd->setLayout(layout_all);  
     this->setCentralWidget(wd);  
 
+    train_dlg_ = new TrainDlg(kline_wall_main, this);
+    train_dlg_->setWindowFlags(train_dlg_->windowFlags() | Qt::WindowStaysOnTopHint/*Qt::Dialog*/ );
+    train_dlg_->hide();
+
+    //-------------------------
+
     timer = new QTimer(this);
     timer->setInterval(1000);
     connect(timer, SIGNAL(timeout()), this, SLOT(onTimer()));
@@ -163,6 +172,8 @@ void MainWindow::ResetKLineWallCode(const QString &code, const QString &cn_name,
  
 void MainWindow::closeEvent(QCloseEvent * event)
 {
+    if( train_dlg_ )
+        train_dlg_->hide();
     auto ret_button = QMessageBox::question(nullptr, QString::fromLocal8Bit("提示"), QString::fromLocal8Bit("确定退出系统?"),
         QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Cancel);
     if( ret_button == QMessageBox::Cancel )
@@ -228,6 +239,13 @@ void MainWindow::StockInputDlgRet()
     kline_wall_sub->ResetStock(stock_code_changed, stock_name, is_index);
 }
  
+void MainWindow::PopTrainDlg()
+{
+    assert(train_dlg_);
+
+    is_train_mode(true);
+    train_dlg_->show();
+}
 
 void MainWindow::changeEvent(QEvent *e)
 {
@@ -262,6 +280,8 @@ bool MainWindow::eventFilter(QObject *o, QEvent *e)
 
 void MainWindow::keyPressEvent(QKeyEvent *e)
 {
+    if( is_train_mode_ )
+        return;
     switch(e->key())
     {
         case Qt::Key_F3:

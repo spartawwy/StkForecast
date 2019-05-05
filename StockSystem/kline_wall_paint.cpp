@@ -343,7 +343,7 @@ void KLineWall::_Draw3pForcast(QPainter &painter, const int mm_h, double item_w,
     });
 }
 
-void KLineWall::DrawBi(QPainter &painter, const int mm_h)
+void KLineWall::DrawBi(QPainter &painter, const int /*mm_h*/)
 {
     T_BiContainer &container = app_->stock_data_man().GetBiContainer(PeriodType(k_type_), stock_code_);
     if( container.empty() )
@@ -368,7 +368,7 @@ void KLineWall::DrawBi(QPainter &painter, const int mm_h)
     }
 }
 
-void KLineWall::DrawStructLine(QPainter &painter, const int mm_h)
+void KLineWall::DrawStructLine(QPainter &painter, const int /*mm_h*/)
 {
     T_StructLineContainer &container = app_->stock_data_man().GetStructLineContainer(PeriodType(k_type_), stock_code_);
     if( container.empty() )
@@ -1059,7 +1059,7 @@ void KLineWall::paintEvent(QPaintEvent*)
     painter.drawLine(0, 0, mm_w, 0); 
  
     // draw zibiao----------------------- 
-    const double item_w = double(mm_w - empty_right_w_ - right_w_) / double(k_num_ + 1) ;
+    //const double item_w = double(mm_w - empty_right_w_ - right_w_) / double(k_num_ + 1) ;
     for( unsigned int i = 0 ; i < zb_windows_.size(); ++i )
     {
         if( zb_windows_[i] )
@@ -1561,7 +1561,7 @@ void KLineWall::ShowDurationKlines(int date)
 
 void KLineWall::UpdateIfNecessary()
 { 
-    if( draw_action_ != DrawAction::NO_ACTION )
+    if( draw_action_ != DrawAction::NO_ACTION || main_win_->is_train_mode() )
         return;
     bool is_need_updated = false;
 

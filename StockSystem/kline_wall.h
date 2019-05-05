@@ -70,7 +70,7 @@ public:
     void ShowDurationKlines(int date);
 
     void UpdateIfNecessary();
-
+     
 protected:
 
     void paintEvent(QPaintEvent*) override;
@@ -157,8 +157,6 @@ private:
     std::string    stock_code_;
     std::string    stock_name_;
     bool           is_index_;
-
-    StatisticDlg  statistic_dlg_;
    
 	T_HisDataItemContainer *p_hisdata_container_; //point to stock_data_man_'s a stock's data
     
@@ -207,11 +205,15 @@ private:
     bool is_draw_struct_line_;
     bool is_draw_section_;
 
-    int  right_clicked_k_date_;
+    int  right_clicked_k_date_; // right mouse click
+
+    //bool is_train_mode_;
+    StatisticDlg  statistic_dlg_;
 
     friend class ZhibiaoWindow;
     friend class VolZhibiaoWin;
     friend class MomentumZhibiaoWin;
+    friend class TrainDlg;
 };
 
 // ret: <date, hhmm>

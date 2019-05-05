@@ -3,13 +3,28 @@
 
 #include <QtWidgets/QWidget>
 
+#include "ui_traindlg.h"
+
+class KLineWall;
+class MainWindow;
 class TrainDlg : public QWidget
 {
     Q_OBJECT
 
 public:
-    TrainDlg();
 
+    TrainDlg(KLineWall *parent, MainWindow *main_win);
+
+protected:
+
+    virtual void hideEvent(QHideEvent * event) override;
+
+private:
+
+    Ui::TrainDlgForm ui;
+
+    KLineWall *parent_;
+    MainWindow *main_win_;
 };
 
 #endif // TRAIN_DLG_SDFS23343543_H_

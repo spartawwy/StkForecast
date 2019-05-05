@@ -57,6 +57,10 @@ ToolBar::ToolBar(QWidget *parent)
     sub_show_section_btn_->setFixedSize(54, 22);
     sub_show_section_btn_->setCheckable(true);
 
+    auto train_model_btn = new QPushButton(QString::fromLocal8Bit("训练模式"));
+    train_model_btn->setFixedSize(54, 22);
+    //train_model_btn->setCheckable(true);
+
     show_sub_kwall_btn_ = new QPushButton(QString::fromLocal8Bit("联动子窗"));
     show_sub_kwall_btn_->setFixedSize(54, 22);
     show_sub_kwall_btn_->setCheckable(true);
@@ -118,6 +122,8 @@ ToolBar::ToolBar(QWidget *parent)
     ret = connect(main_show_section_btn_, SIGNAL(clicked(bool)), this, SLOT(onClickedStructBtn()));
     ret = connect(sub_show_section_btn_, SIGNAL(clicked(bool)), this, SLOT(onClickedStructBtn()));
     ret = connect(show_sub_kwall_btn_, SIGNAL(clicked(bool)), this, SLOT(onClickedShowSubKwallBtn()));
+
+    ret = connect(train_model_btn, SIGNAL(clicked(bool)), this, SLOT(onShowTrainModelWin()));
     ret = ret;
 
     QHBoxLayout *pLayout = new QHBoxLayout(this);
@@ -138,6 +144,9 @@ ToolBar::ToolBar(QWidget *parent)
     pLayout->addWidget(abc_up_for_d_pen_);
     pLayout->addSpacing(5);
     pLayout->addWidget(clear_pen_);
+    pLayout->addSpacing(5);
+    pLayout->addWidget(train_model_btn);
+
     pLayout->addSpacing(20);
    
     pLayout->addWidget(show_sub_kwall_btn_);
@@ -313,6 +322,12 @@ void ToolBar::onClickedShowSubKwallBtn()
         sub_show_section_btn_->setVisible(p_btn->isChecked());
         sub_cycle_comb_->setVisible(p_btn->isChecked());
     }
+}
+
+void ToolBar::onShowTrainModelWin()
+{
+    m_main_window->is_train_mode(true);
+    m_main_window->PopTrainDlg();
 }
 
 void ToolBar::ConnectAllDrawNormalBtn()

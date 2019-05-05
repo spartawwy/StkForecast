@@ -50,6 +50,7 @@ private slots:
     void onClickedClearBtn();
     void onClickedStructBtn();
     void onClickedShowSubKwallBtn();
+    void onShowTrainModelWin();
 
 private:
      
