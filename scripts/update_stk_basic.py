@@ -125,6 +125,7 @@ class STOCKBASIC:
                        , ('880380', '酒类指数', 'JLZS')
                        , ('880507', '军工指数', 'JGZS')
                        , ('880482', '房产指数', 'FCZS')
+                       , ('880335', '化工指数', 'HGZS')
                        , ('880490', '通信设备', 'TXSB')
                        , ('880948', '人工智能', 'RGZN')
                        , ('880534', '锂电池', 'LDC')
@@ -133,6 +134,8 @@ class STOCKBASIC:
                        , ('880506', '5G概念', 'WGGN')
                        , ('880945', 'OLED概念', 'OLEDGN')
                        , ('880540', '创投概念', 'CTGN')
+                       , ('880591', '上海自贸', 'SHZM')
+                       , ('880936', '猪肉指数', 'ZRZS')
                        ]
         for i in range(0, len(index_array)):
             sql = "INSERT OR REPLACE INTO stock VALUES(?, ?, ?, ?, 0, '', '', '')"

@@ -175,7 +175,7 @@ private:
 class T_StockBaseInfoItem
 { 
 public:
-    T_StockBaseInfoItem() : time_to_market(0){}
+    T_StockBaseInfoItem() : type(0), time_to_market(0){}
     std::string code;
     int type;  // 0--normal stock 1--index code
     std::string pinyin;
@@ -305,6 +305,7 @@ void gbkToUtf8(std::string& strGbk);
 
 #define  DEFAULT_MAINKWALL_TYPE_PERIOD  TypePeriod::PERIOD_DAY
 #define  DEFAULT_SUBKWALL_TYPE_PERIOD  TypePeriod::PERIOD_15M
+#define COMBO_PERIOD_DAY_INDEX 4
 
 #define DEFAULT_CODE  "000973"
 

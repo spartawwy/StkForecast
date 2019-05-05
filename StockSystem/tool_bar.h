@@ -60,8 +60,7 @@ private:
 private:
 
     MainWindow *m_main_window;
-    //KLineWall *kline_wall_;
-
+     
     //QLabel *m_pIconLabel;
     //QLabel *m_pTitleLabel;
 
@@ -87,6 +86,8 @@ private:
     //QPushButton *m_pCloseButton;
 
     QCursor kline_wall_cursor_;
+
+    friend class TrainDlg;
 };
 
 #endif // TOOL_BAR_SFDDS32SDFDS_H_

@@ -26,6 +26,8 @@
 #include "code_list_wall.h"
 #include "train_dlg.h"
 
+static const int cst_win_width = 1000;
+static const int cst_win_height = 500;
 static const int cst_update_kwall_inter = 10;
 
 using namespace std;
@@ -61,6 +63,7 @@ bool MainWindow::Initialize()
 {  
     // https://blog.csdn.net/qq_28093585/article/details/78517358
     this->setWindowFlags(Qt::FramelessWindowHint);  
+    this->setGeometry(100, 100, cst_win_width, cst_win_height);
 
     QWidget *wd = new QWidget(this);  
     QVBoxLayout *layout_all = new QVBoxLayout;  
@@ -368,7 +371,12 @@ void MainWindow::onSubKwallCycleChange(int /*index*/)
 {
     assert(kline_wall_sub);
     tool_bar_->sub_cycle_comb()->clearFocus();
-    kline_wall_sub->RestTypePeriod( TypePeriod(tool_bar_->sub_cycle_comb()->currentData().toInt()) );
+    if( is_train_mode() && tool_bar_->sub_cycle_comb()->currentIndex() >= COMBO_PERIOD_DAY_INDEX )
+    {
+        tool_bar_->sub_cycle_comb()->setCurrentIndex(COMBO_PERIOD_DAY_INDEX - 1);
+        return;
+    }else
+        kline_wall_sub->RestTypePeriod( TypePeriod(tool_bar_->sub_cycle_comb()->currentData().toInt()) );
 }
 
 

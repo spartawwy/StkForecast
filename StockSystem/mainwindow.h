@@ -112,6 +112,7 @@ private slots:
     void onMainKwallCycleChange(int /*index*/);
     void onSubKwallCycleChange(int /*index*/);
     
+    friend class TrainDlg;
 };
 
 #endif // MAINWINDOW_H

@@ -37,7 +37,7 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QStringLiteral("MainWindow"));
-        MainWindow->resize(608, 455);
+        MainWindow->resize(712, 502);
         action = new QAction(MainWindow);
         action->setObjectName(QStringLiteral("action"));
         actionExit = new QAction(MainWindow);

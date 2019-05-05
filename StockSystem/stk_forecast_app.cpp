@@ -61,7 +61,7 @@ bool StkForecastApp::Init()
     //---------------
     main_window_ = std::make_shared<MainWindow>(this);
     if( !main_window_->Initialize() )
-        return false;
+        return false; 
     main_window_->show();
      
     return true;

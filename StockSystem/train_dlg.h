@@ -15,6 +15,11 @@ public:
 
     TrainDlg(KLineWall *parent, MainWindow *main_win);
 
+public slots:
+
+    void OnCalendarClicked(const QDate &);
+    void OnStartTrain();
+
 protected:
 
     virtual void hideEvent(QHideEvent * event) override;

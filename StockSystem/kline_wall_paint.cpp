@@ -52,6 +52,7 @@ KLineWall::KLineWall(StkForecastApp *app, QWidget *parent, int index, TypePeriod
     , k_num_(WOKRPLACE_DEFUALT_K_NUM)
     , k_rend_index_(0)  
     , pre_k_rend_index_(0)
+    , k_rend_index_for_train_(0)
     , k_type_(k_type)
     , k_cycle_tag_()
     , k_cycle_year_(0)
@@ -66,6 +67,7 @@ KLineWall::KLineWall(StkForecastApp *app, QWidget *parent, int index, TypePeriod
     , is_draw_struct_line_(false)
     , is_draw_section_(false)
     , right_clicked_k_date_(0)
+    
 {
     ui.setupUi(this);
     ResetDrawState(DrawAction::NO_ACTION); 
@@ -1165,10 +1167,13 @@ void KLineWall::mouseMoveEvent(QMouseEvent *e)
             }else // drag to left
             {
                 const int num = pre_k_rend_index_ - abs(distance) / atom_k_width;
-                if( num <= 0 )
-                    k_rend_index_ = 0;
-                else
-                    k_rend_index_ = num;
+                int temp_val = (num > 0 ? num : 0);
+                if( main_win_->is_train_mode() )
+                {
+                    k_rend_index_ = temp_val < k_rend_index_for_train_ ? k_rend_index_for_train_ : temp_val;
+                }else
+                    k_rend_index_ = temp_val;
+                
             }
             if( k_rend_index_ != k_move_temp_index_ )
             {
@@ -1504,31 +1509,12 @@ bool KLineWall::ResetStock(const QString& stock, TypePeriod type_period, bool is
  	return true;
 }
 
+
 // ps: for sub kline wall
 void KLineWall::ShowDurationKlines(int date)
 {
     if( p_hisdata_container_->empty() )
         return;
-     
-    static auto find_k_rend_index = [](T_HisDataItemContainer *p_hisdata_container, int date_val)->int
-    {
-        bool is_find = false;
-        int j = 0;
-        for( auto iter = p_hisdata_container->rbegin();
-            iter != p_hisdata_container->rend(); 
-            ++iter, ++j )
-        { 
-            if( iter->get()->stk_item.date == date_val )
-            {
-                is_find = true;
-                break;
-            }
-        }
-        if( is_find )
-            return j;
-        else
-            return -1;
-    };
 
     if( date < p_hisdata_container_->begin()->get()->stk_item.date )
     {
@@ -1546,7 +1532,7 @@ void KLineWall::ShowDurationKlines(int date)
         AppendPreData(beg_date); 
     }
     k_rend_index_ = 0;
-    int index = find_k_rend_index(p_hisdata_container_, date);
+    int index = FindKRendIndex(p_hisdata_container_, date);
     if( index > -1 )
     { 
         k_rend_index_ = index;
@@ -1605,6 +1591,24 @@ void KLineWall::UpdateIfNecessary()
             update();
         }
     }
+}
+
+void KLineWall::SetTrainStartDate(int date)
+{
+    int target_r_end_index = FindKRendIndex(p_hisdata_container_, date);
+    if( target_r_end_index > -1 )
+    {
+        k_rend_index_ = target_r_end_index; 
+        k_rend_index_for_train_ = target_r_end_index; 
+        k_num_ = WOKRPLACE_DEFUALT_K_NUM;
+    }else
+    {
+        k_rend_index_for_train_ = p_hisdata_container_->size() > 0 ? p_hisdata_container_->size() - 1 : 0;
+        k_num_ = 0;
+    }
+    UpdateKwallMinMaxPrice();
+    UpdatePosDatas();
+    update();
 }
 
 T_KlineDataItem * KLineWall::GetKLineDataItemByXpos(int x)

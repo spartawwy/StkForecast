@@ -62,14 +62,26 @@ void DataBase::LoadAllStockBaseInfo(std::shared_ptr<StockMan> &stock_man)
     db_conn_->ExecuteSQL(sql.c_str(), [this, &stock_man](int /*num_cols*/, char** vals, char** /*names*/)->int
     {
         auto item = std::make_shared<T_StockBaseInfoItem>();
-        item->code = *vals;
-        item->type = boost::lexical_cast<int>(*(vals + 1));
-        item->name = *(vals + 2);
-        item->pinyin = *(vals + 3);
-        item->time_to_market = boost::lexical_cast<int>(*(vals + 4));
-        item->industry = *(vals + 5);
-        item->area = *(vals + 6);
-        item->remark = *(vals + 7);
+        try
+        {
+            item->code = *vals;
+            item->type = boost::lexical_cast<int>(*(vals + 1));
+            if( *(vals + 2) )
+                item->name = *(vals + 2);
+            if( *(vals + 3) )
+                item->pinyin = *(vals + 3);
+            item->time_to_market = boost::lexical_cast<int>(*(vals + 4));
+            if( *(vals + 5) )
+                item->industry = *(vals + 5);
+            if( *(vals + 6) )
+                item->area = *(vals + 6);
+            if( *(vals + 7) )
+                item->remark = *(vals + 7);
+        }catch(boost::exception & )
+        { 
+            return 0;
+        }
+
         stock_man->pinyin_stock_baseinfo_item_map_.insert( std::make_pair(item->pinyin, item) );
         stock_man->code_stock_baseinfo_item_map_.insert( std::make_pair(item->code, std::move(item)) );
         return 0;

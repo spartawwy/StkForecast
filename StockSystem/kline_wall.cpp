@@ -356,3 +356,31 @@ std::tuple<int, int> GetKDataTargetDateTime(TypePeriod type_period, QDate date, 
     start_date = date.addDays(span_day).toString("yyyyMMdd").toInt();
     return std::make_tuple(start_date, hhmm);
 }
+
+// ps: from p_hisdata_container back to front
+int FindKRendIndex(T_HisDataItemContainer *p_hisdata_container, int date_val)
+{
+    bool is_find = false;
+    int j = 0;
+    int near_span = 99999;
+    int near_j = -1;
+    for( auto iter = p_hisdata_container->rbegin();
+        iter != p_hisdata_container->rend(); 
+        ++iter, ++j )
+    { 
+        if( iter->get()->stk_item.date == date_val )
+        {
+            is_find = true;
+            break;
+        }else if( abs(iter->get()->stk_item.date - date_val) < near_span )
+        {
+            near_span = abs(iter->get()->stk_item.date - date_val);
+            near_j = j;
+        }
+
+    }
+    if( is_find )
+        return j;
+    else
+        return near_j;
+}

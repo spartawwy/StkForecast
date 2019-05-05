@@ -71,6 +71,8 @@ public:
 
     void UpdateIfNecessary();
      
+    void SetTrainStartDate(int date);
+
 protected:
 
     void paintEvent(QPaintEvent*) override;
@@ -173,6 +175,7 @@ private:
     int  k_rend_index_;
     int  pre_k_rend_index_;
     int  k_move_temp_index_;
+    int  k_rend_index_for_train_;
 
     TypePeriod  k_type_;
     std::string  k_cycle_tag_;
@@ -206,9 +209,9 @@ private:
     bool is_draw_section_;
 
     int  right_clicked_k_date_; // right mouse click
-
-    //bool is_train_mode_;
+     
     StatisticDlg  statistic_dlg_;
+     
 
     friend class ZhibiaoWindow;
     friend class VolZhibiaoWin;
@@ -218,4 +221,7 @@ private:
 
 // ret: <date, hhmm>
 std::tuple<int, int> GetKDataTargetDateTime(TypePeriod type_period, QDate date, QTime time);
+
+int FindKRendIndex(T_HisDataItemContainer *p_hisdata_container, int date_val);
+
 #endif // K_LINE_WALL_SDF32DSF_

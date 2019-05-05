@@ -100,7 +100,7 @@ ToolBar::ToolBar(QWidget *parent)
     main_cycle_comb_->addItem(QString::fromLocal8Bit("15分"), QVariant(int(TypePeriod::PERIOD_15M)));
     main_cycle_comb_->addItem(QString::fromLocal8Bit("30分"), QVariant(int(TypePeriod::PERIOD_30M)));
     main_cycle_comb_->addItem(QString::fromLocal8Bit("时"), QVariant(int(TypePeriod::PERIOD_HOUR)));
-    main_cycle_comb_->addItem(QString::fromLocal8Bit("日"), QVariant(int(TypePeriod::PERIOD_DAY)));
+    main_cycle_comb_->addItem(QString::fromLocal8Bit("日"), QVariant(int(TypePeriod::PERIOD_DAY))); // index 4
     main_cycle_comb_->addItem(QString::fromLocal8Bit("周"), QVariant(int(TypePeriod::PERIOD_WEEK)));
     main_cycle_comb_->addItem(QString::fromLocal8Bit("月"), QVariant(int(TypePeriod::PERIOD_MON)));
     main_cycle_comb_->setFixedSize(50, 22);
@@ -110,9 +110,9 @@ ToolBar::ToolBar(QWidget *parent)
     sub_cycle_comb_->addItem(QString::fromLocal8Bit("15分"), QVariant(int(TypePeriod::PERIOD_15M)));
     sub_cycle_comb_->addItem(QString::fromLocal8Bit("30分"), QVariant(int(TypePeriod::PERIOD_30M)));
     sub_cycle_comb_->addItem(QString::fromLocal8Bit("时"), QVariant(int(TypePeriod::PERIOD_HOUR)));
-    sub_cycle_comb_->addItem(QString::fromLocal8Bit("日"), QVariant(int(TypePeriod::PERIOD_DAY)));
-    sub_cycle_comb_->addItem(QString::fromLocal8Bit("周"), QVariant(int(TypePeriod::PERIOD_WEEK)));
-    sub_cycle_comb_->addItem(QString::fromLocal8Bit("月"), QVariant(int(TypePeriod::PERIOD_MON)));
+    sub_cycle_comb_->addItem(QString::fromLocal8Bit("日"), QVariant(int(TypePeriod::PERIOD_DAY))); // index 4
+    //sub_cycle_comb_->addItem(QString::fromLocal8Bit("周"), QVariant(int(TypePeriod::PERIOD_WEEK)));
+    //sub_cycle_comb_->addItem(QString::fromLocal8Bit("月"), QVariant(int(TypePeriod::PERIOD_MON)));
     sub_cycle_comb_->setFixedSize(50, 22);
 
     ConnectAllDrawNormalBtn();

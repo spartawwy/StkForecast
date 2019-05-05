@@ -13,10 +13,11 @@
 #include <QtWidgets/QAction>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QButtonGroup>
-#include <QtWidgets/QDateEdit>
+#include <QtWidgets/QCalendarWidget>
 #include <QtWidgets/QDoubleSpinBox>
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QLabel>
+#include <QtWidgets/QLineEdit>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QTableView>
 #include <QtWidgets/QWidget>
@@ -26,7 +27,6 @@ QT_BEGIN_NAMESPACE
 class Ui_TrainDlgForm
 {
 public:
-    QDateEdit *dateEditTrainBeg;
     QLabel *label;
     QLabel *label_2;
     QDoubleSpinBox *dbspbBegCapital;
@@ -39,18 +39,18 @@ public:
     QLabel *label_4;
     QTableView *tableView;
     QLabel *label_5;
+    QCalendarWidget *calendar;
+    QLineEdit *le_date;
+    QPushButton *pbtnStart;
 
     void setupUi(QWidget *TrainDlgForm)
     {
         if (TrainDlgForm->objectName().isEmpty())
             TrainDlgForm->setObjectName(QStringLiteral("TrainDlgForm"));
-        TrainDlgForm->resize(611, 399);
-        dateEditTrainBeg = new QDateEdit(TrainDlgForm);
-        dateEditTrainBeg->setObjectName(QStringLiteral("dateEditTrainBeg"));
-        dateEditTrainBeg->setGeometry(QRect(110, 20, 131, 31));
+        TrainDlgForm->resize(626, 473);
         label = new QLabel(TrainDlgForm);
         label->setObjectName(QStringLiteral("label"));
-        label->setGeometry(QRect(40, 60, 61, 21));
+        label->setGeometry(QRect(40, 170, 61, 21));
         QFont font;
         font.setPointSize(10);
         label->setFont(font);
@@ -60,7 +60,7 @@ public:
         label_2->setFont(font);
         dbspbBegCapital = new QDoubleSpinBox(TrainDlgForm);
         dbspbBegCapital->setObjectName(QStringLiteral("dbspbBegCapital"));
-        dbspbBegCapital->setGeometry(QRect(110, 60, 111, 31));
+        dbspbBegCapital->setGeometry(QRect(110, 170, 111, 31));
         dbspbBegCapital->setMaximum(1e+07);
         dbspbBegCapital->setValue(1e+06);
         pbtnBuy = new QPushButton(TrainDlgForm);
@@ -81,11 +81,11 @@ public:
         pbtnPreK->setFont(font);
         label_3 = new QLabel(TrainDlgForm);
         label_3->setObjectName(QStringLiteral("label_3"));
-        label_3->setGeometry(QRect(280, 60, 61, 21));
+        label_3->setGeometry(QRect(280, 170, 61, 21));
         label_3->setFont(font);
         dbspbFeeRate = new QDoubleSpinBox(TrainDlgForm);
         dbspbFeeRate->setObjectName(QStringLiteral("dbspbFeeRate"));
-        dbspbFeeRate->setGeometry(QRect(340, 60, 111, 31));
+        dbspbFeeRate->setGeometry(QRect(340, 170, 111, 31));
         dbspbFeeRate->setDecimals(4);
         dbspbFeeRate->setMaximum(99);
         dbspbFeeRate->setSingleStep(0.001);
@@ -96,11 +96,22 @@ public:
         label_4->setFont(font);
         tableView = new QTableView(TrainDlgForm);
         tableView->setObjectName(QStringLiteral("tableView"));
-        tableView->setGeometry(QRect(10, 200, 591, 171));
+        tableView->setGeometry(QRect(10, 220, 611, 241));
         label_5 = new QLabel(TrainDlgForm);
         label_5->setObjectName(QStringLiteral("label_5"));
-        label_5->setGeometry(QRect(10, 180, 61, 21));
+        label_5->setGeometry(QRect(10, 200, 61, 21));
         label_5->setFont(font);
+        calendar = new QCalendarWidget(TrainDlgForm);
+        calendar->setObjectName(QStringLiteral("calendar"));
+        calendar->setGeometry(QRect(250, 0, 261, 151));
+        calendar->setGridVisible(false);
+        le_date = new QLineEdit(TrainDlgForm);
+        le_date->setObjectName(QStringLiteral("le_date"));
+        le_date->setGeometry(QRect(110, 19, 111, 31));
+        pbtnStart = new QPushButton(TrainDlgForm);
+        pbtnStart->setObjectName(QStringLiteral("pbtnStart"));
+        pbtnStart->setGeometry(QRect(44, 60, 181, 23));
+        pbtnStart->setFont(font);
 
         retranslateUi(TrainDlgForm);
 
@@ -119,6 +130,7 @@ public:
         label_3->setText(QApplication::translate("TrainDlgForm", "\346\211\213\347\273\255\350\264\271:", 0));
         label_4->setText(QApplication::translate("TrainDlgForm", "%", 0));
         label_5->setText(QApplication::translate("TrainDlgForm", "\346\210\220\344\272\244\350\256\260\345\275\225", 0));
+        pbtnStart->setText(QApplication::translate("TrainDlgForm", "\345\274\200\345\247\213", 0));
     } // retranslateUi
 
 };
