@@ -587,16 +587,16 @@ void KLineWall::UpdatePosDatas()
 
 void KLineWall::mousePressEvent(QMouseEvent * event )
 { 
-    static auto append_3pforcast_data = [this](bool is_down, T_KlineDataItem &item_a, T_KlineDataItem &item_b)
+    static auto append_3pforcast_data = [](KLineWall *kwall, bool is_down, T_KlineDataItem &item_a, T_KlineDataItem &item_b)
     {
         T_Data3pForcast  data_3p;
-        data_3p.stock_code = stock_code_;
+        data_3p.stock_code = kwall->stock_code_;
         data_3p.is_down = is_down;
         data_3p.date_a = item_a.stk_item.date; 
         data_3p.hhmm_a = item_a.stk_item.hhmmss; 
         data_3p.date_b = item_b.stk_item.date; 
         data_3p.hhmm_b = item_b.stk_item.hhmmss; 
-        this->forcast_man_.Append(k_type_, stock_code_, is_down, data_3p);
+        kwall->forcast_man_.Append(kwall->k_type_, kwall->stock_code_, is_down, data_3p);
     };
     //qDebug() << "paintEvent QCursor::pos  x:" << QCursor::pos().x() << " y: "<< QCursor::pos().y() << "\n"; 
 #ifdef STK_INPUT_KWALL
@@ -688,7 +688,7 @@ void KLineWall::mousePressEvent(QMouseEvent * event )
             if( item_a->stk_item.high_price > item_b->stk_item.high_price )
             {
                 drawing_line_B_ = item_b->kline_posdata(wall_index_).bottom;
-                append_3pforcast_data(true, *item_a, *item_b);
+                append_3pforcast_data(this, true, *item_a, *item_b);
                 return;
             }else
             {
@@ -703,7 +703,7 @@ void KLineWall::mousePressEvent(QMouseEvent * event )
             if( item_a->stk_item.high_price < item_b->stk_item.high_price )
             { 
                 drawing_line_B_ = item_b->kline_posdata(wall_index_).top; 
-                append_3pforcast_data(false, *item_a, *item_b);
+                append_3pforcast_data(this, false, *item_a, *item_b);
                 return;
             }else
             {
@@ -819,9 +819,9 @@ void KLineWall::mouseReleaseEvent(QMouseEvent * e)
 
 void KLineWall::paintEvent(QPaintEvent*)
 {
-    static auto IsAreaShapeChange = [this](int w, int h)->bool
+    static auto IsAreaShapeChange = [](KLineWall *kwall, int w, int h)->bool
     {
-        return w != this->pre_mm_w_ || h!= this->pre_mm_h_;
+        return w != kwall->pre_mm_w_ || h!= kwall->pre_mm_h_;
     }; 
     /* window lay:********************
       |      | header
@@ -845,7 +845,7 @@ void KLineWall::paintEvent(QPaintEvent*)
     const int k_mm_h = Calculate_k_mm_h();
     const int mm_w = this->width();
      
-    const bool is_area_shape_change = IsAreaShapeChange(this->width(), this->height());
+    const bool is_area_shape_change = IsAreaShapeChange(this, this->width(), this->height());
     if( is_area_shape_change )
     {
         UpdatePosDatas(); 
@@ -1609,6 +1609,40 @@ void KLineWall::SetTrainStartDate(int date)
     UpdateKwallMinMaxPrice();
     UpdatePosDatas();
     update();
+}
+
+void KLineWall::MoveRightEndToNextKline()
+{
+    int old_k_rend_index = k_rend_index_;
+    k_rend_index_for_train_ = k_rend_index_for_train_ - 1 > -1 ? k_rend_index_for_train_ - 1 : 0;
+    k_rend_index_ = k_rend_index_for_train_;
+    if( old_k_rend_index != k_rend_index_ )
+    {
+        UpdateKwallMinMaxPrice();
+        UpdatePosDatas();
+        update();
+    }
+}
+
+void KLineWall::MoveRightEndToPreKline()
+{
+    int old_k_rend_index = k_rend_index_;
+    if( k_rend_index_for_train_ < p_hisdata_container_->size() - 1 )
+    {
+        k_rend_index_for_train_ += 1;
+    }else
+    {
+        AppendData();
+        if( k_rend_index_for_train_ < p_hisdata_container_->size() - 1 )
+            k_rend_index_for_train_ += 1;
+    }
+    k_rend_index_ = k_rend_index_for_train_;
+    if( old_k_rend_index != k_rend_index_ )
+    {
+        UpdateKwallMinMaxPrice();
+        UpdatePosDatas();
+        update();
+    }
 }
 
 T_KlineDataItem * KLineWall::GetKLineDataItemByXpos(int x)

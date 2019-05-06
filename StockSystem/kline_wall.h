@@ -73,6 +73,10 @@ public:
      
     void SetTrainStartDate(int date);
 
+    void MoveRightEndToNextKline();
+
+    void MoveRightEndToPreKline();
+
 protected:
 
     void paintEvent(QPaintEvent*) override;

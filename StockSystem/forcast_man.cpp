@@ -67,7 +67,7 @@ std::vector<T_Data2pUpForcast> * ForcastMan::Find2pUpForcastVector(const std::st
 
 bool ForcastMan::HasIn2pDownwardForcast(const std::string &code, TypePeriod type_period, T_KlineDataItem &item_a, T_KlineDataItem &item_b)
 {
-    static auto has_in2pforcasts = [this](std::vector<T_Data2pDownForcast>& data_vector, int date_a, int hhmm_a, int date_b, int hhmm_b)->bool
+    static auto has_in2pforcasts = [](std::vector<T_Data2pDownForcast>& data_vector, int date_a, int hhmm_a, int date_b, int hhmm_b)->bool
     { 
         if( data_vector.empty() ) return false;
         unsigned int i = 0;
@@ -90,7 +90,7 @@ bool ForcastMan::HasIn2pDownwardForcast(const std::string &code, TypePeriod type
 
 bool ForcastMan::HasIn2pUpForcast(const std::string &code, TypePeriod type_period, T_KlineDataItem &item_a, T_KlineDataItem &item_b)
 {
-    static auto has_in2pforcasts = [this](std::vector<T_Data2pUpForcast>& data_vector, int date_a, int hhmm_a, int date_b, int hhmm_b)->bool
+    static auto has_in2pforcasts = [](std::vector<T_Data2pUpForcast>& data_vector, int date_a, int hhmm_a, int date_b, int hhmm_b)->bool
     { 
         if( data_vector.empty() ) return false;
         unsigned int i = 0;

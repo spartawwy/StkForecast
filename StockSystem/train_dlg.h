@@ -19,10 +19,13 @@ public slots:
 
     void OnCalendarClicked(const QDate &);
     void OnStartTrain();
+    void OnMoveToNextK();
+    void OnMoveToPreK();
 
 protected:
 
     virtual void hideEvent(QHideEvent * event) override;
+
 
 private:
 

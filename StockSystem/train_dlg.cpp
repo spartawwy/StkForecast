@@ -18,6 +18,8 @@ TrainDlg::TrainDlg(KLineWall *parent,  MainWindow *main_win)
     //ui.dateEditTrainBeg->mousePressEvent
     bool ret = connect(ui.calendar, SIGNAL(clicked(const QDate &)), this, SLOT(OnCalendarClicked(const QDate &)));
     ret = connect(ui.pbtnStart, SIGNAL(clicked()), this, SLOT(OnStartTrain()));
+    ret = connect(ui.pbtnNextK, SIGNAL(clicked()), this, SLOT(OnMoveToNextK()));
+    ret = connect(ui.pbtnPreK, SIGNAL(clicked()), this, SLOT(OnMoveToPreK()));
     ret = ret;
 }
 
@@ -56,4 +58,14 @@ void TrainDlg::OnStartTrain()
     int date = ui.le_date->text().toInt();
     parent_->SetTrainStartDate(date);
 
+}
+
+void TrainDlg::OnMoveToNextK()
+{
+    parent_->MoveRightEndToNextKline();
+}
+
+void TrainDlg::OnMoveToPreK()
+{
+    parent_->MoveRightEndToPreKline();
 }
