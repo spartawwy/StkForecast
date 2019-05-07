@@ -8,14 +8,79 @@
 
 #include "stkfo_common.h"
 
+class T_DataForcast
+{
+public:
+    T_DataForcast(bool down) : stock_code(), date_a(0), hhmm_a(0), date_b(0), hhmm_b(0), point_a(0.0,0.0), point_b(0.0,0.0), is_down(down) {}
+    
+    T_DataForcast(const T_DataForcast & lh) : stock_code(lh.stock_code)
+        ,date_a(lh.date_a), hhmm_a(lh.hhmm_a), date_b(lh.date_b), hhmm_b(lh.hhmm_b), point_a(lh.point_a), point_b(lh.point_b), is_down(lh.is_down) {}
+    
+    T_DataForcast(T_DataForcast && lh) : stock_code(std::move(lh.stock_code)),
+        date_a(lh.date_a), hhmm_a(lh.hhmm_a), date_b(lh.date_b), hhmm_b(lh.hhmm_b), point_a(lh.point_a), point_b(lh.point_b), is_down(lh.is_down) {}
+
+
+    virtual ~T_DataForcast(){}
+
+    std::string  stock_code;
+    int date_a;
+    int hhmm_a;
+    int date_b;
+    int hhmm_b;
+
+    QPointF point_a;
+    QPointF point_b;
+
+    bool is_down;
+
+protected:
+    T_DataForcast(){}
+};
+
+class T_Data2pForcast : public T_DataForcast
+{
+public:
+
+    T_Data2pForcast(bool down) : T_DataForcast(down), c1(0.0), c2(0.0), c3(0.0) {}
+
+    T_Data2pForcast(const T_Data2pForcast & lh) : T_DataForcast(lh), c1(lh.c1), c2(lh.c2), c3(lh.c3){}
+    
+    T_Data2pForcast(T_Data2pForcast && lh) : T_DataForcast(std::move(lh)), c1(lh.c1), c2(lh.c2), c3(lh.c3) {}
+
+public:
+    double  c1;
+    double  c2;
+    double  c3; 
+};
+
+
+class T_Data3pForcast_temp : public T_DataForcast
+{
+public:
+    explicit T_Data3pForcast_temp(bool down=false) : T_DataForcast(down), date_c(0), hhmm_c(0), d1(0.0), d2(0.0), d3(0.0), point_c(0.0,0.0) {}
+
+    T_Data3pForcast_temp(const T_Data3pForcast_temp & lh) : T_DataForcast(lh), date_c(lh.date_c), hhmm_c(lh.hhmm_c), d1(lh.d1), d2(lh.d2), d3(lh.d3), point_c(lh.point_c) {}
+
+    T_Data3pForcast_temp(T_Data3pForcast_temp && lh) : T_DataForcast(std::move(lh)), date_c(lh.date_c), hhmm_c(lh.hhmm_c), d1(lh.d1), d2(lh.d2), d3(lh.d3), point_c(lh.point_c) {}
+
+    int date_c;
+    int hhmm_c;
+    double  d1;
+    double  d2;
+    double  d3; 
+     
+    QPointF point_c;
+};
+
+#if 1
 class T_Data2pDownForcast
 {
 public:
-    T_Data2pDownForcast() : date_a(0), hhmm_a(0), date_b(0), hhmm_b(0), c1(0.0), c2(0.0), c3(0.0) {}
+    T_Data2pDownForcast() : date_a(0), hhmm_a(0), date_b(0), hhmm_b(0), c1(0.0), c2(0.0), c3(0.0), point_a(0.0,0.0), point_b(0.0,0.0) {}
     T_Data2pDownForcast(const T_Data2pDownForcast & lh) : stock_code(lh.stock_code), 
-        date_a(lh.date_a), hhmm_a(lh.hhmm_a), date_b(lh.date_b), hhmm_b(lh.hhmm_b), c1(lh.c1), c2(lh.c2), c3(lh.c3) {}
+        date_a(lh.date_a), hhmm_a(lh.hhmm_a), date_b(lh.date_b), hhmm_b(lh.hhmm_b), c1(lh.c1), c2(lh.c2), c3(lh.c3), point_a(lh.point_a), point_b(lh.point_b) {}
     T_Data2pDownForcast(T_Data2pDownForcast && lh) : stock_code(std::move(lh.stock_code)),
-        date_a(lh.date_a), hhmm_a(lh.hhmm_a), date_b(lh.date_b), hhmm_b(lh.hhmm_b), c1(lh.c1), c2(lh.c2), c3(lh.c3) {}
+        date_a(lh.date_a), hhmm_a(lh.hhmm_a), date_b(lh.date_b), hhmm_b(lh.hhmm_b), c1(lh.c1), c2(lh.c2), c3(lh.c3), point_a(lh.point_a), point_b(lh.point_b) {}
     std::string  stock_code;
     int date_a;
     int hhmm_a;
@@ -24,16 +89,19 @@ public:
     double  c1;
     double  c2;
     double  c3; 
+
+    QPointF point_a;
+    QPointF point_b;
 };
 
 class T_Data2pUpForcast
 {
 public:
-    T_Data2pUpForcast() : date_a(0), hhmm_a(0), date_b(0), hhmm_b(0), c1(0.0), c2(0.0), c3(0.0) {}
+    T_Data2pUpForcast() : date_a(0), hhmm_a(0), date_b(0), hhmm_b(0), c1(0.0), c2(0.0), c3(0.0), point_a(0.0,0.0), point_b(0.0,0.0) {}
     T_Data2pUpForcast(const T_Data2pUpForcast & lh) : stock_code(lh.stock_code), 
-        date_a(lh.date_a), hhmm_a(lh.hhmm_a), date_b(lh.date_b), hhmm_b(lh.hhmm_b), c1(lh.c1), c2(lh.c2), c3(lh.c3) {}
+        date_a(lh.date_a), hhmm_a(lh.hhmm_a), date_b(lh.date_b), hhmm_b(lh.hhmm_b), c1(lh.c1), c2(lh.c2), c3(lh.c3), point_a(lh.point_a), point_b(lh.point_b) {}
     T_Data2pUpForcast(T_Data2pUpForcast && lh) : stock_code(std::move(lh.stock_code)),
-        date_a(lh.date_a), hhmm_a(lh.hhmm_a), date_b(lh.date_b), hhmm_b(lh.hhmm_b), c1(lh.c1), c2(lh.c2), c3(lh.c3) {}
+        date_a(lh.date_a), hhmm_a(lh.hhmm_a), date_b(lh.date_b), hhmm_b(lh.hhmm_b), c1(lh.c1), c2(lh.c2), c3(lh.c3), point_a(lh.point_a), point_b(lh.point_b) {}
     std::string  stock_code;
     int date_a;
     int hhmm_a;
@@ -42,18 +110,22 @@ public:
     double  c1;
     double  c2;
     double  c3; 
+
+    QPointF point_a;
+    QPointF point_b;
 };
+
 
 class T_Data3pForcast
 {
 public:
-    explicit T_Data3pForcast(bool down=false) : is_down(down), date_a(0), hhmm_a(0), date_b(0), hhmm_b(0), date_c(0), hhmm_c(0), d1(0.0), d2(0.0), d3(0.0) {}
+    explicit T_Data3pForcast(bool down=false) : is_down(down), date_a(0), hhmm_a(0), date_b(0), hhmm_b(0), date_c(0), hhmm_c(0), d1(0.0), d2(0.0), d3(0.0), point_a(0.0,0.0), point_b(0.0,0.0), point_c(0.0,0.0) {}
 
     T_Data3pForcast(const T_Data3pForcast & lh) : stock_code(lh.stock_code), is_down(lh.is_down)
-        ,date_a(lh.date_a), hhmm_a(lh.hhmm_a), date_b(lh.date_b), hhmm_b(lh.hhmm_b), date_c(lh.date_c), hhmm_c(lh.hhmm_c), d1(lh.d1), d2(lh.d2), d3(lh.d3) {}
+        ,date_a(lh.date_a), hhmm_a(lh.hhmm_a), date_b(lh.date_b), hhmm_b(lh.hhmm_b), date_c(lh.date_c), hhmm_c(lh.hhmm_c), d1(lh.d1), d2(lh.d2), d3(lh.d3), point_a(lh.point_a), point_b(lh.point_b), point_c(lh.point_c) {}
 
     T_Data3pForcast(T_Data3pForcast && lh) : stock_code(std::move(lh.stock_code)), is_down(lh.is_down)
-        , date_a(lh.date_a), hhmm_a(lh.hhmm_a), date_b(lh.date_b), hhmm_b(lh.hhmm_b), date_c(lh.date_c), hhmm_c(lh.hhmm_c), d1(lh.d1), d2(lh.d2), d3(lh.d3) {}
+        , date_a(lh.date_a), hhmm_a(lh.hhmm_a), date_b(lh.date_b), hhmm_b(lh.hhmm_b), date_c(lh.date_c), hhmm_c(lh.hhmm_c), d1(lh.d1), d2(lh.d2), d3(lh.d3), point_a(lh.point_a), point_b(lh.point_b), point_c(lh.point_c) {}
 
     std::string  stock_code;
     bool is_down;
@@ -66,7 +138,13 @@ public:
     double  d1;
     double  d2;
     double  d3; 
+
+    QPointF point_a;
+    QPointF point_b;
+    QPointF point_c;
 };
+
+#endif
 
 // (code, T_Data2pDownForcasts)
 typedef std::unordered_map<std::string, std::vector<T_Data2pDownForcast> > Code2pDownForcastType;

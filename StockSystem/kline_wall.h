@@ -67,6 +67,8 @@ public:
            stock_name_ = name.toLocal8Bit().data();
     }
       
+    void DoIfForcastLineNearbyCursor(QMouseEvent &e);
+
     void ShowDurationKlines(int date);
 
     void UpdateIfNecessary();
