@@ -79,6 +79,8 @@ public:
 
     void MoveRightEndToPreKline();
 
+    void Set_Cursor(Qt::CursorShape sp);
+
 protected:
 
     void paintEvent(QPaintEvent*) override;
@@ -207,7 +209,8 @@ private:
     QMenu * k_wall_menu_;
     QMenu * k_wall_menu_sub_;
     ForcastMan  forcast_man_;
-     
+    T_DataForcast *cur_select_forcast_;
+
     std::vector<std::shared_ptr<ZhibiaoWindow> > zb_windows_;
 
     bool is_draw_bi_;

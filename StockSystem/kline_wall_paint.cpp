@@ -22,7 +22,7 @@
 
  
 static const int cst_default_year = 2017;
-
+static const Qt::CursorShape cst_cur_del_forcst_line = Qt::ClosedHandCursor;
 const double KLineWall::cst_k_mm_enlarge_times = 1.02; 
 const double KLineWall::cst_k_mm_narrow_times = 0.98; 
 
@@ -63,6 +63,7 @@ KLineWall::KLineWall(StkForecastApp *app, QWidget *parent, int index, TypePeriod
     , move_start_point_(0, 0)
     , area_select_flag_(false)
     , forcast_man_(index)
+    , cur_select_forcast_(nullptr)
     , is_draw_bi_(false)
     , is_draw_struct_line_(false)
     , is_draw_section_(false)
@@ -112,7 +113,7 @@ bool KLineWall::Init()
 
 void KLineWall::Draw2pDownForcast(QPainter &painter, const int mm_h, double item_w)
 {
-    std::vector<T_Data2pDownForcast> *p_data_vector = forcast_man_.Find2pDownForcastVector(stock_code_, k_type_);
+    std::vector<T_Data2pForcast> *p_data_vector = forcast_man_.Find2pForcastVector(stock_code_, k_type_, true);
 
     if( p_data_vector && !p_data_vector->empty() )
     { 
@@ -126,7 +127,7 @@ void KLineWall::Draw2pDownForcast(QPainter &painter, const int mm_h, double item
         
         for( unsigned int i = 0; i < p_data_vector->size(); ++i )
         {
-            T_Data2pDownForcast &data_2pforcastdown = p_data_vector->at(i);
+            T_Data2pForcast &data_2pforcastdown = p_data_vector->at(i);
             auto item_a = GetKLineDataItemByDate(data_2pforcastdown.date_a, data_2pforcastdown.hhmm_a);
             auto item_b = GetKLineDataItemByDate(data_2pforcastdown.date_b, data_2pforcastdown.hhmm_b);
             if( item_a && item_a->kline_posdata(wall_index_).date != 0 && item_b && item_b->kline_posdata(wall_index_).date != 0 )
@@ -135,11 +136,12 @@ void KLineWall::Draw2pDownForcast(QPainter &painter, const int mm_h, double item
                 {  
                     pen.setStyle(Qt::SolidLine); 
                     painter.setPen(pen);  
-                    painter.drawLine(item_a->kline_posdata(wall_index_).top, item_b->kline_posdata(wall_index_).bottom);
-                    data_2pforcastdown.point_a = QPointF(item_a->kline_posdata(wall_index_).top.x()-item_w/2, item_a->kline_posdata(wall_index_).top.y());
-fronts_to_draw.push_back(std::make_tuple(data_2pforcastdown.point_a, "A"));
-                    data_2pforcastdown.point_b = QPointF(item_b->kline_posdata(wall_index_).bottom.x()-item_w/2, item_b->kline_posdata(wall_index_).bottom.y() + painter.font().pointSizeF());
-fronts_to_draw.push_back(std::make_tuple(data_2pforcastdown.point_b, "B"));
+                    data_2pforcastdown.point_a = item_a->kline_posdata(wall_index_).top;
+                    data_2pforcastdown.point_b = item_b->kline_posdata(wall_index_).bottom;
+
+                    painter.drawLine(data_2pforcastdown.point_a, data_2pforcastdown.point_b);
+fronts_to_draw.push_back(std::make_tuple(QPointF(data_2pforcastdown.point_a.x()-item_w/2, data_2pforcastdown.point_a.y()), "A"));
+fronts_to_draw.push_back(std::make_tuple(QPointF(data_2pforcastdown.point_b.x()-item_w/2, data_2pforcastdown.point_b.y() + painter.font().pointSizeF()), "B"));
                     double y1 = get_price_y(data_2pforcastdown.c1, mm_h);
                     double y2 = get_price_y(data_2pforcastdown.c2, mm_h);
                     double y3 = get_price_y(data_2pforcastdown.c3, mm_h);
@@ -184,7 +186,7 @@ fronts_to_draw.push_back(std::make_tuple(QPointF(h_line_left - font_size*6, y3),
 
 void KLineWall::Draw2pUpForcast(QPainter &painter, const int mm_h, double item_w)
 {
-    std::vector<T_Data2pUpForcast> *p_data_vector = forcast_man_.Find2pUpForcastVector(stock_code_, k_type_);
+    std::vector<T_Data2pForcast> *p_data_vector = forcast_man_.Find2pForcastVector(stock_code_, k_type_, false);
     if( !p_data_vector || p_data_vector->empty() )
         return;
 
@@ -197,7 +199,7 @@ void KLineWall::Draw2pUpForcast(QPainter &painter, const int mm_h, double item_w
         
     for( unsigned int i = 0; i < p_data_vector->size(); ++i )
     {
-        T_Data2pUpForcast &data_2pforcast = p_data_vector->at(i);
+        T_Data2pForcast &data_2pforcast = p_data_vector->at(i);
         auto item_a = GetKLineDataItemByDate(data_2pforcast.date_a, data_2pforcast.hhmm_a);
         auto item_b = GetKLineDataItemByDate(data_2pforcast.date_b, data_2pforcast.hhmm_b);
         if( item_a && item_a->kline_posdata(wall_index_).date != 0 && item_b && item_b->kline_posdata(wall_index_).date != 0 )
@@ -206,11 +208,12 @@ void KLineWall::Draw2pUpForcast(QPainter &painter, const int mm_h, double item_w
             {  
                 pen.setStyle(Qt::SolidLine); 
                 painter.setPen(pen);  
-                painter.drawLine(item_a->kline_posdata(wall_index_).bottom, item_b->kline_posdata(wall_index_).top);
-                data_2pforcast.point_a = QPointF(item_a->kline_posdata(wall_index_).bottom.x()-item_w/2, item_a->kline_posdata(wall_index_).bottom.y());
- fronts_to_draw.push_back(std::make_tuple(data_2pforcast.point_a, "A"));
-                data_2pforcast.point_b = QPointF(item_b->kline_posdata(wall_index_).top.x()-item_w/2, item_b->kline_posdata(wall_index_).top.y() + painter.font().pointSizeF());
- fronts_to_draw.push_back(std::make_tuple(data_2pforcast.point_b, "B"));
+                data_2pforcast.point_a = item_a->kline_posdata(wall_index_).bottom;
+                data_2pforcast.point_b = item_b->kline_posdata(wall_index_).top;
+
+                painter.drawLine(data_2pforcast.point_a, data_2pforcast.point_b);
+ fronts_to_draw.push_back(std::make_tuple(QPointF(data_2pforcast.point_a.x()-item_w/2, data_2pforcast.point_a.y()), "A"));
+ fronts_to_draw.push_back(std::make_tuple(QPointF(data_2pforcast.point_b.x()-item_w/2, data_2pforcast.point_b.y() + painter.font().pointSizeF()), "B"));
                 double y1 = get_price_y(data_2pforcast.c1, mm_h);
                 double y2 = get_price_y(data_2pforcast.c2, mm_h);
                 double y3 = get_price_y(data_2pforcast.c3, mm_h);
@@ -615,13 +618,26 @@ void KLineWall::mousePressEvent(QMouseEvent * event )
             mm_move_flag_ = true;
             move_start_point_ = event->pos();
             pre_k_rend_index_ = k_rend_index_;
-        }else if( event->buttons() & Qt::RightButton )
+        }else if( (event->buttons() & Qt::RightButton) && !cur_select_forcast_ )
         {
             area_select_flag_ = true;
             move_start_point_ = event->pos();
         }
         return;
+    }else if( event->buttons() & Qt::RightButton )
+    {
+        if( draw_action_ == DrawAction::DRAWING_FOR_3PDOWN_D || draw_action_ == DrawAction::DRAWING_FOR_3PUP_D )
+        { 
+           if( !(drawing_line_A_ == CST_MAGIC_POINT || drawing_line_B_ == CST_MAGIC_POINT) )
+           {
+               auto item_a = GetKLineDataItemByXpos(drawing_line_A_.x());
+               auto item_b = GetKLineDataItemByXpos(drawing_line_B_.x());
+               forcast_man_.Remove3pForcastItem(stock_code_, k_type_, draw_action_ == DrawAction::DRAWING_FOR_3PDOWN_D, *item_a, *item_b);
+           }
+        }        
+        return ResetDrawState(draw_action_); 
     }
+
     if( drawing_line_A_ == CST_MAGIC_POINT )
     {
         drawing_line_A_ = QPointF( event->pos().x(), event->pos().y() - h_axis_trans_in_paint_k_);
@@ -646,11 +662,12 @@ void KLineWall::mousePressEvent(QMouseEvent * event )
         }
         if( draw_action_ == DrawAction::DRAWING_FOR_2PDOWN_C )
         { 
-            if( forcast_man_.HasIn2pDownwardForcast(stock_code_, k_type_, *item_a, *item_b) )
+            bool is_down = true;
+            if( forcast_man_.Find2pForcast(stock_code_, k_type_, is_down, *item_a, *item_b) )
                 return ResetDrawState(draw_action_);  
             if( item_a->stk_item.high_price > item_b->stk_item.high_price )
             {
-                T_Data2pDownForcast data_2pdown_fcst;
+                T_Data2pForcast data_2pdown_fcst(is_down);
                 data_2pdown_fcst.stock_code = stock_code_;
                 data_2pdown_fcst.date_a = item_a->stk_item.date; 
                 data_2pdown_fcst.hhmm_a = item_a->stk_item.hhmmss;
@@ -661,17 +678,19 @@ void KLineWall::mousePressEvent(QMouseEvent * event )
                 data_2pdown_fcst.c1 = std::get<0>(c1_c2_c3);
                 data_2pdown_fcst.c2 = std::get<1>(c1_c2_c3);
                 data_2pdown_fcst.c3 = std::get<2>(c1_c2_c3);
-                forcast_man_.Append(k_type_, stock_code_, data_2pdown_fcst);
-            } 
+                forcast_man_.Append(k_type_, stock_code_, is_down, data_2pdown_fcst);
+            }else
+                QMessageBox::information(nullptr, QString::fromLocal8Bit("提示"), QString::fromLocal8Bit("下降反弹预测,B点最高价不能大于等于A点最高价!")); 
             return ResetDrawState(draw_action_); 
 
         }else if( draw_action_ == DrawAction::DRAWING_FOR_2PUP_C ) 
         {
-            if( forcast_man_.HasIn2pUpForcast(stock_code_, k_type_, *item_a, *item_b) )
+            bool is_down = false;
+            if( forcast_man_.Find2pForcast(stock_code_, k_type_, is_down, *item_a, *item_b) )
                 return ResetDrawState(draw_action_);  
             if( item_a->stk_item.high_price < item_b->stk_item.high_price )
             {
-                T_Data2pUpForcast data_2pup_fcst;
+                T_Data2pForcast data_2pup_fcst(is_down);
                 data_2pup_fcst.stock_code = stock_code_; 
                 data_2pup_fcst.date_a = item_a->stk_item.date; 
                 data_2pup_fcst.hhmm_a = item_a->stk_item.hhmmss; 
@@ -682,8 +701,9 @@ void KLineWall::mousePressEvent(QMouseEvent * event )
                 data_2pup_fcst.c1 = std::get<0>(c1_c2_c3);
                 data_2pup_fcst.c2 = std::get<1>(c1_c2_c3);
                 data_2pup_fcst.c3 = std::get<2>(c1_c2_c3);
-                forcast_man_.Append(k_type_, stock_code_, data_2pup_fcst);
-            }
+                forcast_man_.Append(k_type_, stock_code_, is_down, data_2pup_fcst);
+            }else
+                QMessageBox::information(nullptr, QString::fromLocal8Bit("提示"), QString::fromLocal8Bit("上升反弹预测,B点最高价不能小于等于A点最高价!")); 
             return ResetDrawState(draw_action_);  
 
         }else if( draw_action_ == DrawAction::DRAWING_FOR_3PDOWN_D )
@@ -697,7 +717,7 @@ void KLineWall::mousePressEvent(QMouseEvent * event )
                 return;
             }else
             {
-                // todo: show warning
+                //QMessageBox::information(nullptr, QString::fromLocal8Bit("提示"), QString::fromLocal8Bit("下降3点预测,B点最高价不能大于等于A点最高价!")); 
             }
 
         }else if( draw_action_ == DrawAction::DRAWING_FOR_3PUP_D )
@@ -712,7 +732,7 @@ void KLineWall::mousePressEvent(QMouseEvent * event )
                 return;
             }else
             {
-                // todo: show warning
+                //QMessageBox::information(nullptr, QString::fromLocal8Bit("提示"), QString::fromLocal8Bit("上升3点预测,B点最高价不能小于等于A点最高价!")); 
             }
         }
     } // if( drawing_line_B_ == CST_MAGIC_POINT )
@@ -819,6 +839,17 @@ void KLineWall::mouseReleaseEvent(QMouseEvent * e)
                 k_wall_menu_sub_->popup(QCursor::pos());
         }
         
+    }else
+    {
+        if( cur_select_forcast_ )
+        {
+            auto ret = QMessageBox::information(nullptr, QString::fromLocal8Bit("提示"), QString::fromLocal8Bit("是否删除该预测?"), QMessageBox::Yes, QMessageBox::No);
+            if( ret == QMessageBox::Yes )
+            {
+                cur_select_forcast_->Clear();
+                this->Set_Cursor(Qt::CrossCursor);
+            }
+        }
     }
 }
 
@@ -1140,11 +1171,7 @@ void KLineWall::mouseMoveEvent(QMouseEvent *e)
     auto pos = e->pos();
     //qDebug() << " mouseMoveEvent " << "\n";
  
-    if( draw_action_ != DrawAction::NO_ACTION )
-    {
-        //qDebug() << " mouseMoveEvent DRAWING_FOR_2PDOWN_C " << "\n";
-        cur_mouse_point_ = e->pos();
-    }else if( mm_move_flag_ )
+    if( mm_move_flag_ )
     {
         if( k_num_ > 0 )
         {
@@ -1189,7 +1216,11 @@ void KLineWall::mouseMoveEvent(QMouseEvent *e)
             }
         }
     } // if( mm_move_flag_ )
-    else if( area_select_flag_ )
+    else if( draw_action_ != DrawAction::NO_ACTION )
+    {
+        //qDebug() << " mouseMoveEvent DRAWING_FOR_2PDOWN_C " << "\n";
+        cur_mouse_point_ = e->pos();
+    }else if( area_select_flag_ )
     {
          
     }else
@@ -1201,19 +1232,87 @@ void KLineWall::mouseMoveEvent(QMouseEvent *e)
 
 void KLineWall::DoIfForcastLineNearbyCursor(QMouseEvent &e)
 {
-    QPointF cur_mous_point_trans(e.x(), e.y() - h_axis_trans_in_paint_k_);
+    static auto is_nearby_line = [](QPointF &beg_point, QPointF &end_point, QPointF &point) -> bool
+    { 
+        double k = (end_point.y() - beg_point.y()) / (end_point.x() - beg_point.x());
+        double y_on_line = k * (point.x() - beg_point.x()) + beg_point.y();
+        return fabs(point.y() - y_on_line) < 4;
+    };
 
-    std::vector<T_Data3pForcast> *p_data_vector = forcast_man_.Find3pForcastVector(stock_code_, k_type_, /*is_down_forward*/true);
-    if( !p_data_vector || p_data_vector->empty() )
-        return;
-     
-    for( unsigned int i = 0; i < p_data_vector->size(); ++i )
+    static auto get_target_forcast_from_3p = [](KLineWall *k_wall, std::vector<T_Data3pForcast> *p_data_vector, QPointF cur_mous_point_trans)->bool
     {
-        T_Data3pForcast &data_3p_forcast = p_data_vector->at(i);
-        if( cur_mous_point_trans.x() > data_3p_forcast.point_a.x() - 0.0001 && cur_mous_point_trans.x() < data_3p_forcast.point_c.x() + 0.0001 )
-            // todo:
-                ;
+        assert( p_data_vector);
+        for( unsigned int i = 0; i < p_data_vector->size(); ++i )
+        {
+            T_Data3pForcast &data_3p_forcast = p_data_vector->at(i);
+            if( cur_mous_point_trans.x() > data_3p_forcast.point_a.x() - 0.0001 && cur_mous_point_trans.x() < data_3p_forcast.point_b.x() + 0.0001 )
+            {
+                if( is_nearby_line(data_3p_forcast.point_a, data_3p_forcast.point_b, cur_mous_point_trans) )
+                {
+                    k_wall->cur_select_forcast_ = &data_3p_forcast; //  (T_DataForcast*)
+                    return true;
+                }
+            }
+            if( cur_mous_point_trans.x() > data_3p_forcast.point_b.x() - 0.0001 && cur_mous_point_trans.x() < data_3p_forcast.point_c.x() + 0.0001 )
+            {
+                if( is_nearby_line(data_3p_forcast.point_b, data_3p_forcast.point_c, cur_mous_point_trans) )
+                {
+                    k_wall->cur_select_forcast_ = &data_3p_forcast; //  (T_DataForcast*)
+                    return true;
+                }
+            }
+        }
+        return false;
+    };
+
+    static auto get_target_forcast_from_2p = [](KLineWall *k_wall, std::vector<T_Data2pForcast> *p_data_vector, QPointF cur_mous_point_trans)->bool
+    {
+        assert( p_data_vector);
+        for( unsigned int i = 0; i < p_data_vector->size(); ++i )
+        {
+            T_Data2pForcast &data_2p_forcast = p_data_vector->at(i);
+            if( cur_mous_point_trans.x() > data_2p_forcast.point_a.x() - 0.0001 && cur_mous_point_trans.x() < data_2p_forcast.point_b.x() + 0.0001 )
+            {
+                if( is_nearby_line(data_2p_forcast.point_a, data_2p_forcast.point_b, cur_mous_point_trans) )
+                {
+                    k_wall->cur_select_forcast_ = &data_2p_forcast; //  (T_DataForcast*)
+                    return true;
+                }
+            }
+            
+        }
+        return false;
+    };
+
+    cur_select_forcast_ = nullptr;
+    QPointF cur_mous_point_trans(e.x(), e.y() - h_axis_trans_in_paint_k_);
+    bool ret = false;
+    std::vector<T_Data3pForcast> *p_data_vector = forcast_man_.Find3pForcastVector(stock_code_, k_type_, /*is_down_forward*/true);
+    if( p_data_vector )
+        ret = get_target_forcast_from_3p(this, p_data_vector, cur_mous_point_trans); 
+    if( !ret )
+    {
+        p_data_vector = forcast_man_.Find3pForcastVector(stock_code_, k_type_, /*is_down_forward*/false);
+        if( p_data_vector )
+            ret = get_target_forcast_from_3p(this, p_data_vector, cur_mous_point_trans);
     }
+    if( !ret )
+    {
+        std::vector<T_Data2pForcast> *p_2p_data_vector = forcast_man_.Find2pForcastVector(stock_code_, k_type_, /*is_down_forward*/true);
+        if( p_2p_data_vector )
+            ret = get_target_forcast_from_2p(this, p_2p_data_vector, cur_mous_point_trans);
+        if( !ret )
+        {
+            p_2p_data_vector = forcast_man_.Find2pForcastVector(stock_code_, k_type_, /*is_down_forward*/false);
+            if( p_2p_data_vector )
+                ret = get_target_forcast_from_2p(this, p_2p_data_vector, cur_mous_point_trans);
+        }
+    }
+    if( ret )
+        this->Set_Cursor(cst_cur_del_forcst_line);
+    else
+        this->Set_Cursor(Qt::CrossCursor);
+
 }
 
 void KLineWall::keyPressEvent(QKeyEvent *e)
@@ -1669,6 +1768,12 @@ void KLineWall::MoveRightEndToPreKline()
         UpdatePosDatas();
         update();
     }
+}
+
+void KLineWall::Set_Cursor(Qt::CursorShape sp)
+{
+    qDebug() << " Set_Cursor " << sp << "\n";
+    this->setCursor(sp);
 }
 
 T_KlineDataItem * KLineWall::GetKLineDataItemByXpos(int x)

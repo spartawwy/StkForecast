@@ -275,10 +275,10 @@ int KLineWall::Calculate_k_mm_h()
 
 void KLineWall::ClearForcastData()
 { 
-    auto iter = forcast_man_.Find2pDownForcastVector(stock_code_, k_type_);
+    auto iter = forcast_man_.Find2pForcastVector(stock_code_, k_type_, true);
     if( iter )
         iter->clear();
-    auto iter0 = forcast_man_.Find2pUpForcastVector(stock_code_, k_type_);
+    auto iter0 = forcast_man_.Find2pForcastVector(stock_code_, k_type_, false);
     if( iter0 )
         iter0->clear();
     auto iter_3pdown_vector = forcast_man_.Find3pForcastVector(stock_code_, k_type_, true);

@@ -32,6 +32,7 @@ ForcastMan::ForcastMan(int wall_index)
 
 }
 
+#if 0 
 void ForcastMan::Append(TypePeriod type_period, const std::string &code, T_Data2pDownForcast &forcast_data)
 {
     _Append2pForcast(type_period, code, forcast_data); 
@@ -109,8 +110,38 @@ bool ForcastMan::HasIn2pUpForcast(const std::string &code, TypePeriod type_perio
     else 
         return false;
 }
+#else 
 
-Code2pUpForcastType & ForcastMan::Get2pUpDataHolder(TypePeriod type_period)
+void ForcastMan::Append(TypePeriod type_period, const std::string &code,  bool is_down_forward, T_Data2pForcast& forcast_data)
+{ 
+    Code2pForcastType & holder_ref = Get2pDataHolder(type_period, is_down_forward);
+    auto vector_iter = holder_ref.find(code);
+    if( vector_iter == holder_ref.end() )
+        vector_iter = holder_ref.insert(std::make_pair(code, std::vector<T_Data2pForcast>())).first;
+    vector_iter->second.push_back( *(T_Data2pForcast*)(&forcast_data) );
+}
+
+std::vector<T_Data2pForcast> * ForcastMan::Find2pForcastVector(const std::string &code, TypePeriod type_period, bool is_down_forward)
+{
+    Code2pForcastType & holder_ref = Get2pDataHolder(type_period, is_down_forward);
+    if( holder_ref.empty() )
+        return nullptr;
+    auto vector_iter = holder_ref.find(code);
+    if( vector_iter == holder_ref.end() )
+        return nullptr;
+    return std::addressof(vector_iter->second);
+}
+#endif 
+
+Code2pForcastType & ForcastMan::Get2pDataHolder(TypePeriod type_period, bool is_down_forward)
+{
+    if( is_down_forward )
+        return Get2pDownDataHolder(type_period);
+    else
+        return Get2pUpDataHolder(type_period);
+}
+
+Code2pForcastType & ForcastMan::Get2pUpDataHolder(TypePeriod type_period)
 {
     switch (type_period)
     {
@@ -126,7 +157,7 @@ Code2pUpForcastType & ForcastMan::Get2pUpDataHolder(TypePeriod type_period)
     return uf_no_use_;
 }
 
-Code2pDownForcastType & ForcastMan::Get2pDownDataHolder(TypePeriod type_period)
+Code2pForcastType & ForcastMan::Get2pDownDataHolder(TypePeriod type_period)
 {
     switch (type_period)
     {
@@ -158,11 +189,11 @@ Code3pForcastType & ForcastMan::Get3pDataHolder(TypePeriod type_period, bool is_
     return no_use_3p_;
 }
 
-T_Data3pForcast * ForcastMan::Find3pForcast(const std::string &code, TypePeriod type_period, bool is_down_forward, T_KlineDataItem &item_a, T_KlineDataItem &item_b)
+T_Data2pForcast * ForcastMan::Find2pForcast(const std::string &code, TypePeriod type_period, bool is_down_forward, T_KlineDataItem &item_a, T_KlineDataItem &item_b)
 {
-    Code3pForcastType &code_3p_fcst = Get3pDataHolder(type_period, is_down_forward);
-    auto vector_iter = code_3p_fcst.find(code);
-    if( vector_iter == code_3p_fcst.end() )
+    Code2pForcastType &code_2p_fcst = Get2pDataHolder(type_period, is_down_forward);
+    auto vector_iter = code_2p_fcst.find(code);
+    if( vector_iter == code_2p_fcst.end() )
          return nullptr;
     if( vector_iter->second.empty() ) 
         return nullptr;
@@ -177,6 +208,34 @@ T_Data3pForcast * ForcastMan::Find3pForcast(const std::string &code, TypePeriod 
         return std::addressof(vector_iter->second.at(i));
     else
         return nullptr;
+}
+
+T_Data3pForcast * ForcastMan::Find3pForcast(const std::string &code, TypePeriod type_period, bool is_down_forward, T_KlineDataItem &item_a, T_KlineDataItem &item_b)
+{
+    Code3pForcastType &code_3p_fcst = Get3pDataHolder(type_period, is_down_forward);
+    auto vector_iter = code_3p_fcst.find(code);
+    if( vector_iter == code_3p_fcst.end() )
+         return nullptr;
+    if( vector_iter->second.empty() ) 
+        return nullptr;
+    unsigned int i = 0;
+    for( ; i < vector_iter->second.size(); ++i )
+    {
+        if( vector_iter->second.at(i).date_a == item_a.stk_item.date && vector_iter->second.at(i).hhmm_a == item_a.stk_item.hhmmss 
+            && vector_iter->second.at(i).date_b == item_b.stk_item.date && vector_iter->second.at(i).hhmm_b == item_b.stk_item.hhmmss  )
+            break; 
+    }
+    if( i != vector_iter->second.size() )
+        return std::addressof(vector_iter->second.at(i));
+    else
+        return nullptr;
+}
+
+void ForcastMan::Remove3pForcastItem(const std::string &code, TypePeriod type_period, bool is_down_forward, T_KlineDataItem &item_a, T_KlineDataItem &item_b)
+{
+    T_Data3pForcast * data = Find3pForcast(code, type_period, is_down_forward, item_a, item_b);
+    if( data )
+        data->Clear();
 }
 
 std::vector<T_Data3pForcast> * ForcastMan::Find3pForcastVector(const std::string &code, TypePeriod type_period, bool is_down_forward)
