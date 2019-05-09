@@ -15,6 +15,7 @@
 #include <QtWidgets/QButtonGroup>
 #include <QtWidgets/QCalendarWidget>
 #include <QtWidgets/QDoubleSpinBox>
+#include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QLineEdit>
@@ -41,7 +42,10 @@ public:
     QLabel *label_5;
     QCalendarWidget *calendar;
     QLineEdit *le_date;
+    QWidget *widget;
+    QHBoxLayout *horizontalLayout;
     QPushButton *pbtnStart;
+    QPushButton *pbtnStop;
 
     void setupUi(QWidget *TrainDlgForm)
     {
@@ -108,10 +112,24 @@ public:
         le_date = new QLineEdit(TrainDlgForm);
         le_date->setObjectName(QStringLiteral("le_date"));
         le_date->setGeometry(QRect(110, 19, 111, 31));
-        pbtnStart = new QPushButton(TrainDlgForm);
+        widget = new QWidget(TrainDlgForm);
+        widget->setObjectName(QStringLiteral("widget"));
+        widget->setGeometry(QRect(50, 60, 158, 25));
+        horizontalLayout = new QHBoxLayout(widget);
+        horizontalLayout->setObjectName(QStringLiteral("horizontalLayout"));
+        horizontalLayout->setContentsMargins(0, 0, 0, 0);
+        pbtnStart = new QPushButton(widget);
         pbtnStart->setObjectName(QStringLiteral("pbtnStart"));
-        pbtnStart->setGeometry(QRect(44, 60, 181, 23));
         pbtnStart->setFont(font);
+
+        horizontalLayout->addWidget(pbtnStart);
+
+        pbtnStop = new QPushButton(widget);
+        pbtnStop->setObjectName(QStringLiteral("pbtnStop"));
+        pbtnStop->setFont(font);
+
+        horizontalLayout->addWidget(pbtnStop);
+
 
         retranslateUi(TrainDlgForm);
 
@@ -131,6 +149,7 @@ public:
         label_4->setText(QApplication::translate("TrainDlgForm", "%", 0));
         label_5->setText(QApplication::translate("TrainDlgForm", "\346\210\220\344\272\244\350\256\260\345\275\225", 0));
         pbtnStart->setText(QApplication::translate("TrainDlgForm", "\345\274\200\345\247\213", 0));
+        pbtnStop->setText(QApplication::translate("TrainDlgForm", "\347\273\223\346\235\237", 0));
     } // retranslateUi
 
 };

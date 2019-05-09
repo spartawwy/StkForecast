@@ -21,15 +21,20 @@ public slots:
 
     void OnCalendarClicked(const QDate &);
     void OnStartTrain();
+    void OnStopTrain();
+
     void OnMoveToNextK();
     void OnMoveToPreK();
 
     void OnOpenBuyWin();
     void OnOpenSellWin();
 
+    void OnTrade();
+
 protected:
 
-    virtual void hideEvent(QHideEvent * event) override;
+    virtual void closeEvent(QCloseEvent *) override;
+    //virtual void hideEvent(QHideEvent * event) override;
 
 
 private:
@@ -40,6 +45,8 @@ private:
 
     KLineWall *parent_;
     MainWindow *main_win_;
+
+    bool is_started_;
 };
 
 #endif // TRAIN_DLG_SDFS23343543_H_

@@ -246,6 +246,18 @@ void MainWindow::PopTrainDlg()
 {
     assert(train_dlg_);
 
+    if( tool_bar()->main_cycle_comb()->currentIndex() != COMBO_PERIOD_DAY_INDEX )
+    {
+        // ps: it will trigger onMainKwallCycleChange
+        tool_bar()->main_cycle_comb()->setCurrentIndex(COMBO_PERIOD_DAY_INDEX); // set current to period day
+    }
+    if( tool_bar()->sub_cycle_comb()->currentIndex() != COMBO_PERIOD_DAY_INDEX )
+    {
+        // ps: it will trigger onSubKwallCycleChange
+        tool_bar()->sub_cycle_comb()->setCurrentIndex(COMBO_PERIOD_DAY_INDEX - 1);
+    }
+    tool_bar()->main_cycle_comb()->setEnabled(false);
+
     is_train_mode(true);
     train_dlg_->show();
 }
