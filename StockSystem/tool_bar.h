@@ -60,9 +60,6 @@ private:
 private:
 
     MainWindow *m_main_window;
-     
-    //QLabel *m_pIconLabel;
-    //QLabel *m_pTitleLabel;
 
     QPushButton *ab_down_for_c_pen_;
     QPushButton *ab_up_for_c_pen_;
@@ -82,9 +79,7 @@ private:
     QComboBox   *sub_cycle_comb_;
 
     DrawAction   pre_action_;
-    //QPushButton *m_pMaximizeButton;
-    //QPushButton *m_pCloseButton;
-
+     
     QCursor kline_wall_cursor_;
 
     friend class TrainDlg;

@@ -6,10 +6,7 @@
 #include "HintList.h"
 
 #include "database.h"
-//
-//StockInputDlg::StockInputDlg(KLineWall *parent, std::shared_ptr<DataBase> &db)
-//	: parent_(parent)
-//    , db_(db)
+
 StockInputDlg::StockInputDlg(MainWindow *parent, std::shared_ptr<DataBase> &db)
 	: parent_(parent)
     , db_(db)

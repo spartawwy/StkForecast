@@ -6,20 +6,26 @@
 #include "tool_bar.h"
 #include "kline_wall.h"
 
+
 //static const int cst_period_day_index = 4;
  
 TrainDlg::TrainDlg(KLineWall *parent,  MainWindow *main_win)
     : QWidget(nullptr)
     , parent_(parent)
     , main_win_(main_win)
+    , trade_dlg_(true)
 {
     ui.setupUi(this);
+
+    trade_dlg_.setWindowFlags(trade_dlg_.windowFlags() | Qt::WindowStaysOnTopHint/*Qt::Dialog*/ );
 
     //ui.dateEditTrainBeg->mousePressEvent
     bool ret = connect(ui.calendar, SIGNAL(clicked(const QDate &)), this, SLOT(OnCalendarClicked(const QDate &)));
     ret = connect(ui.pbtnStart, SIGNAL(clicked()), this, SLOT(OnStartTrain()));
     ret = connect(ui.pbtnNextK, SIGNAL(clicked()), this, SLOT(OnMoveToNextK()));
     ret = connect(ui.pbtnPreK, SIGNAL(clicked()), this, SLOT(OnMoveToPreK()));
+    ret = connect(ui.pbtnBuy, SIGNAL(clicked()), this, SLOT(OnOpenBuyWin()));
+    ret = connect(ui.pbtnSell, SIGNAL(clicked()), this, SLOT(OnOpenSellWin()));
     ret = ret;
 }
 
@@ -68,4 +74,16 @@ void TrainDlg::OnMoveToNextK()
 void TrainDlg::OnMoveToPreK()
 {
     parent_->MoveRightEndToPreKline();
+}
+
+void TrainDlg::OnOpenBuyWin()
+{
+    trade_dlg_.is_sell(false);
+    trade_dlg_.showNormal();
+}
+
+void TrainDlg::OnOpenSellWin()
+{
+    trade_dlg_.is_sell(true);
+    trade_dlg_.showNormal();
 }

@@ -198,6 +198,15 @@
     <ClCompile Include="train_dlg.cpp">
       <Filter>win</Filter>
     </ClCompile>
+    <ClCompile Include="Debug\moc_train_trade_dlg.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Release\moc_train_trade_dlg.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="train_trade_dlg.cpp">
+      <Filter>win</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="klinewall.ui">
@@ -240,6 +249,12 @@
       <Filter>Form Files</Filter>
     </CustomBuild>
     <CustomBuild Include="train_dlg.h">
+      <Filter>win</Filter>
+    </CustomBuild>
+    <CustomBuild Include="traintrade.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="train_trade_dlg.h">
       <Filter>win</Filter>
     </CustomBuild>
   </ItemGroup>
@@ -336,6 +351,9 @@
       <Filter>Generated Files</Filter>
     </ClInclude>
     <ClInclude Include="GeneratedFiles\ui_traindlg.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_traintrade.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
   </ItemGroup>

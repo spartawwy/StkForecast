@@ -5,6 +5,8 @@
 
 #include "ui_traindlg.h"
 
+#include "train_trade_dlg.h"
+
 class KLineWall;
 class MainWindow;
 class TrainDlg : public QWidget
@@ -22,6 +24,9 @@ public slots:
     void OnMoveToNextK();
     void OnMoveToPreK();
 
+    void OnOpenBuyWin();
+    void OnOpenSellWin();
+
 protected:
 
     virtual void hideEvent(QHideEvent * event) override;
@@ -30,6 +35,8 @@ protected:
 private:
 
     Ui::TrainDlgForm ui;
+
+    TrainTradeDlg  trade_dlg_;
 
     KLineWall *parent_;
     MainWindow *main_win_;
