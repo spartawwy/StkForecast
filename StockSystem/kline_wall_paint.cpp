@@ -1770,6 +1770,11 @@ void KLineWall::MoveRightEndToPreKline()
     }
 }
 
+int KLineWall::CurTrainDate()
+{
+    return k_rend_index_for_train_> -1 ? p_hisdata_container_->at(k_rend_index_for_train_)->stk_item.date : 0;
+}
+
 void KLineWall::Set_Cursor(Qt::CursorShape sp)
 {
     qDebug() << " Set_Cursor " << sp << "\n";

@@ -72,12 +72,11 @@ public:
     void ShowDurationKlines(int date);
 
     void UpdateIfNecessary();
-     
+    // train mode --------
     void SetTrainStartDate(int date);
-
     void MoveRightEndToNextKline();
-
     void MoveRightEndToPreKline();
+    int CurTrainDate();
 
     void Set_Cursor(Qt::CursorShape sp);
 
@@ -183,6 +182,7 @@ private:
     int  k_rend_index_;
     int  pre_k_rend_index_;
     int  k_move_temp_index_;
+
     int  k_rend_index_for_train_;
 
     TypePeriod  k_type_;

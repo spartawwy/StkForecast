@@ -8,6 +8,7 @@
 TrainTradeDlg::TrainTradeDlg(TrainDlg *train_dlg, bool is_sell) 
     : train_dlg_(train_dlg)
     , is_sell_(is_sell)
+    , date_(0)
 {
     ui.setupUi(this);
     bool ret = QObject::connect(ui.pbtn_close, SIGNAL(clicked()), SLOT(close()));
