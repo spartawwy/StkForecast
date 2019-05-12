@@ -19,8 +19,8 @@
 
 QT_BEGIN_MOC_NAMESPACE
 struct qt_meta_stringdata_TrainDlg_t {
-    QByteArrayData data[14];
-    char stringdata[152];
+    QByteArrayData data[10];
+    char stringdata[116];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -38,16 +38,11 @@ QT_MOC_LITERAL(5, 53, 13),
 QT_MOC_LITERAL(6, 67, 12),
 QT_MOC_LITERAL(7, 80, 12),
 QT_MOC_LITERAL(8, 93, 13),
-QT_MOC_LITERAL(9, 107, 7),
-QT_MOC_LITERAL(10, 115, 12),
-QT_MOC_LITERAL(11, 128, 8),
-QT_MOC_LITERAL(12, 137, 5),
-QT_MOC_LITERAL(13, 143, 7)
+QT_MOC_LITERAL(9, 107, 7)
     },
     "TrainDlg\0OnCalendarClicked\0\0OnStartTrain\0"
     "OnStopTrain\0OnMoveToNextK\0OnMoveToPreK\0"
     "OnOpenBuyWin\0OnOpenSellWin\0OnTrade\0"
-    "CalculateFee\0quantity\0price\0is_sell\0"
 };
 #undef QT_MOC_LITERAL
 
@@ -57,7 +52,7 @@ static const uint qt_meta_data_TrainDlg[] = {
        7,       // revision
        0,       // classname
        0,    0, // classinfo
-       9,   14, // methods
+       8,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -65,15 +60,14 @@ static const uint qt_meta_data_TrainDlg[] = {
        0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags
-       1,    1,   59,    2, 0x0a,
-       3,    0,   62,    2, 0x0a,
-       4,    0,   63,    2, 0x0a,
-       5,    0,   64,    2, 0x0a,
-       6,    0,   65,    2, 0x0a,
-       7,    0,   66,    2, 0x0a,
-       8,    0,   67,    2, 0x0a,
-       9,    0,   68,    2, 0x0a,
-      10,    3,   69,    2, 0x0a,
+       1,    1,   54,    2, 0x0a,
+       3,    0,   57,    2, 0x0a,
+       4,    0,   58,    2, 0x0a,
+       5,    0,   59,    2, 0x0a,
+       6,    0,   60,    2, 0x0a,
+       7,    0,   61,    2, 0x0a,
+       8,    0,   62,    2, 0x0a,
+       9,    0,   63,    2, 0x0a,
 
  // slots: parameters
     QMetaType::Void, QMetaType::QDate,    2,
@@ -84,7 +78,6 @@ static const uint qt_meta_data_TrainDlg[] = {
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
-    QMetaType::Double, QMetaType::Int, QMetaType::Double, QMetaType::Bool,   11,   12,   13,
 
        0        // eod
 };
@@ -102,8 +95,6 @@ void TrainDlg::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, vo
         case 5: _t->OnOpenBuyWin(); break;
         case 6: _t->OnOpenSellWin(); break;
         case 7: _t->OnTrade(); break;
-        case 8: { double _r = _t->CalculateFee((*reinterpret_cast< int(*)>(_a[1])),(*reinterpret_cast< double(*)>(_a[2])),(*reinterpret_cast< bool(*)>(_a[3])));
-            if (_a[0]) *reinterpret_cast< double*>(_a[0]) = _r; }  break;
         default: ;
         }
     }
@@ -134,13 +125,13 @@ int TrainDlg::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 9)
+        if (_id < 8)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 9;
+        _id -= 8;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 9)
+        if (_id < 8)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 9;
+        _id -= 8;
     }
     return _id;
 }

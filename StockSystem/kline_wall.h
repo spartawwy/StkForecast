@@ -74,11 +74,16 @@ public:
     void UpdateIfNecessary();
     // train mode --------
     void SetTrainStartDate(int date);
-    void MoveRightEndToNextKline();
-    void MoveRightEndToPreKline();
+    void MoveRightEndToNextDayK();
+    void MoveRightEndToPreDayK();
     const T_StockHisDataItem & CurTrainStockDataItem();
+    void right_clicked_k_date(int val) { right_clicked_k_date_ = val; }
+    int k_cur_train_date() { return k_cur_train_date_; }
 
     void Set_Cursor(Qt::CursorShape sp);
+
+public slots:
+    void slotOpenRelatedSubKwall(bool);
 
 protected:
 
@@ -99,7 +104,7 @@ private slots:
     void slotZoominSelect(bool);
 
     //void slotTbvTasksContextMenu(QPoint);
-    void slotOpenRelatedSubKwall(bool);
+
      
 private: 
       
@@ -184,6 +189,7 @@ private:
     int  k_move_temp_index_;
 
     int  k_rend_index_for_train_;
+    int  k_cur_train_date_;
 
     TypePeriod  k_type_;
     std::string  k_cycle_tag_;

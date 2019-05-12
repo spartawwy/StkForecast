@@ -60,6 +60,7 @@ void TrainDlg::closeEvent(QCloseEvent * event)
 {
     main_win_->is_train_mode(false);
     parent_->k_rend_index_for_train_ = 0;
+    main_win_->SubKlineWall()->k_rend_index_for_train_ = 0;
     main_win_->tool_bar()->main_cycle_comb()->setEnabled(true);
 
     is_started_ = false;
@@ -121,8 +122,10 @@ void TrainDlg::OnStartTrain()
 
     int date = ui.le_date->text().toInt();
     parent_->SetTrainStartDate(date);
+    main_win_->SubKlineWall()->right_clicked_k_date(date);
+    main_win_->SubKlineWall()->slotOpenRelatedSubKwall(false);
+    main_win_->SubKlineWall()->SetTrainStartDate(date);
 
-    
     is_started_ = true;
 }
 
@@ -144,7 +147,9 @@ void TrainDlg::OnStopTrain()
 
 void TrainDlg::OnMoveToNextK()
 {
-    parent_->MoveRightEndToNextKline();
+    parent_->MoveRightEndToNextDayK();
+    main_win_->SubKlineWall()->MoveRightEndToNextDayK();
+
     const T_StockHisDataItem & stock_item = CurHisStockDataItem();
     //assert(trade_dlg_.date_ == stock_item.date);
 
@@ -199,7 +204,9 @@ void TrainDlg::OnMoveToPreK()
         trade_records_.pop_back();
     } // while 
 
-    parent_->MoveRightEndToPreKline();
+    parent_->MoveRightEndToPreDayK();
+    main_win_->SubKlineWall()->MoveRightEndToPreDayK();
+
     const T_StockHisDataItem & pre_stock_item = CurHisStockDataItem();
     ui.le_cur_stock_num->setText(ToQString(int(account_info_.stock.avaliable + account_info_.stock.frozen)));
     ui.le_cur_capital->setText(ToQString(account_info_.capital.avaliable + account_info_.capital.frozen));
@@ -225,8 +232,8 @@ void TrainDlg::OnOpenBuyWin()
     //const double allow_highest_price = (stock_item.open_price < stock_item.close_price ? stock_item.close_price : stock_item.open_price);
 
     trade_dlg_.ui.le_price->setText(ToQString(stock_item.close_price));
-    int qty = account_info_.capital.avaliable / stock_item.close_price;
-    qty = qty / 100 * 100;
+     
+    int qty = CalculateMaxQtyAllowBuy(account_info_.capital.avaliable, stock_item.close_price);
     trade_dlg_.ui.le_qty_ava->setText(ToQString(qty));
     trade_dlg_.ui.le_qty->setText(ToQString(qty));
     trade_dlg_.ui.le_capital_ava->setText(ToQString(account_info_.capital.avaliable));
@@ -364,6 +371,28 @@ double TrainDlg::CalculateFee(int quantity, double price, bool is_sell)
     double amount = quantity * price;
     double commission = amount < 5.1 ? 5.0 : (fee_rate_ * amount);
     return commission +  (is_sell ? amount / 1000 : 0);
+}
+
+int TrainDlg::CalculateMaxQtyAllowBuy(double capital, double price)
+{
+    assert(capital > 0.0);
+    assert(price > 0.0);
+    int qty = capital / price;
+    qty = qty / 100 * 100;
+    if( qty < 100 )
+        return 0;
+    double fee = CalculateFee(qty, price, false);
+
+    for( int i = 0; i < 100; ++i )
+    {
+        if( qty * price + fee > capital && qty >= 100 )
+        {
+            qty -= 100;
+            fee = CalculateFee(qty, price, false);
+        }else
+            break;
+    }
+    return qty < 100 ? 0 : qty;
 }
 
 void TrainDlg::PrintTradeRecords()

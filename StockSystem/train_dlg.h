@@ -42,6 +42,10 @@ public:
 
     const T_StockHisDataItem & CurHisStockDataItem();
 
+    double CalculateFee(int quantity, double price, bool is_sell);
+
+    int CalculateMaxQtyAllowBuy(double capital, double price);
+
 public slots:
 
     void OnCalendarClicked(const QDate &);
@@ -56,8 +60,7 @@ public slots:
 
     void OnTrade();
 
-    double CalculateFee(int quantity, double price, bool is_sell);
-
+    
 protected:
 
     virtual void closeEvent(QCloseEvent *) override;

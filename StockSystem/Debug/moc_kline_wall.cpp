@@ -30,13 +30,13 @@ struct qt_meta_stringdata_KLineWall_t {
 static const qt_meta_stringdata_KLineWall_t qt_meta_stringdata_KLineWall = {
     {
 QT_MOC_LITERAL(0, 0, 9),
-QT_MOC_LITERAL(1, 10, 20),
-QT_MOC_LITERAL(2, 31, 0),
-QT_MOC_LITERAL(3, 32, 16),
-QT_MOC_LITERAL(4, 49, 23)
+QT_MOC_LITERAL(1, 10, 23),
+QT_MOC_LITERAL(2, 34, 0),
+QT_MOC_LITERAL(3, 35, 20),
+QT_MOC_LITERAL(4, 56, 16)
     },
-    "KLineWall\0slotOpenStatisticDlg\0\0"
-    "slotZoominSelect\0slotOpenRelatedSubKwall\0"
+    "KLineWall\0slotOpenRelatedSubKwall\0\0"
+    "slotOpenStatisticDlg\0slotZoominSelect\0"
 };
 #undef QT_MOC_LITERAL
 
@@ -54,7 +54,7 @@ static const uint qt_meta_data_KLineWall[] = {
        0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags
-       1,    1,   29,    2, 0x08,
+       1,    1,   29,    2, 0x0a,
        3,    1,   32,    2, 0x08,
        4,    1,   35,    2, 0x08,
 
@@ -71,9 +71,9 @@ void KLineWall::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, v
     if (_c == QMetaObject::InvokeMetaMethod) {
         KLineWall *_t = static_cast<KLineWall *>(_o);
         switch (_id) {
-        case 0: _t->slotOpenStatisticDlg((*reinterpret_cast< bool(*)>(_a[1]))); break;
-        case 1: _t->slotZoominSelect((*reinterpret_cast< bool(*)>(_a[1]))); break;
-        case 2: _t->slotOpenRelatedSubKwall((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 0: _t->slotOpenRelatedSubKwall((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 1: _t->slotOpenStatisticDlg((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 2: _t->slotZoominSelect((*reinterpret_cast< bool(*)>(_a[1]))); break;
         default: ;
         }
     }

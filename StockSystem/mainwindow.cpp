@@ -388,7 +388,14 @@ void MainWindow::onSubKwallCycleChange(int /*index*/)
         tool_bar_->sub_cycle_comb()->setCurrentIndex(COMBO_PERIOD_DAY_INDEX - 1);
         return;
     }else
+    {
         kline_wall_sub->RestTypePeriod( TypePeriod(tool_bar_->sub_cycle_comb()->currentData().toInt()) );
+        if( kline_wall_main->k_cur_train_date() > 0 )
+        {
+            kline_wall_sub->ShowDurationKlines(kline_wall_main->k_cur_train_date());
+            kline_wall_sub->SetTrainStartDate(kline_wall_main->k_cur_train_date());
+        }
+    }
 }
 
 
