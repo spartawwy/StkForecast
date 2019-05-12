@@ -42,6 +42,7 @@ struct T_StockHisDataItem
     double pre_close_price;
     double vol;
     double capital;
+    T_StockHisDataItem() : date(0), hhmmss(0){}
 };
 
 extern "C" int STKQUOTER_IMEXPORT StkQuoteGetQuote(char stocks[][16], const unsigned int size, T_StockPriceInfo price_info[]/*, unsigned int *ret_size*/);

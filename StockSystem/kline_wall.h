@@ -76,7 +76,7 @@ public:
     void SetTrainStartDate(int date);
     void MoveRightEndToNextKline();
     void MoveRightEndToPreKline();
-    int CurTrainDate();
+    const T_StockHisDataItem & CurTrainStockDataItem();
 
     void Set_Cursor(Qt::CursorShape sp);
 

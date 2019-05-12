@@ -259,7 +259,7 @@ void MainWindow::PopTrainDlg()
     tool_bar()->main_cycle_comb()->setEnabled(false);
 
     is_train_mode(true);
-    train_dlg_->show();
+    train_dlg_->showNormal();
 }
 
 void MainWindow::changeEvent(QEvent *e)

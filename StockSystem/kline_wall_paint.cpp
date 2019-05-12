@@ -974,7 +974,7 @@ void KLineWall::paintEvent(QPaintEvent*)
 	if( p_hisdata_container_ && !p_hisdata_container_->empty() )
 	{   
         char temp_str[1024];
-        auto iter = p_hisdata_container_->rbegin();
+        auto iter = p_hisdata_container_->rbegin() + k_rend_index_;
         sprintf_s(temp_str, sizeof(temp_str), "%s ¿ª:%.2f ¸ß:%.2f µÍ:%.2f ÊÕ:%.2f  ", stock_code_.c_str(), (*iter)->stk_item.open_price
             , (*iter)->stk_item.high_price, (*iter)->stk_item.low_price, (*iter)->stk_item.close_price);
         k_detail_str = QString::fromLocal8Bit(temp_str);
@@ -1770,9 +1770,15 @@ void KLineWall::MoveRightEndToPreKline()
     }
 }
 
-int KLineWall::CurTrainDate()
+const T_StockHisDataItem & KLineWall::CurTrainStockDataItem()
 {
-    return k_rend_index_for_train_> -1 ? p_hisdata_container_->at(k_rend_index_for_train_)->stk_item.date : 0;
+    static T_StockHisDataItem no_use_item;
+
+    if( p_hisdata_container_->size() <= 0 || p_hisdata_container_->size() - 1 < k_rend_index_for_train_ 
+        || k_rend_index_for_train_ < 0 )
+        return no_use_item;
+     
+    return p_hisdata_container_->at(p_hisdata_container_->size() - 1 - k_rend_index_for_train_)->stk_item;
 }
 
 void KLineWall::Set_Cursor(Qt::CursorShape sp)

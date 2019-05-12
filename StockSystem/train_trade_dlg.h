@@ -24,7 +24,18 @@ public:
     virtual void closeEvent(QCloseEvent *) override;
     virtual void showEvent(QShowEvent *) override;
 
+    void SetStatusBar(const QString & val);
+
+public slots:
+
+    void OnBtnAllQuantity();
+    void OnBtnHalfQuantity();
+    void OnBtnOneThirdQuantity();
+    void OnBtnOneFifthQuantity();
+
 private:
+
+    void _onBtnQuantity(double val);
 
     TrainDlg *train_dlg_;
     bool is_sell_;

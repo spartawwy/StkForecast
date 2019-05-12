@@ -2,13 +2,32 @@
 #define TRAIN_DLG_SDFS23343543_H_
 
 //#include <unordered_map>
-#include <stack>
+#include <vector>
 #include <QtWidgets/QWidget>
 
 #include "ui_traindlg.h"
 
+#include "stkfo_common.h"
 #include "train_trade_dlg.h"
 
+struct AccountAtom
+{ 
+    double  avaliable;
+    double  frozen;
+    AccountAtom() : avaliable(0.0), frozen(0.0){}
+};
+
+struct AccountInfo
+{
+    AccountAtom  capital; 
+    AccountAtom  stock;
+};
+enum RecordAction : unsigned char
+{
+    BUY = 0,
+    SELL,
+    UNFREEZE, // only related to stock, this action is in the front of current day's other action
+};
 class KLineWall;
 class MainWindow;
 class TrainDlg : public QWidget
@@ -19,6 +38,10 @@ public:
 
     TrainDlg(KLineWall *parent, MainWindow *main_win);
      
+    const AccountInfo & account_info() { return account_info_; }
+
+    const T_StockHisDataItem & CurHisStockDataItem();
+
 public slots:
 
     void OnCalendarClicked(const QDate &);
@@ -39,7 +62,9 @@ protected:
 
     virtual void closeEvent(QCloseEvent *) override;
     //virtual void hideEvent(QHideEvent * event) override;
+private:
 
+    void PrintTradeRecords();
 
 private:
 
@@ -51,37 +76,35 @@ private:
     MainWindow *main_win_;
      
     bool is_started_;
-
-    struct AccountAtom
-    {
-        //std::string  code;
-        double  avaliable;
-        double  frozen;
-    };
-
-    struct AccountInfo
-    {
-        AccountAtom  capital;
-        //std::unordered_map<std::string, AccountAtom>  stocks;
-        AccountAtom  stock;
-    };
-
-    struct TradeRecordAtom
+     
+    class TradeRecordAtom
     { 
+    public:
         int date;
-        bool is_sell;
+        RecordAction action;
         int quantity;
         double price;
         double fee;
-        bool is_pre_date_freeze;
-        TradeRecordAtom() : date(0), is_sell(false), quantity(0), price(0.0), fee(0.0), is_pre_date_freeze(false) { }
+
+        explicit TradeRecordAtom() : date(0), action(RecordAction::BUY), quantity(0), price(0.0), fee(0.0){ }
+        TradeRecordAtom(const TradeRecordAtom &lh) : date(lh.date), action(lh.action), quantity(lh.quantity), price(lh.price), fee(lh.fee){ }
+        TradeRecordAtom & operator = (const TradeRecordAtom &lh)
+        {
+            if( &lh == this ) 
+                return *this;
+            date = lh.date; action = lh.action; quantity = lh.quantity; price = lh.price; fee = lh.fee;
+            return *this;
+        }
+
+        QString ToQStr();
     };
     AccountInfo  account_info_;
 
     double fee_rate_;
      
-    std::stack<TradeRecordAtom>  trade_records_stack_;
+    std::vector<TradeRecordAtom>  trade_records_;
 };
 
+std::string ToStr(RecordAction action);
 
 #endif // TRAIN_DLG_SDFS23343543_H_

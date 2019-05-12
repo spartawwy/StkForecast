@@ -261,3 +261,13 @@ void gbkToUtf8(std::string& strGbk)
     QByteArray ByteUtf8 = utf8Codec->fromUnicode(strUnicode);
     strGbk = ByteUtf8.data();
 }
+
+QString ToQString(double val)
+{ 
+    return QString::number(val, 'f', 2);
+}
+
+QString ToQString(int val)
+{ 
+   return ToQString(double(val));
+}

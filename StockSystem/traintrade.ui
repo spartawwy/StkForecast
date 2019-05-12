@@ -155,7 +155,7 @@
    <property name="geometry">
     <rect>
      <x>270</x>
-     <y>390</y>
+     <y>380</y>
      <width>75</width>
      <height>23</height>
     </rect>
@@ -168,7 +168,7 @@
    <property name="geometry">
     <rect>
      <x>189</x>
-     <y>390</y>
+     <y>380</y>
      <width>75</width>
      <height>23</height>
     </rect>
@@ -177,7 +177,7 @@
     <string>买入</string>
    </property>
   </widget>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>30</x>
@@ -216,6 +216,24 @@
      </widget>
     </item>
    </layout>
+  </widget>
+  <widget class="QLabel" name="lab_status">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>410</y>
+     <width>481</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>10</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>status</string>
+   </property>
   </widget>
  </widget>
  <resources/>

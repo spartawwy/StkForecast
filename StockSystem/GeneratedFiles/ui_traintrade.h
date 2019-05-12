@@ -40,12 +40,13 @@ public:
     QTextEdit *textEdit_reason;
     QPushButton *pbtn_close;
     QPushButton *pbt_trade;
-    QWidget *widget;
+    QWidget *layoutWidget;
     QHBoxLayout *horizontalLayout;
     QPushButton *pbt_all;
     QPushButton *pbtn_qty_half;
     QPushButton *pbtn_qty_one_third;
     QPushButton *pbtn_qty_one_fifth;
+    QLabel *lab_status;
 
     void setupUi(QWidget *TrainTradeForm)
     {
@@ -90,36 +91,42 @@ public:
         textEdit_reason->setGeometry(QRect(110, 270, 321, 101));
         pbtn_close = new QPushButton(TrainTradeForm);
         pbtn_close->setObjectName(QStringLiteral("pbtn_close"));
-        pbtn_close->setGeometry(QRect(270, 390, 75, 23));
+        pbtn_close->setGeometry(QRect(270, 380, 75, 23));
         pbt_trade = new QPushButton(TrainTradeForm);
         pbt_trade->setObjectName(QStringLiteral("pbt_trade"));
-        pbt_trade->setGeometry(QRect(189, 390, 75, 23));
-        widget = new QWidget(TrainTradeForm);
-        widget->setObjectName(QStringLiteral("widget"));
-        widget->setGeometry(QRect(30, 230, 320, 25));
-        horizontalLayout = new QHBoxLayout(widget);
+        pbt_trade->setGeometry(QRect(189, 380, 75, 23));
+        layoutWidget = new QWidget(TrainTradeForm);
+        layoutWidget->setObjectName(QStringLiteral("layoutWidget"));
+        layoutWidget->setGeometry(QRect(30, 230, 320, 25));
+        horizontalLayout = new QHBoxLayout(layoutWidget);
         horizontalLayout->setObjectName(QStringLiteral("horizontalLayout"));
         horizontalLayout->setContentsMargins(0, 0, 0, 0);
-        pbt_all = new QPushButton(widget);
+        pbt_all = new QPushButton(layoutWidget);
         pbt_all->setObjectName(QStringLiteral("pbt_all"));
 
         horizontalLayout->addWidget(pbt_all);
 
-        pbtn_qty_half = new QPushButton(widget);
+        pbtn_qty_half = new QPushButton(layoutWidget);
         pbtn_qty_half->setObjectName(QStringLiteral("pbtn_qty_half"));
 
         horizontalLayout->addWidget(pbtn_qty_half);
 
-        pbtn_qty_one_third = new QPushButton(widget);
+        pbtn_qty_one_third = new QPushButton(layoutWidget);
         pbtn_qty_one_third->setObjectName(QStringLiteral("pbtn_qty_one_third"));
 
         horizontalLayout->addWidget(pbtn_qty_one_third);
 
-        pbtn_qty_one_fifth = new QPushButton(widget);
+        pbtn_qty_one_fifth = new QPushButton(layoutWidget);
         pbtn_qty_one_fifth->setObjectName(QStringLiteral("pbtn_qty_one_fifth"));
 
         horizontalLayout->addWidget(pbtn_qty_one_fifth);
 
+        lab_status = new QLabel(TrainTradeForm);
+        lab_status->setObjectName(QStringLiteral("lab_status"));
+        lab_status->setGeometry(QRect(0, 410, 481, 20));
+        QFont font;
+        font.setPointSize(10);
+        lab_status->setFont(font);
 
         retranslateUi(TrainTradeForm);
 
@@ -141,6 +148,7 @@ public:
         pbtn_qty_half->setText(QApplication::translate("TrainTradeForm", "1/2", 0));
         pbtn_qty_one_third->setText(QApplication::translate("TrainTradeForm", "1/3", 0));
         pbtn_qty_one_fifth->setText(QApplication::translate("TrainTradeForm", "1/5", 0));
+        lab_status->setText(QApplication::translate("TrainTradeForm", "status", 0));
     } // retranslateUi
 
 };

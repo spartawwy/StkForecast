@@ -301,6 +301,9 @@ bool IsStrNum(const std::string& str);
 void utf8ToGbk(std::string& strUtf8);
 void gbkToUtf8(std::string& strGbk);
 
+QString ToQString(double val);
+QString ToQString(int val);
+
 #define  MOMENTUM_POS 0
 
 #define  DEFAULT_MAINKWALL_TYPE_PERIOD  TypePeriod::PERIOD_DAY
