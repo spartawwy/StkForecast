@@ -340,7 +340,7 @@ void MainWindow::keyPressEvent(QKeyEvent *e)
             else
                 sprintf_s(tmpbuf, sizeof(tmpbuf), "%c", char(e->key()+32));
             stock_input_dlg_.ui.stock_input->setText(tmpbuf);
-			stock_input_dlg_.show();
+            stock_input_dlg_.showNormal();
         } break;
 
         default:
