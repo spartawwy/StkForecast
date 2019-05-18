@@ -56,7 +56,7 @@ void TrainDlg::OnCalendarClicked(const QDate & date)
     ui.le_date->setText(date.toString("yyyyMMdd"));
 }
 
-void TrainDlg::closeEvent(QCloseEvent * event)
+void TrainDlg::closeEvent(QCloseEvent * /*event*/)
 {
     main_win_->is_train_mode(false);
     parent_->k_rend_index_for_train_ = 0;
@@ -122,9 +122,11 @@ void TrainDlg::OnStartTrain()
 
     int date = ui.le_date->text().toInt();
     parent_->SetTrainStartDate(date);
+
+    main_win_->SubKlineWall()->SetTrainStartDate(date);
     main_win_->SubKlineWall()->right_clicked_k_date(date);
     main_win_->SubKlineWall()->slotOpenRelatedSubKwall(false);
-    main_win_->SubKlineWall()->SetTrainStartDate(date);
+    
 
     is_started_ = true;
 }
@@ -400,7 +402,7 @@ void TrainDlg::PrintTradeRecords()
     ui.plain_te_record->clear();
 
     QString records_str;
-    for(int i = 0; i < trade_records_.size(); ++i )
+    for(unsigned int i = 0; i < trade_records_.size(); ++i )
     {
         records_str.append(trade_records_.at(i).ToQStr());
         records_str.append("\n");

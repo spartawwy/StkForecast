@@ -68,15 +68,21 @@ bool TdxHqWrapper::ConnectServer()
 // items date is from small to big
 bool TdxHqWrapper::GetHisKBars(const std::string &code, bool is_index, TypePeriod kbar_type, int start_date, int end_date, std::vector<T_StockHisDataItem> &items)
 {  
+    static auto get_indexs_one_day = [](TypePeriod type_period)->int
+    { 
+        switch( type_period )
+        { 
+        case TypePeriod::PERIOD_HOUR:  return 4;
+        case TypePeriod::PERIOD_30M: return 8;
+        case TypePeriod::PERIOD_15M: return 16; 
+        case TypePeriod::PERIOD_5M: return 16*3;  
+        default: return 1;
+        }
+    };
+
     std::vector<T_K_Data> resut;
     const int cst_result_len = 1024 * 1024;
     const int cst_err_len = 1024; 
-
-    char* m_szResult = new char[cst_result_len];
-    char* m_szErrInfo = new char[cst_err_len];
-
-    memset(m_szResult, 0, cst_result_len);
-    memset(m_szErrInfo, 0, cst_err_len);
      
     int market_type = MARKET_TYPE_SH;
     if( is_index )
@@ -89,28 +95,27 @@ bool TdxHqWrapper::GetHisKBars(const std::string &code, bool is_index, TypePerio
         market_type = MARKET_TYPE_SH;
     else 
         market_type = MARKET_TYPE_SZ;
-
+    // 因为有个股停牌情况,所以 计算日期目标 不一定准确
     auto tuple_index_len = exchange_calendar_->GetStartIndexAndLen_backforward(kbar_type, start_date, end_date);
     
     //const short max_count = MAX_K_COUNT;
     short start = std::get<0>(tuple_index_len);  // back forward
-    short count = std::get<1>(tuple_index_len);
+    const short count = std::get<1>(tuple_index_len);
 #if 1
     short local_count = MAX_K_COUNT;
+    short total_get = 0;
+#if 0
     start += count % MAX_K_COUNT;
     if( count / MAX_K_COUNT > 0 )
         start += (count / MAX_K_COUNT - 1) * MAX_K_COUNT;
-
-    short total_get = 0;
     for( int i = count / MAX_K_COUNT ; i > 0; --i )
     {
         local_count = MAX_K_COUNT;
         __GetHisKBars(code, is_index, kbar_type, start, local_count, items);
         if( i > 1 )
-            start -= MAX_K_COUNT;
+            start -= local_count;
         total_get += local_count;
-    }
-
+    } 
     if( count % MAX_K_COUNT > 0 )
     {
         start -= count % MAX_K_COUNT;
@@ -118,10 +123,37 @@ bool TdxHqWrapper::GetHisKBars(const std::string &code, bool is_index, TypePerio
         __GetHisKBars(code, is_index, kbar_type, start, local_count, items);
         total_get += local_count;
     }
-
+#else
+    start += count;
+    int max_count = 999;
+    int temp_count = count;
+    while( temp_count > 0 && total_get < temp_count && --max_count > 0 )
+    {
+        //-----------it doesn't work. why ? ----------
+        //if( temp_count - total_get > MAX_K_COUNT )
+        //    local_count = MAX_K_COUNT; // set max to get
+        //else  
+        //    local_count = temp_count - total_get;
+        //-----------------------------------------------
+        local_count = MAX_K_COUNT; // if set to (temp_count - total_get) may filter some day k line , why  ? 
+        __GetHisKBars(code, is_index, kbar_type, start, local_count, items); // local_count ret real count get 
+        if( local_count < 1 && kbar_type != TypePeriod::PERIOD_DAY ) 
+            start -= get_indexs_one_day(kbar_type);
+        else
+        {
+            start -= local_count;
+            total_get += local_count;
+        }
+    }
+#endif 
     return total_get > 0;
 
 #else 
+    char* m_szResult = new char[cst_result_len];
+    char* m_szErrInfo = new char[cst_err_len];
+     
+    memset(m_szResult, 0, cst_result_len);
+    memset(m_szErrInfo, 0, cst_err_len);
     bool (WINAPI* pFuncGetSecurityKData)(int nConnID,
         char nCategory,
         char nMarket,
@@ -251,6 +283,8 @@ bool TdxHqWrapper::GetHisKBars(const std::string &code, bool is_index, TypePerio
             qDebug() << "match fail!\n";
     }
     //std::cout << m_szResult << std::endl;
+    delete []m_szResult;
+    delete []m_szErrInfo;
     return true;
 #endif
 }
@@ -270,6 +304,7 @@ bool TdxHqWrapper::GetLatestKBar(const std::string &code, bool is_index, TypePer
 // items date is from small to big
 bool TdxHqWrapper::__GetHisKBars(const std::string &code, bool is_index, TypePeriod kbar_type, short start, short &count, std::vector<T_StockHisDataItem> &items)
 {  
+    bool result = true;
     bool (WINAPI* pFuncGetSecurityKData)(int nConnID,
         char nCategory,
         char nMarket,
@@ -332,6 +367,8 @@ bool TdxHqWrapper::__GetHisKBars(const std::string &code, bool is_index, TypePer
         ktype = 4; 
         break;
     }
+do 
+{ 
     bool bool1 = pFuncGetSecurityKData(conn_handle_, ktype, market_type, const_cast<char*>(code.c_str()), start, &count, m_szResult, m_szErrInfo);
     if( !bool1 )
     { 
@@ -339,14 +376,21 @@ bool TdxHqWrapper::__GetHisKBars(const std::string &code, bool is_index, TypePer
         {
             bool1 = pFuncGetSecurityKData(conn_handle_, ktype, market_type, const_cast<char*>(code.c_str()), start, &count, m_szResult, m_szErrInfo);
             if( !bool1 )
-                return false;
+            {
+                result = false;
+                break;
+            }
         } else
-            return false;
+        {
+            result = false;
+            break;
+        }
     }
     if( strlen(m_szResult) < 1 )
     {
         std::cout << " result empty !" << std::endl;
-        return false;
+        result = false;
+        break;
     }
     qDebug() << m_szResult << "\n";
 
@@ -423,5 +467,12 @@ bool TdxHqWrapper::__GetHisKBars(const std::string &code, bool is_index, TypePer
             qDebug() << "match fail!\n";
     }
     //std::cout << m_szResult << std::endl;
-    return true;
+    result = true; 
+
+} while (0);
+
+    delete []m_szResult;
+    delete []m_szErrInfo;
+
+    return result;
 }

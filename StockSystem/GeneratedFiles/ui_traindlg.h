@@ -86,11 +86,11 @@ public:
         pbtnSell->setFont(font);
         pbtnNextK = new QPushButton(TrainDlgForm);
         pbtnNextK->setObjectName(QStringLiteral("pbtnNextK"));
-        pbtnNextK->setGeometry(QRect(40, 100, 75, 23));
+        pbtnNextK->setGeometry(QRect(150, 100, 75, 23));
         pbtnNextK->setFont(font);
         pbtnPreK = new QPushButton(TrainDlgForm);
         pbtnPreK->setObjectName(QStringLiteral("pbtnPreK"));
-        pbtnPreK->setGeometry(QRect(150, 100, 75, 23));
+        pbtnPreK->setGeometry(QRect(40, 100, 75, 23));
         pbtnPreK->setFont(font);
         label_3 = new QLabel(TrainDlgForm);
         label_3->setObjectName(QStringLiteral("label_3"));

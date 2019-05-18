@@ -1516,8 +1516,24 @@ void KLineWall::slotOpenRelatedSubKwall(bool)
     main_win_->tool_bar()->SetShowSubKwallBtn(true);
 }
 
+bool KLineWall::ResetStock(const QString& code, TypePeriod type_period, bool is_index)
+{
+    auto date_time = GetKDataTargetDateTime(type_period, QDate::currentDate(), QTime::currentTime(), WOKRPLACE_DEFUALT_K_NUM);
+    return Reset_Stock(code, type_period, is_index_, std::get<0>(date_time));
+}
+
+bool KLineWall::ResetStock(const QString& code, const QString& code_name, TypePeriod type_period, bool is_index)
+{
+   if( ResetStock(code, type_period, is_index) )
+   {
+       stock_name_ = code_name.toLocal8Bit().data(); 
+       return true;
+   }else
+       return false;
+}
+
 // ps : it may update k data's current data   
-bool KLineWall::ResetStock(const QString& stock, TypePeriod type_period, bool is_index)
+bool KLineWall::Reset_Stock(const QString& stock, TypePeriod type_period, bool is_index, int start_date)
 {   
     T_HisDataItemContainer & items_in_container = app_->stock_data_man().GetHisDataContainer(ToPeriodType(k_type_), stock.toLocal8Bit().data());
 
@@ -1585,9 +1601,9 @@ bool KLineWall::ResetStock(const QString& stock, TypePeriod type_period, bool is
     }
     start_date = QDate::currentDate().addDays(span_day).toString("yyyyMMdd").toInt();
 #endif
-    auto date_time = GetKDataTargetDateTime(type_period, QDate::currentDate(), QTime::currentTime());
-    int start_date = std::get<0>(date_time);
-    int hhmm = std::get<1>(date_time);
+    //auto date_time = GetKDataTargetDateTime(type_period, QDate::currentDate(), QTime::currentTime(), WOKRPLACE_DEFUALT_K_NUM);
+    //int start_date = std::get<0>(date_time);
+    int hhmm = GetKDataTargetTime(type_period);
     // find his k data which till cur hhmm --------------
     p_hisdata_container_ = app_->stock_data_man().FindStockData(ToPeriodType(k_type_), stock_code_, start_date, cur_date, hhmm, is_index);
     if( !p_hisdata_container_ )
@@ -1605,7 +1621,11 @@ bool KLineWall::ResetStock(const QString& stock, TypePeriod type_period, bool is
     this->is_index_ = is_index;
     if( !p_hisdata_container_->empty() )
     {
-        if( p_hisdata_container_->size() > 180 )
+        if( p_hisdata_container_->size() > 720 )
+            k_num_ = p_hisdata_container_->size() / 10;
+        if( p_hisdata_container_->size() > 360 )
+            k_num_ = p_hisdata_container_->size() / 6;
+        else if( p_hisdata_container_->size() > 180 )
             k_num_ = p_hisdata_container_->size() / 3;
         else if( p_hisdata_container_->size() > 60 )
             k_num_ = p_hisdata_container_->size() / 2;
@@ -1685,9 +1705,9 @@ void KLineWall::UpdateIfNecessary()
     if( !app_->exchange_calendar()->IsTradeDate(cur_date) || !app_->exchange_calendar()->IsTradeTime(cur_hhmm) )
         return;
 #endif
-    auto date_time = GetKDataTargetDateTime(k_type_, QDate::currentDate(), QTime::currentTime());
+    //auto date_time = GetKDataTargetTime(k_type_, QDate::currentDate(), QTime::currentTime());
     //int start_date = std::get<0>(date_time);
-    int hhmm = std::get<1>(date_time);
+    int hhmm = GetKDataTargetTime(k_type_);
     
     
     // find if pre his k data  exists --------------
@@ -1730,11 +1750,22 @@ void KLineWall::SetTrainStartDate(int date)
     {
         k_rend_index_ = target_r_end_index; 
         k_rend_index_for_train_ = target_r_end_index; 
-        k_num_ = WOKRPLACE_DEFUALT_K_NUM;
     }else
     {
-        k_rend_index_for_train_ = p_hisdata_container_->size() > 0 ? p_hisdata_container_->size() - 1 : 0;
-        k_num_ = 0;
+        QDate qdate_obj(date/10000, (date%10000)/100, date%100);
+        const int start_date = qdate_obj.addDays( -1 * (4 * 30) ).toString("yyyyMMdd").toInt(); 
+        AppendPreData(start_date);
+        target_r_end_index = FindKRendIndex(p_hisdata_container_, date);
+        if( target_r_end_index > -1 )
+        {
+            k_rend_index_ = target_r_end_index; 
+            k_rend_index_for_train_ = target_r_end_index; 
+            //k_num_ = WOKRPLACE_DEFUALT_K_NUM;
+        }else
+        {
+            k_rend_index_for_train_ = p_hisdata_container_->size() > 0 ? p_hisdata_container_->size() - 1 : 0;
+            k_num_ = 0;
+        }
     }
     k_cur_train_date_ = (*(p_hisdata_container_->rbegin() + k_rend_index_for_train_))->stk_item.date;
 

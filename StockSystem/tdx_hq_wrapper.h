@@ -25,5 +25,5 @@ private:
     ExchangeCalendar  *exchange_calendar_;
 };
 
-#define  MAX_K_COUNT 800
+#define  MAX_K_COUNT 800 // 虽然(TdxHq_GetSecurityBars TdxHq_GetIndexBars)接口说明最大值 800, 但实际测试为 420
 #endif

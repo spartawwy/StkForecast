@@ -901,6 +901,7 @@ void TraverseAjustFractal( std::deque<std::shared_ptr<T_KlineDataItem> > &kline_
     while( --index > 0 )
     {
         int frac_date = kline_data_items[index]->stk_item.date; 
+        frac_date = frac_date; // debug
         if( kline_data_items[index]->type == (int)FractalType::UNKNOW_FRACTAL )
             continue;
         if( IsBtmFractal(kline_data_items[index]->type) ) // btm frac
@@ -987,6 +988,7 @@ void TraverseAjustFractal( std::deque<std::shared_ptr<T_KlineDataItem> > &kline_
         if( IsTopFractal(kline_data_items[index]->type) ) // top frac
         {
             int frac_date = kline_data_items[index]->stk_item.date; 
+            frac_date = frac_date; //debug
             int top_index = find_left_top_frac(kline_data_items, index);
             int btm_index = find_left_btm_frac(kline_data_items, index);
             if( top_index > btm_index ) // left top fram is nearby
@@ -1560,7 +1562,6 @@ void StockDataMan::TraversGetSections(PeriodType period_type, const std::string 
 
     T_SectionContainer &container = GetStructSectionContainer(period_type, code); 
     container.clear();
-    unsigned int index = kline_data_items.size();
     // toward left 
     // todo:---------- 
     //  set line_count = 0;

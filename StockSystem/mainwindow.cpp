@@ -64,7 +64,14 @@ bool MainWindow::Initialize()
     // https://blog.csdn.net/qq_28093585/article/details/78517358
     this->setWindowFlags(Qt::FramelessWindowHint);  
     this->setGeometry(100, 100, cst_win_width, cst_win_height);
-
+#ifndef _DEBUG
+    auto cur_date = QDate::currentDate().year() * 10000 + QDate::currentDate().month() * 100 + QDate::currentDate().day();
+    if( cur_date > 20191225 )
+    {
+        QMessageBox::information(nullptr, QString::fromLocal8Bit("提示"), QString::fromLocal8Bit("软件已经到期!请联系249564063@qq.com")); 
+        return false;
+    }
+#endif
     QWidget *wd = new QWidget(this);  
     QVBoxLayout *layout_all = new QVBoxLayout;  
     layout_all->setContentsMargins(0,0,0,0);  

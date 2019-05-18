@@ -56,17 +56,18 @@ public:
 
     PeriodType ToPeriodType(TypePeriod src);
     
+    bool ResetStock(const QString& code, TypePeriod type_period, bool is_index);
+    bool ResetStock(const QString& code, const QString& code_name, TypePeriod type_period, bool is_index);
+    bool ResetStock(const QString& code, const QString& code_name, bool is_index)
+    {
+        return ResetStock(code, code_name, k_type_, is_index);
+    }
+
     double GetCurWinKLargetstVol();
 
     int HeadHeight() { return int(height() * head_h_percent_); }
     int BottomHeight() { return int(height() * bottom_h_percent_); }
-
-    void ResetStock(const QString& stock, const QString& name, bool is_index) 
-    { 
-       if( ResetStock(stock, k_type_, is_index) )
-           stock_name_ = name.toLocal8Bit().data();
-    }
-      
+     
     void DoIfForcastLineNearbyCursor(QMouseEvent &e);
 
     void ShowDurationKlines(int date);
@@ -81,6 +82,7 @@ public:
     int k_cur_train_date() { return k_cur_train_date_; }
 
     void Set_Cursor(Qt::CursorShape sp);
+
 
 public slots:
     void slotOpenRelatedSubKwall(bool);
@@ -104,11 +106,10 @@ private slots:
     void slotZoominSelect(bool);
 
     //void slotTbvTasksContextMenu(QPoint);
-
      
 private: 
       
-    bool ResetStock(const QString& stock, TypePeriod type_period, bool is_index=false);
+    bool Reset_Stock(const QString& stock, TypePeriod type_period, bool is_index, int oldest_date);
     void AppendData();
     void AppendPreData(int date);
     
@@ -234,8 +235,12 @@ private:
     friend class TrainDlg;
 };
 
+int CalculateSpanDays(TypePeriod type_period, int k_count);
 // ret: <date, hhmm>
-std::tuple<int, int> GetKDataTargetDateTime(TypePeriod type_period, QDate date, QTime time);
+std::tuple<int, int> GetKDataTargetDateTime(TypePeriod type_period, QDate & date, QTime &time, int k_count);
+std::tuple<int, int> GetKDataTargetDateTime(TypePeriod type_period, int end_date, int tmp_hhmm, int max_k_count);
+// ret: hhmm
+int GetKDataTargetTime(TypePeriod type_period);
 
 int FindKRendIndex(T_HisDataItemContainer *p_hisdata_container, int date_val);
 

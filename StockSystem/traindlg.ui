@@ -104,7 +104,7 @@
   <widget class="QPushButton" name="pbtnNextK">
    <property name="geometry">
     <rect>
-     <x>40</x>
+     <x>150</x>
      <y>100</y>
      <width>75</width>
      <height>23</height>
@@ -122,7 +122,7 @@
   <widget class="QPushButton" name="pbtnPreK">
    <property name="geometry">
     <rect>
-     <x>150</x>
+     <x>40</x>
      <y>100</y>
      <width>75</width>
      <height>23</height>

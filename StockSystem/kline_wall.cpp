@@ -60,7 +60,7 @@ void KLineWall::RestTypePeriod(TypePeriod  type)
 { 
     if( k_type_ == type )
         return;
-    switch( type )
+    /*switch( type )
     {
     case TypePeriod::PERIOD_5M:
     case TypePeriod::PERIOD_15M:
@@ -71,7 +71,8 @@ void KLineWall::RestTypePeriod(TypePeriod  type)
     case TypePeriod::PERIOD_MON:
         ResetStock(stock_code_.c_str(), type, is_index_);
         break;
-    }
+    }*/
+    ResetStock(stock_code_.c_str(), type, is_index_);
 }
 
 void KLineWall::UpdateKwallMinMaxPrice()
@@ -147,6 +148,12 @@ bool KLineWall::GetContainerMaxMinPrice(PeriodType period_type, const std::strin
     unsigned int end_index = container.size() - 1 > 0 ? container.size() - 1 - k_rend_index_ : 0;
     if( end_index < 0 )
         end_index = 0;
+    if( end_index < start_index )
+    {
+        unsigned int temp_val = end_index;
+        end_index = start_index;
+        start_index = temp_val;
+    }
     float highest_price = MIN_PRICE;
     float lowest_price = MAX_PRICE;
     int highest_price_date = 0;
@@ -291,7 +298,76 @@ void KLineWall::ClearForcastData()
 
 
 // ret: <date, hhmm>
-std::tuple<int, int> GetKDataTargetDateTime(TypePeriod type_period, QDate date, QTime time)
+std::tuple<int, int> GetKDataTargetDateTime(TypePeriod type_period, QDate & date, QTime &time, int k_count)
+{
+    return GetKDataTargetDateTime(type_period, date.toString("yyyyMMdd").toInt(), time.hour() * 100 + time.minute(), k_count);
+
+}
+
+int CalculateSpanDays(TypePeriod type_period, int k_count)
+{
+    int span_day = 0;
+    switch( type_period )
+    {
+    case TypePeriod::PERIOD_YEAR: 
+        {
+            if( k_count < 2 )
+                span_day = -365;
+            else
+                span_day = -1 * k_count * 365;
+        }break;
+    case TypePeriod::PERIOD_MON:
+        {
+            if( k_count < 2 )
+                span_day = -31;
+            else
+                span_day = -1 * (k_count * 30);
+        }break;
+    case TypePeriod::PERIOD_DAY:
+        span_day = -1 * (k_count * 3 / 2);
+        break;
+    case TypePeriod::PERIOD_WEEK:
+        span_day = -1 * (k_count * 30 / 20);
+        break;
+    case TypePeriod::PERIOD_HOUR:  // ndchk 
+        {
+            if( k_count * 30 / (20 * 4) < 1 )
+                span_day = -1;
+            else
+                span_day = -1 * (k_count * 30 / (20 * 4));
+            break;
+        }
+    case TypePeriod::PERIOD_30M:
+        {
+            if( k_count * 30 / (20 * 4 * 2) < 1 )
+                span_day = -1;
+            else
+                span_day = -1 * (k_count * 30 / (20 * 4 * 2)); 
+            break;
+        }
+    case TypePeriod::PERIOD_15M:
+        {
+            if( k_count * 30 / (20 * 4 * 2 * 2) < 1 )
+                span_day = -1;
+            else
+                span_day = -1 * (k_count * 30 / (20 * 4 * 2 * 2));
+            break;
+        }
+    case TypePeriod::PERIOD_5M:
+        {
+            if( k_count * 30 / (20 * 4 * 2 * 2 * 3) < 1 )
+                span_day = -1;
+            else
+                span_day = -1 * (k_count * 30 / (20 * 4 * 2 * 2 * 3)); 
+            break;
+        }
+    default:assert(false);
+    }
+    return span_day;
+}
+
+ 
+std::tuple<int, int> GetKDataTargetDateTime(TypePeriod type_period, int end_date, int tmp_hhmm, int max_k_count)
 {
     static auto get_hhmm = [](int hhmm_para, int *tp_array, int num)->int
     {
@@ -304,26 +380,23 @@ std::tuple<int, int> GetKDataTargetDateTime(TypePeriod type_period, QDate date, 
         return tp_array[num-1];
     };
 
-    // 20 k line per 30 days
-    int start_date = 0;
-    int span_day = 0;
-    int hhmm = 0; 
-    int tmp_hhmm = time.hour() * 100 + time.minute();
-
+    // 20 k line per 30 days 
+    int span_day = CalculateSpanDays(type_period, max_k_count);
+    int hhmm = 0;
     //std::array<int, 4> hour_array = {1030, 1300, 1400, 1500};
     switch( type_period )
     {
     case TypePeriod::PERIOD_YEAR: 
     case TypePeriod::PERIOD_MON:
-        span_day = -1 * 365 * 10;
+        //span_day = -1 * 365 * 10;
         break;
     case TypePeriod::PERIOD_DAY:
     case TypePeriod::PERIOD_WEEK:
-        span_day = -1 * (WOKRPLACE_DEFUALT_K_NUM * 30 / 20);
+        //span_day = -1 * (WOKRPLACE_DEFUALT_K_NUM * 30 / 20);
         break;
     case TypePeriod::PERIOD_HOUR:  // ndchk 
         {
-            span_day = -1 * (WOKRPLACE_DEFUALT_K_NUM * 30 / (20 * 4));
+            //span_day = -1 * (WOKRPLACE_DEFUALT_K_NUM * 30 / (20 * 4));
             //10:30 13:00 14:00 15:00
             int tp_array[] = { 1030, 1300, 1400, 1500 };
             hhmm = get_hhmm(tmp_hhmm, tp_array, sizeof(tp_array)/sizeof(tp_array[0]));
@@ -331,21 +404,21 @@ std::tuple<int, int> GetKDataTargetDateTime(TypePeriod type_period, QDate date, 
         }
     case TypePeriod::PERIOD_30M:
         {
-            span_day = -1 * (WOKRPLACE_DEFUALT_K_NUM * 30 / (20 * 4 * 2)); 
+            //span_day = -1 * (WOKRPLACE_DEFUALT_K_NUM * 30 / (20 * 4 * 2)); 
             int tp_array[] = { 1000, 1030, 1100, 1130, 1330, 1400, 1430, 1500 };
             hhmm = get_hhmm(tmp_hhmm, tp_array, sizeof(tp_array)/sizeof(tp_array[0]));
             break;
         }
     case TypePeriod::PERIOD_15M:
         {
-            span_day = -1 * (WOKRPLACE_DEFUALT_K_NUM * 30 / (20 * 4 * 2 * 2));  
+            //span_day = -1 * (WOKRPLACE_DEFUALT_K_NUM * 30 / (20 * 4 * 2 * 2));  
             int tp_array[] = { 945, 1000, 1015, 1030, 1045, 1100, 1115, 1130, 1315, 1330, 1345, 1400, 1415, 1430, 1445, 1500};
             hhmm = get_hhmm(tmp_hhmm, tp_array, sizeof(tp_array)/sizeof(tp_array[0]));
             break;
         }
     case TypePeriod::PERIOD_5M:
         {
-            span_day = -1 * (WOKRPLACE_DEFUALT_K_NUM * 30 / (20 * 4 * 2 * 2 * 3));
+            //span_day = -1 * (WOKRPLACE_DEFUALT_K_NUM * 30 / (20 * 4 * 2 * 2 * 3));
             int tp_array[] = {935,940,945,950,955,1000,1005,1010,1015,1020,1025,1030,1035,1040,1045,1050,1055,1100,1105
                 ,1110,1115,1120,1125,1130,1305,1310,1315,1320,1325,1330,1335,1340,1345,1350,1355,1400,1405
                 ,1410,1415,1420,1425,1430,1435,1440,1445,1450,1455,1500};
@@ -353,8 +426,35 @@ std::tuple<int, int> GetKDataTargetDateTime(TypePeriod type_period, QDate date, 
             break;
         }
     }
-    start_date = date.addDays(span_day).toString("yyyyMMdd").toInt();
+    QDate q_date(end_date/10000, (end_date%10000)/100, end_date%100);
+    int start_date = q_date.addDays(span_day).toString("yyyyMMdd").toInt();
     return std::make_tuple(start_date, hhmm);
+}
+
+int GetKDataTargetTime(TypePeriod type_period)
+{ 
+    int hhmm = 0;  
+    switch( type_period )
+    {
+    case TypePeriod::PERIOD_YEAR: 
+    case TypePeriod::PERIOD_MON: 
+    case TypePeriod::PERIOD_DAY:
+    case TypePeriod::PERIOD_WEEK: 
+        break;
+    case TypePeriod::PERIOD_HOUR:   
+        hhmm = 1030;
+        break; 
+    case TypePeriod::PERIOD_30M: 
+        hhmm = 1000;
+        break; 
+    case TypePeriod::PERIOD_15M: 
+        hhmm = 945;
+        break; 
+    case TypePeriod::PERIOD_5M: 
+        hhmm = 935;
+        break; 
+    }
+    return hhmm;
 }
 
 // ps: from p_hisdata_container back to front
@@ -372,10 +472,11 @@ int FindKRendIndex(T_HisDataItemContainer *p_hisdata_container, int date_val)
         {
             is_find = true;
             break;
-        }else if( abs(iter->get()->stk_item.date - date_val) < near_span )
+        }else if( iter->get()->stk_item.date < date_val )
         {
-            near_span = abs(iter->get()->stk_item.date - date_val);
+            near_span = date_val - iter->get()->stk_item.date;
             near_j = j;
+            break;
         }
 
     }
