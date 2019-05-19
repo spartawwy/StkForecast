@@ -237,8 +237,7 @@ private:
 
 int CalculateSpanDays(TypePeriod type_period, int k_count);
 // ret: <date, hhmm>
-std::tuple<int, int> GetKDataTargetDateTime(TypePeriod type_period, QDate & date, QTime &time, int k_count);
-std::tuple<int, int> GetKDataTargetDateTime(TypePeriod type_period, int end_date, int tmp_hhmm, int max_k_count);
+std::tuple<int, int> GetKDataTargetDateTime(ExchangeCalendar &exch_calender, TypePeriod type_period, int end_date, int tmp_hhmm, int max_k_count);
 // ret: hhmm
 int GetKDataTargetTime(TypePeriod type_period);
 

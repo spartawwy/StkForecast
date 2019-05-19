@@ -107,8 +107,16 @@ T_TupleIndexLen ExchangeCalendar::GetStartIndexAndLen_backforward(TypePeriod typ
 {
     assert(trade_dates_->size() > 0);
     assert(start_date <= end_date);
-    const int today = TSystem::Today();
 
+    time_t rawtime;
+    struct tm * timeinfo;
+    time( &rawtime );
+    timeinfo = localtime( &rawtime ); 
+    int today = TSystem::Today();
+    if( timeinfo->tm_hour * 100 + timeinfo->tm_min < 930 )
+    {
+        today = DateAddDays(today, -1);
+    }
     const int latest_trade_date = FloorTradeDate(today);
 
     int actual_start_date = CeilingTradeDate(start_date);

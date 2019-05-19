@@ -1517,8 +1517,9 @@ void KLineWall::slotOpenRelatedSubKwall(bool)
 }
 
 bool KLineWall::ResetStock(const QString& code, TypePeriod type_period, bool is_index)
-{
-    auto date_time = GetKDataTargetDateTime(type_period, QDate::currentDate(), QTime::currentTime(), WOKRPLACE_DEFUALT_K_NUM);
+{  
+    auto date_time = GetKDataTargetDateTime(*app_->exchange_calendar(), type_period
+        , QDate::currentDate().toString("yyyyMMdd").toInt(), QTime::currentTime().hour() * 100 + QTime::currentTime().minute(), WOKRPLACE_DEFUALT_K_NUM);
     return Reset_Stock(code, type_period, is_index, std::get<0>(date_time));
 }
 
@@ -1548,7 +1549,11 @@ bool KLineWall::Reset_Stock(const QString& stock, TypePeriod type_period, bool i
     stock_code_ = stock.toLocal8Bit().data(); 
     k_type_ = type_period;
     
-    auto cur_date = QDate::currentDate().year() * 10000 + QDate::currentDate().month() * 100 + QDate::currentDate().day();
+    int cur_date = QDate::currentDate().year() * 10000 + QDate::currentDate().month() * 100 + QDate::currentDate().day();
+    if( QTime::currentTime().hour() * 100 + QTime::currentTime().minute() < 930 )
+    {
+        cur_date = QDate::currentDate().addDays(-1).toString("yyyyMMdd").toInt();
+    }
 #if 0
     // 20 k line per 30 days
     int start_date = 0;
@@ -1601,8 +1606,6 @@ bool KLineWall::Reset_Stock(const QString& stock, TypePeriod type_period, bool i
     }
     start_date = QDate::currentDate().addDays(span_day).toString("yyyyMMdd").toInt();
 #endif
-    //auto date_time = GetKDataTargetDateTime(type_period, QDate::currentDate(), QTime::currentTime(), WOKRPLACE_DEFUALT_K_NUM);
-    //int start_date = std::get<0>(date_time);
     int hhmm = GetKDataTargetTime(type_period);
     // find his k data which till cur hhmm --------------
     p_hisdata_container_ = app_->stock_data_man().FindStockData(ToPeriodType(k_type_), stock_code_, start_date, cur_date, hhmm, is_index);

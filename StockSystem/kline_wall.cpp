@@ -298,10 +298,9 @@ void KLineWall::ClearForcastData()
 
 
 // ret: <date, hhmm>
-std::tuple<int, int> GetKDataTargetDateTime(TypePeriod type_period, QDate & date, QTime &time, int k_count)
+std::tuple<int, int> GetKDataTargetDateTime(ExchangeCalendar &exch_calender, TypePeriod type_period, QDate & date, QTime &time, int k_count)
 {
-    return GetKDataTargetDateTime(type_period, date.toString("yyyyMMdd").toInt(), time.hour() * 100 + time.minute(), k_count);
-
+    return GetKDataTargetDateTime(exch_calender, type_period, date.toString("yyyyMMdd").toInt(), time.hour() * 100 + time.minute(), k_count);
 }
 
 int CalculateSpanDays(TypePeriod type_period, int k_count)
@@ -367,7 +366,7 @@ int CalculateSpanDays(TypePeriod type_period, int k_count)
 }
 
  
-std::tuple<int, int> GetKDataTargetDateTime(TypePeriod type_period, int end_date, int tmp_hhmm, int max_k_count)
+std::tuple<int, int> GetKDataTargetDateTime(ExchangeCalendar &exch_calender, TypePeriod type_period, int end_date, int tmp_hhmm, int max_k_count)
 {
     static auto get_hhmm = [](int hhmm_para, int *tp_array, int num)->int
     {
@@ -379,24 +378,20 @@ std::tuple<int, int> GetKDataTargetDateTime(TypePeriod type_period, int end_date
         }
         return tp_array[num-1];
     };
+    int pre_days = CalculateSpanDays(type_period, max_k_count);
 
-    // 20 k line per 30 days 
-    int span_day = CalculateSpanDays(type_period, max_k_count);
+    int start_date = exch_calender.PreTradeDate(end_date, abs(pre_days));
+     
     int hhmm = 0;
-    //std::array<int, 4> hour_array = {1030, 1300, 1400, 1500};
     switch( type_period )
     {
     case TypePeriod::PERIOD_YEAR: 
     case TypePeriod::PERIOD_MON:
-        //span_day = -1 * 365 * 10;
-        break;
     case TypePeriod::PERIOD_DAY:
     case TypePeriod::PERIOD_WEEK:
-        //span_day = -1 * (WOKRPLACE_DEFUALT_K_NUM * 30 / 20);
         break;
     case TypePeriod::PERIOD_HOUR:  // ndchk 
         {
-            //span_day = -1 * (WOKRPLACE_DEFUALT_K_NUM * 30 / (20 * 4));
             //10:30 13:00 14:00 15:00
             int tp_array[] = { 1030, 1300, 1400, 1500 };
             hhmm = get_hhmm(tmp_hhmm, tp_array, sizeof(tp_array)/sizeof(tp_array[0]));
@@ -404,21 +399,18 @@ std::tuple<int, int> GetKDataTargetDateTime(TypePeriod type_period, int end_date
         }
     case TypePeriod::PERIOD_30M:
         {
-            //span_day = -1 * (WOKRPLACE_DEFUALT_K_NUM * 30 / (20 * 4 * 2)); 
             int tp_array[] = { 1000, 1030, 1100, 1130, 1330, 1400, 1430, 1500 };
             hhmm = get_hhmm(tmp_hhmm, tp_array, sizeof(tp_array)/sizeof(tp_array[0]));
             break;
         }
     case TypePeriod::PERIOD_15M:
         {
-            //span_day = -1 * (WOKRPLACE_DEFUALT_K_NUM * 30 / (20 * 4 * 2 * 2));  
             int tp_array[] = { 945, 1000, 1015, 1030, 1045, 1100, 1115, 1130, 1315, 1330, 1345, 1400, 1415, 1430, 1445, 1500};
             hhmm = get_hhmm(tmp_hhmm, tp_array, sizeof(tp_array)/sizeof(tp_array[0]));
             break;
         }
     case TypePeriod::PERIOD_5M:
         {
-            //span_day = -1 * (WOKRPLACE_DEFUALT_K_NUM * 30 / (20 * 4 * 2 * 2 * 3));
             int tp_array[] = {935,940,945,950,955,1000,1005,1010,1015,1020,1025,1030,1035,1040,1045,1050,1055,1100,1105
                 ,1110,1115,1120,1125,1130,1305,1310,1315,1320,1325,1330,1335,1340,1345,1350,1355,1400,1405
                 ,1410,1415,1420,1425,1430,1435,1440,1445,1450,1455,1500};
@@ -426,8 +418,8 @@ std::tuple<int, int> GetKDataTargetDateTime(TypePeriod type_period, int end_date
             break;
         }
     }
-    QDate q_date(end_date/10000, (end_date%10000)/100, end_date%100);
-    int start_date = q_date.addDays(span_day).toString("yyyyMMdd").toInt();
+    /*QDate q_date(end_date/10000, (end_date%10000)/100, end_date%100);
+    int start_date = q_date.addDays(span_day).toString("yyyyMMdd").toInt();*/
     return std::make_tuple(start_date, hhmm);
 }
 
