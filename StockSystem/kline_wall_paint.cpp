@@ -1519,7 +1519,7 @@ void KLineWall::slotOpenRelatedSubKwall(bool)
 bool KLineWall::ResetStock(const QString& code, TypePeriod type_period, bool is_index)
 {
     auto date_time = GetKDataTargetDateTime(type_period, QDate::currentDate(), QTime::currentTime(), WOKRPLACE_DEFUALT_K_NUM);
-    return Reset_Stock(code, type_period, is_index_, std::get<0>(date_time));
+    return Reset_Stock(code, type_period, is_index, std::get<0>(date_time));
 }
 
 bool KLineWall::ResetStock(const QString& code, const QString& code_name, TypePeriod type_period, bool is_index)

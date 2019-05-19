@@ -104,13 +104,15 @@ bool TdxHqWrapper::GetHisKBars(const std::string &code, bool is_index, TypePerio
 #if 1
     short local_count = MAX_K_COUNT;
     short total_get = 0;
-#if 0
+#if 1
+    
     start += count % MAX_K_COUNT;
     if( count / MAX_K_COUNT > 0 )
         start += (count / MAX_K_COUNT - 1) * MAX_K_COUNT;
     for( int i = count / MAX_K_COUNT ; i > 0; --i )
     {
         local_count = MAX_K_COUNT;
+        // tdx api get data from startindex to left(oldest date):     <---len---0 
         __GetHisKBars(code, is_index, kbar_type, start, local_count, items);
         if( i > 1 )
             start -= local_count;
@@ -124,6 +126,7 @@ bool TdxHqWrapper::GetHisKBars(const std::string &code, bool is_index, TypePerio
         total_get += local_count;
     }
 #else
+    // follow is not work------------
     start += count;
     int max_count = 999;
     int temp_count = count;
@@ -135,10 +138,22 @@ bool TdxHqWrapper::GetHisKBars(const std::string &code, bool is_index, TypePerio
         //else  
         //    local_count = temp_count - total_get;
         //-----------------------------------------------
+       
         local_count = MAX_K_COUNT; // if set to (temp_count - total_get) may filter some day k line , why  ? 
+        if( kbar_type >= TypePeriod::PERIOD_DAY )
+        {
+            if( temp_count - total_get > MAX_K_COUNT )
+                local_count = MAX_K_COUNT; // set max to get
+            else  
+                local_count = temp_count - total_get;
+        }
         __GetHisKBars(code, is_index, kbar_type, start, local_count, items); // local_count ret real count get 
         if( local_count < 1 && kbar_type != TypePeriod::PERIOD_DAY ) 
-            start -= get_indexs_one_day(kbar_type);
+        {
+            int val_to_sub = get_indexs_one_day(kbar_type);
+            start -= val_to_sub;
+            temp_count = val_to_sub;
+        }
         else
         {
             start -= local_count;
@@ -301,7 +316,7 @@ bool TdxHqWrapper::GetLatestKBar(const std::string &code, bool is_index, TypePer
         return false;
 }
 
-// items date is from small to big
+// items date is from small to big; // get data from start index to left(oldest date):     <---len---0 
 bool TdxHqWrapper::__GetHisKBars(const std::string &code, bool is_index, TypePeriod kbar_type, short start, short &count, std::vector<T_StockHisDataItem> &items)
 {  
     bool result = true;
