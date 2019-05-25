@@ -4,6 +4,7 @@
 #include <memory>
 
 #include <QtWidgets/QApplication>
+#include <QThread>
 
 #include <TLib/tool/tsystem_server_client_appbase.h>
 #include <TLib/core/tsystem_communication_common.h>
@@ -36,6 +37,8 @@ public:
 
     MainWindow * main_window() { return main_window_.get(); }
 
+    void UpdateStockData();
+
 protected:
 
     virtual void HandleNodeHandShake(TSystem::communication::Connection* , const TSystem::Message& ) override {};
@@ -52,5 +55,9 @@ private:
 
     std::shared_ptr<StockDataMan>  stock_data_man_;
 
+    bool exit_flag_;
 };
+
+void Delay(__int64 mseconds);
+
 #endif // STK_FORECAST_APP_SDF8533_H_

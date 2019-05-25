@@ -249,6 +249,14 @@ void MainWindow::StockInputDlgRet()
     kline_wall_sub->ResetStock(stock_code_changed, stock_name, is_index);
 }
  
+void MainWindow::UpdateStockData()
+{
+    if( kline_wall_main )
+        kline_wall_main->UpdateIfNecessary();
+    if( kline_wall_sub )
+        kline_wall_sub->UpdateIfNecessary();
+}
+
 void MainWindow::PopTrainDlg()
 {
     assert(train_dlg_);
@@ -359,11 +367,11 @@ void MainWindow::keyPressEvent(QKeyEvent *e)
 void MainWindow::onTimer()
 {
     // updateDateTime();
-    if( ++timer_update_kwall_inter_ % cst_update_kwall_inter == 0 )
+    /*if( ++timer_update_kwall_inter_ % cst_update_kwall_inter == 0 )
     {
-        kline_wall_main->UpdateIfNecessary();
-        kline_wall_sub->UpdateIfNecessary();
-    }
+    kline_wall_main->UpdateIfNecessary();
+    kline_wall_sub->UpdateIfNecessary();
+    }*/
 }
 
 void MainWindow::on_actionExit_triggered()

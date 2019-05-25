@@ -83,9 +83,14 @@ public:
 
     void Set_Cursor(Qt::CursorShape sp);
 
+    void Emit_UpdateKwall() { emit sigUpdateKwall(); }
+
+signals:
+    void sigUpdateKwall();
 
 public slots:
     void slotOpenRelatedSubKwall(bool);
+    void slotUpdateKwall();
 
 protected:
 
@@ -152,6 +157,7 @@ private:
 
     int Calculate_k_mm_h();
 
+
     StkForecastApp *app_;
     MainWindow  *main_win_;
 	Ui_KLineWallForm  ui;
@@ -199,7 +205,7 @@ private:
     int  date_;
     std::string k_date_time_str_;
 
-    DrawAction draw_action_;
+    volatile DrawAction draw_action_;
  
     QPointF drawing_line_A_;
     QPointF drawing_line_B_;

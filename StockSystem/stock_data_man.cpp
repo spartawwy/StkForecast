@@ -274,8 +274,6 @@ T_HisDataItemContainer* StockDataMan::AppendStockData(PeriodType period_type, co
     bool ret = tdx_hq_wrapper_.GetHisKBars(code, is_index, ToTypePeriod(period_type), start_date, end_date, *p_stk_hisdata_item_vector);
     if( !ret || p_data_items.empty() )
     {
-        delete p_stk_hisdata_item_vector_;
-        p_stk_hisdata_item_vector_ = nullptr;
         return std::addressof(items_in_container);
     }
     count = p_stk_hisdata_item_vector->size();

@@ -68,6 +68,8 @@ public:
     bool is_train_mode(){ return is_train_mode_; }
     void is_train_mode(bool val) { is_train_mode_ = val; }
 
+    void UpdateStockData();
+
 protected:
 
     virtual void closeEvent(QCloseEvent * event) override;
@@ -101,7 +103,7 @@ private:
     StockInputDlg  stock_input_dlg_;
 
     TrainDlg *train_dlg_;
-    bool  is_train_mode_;
+    volatile bool  is_train_mode_;
 
 private slots:
 

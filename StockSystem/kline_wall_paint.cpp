@@ -108,6 +108,8 @@ bool KLineWall::Init()
     ret = QObject::connect(action_pop_related_kwall, SIGNAL(triggered(bool)), this, SLOT(slotOpenRelatedSubKwall(bool)));
     k_wall_menu_sub_->addAction(action_pop_related_kwall);
 
+    ret = QObject::connect(this, SIGNAL(sigUpdateKwall()), this, SLOT(slotUpdateKwall()));
+
     return ResetStock(DEFAULT_CODE, k_type_, false); // 600196  000301
 
 }
@@ -1516,6 +1518,13 @@ void KLineWall::slotOpenRelatedSubKwall(bool)
     main_win_->tool_bar()->SetShowSubKwallBtn(true);
 }
 
+void KLineWall::slotUpdateKwall()
+{
+    UpdateKwallMinMaxPrice();
+    UpdatePosDatas();
+    update();
+}
+
 bool KLineWall::ResetStock(const QString& code, TypePeriod type_period, bool is_index)
 {  
     auto date_time = GetKDataTargetDateTime(*app_->exchange_calendar(), type_period
@@ -1723,11 +1732,17 @@ void KLineWall::UpdateIfNecessary()
         auto p_contain = app_->stock_data_man().FindStockData(ToPeriodType(k_type_), stock_code_, cur_date, cur_date, hhmm/*, bool is_index*/);
         if( p_contain ) // current time k data exists
         {
+            if( draw_action_ != DrawAction::NO_ACTION || main_win_->is_train_mode() )
+                return;
             is_need_updated = app_->stock_data_man().UpdateLatestItemStockData(ToPeriodType(k_type_), stock_code_, is_index_);
             
         }else
         {
+            if( draw_action_ != DrawAction::NO_ACTION || main_win_->is_train_mode() )
+                return;
             auto p_cur_time_contain = app_->stock_data_man().AppendStockData(ToPeriodType(k_type_), stock_code_, pre_end_date, cur_date, is_index_);
+            if( draw_action_ != DrawAction::NO_ACTION || main_win_->is_train_mode() )
+                return;
             if( p_cur_time_contain )
             {
                 p_hisdata_container_ = p_cur_time_contain;
@@ -1737,9 +1752,7 @@ void KLineWall::UpdateIfNecessary()
 
         if( is_need_updated )
         {
-            UpdateKwallMinMaxPrice();
-            UpdatePosDatas();
-            update();
+            Emit_UpdateKwall(); 
         }
     }
 }
