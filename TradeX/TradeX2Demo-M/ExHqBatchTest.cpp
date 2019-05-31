@@ -1,5 +1,40 @@
 
-
+/*
+市场代码        市场名称
+1       临时股
+4       郑州商品期权
+5       大连商品期权
+6       上海商品期权
+7       中金所期权
+8       上海股票期权
+27      香港指数
+28      郑州商品
+29      大连商品
+30      上海期货
+31      香港主板
+33      开放式基金
+34      货币型基金
+38      宏观指标
+40      中国概念股
+41      美股知名公司
+42      商品指数
+43      B股转H股
+44      股转系统
+46      上海黄金
+47      中金所期货
+48      香港创业板
+49      香港基金
+50      渤海商品
+54      国债预发行
+56      阳光私募基金
+57      券商集合理财
+58      券商货币理财
+60      主力期货合约
+62      中证指数
+68      风控指数
+70      扩展板块指数
+74      美国股票
+*/
 #include "stdafx.h"
 
 #include "TradeX.h"
@@ -8,11 +43,11 @@
 
 using namespace std;
 
-#define E1  0 //1 // TdxExHq_GetMarkets
-#define E2  0 //1 // TdxExHq_GetInstrumentCount
-#define E3  0 //1 // TdxExHq_GetInstrumentInfo
+#define E1  1 //1 // TdxExHq_GetMarkets
+#define E2  1 //1 // TdxExHq_GetInstrumentCount
+#define E3  1 //1 // TdxExHq_GetInstrumentInfo
 #define E4  0 //1 // TdxExHq_GetInstrumentQuote
-#define E5  0 //1 // TdxExHq_GetInstrumentBars
+#define E5  1 //1 // TdxExHq_GetInstrumentBars
 #define E6  0 //1 // TdxExHq_GetMinuteTimeData
 #define E7  1 // TdxExHq_GetHistoryMinuteTimeData
 #define E8  1 // TdxExHq_GetTransactionData
@@ -121,6 +156,17 @@ int test_exhq_batch_funcs(const char *pszHqSvrIP, short nPort)
 
         cout << Result << endl;
         getchar();
+
+        Count = 50;
+        bool1 = TdxExHq_GetInstrumentBars(nConn, 7, 30, "SC1907", 0, &Count, Result, ErrInfo);
+        if (!bool1)
+        {
+            cout << ErrInfo << endl;
+            return 0;
+        }
+
+        cout << Result << endl;
+        getchar();
     }
 #endif
 
@@ -144,8 +190,8 @@ int test_exhq_batch_funcs(const char *pszHqSvrIP, short nPort)
     {
         cout << "\n*** TdxExHq_GetHistoryMinuteTimeData\n";
 
-        //bool1 = TdxExHq_GetHistoryMinuteTimeData(nConn, 47, "IF1702", 20170113, Result, ErrInfo);
-        bool1 = TdxExHq_GetHistoryMinuteTimeData(nConn, 1, "600196", 20180113, Result, ErrInfo);
+        bool1 = TdxExHq_GetHistoryMinuteTimeData(nConn, 47, "IF1702", 20170113, Result, ErrInfo);
+       // bool1 = TdxExHq_GetHistoryMinuteTimeData(nConn, 1, "600196", 20180113, Result, ErrInfo);
         if (!bool1)
         {
             cout << ErrInfo << endl;
