@@ -26,6 +26,8 @@
 #include "code_list_wall.h"
 #include "train_dlg.h"
 
+#define MAKE_SUB_WALL 
+
 static const int cst_win_width = 1000;
 static const int cst_win_height = 500;
 static const int cst_update_kwall_inter = 10;
@@ -101,7 +103,7 @@ bool MainWindow::Initialize()
     //kline_wall_main->RestTypePeriod(DEFAULT_MAINKWALL_TYPE_PERIOD);
     kline_wall_main->setFocusPolicy(Qt::StrongFocus);
     view_layout->addWidget(kline_wall_main);
-
+#ifdef MAKE_SUB_WALL
     kline_wall_sub = new KLineWall(app_, this, (int)WallIndex::SUB, DEFAULT_SUBKWALL_TYPE_PERIOD);
     if( !kline_wall_sub->Init() )
         return false;
@@ -111,6 +113,7 @@ bool MainWindow::Initialize()
     view_layout->addWidget(kline_wall_sub);
 
     kline_wall_sub->setVisible(false);
+#endif
     // end of view area-------
      
     code_list_wall_ = new CodeListWall(app_, this);
@@ -164,7 +167,8 @@ void MainWindow::SetMainView(WallType wall_type)
     {    
     case WallType::KLINE: 
         code_list_wall_->hide();
-        kline_wall_sub->hide();
+        if( kline_wall_sub )
+            kline_wall_sub->hide();
         kline_wall_main->show(); 
         break;
     case WallType::CODE_LIST: 
@@ -246,7 +250,8 @@ void MainWindow::StockInputDlgRet()
     stock_code_changed = stock_code.toLocal8Bit().data();
 
     kline_wall_main->ResetStock(stock_code_changed, stock_name, is_index);
-    kline_wall_sub->ResetStock(stock_code_changed, stock_name, is_index);
+    if( kline_wall_sub )
+        kline_wall_sub->ResetStock(stock_code_changed, stock_name, is_index);
 }
  
 void MainWindow::UpdateStockData()
@@ -317,12 +322,14 @@ void MainWindow::keyPressEvent(QKeyEvent *e)
         case Qt::Key_F3:
         { 
             kline_wall_main->ResetStock("999999", QString::fromLocal8Bit("上证指数"), true);
-            
-            kline_wall_sub->ResetStock("999999", QString::fromLocal8Bit("上证指数"), true);
-            if( kline_wall_sub->isVisible() )
+            if( kline_wall_sub )
             {
-                kline_wall_main->update();
-                kline_wall_sub->update();
+                kline_wall_sub->ResetStock("999999", QString::fromLocal8Bit("上证指数"), true);
+                if( kline_wall_sub->isVisible() )
+                {
+                    kline_wall_main->update();
+                    kline_wall_sub->update();
+                }
             }
         } break;
         case Qt::Key_F5:
@@ -333,7 +340,8 @@ void MainWindow::keyPressEvent(QKeyEvent *e)
         case Qt::Key_F6:
         {
             kline_wall_main->hide();
-            kline_wall_sub->hide();
+            if( kline_wall_sub )
+                kline_wall_sub->hide();
             code_list_wall_->show();
         } break;
         case Qt::Key_0: case Qt::Key_1: case Qt::Key_2: case Qt::Key_3: case Qt::Key_4:  
@@ -396,7 +404,8 @@ void MainWindow::onMainKwallCycleChange(int /*index*/)
 
 void MainWindow::onSubKwallCycleChange(int /*index*/)
 {
-    assert(kline_wall_sub);
+    if( !kline_wall_sub )
+        return;
     tool_bar_->sub_cycle_comb()->clearFocus();
     if( is_train_mode() && tool_bar_->sub_cycle_comb()->currentIndex() >= COMBO_PERIOD_DAY_INDEX )
     {

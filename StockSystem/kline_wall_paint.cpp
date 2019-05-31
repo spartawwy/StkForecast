@@ -1892,7 +1892,7 @@ const T_StockHisDataItem & KLineWall::CurTrainStockDataItem()
 
 void KLineWall::Set_Cursor(Qt::CursorShape sp)
 {
-    qDebug() << " Set_Cursor " << sp << "\n";
+    //qDebug() << " Set_Cursor " << sp << "\n";
     this->setCursor(sp);
 }
 

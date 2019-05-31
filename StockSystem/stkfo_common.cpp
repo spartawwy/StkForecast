@@ -2,6 +2,7 @@
 #include <algorithm>
 
 #include <qtextcodec.h>
+#include <qdebug.h>
 
 bool IsNumber(const std::string& str)
 {
@@ -199,7 +200,8 @@ bool IsStrAlpha(const std::string& str)
 
 }
 
-void ClearTopFractal(int &val)
+//void ClearTopFractal(int &val)
+void ClearTopFractal(T_KlineDataItem &k_data_item)
 {
     int vals[] = {(int)FractalType::TOP_AXIS_T_3, (int)FractalType::TOP_AXIS_T_5, (int)FractalType::TOP_AXIS_T_7
         , (int)FractalType::TOP_AXIS_T_9, (int)FractalType::TOP_AXIS_T_11, (int)FractalType::TOP_FAKE};
@@ -207,11 +209,13 @@ void ClearTopFractal(int &val)
     {
         int tmp_val = int(vals[i]);
         tmp_val ^= 0xffffffff;
-        val &= tmp_val;
+        k_data_item.type &= tmp_val;
     }
+    qDebug() << __FUNCTION__ << "  " << k_data_item.stk_item.date << ":" << k_data_item.stk_item.hhmmss << "\n";
 }
 
-void ClearBtmFractal(int &val)
+//void ClearBtmFractal(int &val)
+void ClearBtmFractal(T_KlineDataItem &k_data_item)
 {
     int vals[] = {(int)FractalType::BTM_AXIS_T_3, (int)FractalType::BTM_AXIS_T_5, (int)FractalType::BTM_AXIS_T_7
         , (int)FractalType::BTM_AXIS_T_9, (int)FractalType::BTM_AXIS_T_11, (int)FractalType::BTM_FAKE};
@@ -219,8 +223,9 @@ void ClearBtmFractal(int &val)
     {
         int tmp_val = int(vals[i]);
         tmp_val ^= 0xffffffff;
-        val &= tmp_val;
+        k_data_item.type &= tmp_val;
     }
+    qDebug() << __FUNCTION__ << "  " << k_data_item.stk_item.date << ":" << k_data_item.stk_item.hhmmss << "\n";
 }
 
 bool IsStrNum(const std::string& str)

@@ -37,10 +37,7 @@ enum class FractalType : int
  TOP_AXIS_T_11   = 0x00100000,
  TOP_FAKE        = 0x40000000,
 };
-
-void ClearTopFractal(int &val);
-
-void ClearBtmFractal(int &val);
+ 
 
 #define UPWARD_FRACTAL   0x10000000
 #define DOWNWARD_FRACTAL 0x20000000
@@ -303,6 +300,10 @@ void gbkToUtf8(std::string& strGbk);
 
 QString ToQString(double val);
 QString ToQString(int val);
+
+void ClearTopFractal(T_KlineDataItem &k_data_item);
+ 
+void ClearBtmFractal(T_KlineDataItem &k_data_item);
 
 #define  MOMENTUM_POS 0
 

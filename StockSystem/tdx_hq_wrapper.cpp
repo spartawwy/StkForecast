@@ -407,7 +407,7 @@ do
         result = false;
         break;
     }
-    qDebug() << m_szResult << "\n";
+    //qDebug() << m_szResult << "\n";
 
     const bool has_time = ( ktype < 4 || ktype == 7 || ktype == 8 ) ? true : false;
     std::string expresstion_str;
@@ -440,7 +440,7 @@ do
             T_StockHisDataItem  k_data;
             try
             {
-                std::cout << match_result[index] << " "; // date
+                //std::cout << match_result[index] << " "; // date
 
                 if( has_time )
                 { 
