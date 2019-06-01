@@ -158,7 +158,7 @@ int test_exhq_batch_funcs(const char *pszHqSvrIP, short nPort)
         getchar();
 
         Count = 50;
-        bool1 = TdxExHq_GetInstrumentBars(nConn, 7, 30, "SC1907", 0, &Count, Result, ErrInfo);
+        bool1 = TdxExHq_GetInstrumentBars(nConn, 4, 30, "SC1907", 0, &Count, Result, ErrInfo);
         if (!bool1)
         {
             cout << ErrInfo << endl;
