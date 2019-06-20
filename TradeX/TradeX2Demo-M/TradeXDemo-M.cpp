@@ -45,7 +45,7 @@ int _tmain(int argc, _TCHAR* argv[])
     cout << "\n";
 
     cout << "按回车键进行测试..." << endl;
-    cin.get();
+    //cin.get();
 
     cout << endl;
     cout << "\n";

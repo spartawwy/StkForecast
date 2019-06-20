@@ -1336,6 +1336,57 @@ void KLineWall::keyPressEvent(QKeyEvent *e)
 
     switch( key_val )
     {
+    case Qt::Key_Left:
+        {
+            if( !show_cross_line_ )
+                return;
+            auto pos_from_global = mapFromGlobal(QCursor::pos());
+            if( pos_from_global.x() > 0 )
+            {
+                double item_w = double(this->width() - empty_right_w_ - right_w_) / double(k_num_ + 1) ;
+
+                QPoint curs_new_point(QCursor::pos().x() - item_w, QCursor::pos().y());
+                QCursor::setPos(curs_new_point);
+
+            }else
+            {
+                if( k_rend_index_< p_hisdata_container_->size() - 1 )
+                {
+                    ++k_rend_index_;
+                    UpdateKwallMinMaxPrice();
+                    UpdatePosDatas();
+                    update();
+                }
+            }
+            pos_from_global = mapFromGlobal(QCursor::pos());
+            //qDebug() << "Key_Left x:" << pos_from_global.x();
+            break;
+        }
+    case Qt::Key_Right:
+        {
+            if( !show_cross_line_ )
+                return;
+            auto pos_from_global = mapFromGlobal(QCursor::pos());
+            if( pos_from_global.x() < this->width() )
+            {
+                double item_w = double(this->width() - empty_right_w_ - right_w_) / double(k_num_ + 1) ;
+
+                QPoint curs_new_point(QCursor::pos().x() + item_w, QCursor::pos().y());
+                QCursor::setPos(curs_new_point);
+            }else if( !main_win_->is_train_mode() )
+            {
+                if( k_rend_index_ > 0 )
+                {
+                    --k_rend_index_;
+                    UpdateKwallMinMaxPrice();
+                    UpdatePosDatas();
+                    update();
+                }
+            }
+            pos_from_global = mapFromGlobal(QCursor::pos());
+            //qDebug() << "Key_Right x:" << pos_from_global.x();
+            break;
+        }
     case Qt::Key_Up:  //zoom out 
         {
             if( p_hisdata_container_->empty() )

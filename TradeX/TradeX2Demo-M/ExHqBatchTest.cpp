@@ -144,7 +144,7 @@ int test_exhq_batch_funcs(const char *pszHqSvrIP, short nPort)
 #if E5
     {
         cout << "\n*** TdxExHq_GetInstrumentBars\n";
-
+#if 0
         // 0->5分钟K线    1->15分钟K线    2->30分钟K线  3->1小时K线    4->日K线  5->周K线  6->月K线  7->1分钟  8->1分钟K线  9->日K线  10->季K线  11->年K线
         Count = 50;
         bool1 = TdxExHq_GetInstrumentBars(nConn, 7, 539, "HSI", 0, &Count, Result, ErrInfo);
@@ -156,9 +156,10 @@ int test_exhq_batch_funcs(const char *pszHqSvrIP, short nPort)
 
         cout << Result << endl;
         getchar();
-
-        Count = 50;
-        bool1 = TdxExHq_GetInstrumentBars(nConn, 4, 30, "SC1907", 0, &Count, Result, ErrInfo);
+#endif
+        // 0->5分钟K线    1->15分钟K线    2->30分钟K线  3->1小时K线    4->日K线  5->周K线  6->月K线  7->1分钟  8->1分钟K线  9->日K线  10->季K线  11->年K线
+        Count = 200; //500;
+        bool1 = TdxExHq_GetInstrumentBars(nConn, 0, 30, "SC1907", 0, &Count, Result, ErrInfo);
         if (!bool1)
         {
             cout << ErrInfo << endl;
