@@ -5,6 +5,8 @@
 #include <QEvent>
 #include <QMouseEvent>
 #include <QtWidgets/QApplication>
+#include <QDesktopWidget>
+
 #include "title_bar.h"
 
 #ifdef Q_OS_WIN
@@ -138,7 +140,15 @@ void TitleBar::onClicked()
         }
         else if (pButton == m_pMaximizeButton)
         {
-            pWindow->isMaximized() ? pWindow->showNormal() : pWindow->showMaximized();
+            QDesktopWidget * deskTop = QApplication::desktop();
+            int cur_monitor = deskTop->screenNumber(this);
+            QRect  desk_rect = deskTop->availableGeometry(cur_monitor);
+
+            //pWindow->isMaximized() ? pWindow->showNormal() : pWindow->showMaximized();
+            if( pWindow->geometry() == desk_rect )
+                pWindow->setGeometry(desk_rect.left(), desk_rect.top(), desk_rect.width() * 0.8, desk_rect.height() * 0.8);
+            else
+                pWindow->setGeometry(desk_rect);
         }
         else if (pButton == m_pCloseButton)
         {

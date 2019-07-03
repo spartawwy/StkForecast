@@ -46,8 +46,8 @@ using namespace std;
 #define E1  1 //1 // TdxExHq_GetMarkets
 #define E2  1 //1 // TdxExHq_GetInstrumentCount
 #define E3  1 //1 // TdxExHq_GetInstrumentInfo
-#define E4  0 //1 // TdxExHq_GetInstrumentQuote
-#define E5  1 //1 // TdxExHq_GetInstrumentBars
+#define E4  1 //1 // TdxExHq_GetInstrumentQuote
+#define E5  0 //1 // TdxExHq_GetInstrumentBars
 #define E6  0 //1 // TdxExHq_GetMinuteTimeData
 #define E7  1 // TdxExHq_GetHistoryMinuteTimeData
 #define E8  1 // TdxExHq_GetTransactionData
@@ -129,7 +129,8 @@ int test_exhq_batch_funcs(const char *pszHqSvrIP, short nPort)
     {
         cout << "\n*** TdxExHq_GetInstrumentQuote\n";
 
-        bool1 = TdxExHq_GetInstrumentQuote(nConn, 47, "IF1702",  Result, ErrInfo);
+        //bool1 = TdxExHq_GetInstrumentQuote(nConn, 47, "IF1702",  Result, ErrInfo);
+        bool1 = TdxExHq_GetInstrumentQuote(nConn, 30, "SC1908",  Result, ErrInfo);
         if (!bool1)
         {
             cout << ErrInfo << endl;
