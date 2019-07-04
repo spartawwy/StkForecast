@@ -15,6 +15,7 @@
 
 TdxHqWrapper::TdxHqWrapper(ExchangeCalendar  *exchange_calendar)
     : conn_handle_(0)
+    , conn_handle_mutex_()
     , exchange_calendar_(exchange_calendar)
 {
 
@@ -33,7 +34,32 @@ bool TdxHqWrapper::Init()
 
 bool TdxHqWrapper::ConnectServer()
 {
-    //开始获取行情数据
+    std::lock_guard<std::mutex> locker(conn_handle_mutex_);
+
+    conn_handle_ = _ConnectServer();
+    return conn_handle_ > -1;
+}
+
+bool TdxHqWrapper::ReconnectServer()
+{
+    std::lock_guard<std::mutex> locker(conn_handle_mutex_);
+
+    if( conn_handle_ > -1 )
+        TdxHq_Disconnect(conn_handle_);
+
+    conn_handle_ = _ConnectServer();
+    return conn_handle_ > -1;
+}
+
+bool TdxHqWrapper::IsConnhandleValid()
+{
+    std::lock_guard<std::mutex> locker(conn_handle_mutex_);
+    return conn_handle_ > -1;
+}
+
+int TdxHqWrapper::_ConnectServer()
+{
+    int handle = -1;
 
     const int cst_result_len = 1024 * 1024;
     const int cst_err_len = 1024; 
@@ -51,18 +77,18 @@ bool TdxHqWrapper::ConnectServer()
         "115.238.90.170"};
     for( int i = 0; i < sizeof(servers)/sizeof(servers[0]); ++i )
     {
-        conn_handle_ = TdxHq_Connect(servers[i], 7709, m_szResult, m_szErrInfo);
-        if( conn_handle_ < 0 )
+        handle = TdxHq_Connect(servers[i], 7709, m_szResult, m_szErrInfo);
+        if( handle < 0 )
         {
             std::cout << m_szErrInfo << std::endl;
             continue;
         }else
         {
             std::cout << m_szResult << std::endl;
-            return true;
+            return handle;
         }
     } 
-    return false;
+    return handle;
 }
 
 // items date is from small to big
@@ -101,7 +127,7 @@ bool TdxHqWrapper::GetHisKBars(const std::string &code, bool is_index, TypePerio
     //const short max_count = MAX_K_COUNT;
     short start = std::get<0>(tuple_index_len);  // back forward
     const short count = std::get<1>(tuple_index_len);
-#if 1
+ 
     short local_count = MAX_K_COUNT;
     short total_get = 0;
 #if 1
@@ -163,145 +189,6 @@ bool TdxHqWrapper::GetHisKBars(const std::string &code, bool is_index, TypePerio
 #endif 
     return total_get > 0;
 
-#else 
-    char* m_szResult = new char[cst_result_len];
-    char* m_szErrInfo = new char[cst_err_len];
-     
-    memset(m_szResult, 0, cst_result_len);
-    memset(m_szErrInfo, 0, cst_err_len);
-    bool (WINAPI* pFuncGetSecurityKData)(int nConnID,
-        char nCategory,
-        char nMarket,
-        const char *pszZqdm,
-        short nStart,
-        short *pnCount,
-        char *pszResult,
-        char *pszErrInfo);
-    if( is_index )
-        pFuncGetSecurityKData = &TdxHq_GetIndexBars;
-    else 
-        pFuncGetSecurityKData = &TdxHq_GetSecurityBars;
-    //获取股票K线数据 
-    //数据种类, 0->5分钟K线    1->15分钟K线    2->30分钟K线  3->1小时K线    4->日K线  5->周K线  6->月K线  7->1分钟K线  8->1分钟K线  9->日K线  10->季K线  11->年K线
-    int ktype = 4;
-    switch(kbar_type)
-    {
-    case TypePeriod::PERIOD_YEAR: ktype = 11; 
-        break;
-    case TypePeriod::PERIOD_MON:  ktype = 6; 
-        break;
-    case TypePeriod::PERIOD_WEEK: ktype = 5; 
-        break;
-    case TypePeriod::PERIOD_DAY:  ktype = 4; 
-        break;
-    case TypePeriod::PERIOD_HOUR: ktype = 3; 
-        break;
-    case TypePeriod::PERIOD_30M:  ktype = 2; 
-        break;
-    case TypePeriod::PERIOD_15M:  ktype = 1; 
-        break;
-    case TypePeriod::PERIOD_5M:   ktype = 0; 
-        break;
-    default:
-        assert(false);
-        ktype = 4; 
-        break;
-    }
-    bool bool1 = pFuncGetSecurityKData(conn_handle_, ktype, market_type, const_cast<char*>(code.c_str()), start, &count, m_szResult, m_szErrInfo);
-    if( !bool1 )
-    { 
-        if( ConnectServer() )
-        {
-            bool1 = pFuncGetSecurityKData(conn_handle_, ktype, market_type, const_cast<char*>(code.c_str()), start, &count, m_szResult, m_szErrInfo);
-            if( !bool1 )
-                return false;
-        } else
-            return false;
-    }
-    if( strlen(m_szResult) < 1 )
-    {
-        std::cout << " result empty !" << std::endl;
-        return false;
-    }
-    qDebug() << m_szResult << "\n";
-
-    const bool has_time = ( ktype < 4 || ktype == 7 || ktype == 8 ) ? true : false;
-    std::string expresstion_str;
-    if( has_time )
-        //expresstion_str = "^(\\d{4}-\\d{2}-\\d{2})\\s(\\d{2}:\\d{2})\\t(\\d+\\.\\d+)\\t(\\d+\\.\\d+)\\t(\\d+\\.\\d+)\\t(\\d+\\.\\d+)\\t(\\d+)\\t(\\d+\\.\\d+)$";
-        expresstion_str = "^(\\d{4})-(\\d{2})-(\\d{2})\\s+(\\d{2}):(\\d{2})\\s+(\\d+\\.\\d+)\\s+(\\d+\\.\\d+)\\s+(\\d+\\.\\d+)\\s+(\\d+\\.\\d+)\\s+(\\d+)\\s+(\\d+\\.\\d+).*";
-    else
-        expresstion_str = "^(\\d{8})\\s+(\\d+\\.\\d+)\\s+(\\d+\\.\\d+)\\s+(\\d+\\.\\d+)\\s+(\\d+\\.\\d+)\\s+(\\d+)\\s+(\\d+\\.\\d+).*";
-        //expresstion_str = "^(\\d{8})\\t(\\d+\\.\\d+)\\t(\\d+\\.\\d+)\\t(\\d+\\.\\d+)\\t(\\d+\\.\\d+)\\t(\\d+)\\t(\\d+\\.\\d+)$";
-
-    std::regex  regex_obj(expresstion_str);
-    char *p = m_szResult;
-    while( *p != '\0' && *p != '\n') ++p;
-
-    ++p;
-
-    char *p_line_beg = p;
-    while( *p != '\0')
-    {
-        p_line_beg = p;
-        while( *p != '\0' && *p != '\n')++p;
-        *p = '\0';
-        ++p;
-        std::string src_str = p_line_beg;
-
-        std::smatch  match_result;
-        if( std::regex_match(src_str.cbegin(), src_str.cend(), match_result, regex_obj) )
-        {
-            int index = 1;
-            T_StockHisDataItem  k_data;
-            try
-            {
-                std::cout << match_result[index] << " "; // date
-                 
-                if( has_time )
-                { 
-                    int year = boost::lexical_cast<int>(match_result[index]);
-                    ++index;
-                    int mon = boost::lexical_cast<int>(match_result[index]);
-                    ++index;
-                    int day = boost::lexical_cast<int>(match_result[index]);
-                    ++index;
-                    k_data.date = year * 10000 + mon * 100 + day;
-                    int hour = boost::lexical_cast<int>(match_result[index]);
-                    ++index;  
-                    int minute = boost::lexical_cast<int>(match_result[index]);
-                    k_data.hhmmss = hour * 100 + minute;
-                }else
-                {
-                    k_data.date = boost::lexical_cast<int>(match_result[index]);
-                    k_data.hhmmss = 0;
-                }
-                ++index;
-                k_data.open_price = boost::lexical_cast<double>(match_result[index]);
-                ++index;
-                k_data.close_price = boost::lexical_cast<double>(match_result[index]);
-                ++index;
-                k_data.high_price = boost::lexical_cast<double>(match_result[index]);
-                ++index;
-                k_data.low_price = boost::lexical_cast<double>(match_result[index]);
-                ++index;
-                k_data.vol = boost::lexical_cast<double>(match_result[index]);
-                ++index;
-                k_data.capital = boost::lexical_cast<double>(match_result[index]);
-                items.push_back(std::move(k_data));
-
-            }catch(boost::exception& e )
-            {
-                e = e; 
-            }
-        }else
-            qDebug() << "match fail!\n";
-    }
-    //std::cout << m_szResult << std::endl;
-    delete []m_szResult;
-    delete []m_szErrInfo;
-    return true;
-#endif
 }
 
 bool TdxHqWrapper::GetLatestKBar(const std::string &code, bool is_index, TypePeriod kbar_type, T_StockHisDataItem &item)
@@ -319,7 +206,7 @@ bool TdxHqWrapper::GetLatestKBar(const std::string &code, bool is_index, TypePer
 // items date is from small to big; // get data from start index to left(oldest date):     <---len---0 
 bool TdxHqWrapper::__GetHisKBars(const std::string &code, bool is_index, TypePeriod kbar_type, short start, short &count, std::vector<T_StockHisDataItem> &items)
 {  
-    bool result = true;
+    bool result = false;
     bool (WINAPI* pFuncGetSecurityKData)(int nConnID,
         char nCategory,
         char nMarket,
@@ -384,27 +271,43 @@ bool TdxHqWrapper::__GetHisKBars(const std::string &code, bool is_index, TypePer
     }
 do 
 { 
-    bool bool1 = pFuncGetSecurityKData(conn_handle_, ktype, market_type, const_cast<char*>(code.c_str()), start, &count, m_szResult, m_szErrInfo);
-    if( !bool1 )
-    { 
-        if( ConnectServer() )
+    if( !IsConnhandleValid() )
+    {
+        if( !IsConnhandleValid() ) // judge again
         {
-            bool1 = pFuncGetSecurityKData(conn_handle_, ktype, market_type, const_cast<char*>(code.c_str()), start, &count, m_szResult, m_szErrInfo);
-            if( !bool1 )
-            {
-                result = false;
-                break;
-            }
-        } else
-        {
-            result = false;
-            break;
+           if( !ReconnectServer() )
+               break;
         }
+    }
+
+    bool ret = false;
+    do
+    {
+        std::lock_guard<std::mutex>  locker(conn_handle_mutex_);
+        if( conn_handle_ < 0 ) 
+            break;
+        ret = pFuncGetSecurityKData(conn_handle_, ktype, market_type, const_cast<char*>(code.c_str()), start, &count, m_szResult, m_szErrInfo);
+    }while(0);
+
+    if( !ret )
+    { 
+        if( ReconnectServer() )
+        {
+            do
+            {
+                std::lock_guard<std::mutex>  locker(conn_handle_mutex_);
+                if( conn_handle_ < 0 ) 
+                    break;
+                ret = pFuncGetSecurityKData(conn_handle_, ktype, market_type, const_cast<char*>(code.c_str()), start, &count, m_szResult, m_szErrInfo);
+            }while(0);
+            if( !ret )
+                break;
+        } else
+            break;
     }
     if( strlen(m_szResult) < 1 )
     {
         std::cout << " result empty !" << std::endl;
-        result = false;
         break;
     }
     //qDebug() << m_szResult << "\n";

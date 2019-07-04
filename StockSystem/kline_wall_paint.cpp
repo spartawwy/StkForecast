@@ -1666,9 +1666,9 @@ bool KLineWall::Reset_Stock(const QString& stock, TypePeriod type_period, bool i
     }
     start_date = QDate::currentDate().addDays(span_day).toString("yyyyMMdd").toInt();
 #endif
-    int hhmm = GetKDataTargetTime(type_period);
+    int start_hhmm = GetKDataTargetTime(type_period);
     // find his k data which till cur hhmm --------------
-    p_hisdata_container_ = app_->stock_data_man().FindStockData(ToPeriodType(k_type_), stock_code_, start_date, cur_date, hhmm, is_index);
+    p_hisdata_container_ = app_->stock_data_man().FindStockData(ToPeriodType(k_type_), stock_code_, start_date, cur_date, start_hhmm, is_index);
     if( !p_hisdata_container_ )
     {
         //p_hisdata_container_ = app_->stock_data_man().AppendStockData(stock_code_, 20171216, 20180108); 

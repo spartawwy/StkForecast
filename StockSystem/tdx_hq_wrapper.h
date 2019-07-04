@@ -3,6 +3,8 @@
 
 //#include <memory>
 #include <vector>
+#include <mutex>
+
 #include "stkfo_common.h"
 
 class ExchangeCalendar;
@@ -13,15 +15,24 @@ public:
     ~TdxHqWrapper();
 
     bool Init();
-    bool ConnectServer();
+    
     bool GetHisKBars(const std::string &code, bool is_index, TypePeriod kbar_type, int start_date, int end_date, std::vector<T_StockHisDataItem> &items);
 
     bool GetLatestKBar(const std::string &code, bool is_index, TypePeriod kbar_type, T_StockHisDataItem &item);
 
 private:
+
     bool __GetHisKBars(const std::string &code, bool is_index, TypePeriod kbar_type, short start, short &count, std::vector<T_StockHisDataItem> &items);
 
+    bool ConnectServer();
+    bool ReconnectServer();
+    bool IsConnhandleValid();
+
+    int _ConnectServer();
+
     int conn_handle_;
+    std::mutex  conn_handle_mutex_;
+
     ExchangeCalendar  *exchange_calendar_;
 };
 
