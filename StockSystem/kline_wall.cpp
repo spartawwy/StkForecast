@@ -366,7 +366,7 @@ int CalculateSpanDays(TypePeriod type_period, int k_count)
 }
 
  
-std::tuple<int, int> GetKDataTargetDateTime(ExchangeCalendar &exch_calender, TypePeriod type_period, int end_date, int tmp_hhmm, int max_k_count)
+int GetTargetTime(TypePeriod type_period, int tmp_hhmm)
 {
     static auto get_hhmm = [](int hhmm_para, int *tp_array, int num)->int
     {
@@ -378,10 +378,7 @@ std::tuple<int, int> GetKDataTargetDateTime(ExchangeCalendar &exch_calender, Typ
         }
         return tp_array[num-1];
     };
-    int pre_days = CalculateSpanDays(type_period, max_k_count);
 
-    int start_date = exch_calender.PreTradeDate(end_date, abs(pre_days));
-     
     int hhmm = 0;
     switch( type_period )
     {
@@ -417,11 +414,38 @@ std::tuple<int, int> GetKDataTargetDateTime(ExchangeCalendar &exch_calender, Typ
             hhmm = get_hhmm(tmp_hhmm, tp_array, sizeof(tp_array)/sizeof(tp_array[0]));
             break;
         }
+    /*case TypePeriod::PERIOD_1M:
+        {
+
+            break;
+        }*/
     }
+    return hhmm;
+}
+
+std::tuple<int, int> GetKDataTargetDateTime(ExchangeCalendar &exch_calender, TypePeriod type_period, int end_date, int tmp_hhmm, int max_k_count)
+{
+    static auto get_hhmm = [](int hhmm_para, int *tp_array, int num)->int
+    {
+        assert(num > 0);
+        for( int i = 0; i < num; ++i )
+        {
+            if( hhmm_para <= tp_array[i] ) 
+                return tp_array[i];
+        }
+        return tp_array[num-1];
+    };
+    int pre_days = CalculateSpanDays(type_period, max_k_count);
+
+    int start_date = exch_calender.PreTradeDate(end_date, abs(pre_days));
+     
+    int hhmm = GetTargetTime(type_period, tmp_hhmm);
+     
     /*QDate q_date(end_date/10000, (end_date%10000)/100, end_date%100);
     int start_date = q_date.addDays(span_day).toString("yyyyMMdd").toInt();*/
     return std::make_tuple(start_date, hhmm);
 }
+
 
 int GetKDataTargetTime(TypePeriod type_period)
 { 

@@ -330,6 +330,13 @@ T_HisDataItemContainer* StockDataMan::AppendStockData(PeriodType period_type, co
                     auto k_item = std::make_shared<T_KlineDataItem>(p_data_items[k-1]); 
                     k_item->zhibiao_atoms.push_back(std::move(std::make_shared<MomentumZhibiao>()));
                     items_in_container.push_front(std::move(k_item));
+                }else if( p_data_items[k-1].date > items_in_container.back()->stk_item.date || 
+                    (p_data_items[k-1].date == items_in_container.back()->stk_item.date &&
+                    p_data_items[k-1].hhmmss > items_in_container.back()->stk_item.hhmmss) )
+                {
+                    auto k_item = std::make_shared<T_KlineDataItem>(p_data_items[k-1]); 
+                    k_item->zhibiao_atoms.push_back(std::move(std::make_shared<MomentumZhibiao>()));
+                    items_in_container.push_back(std::move(k_item));
                 }
             }
         }else

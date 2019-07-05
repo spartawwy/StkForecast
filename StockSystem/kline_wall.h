@@ -245,6 +245,8 @@ int CalculateSpanDays(TypePeriod type_period, int k_count);
 // ret: <date, hhmm>
 std::tuple<int, int> GetKDataTargetDateTime(ExchangeCalendar &exch_calender, TypePeriod type_period, int end_date, int tmp_hhmm, int max_k_count);
 // ret: hhmm
+int GetTargetTime(TypePeriod type_period, int tmp_hhmm);
+// ret: hhmm
 int GetKDataTargetTime(TypePeriod type_period);
 
 int FindKRendIndex(T_HisDataItemContainer *p_hisdata_container, int date_val);
