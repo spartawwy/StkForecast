@@ -1240,7 +1240,7 @@ void find_down_towardleft_end(std::deque<std::shared_ptr<T_KlineDataItem> > &kli
 
     //assert( IsTopFractal(kline_data_items[top_index_c]->type) ); 
     double price_c = kline_data_items[top_index_c]->stk_item.high_price;
-    assert( !(price_c < price_b ) );  
+    //assert( !(price_c < price_b ) );  
 
     if( price_c < price_a )// judge if C is lower than A
     { 
@@ -1295,7 +1295,7 @@ void find_up_towardleft_end(std::deque<std::shared_ptr<T_KlineDataItem> > &kline
     }
 
     double price_c = kline_data_items[btm_index_c]->stk_item.low_price;
-    assert( !(price_c > price_b ) );
+    //assert( !(price_c > price_b ) );
 
     if( price_c > price_a )// judge if C is higher than A
     { 

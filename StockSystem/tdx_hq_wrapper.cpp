@@ -13,6 +13,8 @@
 
 #pragma comment(lib, "TradeX2-M.lib")
 
+#define FIX_TTY_BUG
+
 TdxHqWrapper::TdxHqWrapper(ExchangeCalendar  *exchange_calendar)
     : conn_handle_(0)
     , conn_handle_mutex_()
@@ -314,13 +316,21 @@ do
 
     const bool has_time = ( ktype < 4 || ktype == 7 || ktype == 8 ) ? true : false;
     std::string expresstion_str;
+    std::string expresstion_str1;
     if( has_time )
-        //expresstion_str = "^(\\d{4}-\\d{2}-\\d{2})\\s(\\d{2}:\\d{2})\\t(\\d+\\.\\d+)\\t(\\d+\\.\\d+)\\t(\\d+\\.\\d+)\\t(\\d+\\.\\d+)\\t(\\d+)\\t(\\d+\\.\\d+)$";
-            expresstion_str = "^(\\d{4})-(\\d{2})-(\\d{2})\\s+(\\d{2}):(\\d{2})\\s+(\\d+\\.\\d+)\\s+(\\d+\\.\\d+)\\s+(\\d+\\.\\d+)\\s+(\\d+\\.\\d+)\\s+(\\d+)\\s+(\\d+\\.\\d+).*";
+    {    //expresstion_str = "^(\\d{4}-\\d{2}-\\d{2})\\s(\\d{2}:\\d{2})\\t(\\d+\\.\\d+)\\t(\\d+\\.\\d+)\\t(\\d+\\.\\d+)\\t(\\d+\\.\\d+)\\t(\\d+)\\t(\\d+\\.\\d+)$";
+        expresstion_str = "^(\\d{4})-(\\d{2})-(\\d{2})\\s+(\\d{2}):(\\d{2})\\s+(\\d+\\.\\d+)\\s+(\\d+\\.\\d+)\\s+(\\d+\\.\\d+)\\s+(\\d+\\.\\d+)\\s+(\\d+)\\s+(\\d+\\.\\d+).*";
+#ifdef FIX_TTY_BUG
+        //expresstion_str1 = "^(\\d{4})--(\\d{2})--(\\d{2})\\s+(\\d{2}):(\\d{2})\\s+(\\d+\\.\\d+)\\s+(\\d+\\.\\d+)\\s+(\\d+\\.\\d+)\\s+(\\d+\\.\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+\\.\\d+).*";
+        expresstion_str1 = "^(\\d{4})--(\\d{2})--(\\d{2})\\s+(\\d{2}):(\\d{2})\\s+(\\d+\\.\\d+)\\s+(\\d+\\.\\d+)\\s+(\\d+\\.\\d+)\\s+(\\d+\\.\\d+)\\s+(\\d+)\\s+(\\d+\\.\\d+).*";
+#endif
+    }
     else
         expresstion_str = "^(\\d{8})\\s+(\\d+\\.\\d+)\\s+(\\d+\\.\\d+)\\s+(\\d+\\.\\d+)\\s+(\\d+\\.\\d+)\\s+(\\d+)\\s+(\\d+\\.\\d+).*";
     //expresstion_str = "^(\\d{8})\\t(\\d+\\.\\d+)\\t(\\d+\\.\\d+)\\t(\\d+\\.\\d+)\\t(\\d+\\.\\d+)\\t(\\d+)\\t(\\d+\\.\\d+)$";
-
+#ifdef FIX_TTY_BUG
+    std::regex  regex_obj1(expresstion_str1);
+#endif
     std::regex  regex_obj(expresstion_str);
     char *p = m_szResult;
     while( *p != '\0' && *p != '\n') ++p;
@@ -382,8 +392,70 @@ do
                 e = e; 
             }
         }else
+        {
+#ifdef FIX_TTY_BUG
+           
+        qDebug() << "\n" << src_str.c_str();
+        std::smatch  match_result;
+        if( std::regex_match(src_str.cbegin(), src_str.cend(), match_result, regex_obj1) )
+        {
+            int index = 1;
+            T_StockHisDataItem  k_data;
+            try
+            { 
+                if( has_time )
+                { 
+                    int year = boost::lexical_cast<int>(match_result[index]);
+                    if( year < 1990 )
+                        year += 31;
+                    ++index;
+                    int mon = boost::lexical_cast<int>(match_result[index]);
+                    mon -= 18;
+                    ++index;
+                    int day = boost::lexical_cast<int>(match_result[index]);
+                    day = 48 - day;
+                    ++index;
+                    k_data.date = year * 10000 + mon * 100 + day;
+                    int hour = boost::lexical_cast<int>(match_result[index]);
+                    ++index;  
+                    int minute = boost::lexical_cast<int>(match_result[index]);
+                    k_data.hhmmss = hour * 100 + minute;
+                    if( k_data.hhmmss > 2100 )
+                    {
+                        k_data.date = exchange_calendar_->PreTradeDate(k_data.date, 1);
+                    }
+                }else
+                {
+                    k_data.date = boost::lexical_cast<int>(match_result[index]);
+                    k_data.hhmmss = 0;
+                }
+
+                ++index;
+                k_data.open_price = boost::lexical_cast<double>(match_result[index]);
+                ++index;
+                k_data.high_price = boost::lexical_cast<double>(match_result[index]);
+                ++index;
+                k_data.low_price = boost::lexical_cast<double>(match_result[index]);
+                ++index;
+                k_data.close_price = boost::lexical_cast<double>(match_result[index]);
+                //++index;
+                //int hold = boost::lexical_cast<int>(match_result[index]);
+                ++index;
+                k_data.vol = boost::lexical_cast<double>(match_result[index]);
+                ++index;
+                k_data.capital = boost::lexical_cast<double>(match_result[index]); // Ω·À„º€
+                items.push_back(std::move(k_data));
+
+            }catch(boost::exception& e )
+            {
+                e = e; 
+            }
+        }
+#else
             qDebug() << "match fail!\n";
-    }
+#endif
+        }
+    } 
     //std::cout << m_szResult << std::endl;
     result = true; 
 
