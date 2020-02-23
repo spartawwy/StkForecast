@@ -67,7 +67,7 @@ if __name__ == "__main__":
     cu.execute("DELETE FROM ExchangeDate")
     total = len(df['cal_date'])   
     for index in range(0, total):
-        df['cal_date'][index] = df['cal_date'][index].replace("-", "") 
+        #df['cal_date'][index] = df['cal_date'][index].replace("-", "") 
         isopen = 0
         if df['is_open'][index] == 1:
             isopen = 1
