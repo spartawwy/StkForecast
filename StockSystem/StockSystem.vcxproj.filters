@@ -66,6 +66,12 @@
     <Filter Include="moudle\zhibiao">
       <UniqueIdentifier>{2ffda6bd-1fbc-4b90-b981-569a800a26d9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="include\tradehq">
+      <UniqueIdentifier>{5a8f622a-da40-46e6-8604-86f4244cf6ad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="moudle\trade">
+      <UniqueIdentifier>{9fa010cf-5410-4973-a81a-c995a4da2dd0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -207,6 +213,9 @@
     <ClCompile Include="train_trade_dlg.cpp">
       <Filter>win</Filter>
     </ClCompile>
+    <ClCompile Include="trade_hq_wrapper.cpp">
+      <Filter>moudle\trade</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="klinewall.ui">
@@ -267,15 +276,6 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <None Include="gif\1.gif">
-      <Filter>Resource</Filter>
-    </None>
-    <None Include="gif\2.gif">
-      <Filter>Resource</Filter>
-    </None>
-    <None Include="gif\3.gif">
-      <Filter>Resource</Filter>
-    </None>
     <CustomBuild Include="res.qrc">
       <Filter>Resource</Filter>
     </CustomBuild>
@@ -355,6 +355,12 @@
     </ClInclude>
     <ClInclude Include="GeneratedFiles\ui_traintrade.h">
       <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tradehq\trade.h">
+      <Filter>include\tradehq</Filter>
+    </ClInclude>
+    <ClInclude Include="trade_hq_wrapper.h">
+      <Filter>moudle\trade</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

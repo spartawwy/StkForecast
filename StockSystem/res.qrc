@@ -1,7 +1,4 @@
 <RCC>
     <qresource prefix="/">
-        <file>gif/1.gif</file>
-        <file>gif/2.gif</file>
-        <file>gif/3.gif</file>
     </qresource>
 </RCC>

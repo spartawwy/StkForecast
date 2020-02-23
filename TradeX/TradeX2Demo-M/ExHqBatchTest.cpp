@@ -43,10 +43,10 @@
 
 using namespace std;
 
-#define E1  1 //1 // TdxExHq_GetMarkets
+//#define E1  1 //1 // TdxExHq_GetMarkets
 #define E2  1 //1 // TdxExHq_GetInstrumentCount
 #define E3  1 //1 // TdxExHq_GetInstrumentInfo
-#define E4  1 //1 // TdxExHq_GetInstrumentQuote
+//#define E4  1 //1 // TdxExHq_GetInstrumentQuote
 #define E5  1 //1 // TdxExHq_GetInstrumentBars
 #define E6  0 //1 // TdxExHq_GetMinuteTimeData
 #define E7  1 // TdxExHq_GetHistoryMinuteTimeData
@@ -130,7 +130,7 @@ int test_exhq_batch_funcs(const char *pszHqSvrIP, short nPort)
         cout << "\n*** TdxExHq_GetInstrumentQuote\n";
 
         //bool1 = TdxExHq_GetInstrumentQuote(nConn, 47, "IF1702",  Result, ErrInfo);
-        bool1 = TdxExHq_GetInstrumentQuote(nConn, 30, "SC1909",  Result, ErrInfo);
+        bool1 = TdxExHq_GetInstrumentQuote(nConn, 30, "SC2003",  Result, ErrInfo);
         if (!bool1)
         {
             cout << ErrInfo << endl;
@@ -159,8 +159,8 @@ int test_exhq_batch_funcs(const char *pszHqSvrIP, short nPort)
         getchar();
 #endif
         // 0->5分钟K线    1->15分钟K线    2->30分钟K线  3->1小时K线    4->日K线  5->周K线  6->月K线  7->1分钟  8->1分钟K线  9->日K线  10->季K线  11->年K线
-        Count = 200; //500;
-        bool1 = TdxExHq_GetInstrumentBars(nConn, 0, 30, "SC2002", 0, &Count, Result, ErrInfo);
+        Count = 400; //500;
+        bool1 = TdxExHq_GetInstrumentBars(nConn, 0, 30, "SC2003", 0, &Count, Result, ErrInfo);
         if (!bool1)
         {
             cout << ErrInfo << endl;
@@ -171,8 +171,8 @@ int test_exhq_batch_funcs(const char *pszHqSvrIP, short nPort)
         getchar();
 
         cout << " print day " << endl;
-        Count = 200; //500;
-        bool1 = TdxExHq_GetInstrumentBars(nConn, 4, 30, "SC2002", 0, &Count, Result, ErrInfo);
+        Count = 400; //500;
+        bool1 = TdxExHq_GetInstrumentBars(nConn, 4, 30, "SC2003", 0, &Count, Result, ErrInfo);
         if (!bool1)
         {
             cout << ErrInfo << endl;
