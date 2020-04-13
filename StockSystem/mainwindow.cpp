@@ -68,7 +68,7 @@ bool MainWindow::Initialize()
     this->setGeometry(100, 100, cst_win_width, cst_win_height);
 #ifndef _DEBUG
     auto cur_date = QDate::currentDate().year() * 10000 + QDate::currentDate().month() * 100 + QDate::currentDate().day();
-    if( cur_date > 20191225 )
+    if( cur_date > 20201225 )
     {
         QMessageBox::information(nullptr, QString::fromLocal8Bit("提示"), QString::fromLocal8Bit("软件已经到期!请联系249564063@qq.com")); 
         return false;

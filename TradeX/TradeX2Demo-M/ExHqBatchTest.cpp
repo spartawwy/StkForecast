@@ -44,14 +44,14 @@
 using namespace std;
 
 //#define E1  1 //1 // TdxExHq_GetMarkets
-#define E2  1 //1 // TdxExHq_GetInstrumentCount
+#define E2  0 //1 // TdxExHq_GetInstrumentCount
 #define E3  1 //1 // TdxExHq_GetInstrumentInfo
 //#define E4  1 //1 // TdxExHq_GetInstrumentQuote
 #define E5  1 //1 // TdxExHq_GetInstrumentBars
 #define E6  0 //1 // TdxExHq_GetMinuteTimeData
 #define E7  1 // TdxExHq_GetHistoryMinuteTimeData
-#define E8  1 // TdxExHq_GetTransactionData
-#define E9  1 // TdxExHq_GetHistoryTransactionData
+//#define E8  1 // TdxExHq_GetTransactionData
+//#define E9  1 // TdxExHq_GetHistoryTransactionData
 
 int test_exhq_batch_funcs(const char *pszHqSvrIP, short nPort)
 {
@@ -160,7 +160,7 @@ int test_exhq_batch_funcs(const char *pszHqSvrIP, short nPort)
 #endif
         // 0->5分钟K线    1->15分钟K线    2->30分钟K线  3->1小时K线    4->日K线  5->周K线  6->月K线  7->1分钟  8->1分钟K线  9->日K线  10->季K线  11->年K线
         Count = 400; //500;
-        bool1 = TdxExHq_GetInstrumentBars(nConn, 0, 30, "SC2003", 0, &Count, Result, ErrInfo);
+        bool1 = TdxExHq_GetInstrumentBars(nConn, 0, 30, "SCL9", 0, &Count, Result, ErrInfo);
         if (!bool1)
         {
             cout << ErrInfo << endl;
@@ -169,7 +169,7 @@ int test_exhq_batch_funcs(const char *pszHqSvrIP, short nPort)
 
         cout << Result << endl;
         getchar();
-
+#if 0
         cout << " print day " << endl;
         Count = 400; //500;
         bool1 = TdxExHq_GetInstrumentBars(nConn, 4, 30, "SC2003", 0, &Count, Result, ErrInfo);
@@ -181,6 +181,7 @@ int test_exhq_batch_funcs(const char *pszHqSvrIP, short nPort)
 
         cout << Result << endl;
         getchar();
+#endif
     }
 #endif
 
@@ -204,7 +205,7 @@ int test_exhq_batch_funcs(const char *pszHqSvrIP, short nPort)
     {
         cout << "\n*** TdxExHq_GetHistoryMinuteTimeData\n";
 
-        bool1 = TdxExHq_GetHistoryMinuteTimeData(nConn, 47, "IF1702", 20170113, Result, ErrInfo);
+        bool1 = TdxExHq_GetHistoryMinuteTimeData(nConn, 30, "SCL9", 20170113, Result, ErrInfo);
        // bool1 = TdxExHq_GetHistoryMinuteTimeData(nConn, 1, "600196", 20180113, Result, ErrInfo);
         if (!bool1)
         {

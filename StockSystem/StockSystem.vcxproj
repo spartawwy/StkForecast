@@ -56,7 +56,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(QT_DIR)\include;$(QT_DIR)\include\QtGui;$(QT_DIR)\include\QtANGLE;$(QT_DIR)\include\QtWidgets;$(QT_DIR)\include\QtCore;release;$(QT_DIR)\mkspecs\win32-msvc2012;.\GeneratedFiles;.\include;$(PYTHONPATH)\include;.\trade;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(QT_DIR)\include;$(QT_DIR)\include\QtGui;$(QT_DIR)\include\QtANGLE;$(QT_DIR)\include\QtWidgets;$(QT_DIR)\include\QtCore;release;$(QT_DIR)\mkspecs\win32-msvc2012;.\GeneratedFiles;.\include;$(PYTHONPATH)\include;.\trade;z:\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zm200 -w34100 -w34189 %(AdditionalOptions)</AdditionalOptions>
       <AssemblerListingLocation>release\</AssemblerListingLocation>
       <BrowseInformation>false</BrowseInformation>
@@ -74,8 +74,8 @@
       <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>qtmain.lib;Qt5Gui.lib;Qt5Core.lib;Qt5Widgets.lib;libEGL.lib;libGLESv2.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(QT_DIR)\lib;$(PYTHONPATH)\libs;Z:\lib\win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>qtmain.lib;Qt5Gui.lib;Qt5Core.lib;Qt5Widgets.lib;libEGL.lib;libGLESv2.lib;TLib.lib;TLibTool.lib;SQLite.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(QT_DIR)\lib;$(PYTHONPATH)\libs;Z:\lib\win32;tdxhq;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>"/MANIFESTDEPENDENCY:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' publicKeyToken='6595b64144ccf1df' language='*' processorArchitecture='*'" %(AdditionalOptions)</AdditionalOptions>
       <DataExecutionPrevention>true</DataExecutionPrevention>
       <GenerateDebugInformation>false</GenerateDebugInformation>
@@ -239,7 +239,7 @@
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc%27ing code_list_wall.h...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DWIN32 -D_NDEBUG -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -DQT_OPENGL_ES_2 -DQT_OPENGL_ES_2_ANGLE -D_MBCS  "-I$(QT_DIR)\include" "-I$(QT_DIR)\include\QtGui" "-I$(QT_DIR)\include\QtANGLE" "-I$(QT_DIR)\include\QtWidgets" "-I$(QT_DIR)\include\QtCore" "-I.\release" "-I$(QT_DIR)\mkspecs\win32-msvc2012" "-I.\GeneratedFiles" "-I.\include" "-I$(PYTHONPATH)\include" "-I.\trade"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DWIN32 -D_NDEBUG -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -DQT_OPENGL_ES_2 -DQT_OPENGL_ES_2_ANGLE -D_MBCS  "-I$(QT_DIR)\include" "-I$(QT_DIR)\include\QtGui" "-I$(QT_DIR)\include\QtANGLE" "-I$(QT_DIR)\include\QtWidgets" "-I$(QT_DIR)\include\QtCore" "-I.\release" "-I$(QT_DIR)\mkspecs\win32-msvc2012" "-I.\GeneratedFiles" "-I.\include" "-I$(PYTHONPATH)\include" "-I.\trade" "-Iz:\include"</Command>
     </CustomBuild>
     <ClInclude Include="database.h" />
     <ClInclude Include="exchange_calendar.h" />
@@ -253,7 +253,7 @@
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc%27ing HintList.h...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DWIN32 -D_NDEBUG -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -DQT_OPENGL_ES_2 -DQT_OPENGL_ES_2_ANGLE -D_MBCS  "-I$(QT_DIR)\include" "-I$(QT_DIR)\include\QtGui" "-I$(QT_DIR)\include\QtANGLE" "-I$(QT_DIR)\include\QtWidgets" "-I$(QT_DIR)\include\QtCore" "-I.\release" "-I$(QT_DIR)\mkspecs\win32-msvc2012" "-I.\GeneratedFiles" "-I.\include" "-I$(PYTHONPATH)\include" "-I.\trade"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DWIN32 -D_NDEBUG -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -DQT_OPENGL_ES_2 -DQT_OPENGL_ES_2_ANGLE -D_MBCS  "-I$(QT_DIR)\include" "-I$(QT_DIR)\include\QtGui" "-I$(QT_DIR)\include\QtANGLE" "-I$(QT_DIR)\include\QtWidgets" "-I$(QT_DIR)\include\QtCore" "-I.\release" "-I$(QT_DIR)\mkspecs\win32-msvc2012" "-I.\GeneratedFiles" "-I.\include" "-I$(PYTHONPATH)\include" "-I.\trade" "-Iz:\include"</Command>
     </CustomBuild>
     <ClInclude Include="GeneratedFiles\ui_codelistwall.h" />
     <ClInclude Include="GeneratedFiles\ui_statisticdlg.h" />
@@ -269,7 +269,7 @@
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc%27ing statistic_dlg.h...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DWIN32 -D_NDEBUG -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -DQT_OPENGL_ES_2 -DQT_OPENGL_ES_2_ANGLE -D_MBCS  "-I$(QT_DIR)\include" "-I$(QT_DIR)\include\QtGui" "-I$(QT_DIR)\include\QtANGLE" "-I$(QT_DIR)\include\QtWidgets" "-I$(QT_DIR)\include\QtCore" "-I.\release" "-I$(QT_DIR)\mkspecs\win32-msvc2012" "-I.\GeneratedFiles" "-I.\include" "-I$(PYTHONPATH)\include" "-I.\trade"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DWIN32 -D_NDEBUG -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -DQT_OPENGL_ES_2 -DQT_OPENGL_ES_2_ANGLE -D_MBCS  "-I$(QT_DIR)\include" "-I$(QT_DIR)\include\QtGui" "-I$(QT_DIR)\include\QtANGLE" "-I$(QT_DIR)\include\QtWidgets" "-I$(QT_DIR)\include\QtCore" "-I.\release" "-I$(QT_DIR)\mkspecs\win32-msvc2012" "-I.\GeneratedFiles" "-I.\include" "-I$(PYTHONPATH)\include" "-I.\trade" "-Iz:\include"</Command>
     </CustomBuild>
     <ClInclude Include="stkfo_common.h" />
     <ClInclude Include="tdxhq\ExHqApi.h" />
@@ -285,7 +285,7 @@
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc%27ing train_dlg.h...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DWIN32 -D_NDEBUG -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -DQT_OPENGL_ES_2 -DQT_OPENGL_ES_2_ANGLE -D_MBCS  "-I$(QT_DIR)\include" "-I$(QT_DIR)\include\QtGui" "-I$(QT_DIR)\include\QtANGLE" "-I$(QT_DIR)\include\QtWidgets" "-I$(QT_DIR)\include\QtCore" "-I.\release" "-I$(QT_DIR)\mkspecs\win32-msvc2012" "-I.\GeneratedFiles" "-I.\include" "-I$(PYTHONPATH)\include" "-I.\trade"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DWIN32 -D_NDEBUG -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -DQT_OPENGL_ES_2 -DQT_OPENGL_ES_2_ANGLE -D_MBCS  "-I$(QT_DIR)\include" "-I$(QT_DIR)\include\QtGui" "-I$(QT_DIR)\include\QtANGLE" "-I$(QT_DIR)\include\QtWidgets" "-I$(QT_DIR)\include\QtCore" "-I.\release" "-I$(QT_DIR)\mkspecs\win32-msvc2012" "-I.\GeneratedFiles" "-I.\include" "-I$(PYTHONPATH)\include" "-I.\trade" "-Iz:\include"</Command>
     </CustomBuild>
     <CustomBuild Include="train_trade_dlg.h">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
@@ -295,7 +295,7 @@
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc%27ing train_trade_dlg.h...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DWIN32 -D_NDEBUG -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -DQT_OPENGL_ES_2 -DQT_OPENGL_ES_2_ANGLE -D_MBCS  "-I$(QT_DIR)\include" "-I$(QT_DIR)\include\QtGui" "-I$(QT_DIR)\include\QtANGLE" "-I$(QT_DIR)\include\QtWidgets" "-I$(QT_DIR)\include\QtCore" "-I.\release" "-I$(QT_DIR)\mkspecs\win32-msvc2012" "-I.\GeneratedFiles" "-I.\include" "-I$(PYTHONPATH)\include" "-I.\trade"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DWIN32 -D_NDEBUG -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -DQT_OPENGL_ES_2 -DQT_OPENGL_ES_2_ANGLE -D_MBCS  "-I$(QT_DIR)\include" "-I$(QT_DIR)\include\QtGui" "-I$(QT_DIR)\include\QtANGLE" "-I$(QT_DIR)\include\QtWidgets" "-I$(QT_DIR)\include\QtCore" "-I.\release" "-I$(QT_DIR)\mkspecs\win32-msvc2012" "-I.\GeneratedFiles" "-I.\include" "-I$(PYTHONPATH)\include" "-I.\trade" "-Iz:\include"</Command>
     </CustomBuild>
     <ClInclude Include="tradehq\trade.h" />
     <ClInclude Include="trade_hq_wrapper.h" />
@@ -323,7 +323,7 @@
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc%27ing stockinput_dlg.h...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DWIN32 -D_NDEBUG -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -DQT_OPENGL_ES_2 -DQT_OPENGL_ES_2_ANGLE -D_MBCS  "-I$(QT_DIR)\include" "-I$(QT_DIR)\include\QtGui" "-I$(QT_DIR)\include\QtANGLE" "-I$(QT_DIR)\include\QtWidgets" "-I$(QT_DIR)\include\QtCore" "-I.\release" "-I$(QT_DIR)\mkspecs\win32-msvc2012" "-I.\GeneratedFiles" "-I.\include" "-I$(PYTHONPATH)\include" "-I.\trade"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DWIN32 -D_NDEBUG -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -DQT_OPENGL_ES_2 -DQT_OPENGL_ES_2_ANGLE -D_MBCS  "-I$(QT_DIR)\include" "-I$(QT_DIR)\include\QtGui" "-I$(QT_DIR)\include\QtANGLE" "-I$(QT_DIR)\include\QtWidgets" "-I$(QT_DIR)\include\QtCore" "-I.\release" "-I$(QT_DIR)\mkspecs\win32-msvc2012" "-I.\GeneratedFiles" "-I.\include" "-I$(PYTHONPATH)\include" "-I.\trade" "-Iz:\include"</Command>
     </CustomBuild>
     <ClInclude Include="stock_man.h" />
     <CustomBuild Include="tool_bar.h">
@@ -334,7 +334,7 @@
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc%27ing tool_bar.h...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DWIN32 -D_NDEBUG -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -DQT_OPENGL_ES_2 -DQT_OPENGL_ES_2_ANGLE -D_MBCS  "-I$(QT_DIR)\include" "-I$(QT_DIR)\include\QtGui" "-I$(QT_DIR)\include\QtANGLE" "-I$(QT_DIR)\include\QtWidgets" "-I$(QT_DIR)\include\QtCore" "-I.\release" "-I$(QT_DIR)\mkspecs\win32-msvc2012" "-I.\GeneratedFiles" "-I.\include" "-I$(PYTHONPATH)\include" "-I.\trade"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DWIN32 -D_NDEBUG -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -DQT_OPENGL_ES_2 -DQT_OPENGL_ES_2_ANGLE -D_MBCS  "-I$(QT_DIR)\include" "-I$(QT_DIR)\include\QtGui" "-I$(QT_DIR)\include\QtANGLE" "-I$(QT_DIR)\include\QtWidgets" "-I$(QT_DIR)\include\QtCore" "-I.\release" "-I$(QT_DIR)\mkspecs\win32-msvc2012" "-I.\GeneratedFiles" "-I.\include" "-I$(PYTHONPATH)\include" "-I.\trade" "-Iz:\include"</Command>
     </CustomBuild>
     <CustomBuild Include="title_bar.h">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath);$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
@@ -344,10 +344,10 @@
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath);$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc%27ing title_bar.h...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DWIN32 -D_NDEBUG -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -DQT_OPENGL_ES_2 -DQT_OPENGL_ES_2_ANGLE -D_MBCS  "-I$(QT_DIR)\include" "-I$(QT_DIR)\include\QtGui" "-I$(QT_DIR)\include\QtANGLE" "-I$(QT_DIR)\include\QtWidgets" "-I$(QT_DIR)\include\QtCore" "-I.\release" "-I$(QT_DIR)\mkspecs\win32-msvc2012" "-I.\GeneratedFiles" "-I.\include" "-I$(PYTHONPATH)\include" "-I.\trade"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DWIN32 -D_NDEBUG -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -DQT_OPENGL_ES_2 -DQT_OPENGL_ES_2_ANGLE -D_MBCS  "-I$(QT_DIR)\include" "-I$(QT_DIR)\include\QtGui" "-I$(QT_DIR)\include\QtANGLE" "-I$(QT_DIR)\include\QtWidgets" "-I$(QT_DIR)\include\QtCore" "-I.\release" "-I$(QT_DIR)\mkspecs\win32-msvc2012" "-I.\GeneratedFiles" "-I.\include" "-I$(PYTHONPATH)\include" "-I.\trade" "-Iz:\include"</Command>
     </CustomBuild>
     <CustomBuild Include="mainwindow.h">
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DWIN32 -D_NDEBUG -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -DQT_OPENGL_ES_2 -DQT_OPENGL_ES_2_ANGLE -D_MBCS  "-I$(QT_DIR)\include" "-I$(QT_DIR)\include\QtGui" "-I$(QT_DIR)\include\QtANGLE" "-I$(QT_DIR)\include\QtWidgets" "-I$(QT_DIR)\include\QtCore" "-I.\release" "-I$(QT_DIR)\mkspecs\win32-msvc2012" "-I.\GeneratedFiles" "-I.\include" "-I$(PYTHONPATH)\include" "-I.\trade"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DWIN32 -D_NDEBUG -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -DQT_OPENGL_ES_2 -DQT_OPENGL_ES_2_ANGLE -D_MBCS  "-I$(QT_DIR)\include" "-I$(QT_DIR)\include\QtGui" "-I$(QT_DIR)\include\QtANGLE" "-I$(QT_DIR)\include\QtWidgets" "-I$(QT_DIR)\include\QtCore" "-I.\release" "-I$(QT_DIR)\mkspecs\win32-msvc2012" "-I.\GeneratedFiles" "-I.\include" "-I$(PYTHONPATH)\include" "-I.\trade" "-Iz:\include"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc%27ing mainwindow.h...</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DWIN32 -DQT_GUI_LIB -DQT_CORE_LIB -DQT_OPENGL_ES_2 -DQT_OPENGL_ES_2_ANGLE -D_MBCS  "-I$(QT_DIR)\include" "-I$(QT_DIR)\include\QtGui" "-I$(QT_DIR)\include\QtANGLE" "-I$(QT_DIR)\include\QtCore" "-I$(QT_DIR)\include\QtWidgets" "-I$(QT_DIR)\mkspecs\win32-msvc2012" "-I.\GeneratedFiles" "-I.\include" "-I$(PYTHONPATH)\include" "-Iz:\include" "-I.\trade"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc%27ing mainwindow.h...</Message>
@@ -368,7 +368,7 @@
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc%27ing kline_wall.h...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DWIN32 -D_NDEBUG -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -DQT_OPENGL_ES_2 -DQT_OPENGL_ES_2_ANGLE -D_MBCS  "-I$(QT_DIR)\include" "-I$(QT_DIR)\include\QtGui" "-I$(QT_DIR)\include\QtANGLE" "-I$(QT_DIR)\include\QtWidgets" "-I$(QT_DIR)\include\QtCore" "-I.\release" "-I$(QT_DIR)\mkspecs\win32-msvc2012" "-I.\GeneratedFiles" "-I.\include" "-I$(PYTHONPATH)\include" "-I.\trade"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DWIN32 -D_NDEBUG -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -DQT_OPENGL_ES_2 -DQT_OPENGL_ES_2_ANGLE -D_MBCS  "-I$(QT_DIR)\include" "-I$(QT_DIR)\include\QtGui" "-I$(QT_DIR)\include\QtANGLE" "-I$(QT_DIR)\include\QtWidgets" "-I$(QT_DIR)\include\QtCore" "-I.\release" "-I$(QT_DIR)\mkspecs\win32-msvc2012" "-I.\GeneratedFiles" "-I.\include" "-I$(PYTHONPATH)\include" "-I.\trade" "-Iz:\include"</Command>
     </CustomBuild>
     <ClInclude Include="stock_data_man.h" />
     <ClInclude Include="stockdayinfo.h" />

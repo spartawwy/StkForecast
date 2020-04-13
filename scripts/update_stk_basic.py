@@ -150,6 +150,7 @@ class STOCKBASIC:
                        , ('880902', '特斯拉', 'TSLZS')
                        , ('880951', '新能源汽车', 'XNYQC')
                        , ('880794', '远程办公', 'YCBG')
+                       , ('880795', '口罩防护', 'KZFH')
                        ]
         for i in range(0, len(index_array)):
             sql = "INSERT OR REPLACE INTO stock VALUES(?, ?, ?, ?, 0, '', '', '')"
