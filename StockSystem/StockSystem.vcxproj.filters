@@ -216,6 +216,15 @@
     <ClCompile Include="trade_hq_wrapper.cpp">
       <Filter>moudle\trade</Filter>
     </ClCompile>
+    <ClCompile Include="minute_detail_wall.cpp">
+      <Filter>win</Filter>
+    </ClCompile>
+    <ClCompile Include="Debug\moc_minute_detail_wall.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Release\moc_minute_detail_wall.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="klinewall.ui">
@@ -264,6 +273,9 @@
       <Filter>Form Files</Filter>
     </CustomBuild>
     <CustomBuild Include="train_trade_dlg.h">
+      <Filter>win</Filter>
+    </CustomBuild>
+    <CustomBuild Include="minute_detail_wall.h">
       <Filter>win</Filter>
     </CustomBuild>
   </ItemGroup>
