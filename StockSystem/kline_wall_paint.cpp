@@ -79,6 +79,7 @@ KLineWall::KLineWall(StkForecastApp *app, QWidget *parent, int index, TypePeriod
     pal.setColor(QPalette::Background, Qt::black);
     this->setAutoFillBackground(true);
     this->setPalette(pal);
+
     setMouseTracking(true);
     
     zb_windows_.push_back( std::move(std::make_shared<MomentumZhibiaoWin>(this)) );
@@ -609,7 +610,7 @@ void KLineWall::mousePressEvent(QMouseEvent * event )
         data_3p.hhmm_b = item_b.stk_item.hhmmss; 
         kwall->forcast_man_.Append(kwall->k_type_, kwall->stock_code_, is_down, data_3p);
     };
-    //qDebug() << "paintEvent QCursor::pos  x:" << QCursor::pos().x() << " y: "<< QCursor::pos().y() << "\n"; 
+    //qDebug() << " QCursor::pos  x:" << QCursor::pos().x() << " y: "<< QCursor::pos().y() << "\n"; 
 #ifdef STK_INPUT_KWALL
 	if( stock_input_dlg_.isVisible() )
 		stock_input_dlg_.hide();
@@ -1011,8 +1012,8 @@ void KLineWall::paintEvent(QPaintEvent*)
             brush.setColor(QColor(255,0,0));
         }else
         { 
-            pen.setColor(QColor(0,255,0)); 
-            brush.setColor(QColor(0,255,0));
+            pen.setColor(Qt::darkGreen); 
+            brush.setColor(Qt::darkGreen);
         }
         painter.setPen(pen);  
         painter.setBrush(brush);   
