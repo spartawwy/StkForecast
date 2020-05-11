@@ -749,7 +749,7 @@ void KLineWall::mousePressEvent(QMouseEvent * event )
         }
         auto item_c = GetKLineDataItemByXpos(event->pos().x());
         if( !item_c || item_c->stk_item.date < item_b->stk_item.date 
-            || (item_c->stk_item.date == item_b->stk_item.date && item_c->stk_item.hhmmss <= item_b->stk_item.hhmmss) )
+            || (item_c->stk_item.date == item_b->stk_item.date && item_c->stk_item.hhmmss < item_b->stk_item.hhmmss) )
         {   // todo: show warning msg
             return;
         }
@@ -1112,8 +1112,8 @@ void KLineWall::paintEvent(QPaintEvent*)
 
             // horizental line -----
             painter.setPen(lit_border_pen);
-            painter.drawLine(0, 0, mm_w, 0);
- 
+            painter.drawLine(0, 0, mm_w, 0); // zibiao bottom line 
+            painter.drawLine(0, -1*zb_h, mm_w, -1*zb_h); // zibiao head line 
             zb_windows_[i]->DrawWindow(painter, mm_w);
         }
     }
