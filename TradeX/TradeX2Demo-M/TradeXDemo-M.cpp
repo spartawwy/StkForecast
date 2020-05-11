@@ -66,7 +66,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
     //
     //
-    if (1)
+    if (0)
     {
         cout << "测试行情API, 按回车键继续...\n" << std::endl;
         //test_hq_batch_funcs("14.17.75.71", 7709);  

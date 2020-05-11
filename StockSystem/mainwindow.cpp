@@ -24,7 +24,6 @@
 #include "title_bar.h"
 #include "tool_bar.h"
 #include "code_list_wall.h"
-#include "minute_detail_wall.h"
 #include "train_dlg.h"
 
 #define MAKE_SUB_WALL 
@@ -44,13 +43,11 @@ MainWindow::MainWindow(StkForecastApp *app, QWidget *parent) :
     , kline_wall_main(nullptr)
     , kline_wall_sub(nullptr)
     , code_list_wall_(nullptr)
-    , minute_detail_wall_(nullptr)
     , cur_kline_index_(WallIndex::MAIN)
     , stock_input_dlg_(this, app->data_base())
     , timer_update_kwall_inter_(0)
     , train_dlg_(nullptr)
     , is_train_mode_(false)
-    , wall_type_(WallType::KLINE)
 {
     ui->setupUi(this); 
 }
@@ -122,17 +119,11 @@ bool MainWindow::Initialize()
     code_list_wall_ = new CodeListWall(app_, this);
     code_list_wall_->Init();
 
-    minute_detail_wall_ = new MinuteDetailWall(app_, this);
-    minute_detail_wall_->Init();
-
     layout_all->addWidget(tool_bar_);  
     layout_all->addLayout(view_layout);  
     layout_all->addWidget(code_list_wall_);  
-    
-    layout_all->addWidget(minute_detail_wall_);  
 
     code_list_wall_->hide();
-    minute_detail_wall_->hide();
 
     wd->setLayout(layout_all);  
     this->setCentralWidget(wd);  
@@ -171,29 +162,18 @@ void MainWindow::SetCurKlineWallIndex(WallIndex index)
 
 void MainWindow::SetMainView(WallType wall_type)
 {
-    auto hide_all_wall = [this]()
-    {
-        kline_wall_main->hide();
-        if( kline_wall_sub )
-            kline_wall_sub->hide();
-        code_list_wall_->hide();
-        minute_detail_wall_->hide();
-    };
-
-    hide_all_wall();
+    kline_wall_main->hide();
     switch(wall_type)
     {    
-    case WallType::KLINE:  
-        wall_type_ = WallType::KLINE;
+    case WallType::KLINE: 
+        code_list_wall_->hide();
+        if( kline_wall_sub )
+            kline_wall_sub->hide();
         kline_wall_main->show(); 
         break;
-    case WallType::CODE_LIST:
-        wall_type_ = WallType::CODE_LIST;
+    case WallType::CODE_LIST: 
+        kline_wall_main->hide();
         code_list_wall_->show(); 
-        break;
-    case WallType::MINUTE_DETAIL:
-        wall_type_ = WallType::MINUTE_DETAIL;
-        minute_detail_wall_->show();
         break;
     default:break;
     }
@@ -354,16 +334,15 @@ void MainWindow::keyPressEvent(QKeyEvent *e)
         } break;
         case Qt::Key_F5:
         {
-            if( wall_type_ == WallType::KLINE )
-            {
-                SetMainView(WallType::MINUTE_DETAIL);
-            }
-            else
-                SetMainView(WallType::KLINE);
+            kline_wall_main->show();
+            code_list_wall_->hide();
         } break;
         case Qt::Key_F6:
         {
-            SetMainView(WallType::CODE_LIST); 
+            kline_wall_main->hide();
+            if( kline_wall_sub )
+                kline_wall_sub->hide();
+            code_list_wall_->show();
         } break;
         case Qt::Key_0: case Qt::Key_1: case Qt::Key_2: case Qt::Key_3: case Qt::Key_4:  
         case Qt::Key_5: case Qt::Key_6: case Qt::Key_7: case Qt::Key_8: case Qt::Key_9: 

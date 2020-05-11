@@ -23,7 +23,6 @@ namespace Ui
 enum class WallType : unsigned char
 {
     KLINE,
-    MINUTE_DETAIL,
     CODE_LIST,
 };
 
@@ -33,7 +32,6 @@ class TitleBar;
 class ToolBar;
 class KLineWall;
 class CodeListWall;
-class MinuteDetailWall;
 class MainWindow : public QMainWindow 
 {
     Q_OBJECT
@@ -99,7 +97,6 @@ private:
     KLineWall      *kline_wall_main;
     KLineWall      *kline_wall_sub;
     CodeListWall   *code_list_wall_;
-    MinuteDetailWall   *minute_detail_wall_;
     //DayKLineDialog *dayKLineDialog;
     WallIndex cur_kline_index_;
 
@@ -107,8 +104,6 @@ private:
 
     TrainDlg *train_dlg_;
     volatile bool  is_train_mode_;
-
-    WallType wall_type_;
 
 private slots:
 

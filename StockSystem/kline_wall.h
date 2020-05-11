@@ -73,10 +73,6 @@ public:
     void ShowDurationKlines(int date);
 
     void UpdateIfNecessary();
-    //--------------------
-    std::string    stock_code() { return stock_code_; }
-    std::string    stock_name() { return stock_name_; }
-    bool           is_index() { return is_index_; }
     // train mode --------
     void SetTrainStartDate(int date);
     void MoveRightEndToNextDayK();

@@ -8,16 +8,11 @@
 
 using namespace std;
 
-#define MARKET_SH  1
-#define MARKET_SZ  0
-
 //#define F1  1 // TdxHq_GetSecurityCount
 //#define F2  1 // TdxHq_GetSecurityList
-#define F3  1 // TdxHq_GetMinuteTimeData
-
-//#define F4  1 // TdxHq_GetSecurityBars
-
-#define F5  1 // TdxHq_GetHistoryMinuteTimeData
+//#define F3  1 // TdxHq_GetMinuteTimeData
+#define F4  1 // TdxHq_GetSecurityBars
+//#define F5  1 // TdxHq_GetHistoryMinuteTimeData
 #define F6  1 // TdxHq_GetIndexBars
 //#define F7  1 // TdxHq_GetTransactionData
 //#define F8  1 // TdxHq_GetHistoryTransactionData
@@ -82,9 +77,8 @@ int test_hq_batch_funcs(const char *pszHqSvrIP, short nPort)
 #if F3
     cout << "\n*** TdxHq_GetMinuteTimeData\n";
 
-
     //获取分时图数据
-    bool1 = TdxHq_GetMinuteTimeData(nConn, MARKET_SH, "600196",  m_szResult, m_szErrInfo); // 000001
+    bool1 = TdxHq_GetMinuteTimeData(nConn, 0, "000001",  m_szResult, m_szErrInfo);
     if (!bool1)
     {
         cout << m_szErrInfo << endl;
@@ -162,11 +156,11 @@ int test_hq_batch_funcs(const char *pszHqSvrIP, short nPort)
     getchar();
 #endif
 
-#if F5 
+#if F5
     cout << "\n*** TdxHq_GetHistoryMinuteTimeData\n";
 
     //获取历史分时图数据
-    bool1 = TdxHq_GetHistoryMinuteTimeData(nConn, MARKET_SH, "600196", 20200508, m_szResult, m_szErrInfo);
+    bool1 = TdxHq_GetHistoryMinuteTimeData(nConn, 1, "600196", 20140904, m_szResult, m_szErrInfo);
     //bool1 = TdxHq_GetHistoryMinuteTimeData(nConn, 0, "000001", 20140904, m_szResult, m_szErrInfo);
     if (!bool1)
     {
